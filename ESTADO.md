@@ -5,7 +5,7 @@ Actualizado: 2026-10-27. Rama: `main`.
 ## Qué hay (v1)
 
 - `install.sh` idempotente con `--check` (en host sin desplegar el drift es total; ref. VM CachyOS: CHECK ROJO con 64 oficiales + 5 AUR + 111 dotfiles + 12 binarios FALTA).
-- 106 paquetes oficiales + 5 AUR, dotfiles 1:1 con NimbusOS (cero drift salvo excepciones documentadas en README).
+- 105 paquetes oficiales + 6 AUR, dotfiles 1:1 con NimbusOS (cero drift salvo excepciones documentadas en README).
 - Sesión Hyprland Lua canónica, hyprbars nativo, no_bar pamac/nautilus/firefox/MacShell (solo sesión Lua; fallback `.conf` con doble barra documentada), verde=maximizar, Spaces, Launchpad, switcher unificado.
 
 ## Objetivo
