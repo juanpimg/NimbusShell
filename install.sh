@@ -79,7 +79,7 @@ if [ "$CHECK" = "1" ]; then
         dst="$HOME/$rel"
         if [ ! -e "$dst" ]; then fail "falta en HOME: $rel";
         elif ! cmp -s "$src" "$dst"; then fail "difiere de HOME: $rel"; fi
-    done < <(find "$DOTFILES" -type f | sort)
+    done < <(find "$DOTFILES" \( -type f -o -type l \) | sort)
     [ "$FAIL" = "0" ] && ok "dotfiles 1:1 con el repo"
 
     echo "-- fondo de pantalla:"
@@ -213,7 +213,7 @@ while IFS= read -r src; do
     else
         n_same=$((n_same + 1))
     fi
-done < <(find "$DOTFILES" -type f | sort)
+done < <(find "$DOTFILES" \( -type f -o -type l \) | sort)
 echo "    nuevos=$n_new actualizados=$n_upd (backup en $BACKUP) identicos=$n_same"
 # Solo quitar el dir si quedo vacio (rmdir, no rm -rf): si otro run creo un
 # backup con el mismo timestamp (mismo segundo), su contenido se conserva.
@@ -315,7 +315,7 @@ done
 while IFS= read -r src; do
     rel="${src#$DOTFILES/}"
     cmp -s "$src" "$HOME/$rel" || { echo "    [FALTA] dotfile sin desplegar: $rel" >&2; VFAIL=1; }
-done < <(find "$DOTFILES" -type f | sort)
+done < <(find "$DOTFILES" \( -type f -o -type l \) | sort)
 if [ -f "$WALLPAPER_DST" ] && cmp -s "$WALLPAPER_SRC" "$WALLPAPER_DST"; then
     echo "    [OK] fondo"
 else echo "    [FALTA] fondo $WALLPAPER_DST ausente o distinto" >&2; VFAIL=1; fi
