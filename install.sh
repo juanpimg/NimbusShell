@@ -119,6 +119,7 @@ if [ "$CHECK" = "1" ]; then
     echo "-- config Hyprland (HOME temporal):"
     if command -v hyprland >/dev/null 2>&1 && { [ -f "$HOME/.config/hypr/hyprland.lua" ] || [ -f "$HOME/.config/hypr/hyprland.conf" ]; }; then
         tmpcheck="$(mktemp -d)" || { echo "ERROR: sin temporal (TMPDIR lleno)" >&2; exit 1; }
+        trap 'rm -rf "${tmpcheck:-}" 2>/dev/null' INT TERM
         ln -s "$HOME/.config" "$tmpcheck/.config" || { echo "ERROR: sin enlace temporal (disco lleno)" >&2; rm -rf "$tmpcheck"; exit 1; }
         if HOME="$tmpcheck" hyprland --verify-config >/dev/null 2>&1; then ok "hyprland --verify-config";
         else fail "hyprland --verify-config falla (o SKIP si pide plugin .so sin cargar: ver README)"; fi
@@ -246,14 +247,16 @@ if command -v ffmpeg >/dev/null 2>&1; then
     SOUNDS="$HOME/.local/share/sounds/macshell"
     FDO="/usr/share/sounds/freedesktop/stereo"
     snd_fail=0
-    mkdir -p "$SOUNDS" 2>/dev/null || { echo "    AVISO: sin dir de sonidos" >&2; snd_fail=5; }
+    mkdir -p "$SOUNDS" 2>/dev/null || { echo "    AVISO: sin dir de sonidos" >&2; snd_fail=1; }
+    if [ -d "$SOUNDS" ]; then
     for m in "pop:audio-volume-change" "charge:power-plug" "shutter:camera-shutter" "glass:dialog-information" "tink:bell"; do
         n="${m%%:*}"; src="$FDO/${m#*:}.oga"
         if [ ! -s "$SOUNDS/$n.wav" ]; then
             ffmpeg -y -v error -i "$src" "$SOUNDS/$n.wav" >/dev/null 2>&1 \
-                || { echo "    AVISO: sin sonido $n (falta $src)" >&2; snd_fail=$((snd_fail + 1)); }
+                || { echo "    AVISO: sin sonido $n (falta $src)" >&2; snd_fail=1; }
         fi
     done
+    fi
     [ "$snd_fail" = "0" ] && echo "    sonidos UI listos (pop/charge/shutter/glass/tink)"
 else
     echo "    AVISO: sin ffmpeg, salto sonidos UI" >&2
