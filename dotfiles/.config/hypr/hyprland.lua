@@ -42,6 +42,7 @@ hl.monitor({
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("QT_QPA_PLATFORM", "wayland")
+hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
 -- Task menu-tienda: el modulo GTK exporta el menu por D-Bus (com.canonical.AppMenu).
 hl.env("GTK_MODULES", "appmenu-gtk-module")
 hl.env("QS_ICON_THEME", "WhiteSur")
