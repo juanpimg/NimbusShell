@@ -104,7 +104,7 @@ Scope {
     FileView {
         path: root.home + "/.config/macshell/components.json"
         printErrors: false
-        onLoaded: { try { var o = JSON.parse(text()); if (o.clockEnabled !== undefined) { root.manualVal = !!o.clockEnabled; root.manualOverride = true; } } catch (e) {} }
+        onLoaded: { try { var o = JSON.parse(text()); if (o.clockEnabled !== undefined) { root.manualVal = !!o.clockEnabled; root.manualOverride = true; } else { root.manualOverride = false; } } catch (e) {} }
     }
     Timer { id: saveLater; interval: 150; onTriggered: root.saveNow() }
     function save() { if (loaded) saveLater.restart(); }

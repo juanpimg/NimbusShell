@@ -658,7 +658,7 @@ var strings = {
     "Enter your password to unlock": "Введите пароль для разблокировки",
     "Reset to default": "Сбросить по умолчанию",
     "Automatic scaling": "Автоматическое масштабирование",
-    "Shrinks the menu bar, its menus, Spotlight, Control Center and the Settings / About windows on screens smaller than 1920×1080": "Уменьшает строку меню, её меню, Spotlight, Центр управления и окна настроек / About на экранах меньше 1920×1080",
+    "Shrinks the menu bar, its menus, Spotlight, Control Center and the Settings / About windows on screens smaller than 1920×1080": "Уменьшает строку меню, её меню, Spotlight, Центр управления и окна настроек / «О системе» на экранах меньше 1920×1080",
     "UI scale": "Масштаб интерфейса",
     "Your own multiplier, applied on top of automatic scaling (": "Свой множитель, поверх автомасштабирования (",
     "Smaller": "Меньше",
