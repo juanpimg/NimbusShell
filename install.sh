@@ -179,6 +179,7 @@ echo "    paru OK"
 
 # --- 3. Paquetes AUR (paru, como usuario) -------------------------------------
 echo "-- [3/8] paquetes AUR (paru, como $(whoami))..."
+echo "    (paru puede pedirte revisar PKGBUILD o importar claves UNA vez; no se salta a proposito)"
 # shellcheck disable=SC2046
 paru -S --needed --noconfirm $(read_list "$AUR_LIST") \
     || { echo "ERROR: fallo paru AUR." >&2; exit 1; }
