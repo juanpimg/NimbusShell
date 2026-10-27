@@ -112,7 +112,7 @@ if [ "$CHECK" = "1" ]; then
     echo "-- coherencia QS_ICON_THEME (hyprland.conf + hyprland.lua vs macshell/env):"
     q1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
     q1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
-    q2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
+    q2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || true)"
     if [ -n "${q1:-}" ] && [ "${q1:-}" = "${q2:-}" ] && { [ -z "${q1lua:-}" ] || [ "${q1lua:-}" = "${q2:-}" ]; }; then ok "QS_ICON_THEME=$q1 en todos";
     else fail "QS_ICON_THEME difiere (conf='$q1' lua='$q1lua' env='$q2')"; fi
 
@@ -324,7 +324,7 @@ if [ -f "$BRANDING_DST" ] && cmp -s "$BRANDING_SRC" "$BRANDING_DST"; then
 else echo "    [FALTA] logo $BRANDING_DST ausente o distinto" >&2; VFAIL=1; fi
 v1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
 v1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
-v2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
+v2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || true)"
 if [ -n "${v1:-}" ] && [ "${v1:-}" = "${v2:-}" ] && { [ -z "${v1lua:-}" ] || [ "${v1lua:-}" = "${v2:-}" ]; }; then
     echo "    [OK] QS_ICON_THEME=$v1"
 else echo "    [FALTA] QS_ICON_THEME (conf='$v1' lua='$v1lua' env='$v2')" >&2; VFAIL=1; fi
