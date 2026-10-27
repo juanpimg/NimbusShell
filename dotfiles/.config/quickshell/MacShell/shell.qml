@@ -310,7 +310,9 @@ ShellRoot {
     MacBar { id: macBar; hub: sharedHub }
     MacDock { id: macDock; hub: sharedHub; bar: macBar }
     MacWidgets { id: macWidgets; hub: sharedHub }
-    ClockApp { id: clockApp; hub: sharedHub }
+    // NimbusOS Ruling: el ajuste clockAppEnabled (Settings) gobierna la app;
+    // components.json manual con clockEnabled sigue ganando si existe.
+    ClockApp { id: clockApp; hub: sharedHub; appEnabled: macBar.clockAppEnabled }
     AboutApp { id: aboutApp; hub: sharedHub }
 
     Component.onCompleted: {
