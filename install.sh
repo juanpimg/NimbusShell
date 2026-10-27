@@ -34,7 +34,9 @@ ok()    { echo "  [OK] $1"; }
 info()  { echo "$1"; }
 
 read_list() { # $1=fichero -> stdout: paquetes (sin comentarios ni vacias)
-    grep -v '^[[:space:]]*#' "$1" | grep -v '^[[:space:]]*$' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
+    # Corta comentarios inline (#...), quita CR (edits CRLF), recorta
+    # espacios y elimina vacias. Un paquete por linea, sin espacios internos.
+    sed 's/#.*//; s/\r//g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$1" | grep -v '^[[:space:]]*$'
 }
 
 # --- 0. Precondiciones (ambos modos) ------------------------------------------
