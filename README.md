@@ -25,7 +25,7 @@ Detalles: instala 91 paquetes oficiales vía pacman, 5 AUR vía paru (lo instala
 
 ## `--check`
 
-Solo lectura: no instala, no escribe, no pide sudo. Informa qué paquetes faltan, qué dotfiles cambiarían y si los servicios están habilitados. Exit `0` = sistema convergido, exit `1` = hay drift. Úsalo antes de instalar y para auditar después.
+Solo lectura: no instala, no escribe, no pide sudo. Informa qué paquetes faltan, qué dotfiles cambiarían, si los binarios/scripts/sonidos/fondo/logo están en su sitio, si el tema de iconos coincide en las 3 configs y si los servicios están habilitados. Exit `0` = sistema convergido, exit `1` = hay drift. Úsalo antes de instalar y para auditar después.
 
 ## Desinstalación / restaurar backup
 
