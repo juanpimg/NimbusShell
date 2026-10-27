@@ -50,7 +50,7 @@ if ! command -v pacman >/dev/null 2>&1; then
     echo "ERROR: sin pacman: esto no parece Arch Linux (NimbusShell solo cubre Arch y derivados)." >&2
     exit 2
 fi
-for f in "$OFFICIAL_LIST" "$AUR_LIST"; do
+for f in "$OFFICIAL_LIST" "$AUR_LIST" "$WALLPAPER_SRC" "$BRANDING_SRC"; do
     [ -f "$f" ] || { echo "ERROR: falta $f (repo incompleto)" >&2; exit 2; }
 done
 [ -d "$DOTFILES" ] || { echo "ERROR: falta $DOTFILES" >&2; exit 2; }
