@@ -86,6 +86,8 @@ if [ "$CHECK" = "1" ]; then
     for c in hyprland qs kitty swaybg udiskie flatpak brightnessctl; do
         command -v "$c" >/dev/null 2>&1 && ok "$c" || fail "comando ausente: $c"
     done
+    [ -x "$HOME/.local/bin/macshell" ] && ok ".local/bin/macshell" \
+        || fail ".local/bin/macshell ausente o sin +x (autostart exec-once)"
     [ -x "$HOME/.local/bin/macshell-start" ] && ok ".local/bin/macshell-start" \
         || fail ".local/bin/macshell-start ausente o sin +x"
     [ -x "$HOME/.local/bin/nimbus-minimize-toggle" ] && ok ".local/bin/nimbus-minimize-toggle" \
@@ -93,11 +95,12 @@ if [ "$CHECK" = "1" ]; then
     [ -x "$HOME/.local/bin/nimbus-screenshot" ] && ok ".local/bin/nimbus-screenshot" \
         || fail ".local/bin/nimbus-screenshot ausente o sin +x (binds SUPER+SHIFT+3/4/5)"
 
-    echo "-- coherencia QS_ICON_THEME (hyprland.conf vs macshell/env):"
+    echo "-- coherencia QS_ICON_THEME (hyprland.conf + hyprland.lua vs macshell/env):"
     q1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//' || true)"
+    q1lua="$(grep -h 'QS_ICON_THEME' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
     q2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
-    if [ -n "${q1:-}" ] && [ "${q1:-}" = "${q2:-}" ]; then ok "QS_ICON_THEME=$q1 en ambos";
-    else fail "QS_ICON_THEME difiere (hypr='$q1' env='$q2')"; fi
+    if [ -n "${q1:-}" ] && [ "${q1:-}" = "${q2:-}" ] && { [ -z "${q1lua:-}" ] || [ "${q1lua:-}" = "${q2:-}" ]; }; then ok "QS_ICON_THEME=$q1 en todos";
+    else fail "QS_ICON_THEME difiere (conf='$q1' lua='$q1lua' env='$q2')"; fi
 
     echo "-- config Hyprland (HOME temporal):"
     if command -v hyprland >/dev/null 2>&1 && { [ -f "$HOME/.config/hypr/hyprland.lua" ] || [ -f "$HOME/.config/hypr/hyprland.conf" ]; }; then
@@ -242,10 +245,10 @@ fi
 # --- 8. Verificacion ----------------------------------------------------------
 echo "-- [8/8] verificacion..."
 VFAIL=0
-for c in hyprland qs kitty swaybg udiskie paru; do
+for c in hyprland qs kitty swaybg udiskie flatpak brightnessctl paru; do
     command -v "$c" >/dev/null 2>&1 && echo "    [OK] $c" || { echo "    [FALTA] $c" >&2; VFAIL=1; }
 done
-for b in macshell-start nimbus-minimize-toggle nimbus-screenshot; do
+for b in macshell macshell-start nimbus-minimize-toggle nimbus-screenshot; do
     [ -x "$HOME/.local/bin/$b" ] && echo "    [OK] .local/bin/$b" || { echo "    [FALTA] .local/bin/$b" >&2; VFAIL=1; }
 done
 if command -v hyprland >/dev/null 2>&1; then
