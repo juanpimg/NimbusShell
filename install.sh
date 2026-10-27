@@ -178,12 +178,19 @@ while IFS= read -r src; do
     rel="${src#$DOTFILES/}"
     dst="$HOME/$rel"
     if [ ! -e "$dst" ]; then
-        mkdir -p "$(dirname "$dst")"
-        cp -a "$src" "$dst"; n_new=$((n_new + 1))
+        mkdir -p "$(dirname "$dst")" \
+            || { echo "ERROR: no se pudo crear $(dirname "$dst") (revisa permisos/disco)" >&2; exit 1; }
+        cp -a "$src" "$dst" \
+            || { echo "ERROR: no se pudo copiar $rel a tu HOME (revisa permisos/disco)" >&2; exit 1; }
+        n_new=$((n_new + 1))
     elif ! cmp -s "$src" "$dst"; then
-        mkdir -p "$BACKUP/$(dirname "$rel")"
-        cp -a "$dst" "$BACKUP/$rel"
-        cp -a "$src" "$dst"; n_upd=$((n_upd + 1))
+        mkdir -p "$BACKUP/$(dirname "$rel")" \
+            || { echo "ERROR: no se pudo crear el backup en $BACKUP (revisa permisos/disco)" >&2; exit 1; }
+        cp -a "$dst" "$BACKUP/$rel" \
+            || { echo "ERROR: no se pudo respaldar $rel (revisa permisos/disco)" >&2; exit 1; }
+        cp -a "$src" "$dst" \
+            || { echo "ERROR: no se pudo actualizar $rel (tu original sigue en $BACKUP/$rel)" >&2; exit 1; }
+        n_upd=$((n_upd + 1))
     else
         n_same=$((n_same + 1))
     fi
