@@ -32,7 +32,8 @@ y libre (Inter, logo N, Sequoia NPS).
    primero y genera hacia allí.
 2. **Excepciones documentadas, no silenciosas:** `diff -rq` entre `dotfiles/` y
    el skel de NimbusOS debe dar cero salvo la lista del README (launcher ISO,
-   wrappers a `.local/bin`, fondo en `assets/`). Toda divergencia nueva exige
+   wrappers `macshell*`/`nimbus-*` en `.local/bin`, fondo y logo en `assets/`
+   — R1-R5 del README). Toda divergencia nueva exige
    Ruling de 1 línea en el README.
 3. **QML MacShell vendoreado intacto** (filosofía anti-fork): no reescribir
    upstream; parches mínimos documentados como `NimbusOS Ruling` con propuesta

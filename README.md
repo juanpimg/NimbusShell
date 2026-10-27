@@ -21,11 +21,11 @@ git clone https://github.com/juanpimg/NimbusShell.git && cd NimbusShell
 # paso 3: cierra sesión y entra en Hyprland (tu DM o `Hyprland` desde TTY)
 ```
 
-Detalles: instala 91 paquetes oficiales vía pacman, 5 AUR vía paru (lo instala o compila si falta, **nunca como root**), despliega `dotfiles/` a `$HOME` con backup previo (`~/.config/nimbusshell-backup-*`), aplica fondo, fuentes, Nautilus estilo Finder, habilita `auto-cpufreq`/`thermald`/`bluetooth`, añade Flathub y verifica (`hyprland --verify-config` con HOME temporal).
+Detalles: instala 106 paquetes oficiales vía pacman, 5 AUR vía paru (lo instala o compila si falta, **nunca como root**), despliega `dotfiles/` a `$HOME` con backup previo (`~/.config/nimbusshell-backup-*`), aplica fondo, fuentes, Nautilus estilo Finder, habilita `auto-cpufreq`/`thermald`/`bluetooth`, añade Flathub y verifica (`hyprland --verify-config` con HOME temporal).
 
 ## `--check`
 
-Solo lectura: no instala, no escribe, no pide sudo. Informa qué paquetes faltan, qué dotfiles cambiarían, si los binarios/scripts/sonidos/fondo/logo están en su sitio, si el tema de iconos coincide en las 3 configs y si los servicios están habilitados. Exit `0` = sistema convergido, exit `1` = hay drift. Úsalo antes de instalar y para auditar después.
+Solo lectura: no instala, no escribe, no pide sudo. Informa qué paquetes faltan, qué dotfiles cambiarían, si los binarios/scripts/sonidos/fondo/logo están en su sitio, si el tema de iconos coincide en las 3 configs y si los servicios están habilitados. También comprueba `paru`, `hyprland --verify-config` con HOME temporal, Flathub y el conflicto `power-profiles-daemon`/`auto-cpufreq`. Exit `0` = sistema convergido, exit `1` = hay drift. Exit `2` = precondición (root, sin `pacman`, repo incompleto). Úsalo antes de instalar y para auditar después.
 
 ## Desinstalación / restaurar backup
 
@@ -34,7 +34,7 @@ No hay "desinstalador" con borrado a ciegas por diseño:
 ```bash
 ls ~/.config/nimbusshell-backup-*   # cada run guarda aquí lo que sobrescribió
 # restaura a mano lo que quieras: cp -a ~/.config/nimbusshell-backup-<fecha>/... $HOME/
-sudo pacman -Rns $(cat packages.nimbus.conf) $(cat packages.nimbus-aur.txt)  # solo si quieres quitar los paquetes
+sudo pacman -Rns $(grep -vE '^\s*(#|$)' packages.nimbus.conf) $(grep -vE '^\s*(#|$)' packages.nimbus-aur.txt)  # solo si quieres quitar los paquetes
 ```
 
 Los backups no se borran solos: tú decides cuándo borrarlos.
@@ -45,12 +45,12 @@ Los backups no se borran solos: tú decides cuándo borrarlos.
 - **Calamares (instalador del sistema) NO incluido:** vive en la ISO de NimbusOS, aquí no pinta nada — ya tienes tu sistema instalado.
 - **Login intacto:** no tocamos tu Display Manager ni tu greeter (`greetd` es ISO, R1). Entras a Hyprland desde lo que ya uses.
 - **Tuning de sistema ISO no incluido:** `etc/` de NimbusOS (greetd, modprobe, udev, sysctl, dconf db del sistema, auto-cpufreq.conf…) no se despliega; los ajustes con efecto equivalente a nivel usuario (Nautilus Finder, fuentes) sí se aplican.
-- **Plugin hyprbars:** `hyprland --verify-config` no carga plugins `.so`; si el check falla SOLO por `hyprbars`, es SKIP conocido, no FAIL.
+- **Plugin hyprbars:** `hyprland --verify-config` no carga plugins `.so`; si `[8/8]` avisa SOLO por `hyprbars`, es SKIP conocido, no FAIL. En `--check` el mismo caso sale como `[FALTA]` (exit 1) y se revalida tras entrar en Hyprland.
 - **Wayland/Hyprland 0.56:** la sesión canónica es Lua; el `.conf` queda como fallback, igual que en NimbusOS.
 
 ## Exclusiones respecto a NimbusOS (Rulings)
 
-Derivado de `packages.nimbus.x86_64.append` de NimbusOS. R1: `greetd` fuera (tu login no se toca). R2: `whitesur-gtk-theme whitesur-icon-theme pamac-aur hyprshell hyprland-plugin-hyprbars` fuera de la lista oficial porque son AUR (viven en `packages.nimbus-aur.txt`). R3: `plymouth`/Calamares ni siquiera están en el append aguas arriba (Ruling documentado allí); nada que excluir. Se **mantienen** a conciencia: power laptop + GPU híbrida (también sirven en escritorio instalado), `iptables qt6-multimedia-ffmpeg tesseract-data-eng` (fijan prompts interactivos) y las toolchains AUR (paru las pediría igual). Divergencia en dotfiles, documentada: se excluye `Desktop/Instalar NimbusOS.desktop` (lanza Calamares, ISO) y se añaden `~/.local/bin/macshell` + `~/.local/bin/nimbus-minimize-toggle` (copias 1:1 de `/usr/bin` de la ISO, a nivel usuario) y `assets/sequoia-light.jpg` (fondo canónico, dominio público US NPS, idéntico al de la ISO). R4: `~/.local/bin/nimbus-screenshot` (script propio grim+slurp para SUPER+SHIFT+3/4/5; los binds lo exigían y no existía). R5: `assets/nimbus-logo.svg` → `/usr/share/nimbus/branding/` (marca N propia para barCustomLogoPath; sin ella la barra queda sin logo en modo custom).
+Derivado de `packages.nimbus.x86_64.append` de NimbusOS. R1: `greetd` fuera (tu login no se toca). R2: `whitesur-gtk-theme whitesur-icon-theme pamac-aur hyprshell hyprland-plugin-hyprbars` fuera de la lista oficial porque son AUR (viven en `packages.nimbus-aur.txt`). R3: `plymouth`/Calamares ni siquiera están en el append aguas arriba (Ruling documentado allí); nada que excluir. Se **mantienen** a conciencia: power laptop + GPU híbrida (también sirven en escritorio instalado), `iptables qt6-multimedia-ffmpeg tesseract-data-eng` (fijan prompts interactivos) y las toolchains AUR (paru las pediría igual). Divergencia en dotfiles, documentada: se excluye `Desktop/Instalar NimbusOS.desktop` (lanza Calamares, ISO) y se añaden `~/.local/bin/macshell` + `~/.local/bin/macshell-start` + `~/.local/bin/nimbus-minimize-toggle` (equivalentes a nivel usuario de `/usr/bin` de la ISO) y `assets/sequoia-light.jpg` (fondo canónico, dominio público US NPS, idéntico al de la ISO). R4: `~/.local/bin/nimbus-screenshot` (script propio grim+slurp para SUPER+SHIFT+3/4/5; los binds lo exigían y no existía). R5: `assets/nimbus-logo.svg` → `/usr/share/nimbus/branding/` (marca N propia para barCustomLogoPath; sin ella la barra queda sin logo en modo custom).
 
 ## Filosofía
 
