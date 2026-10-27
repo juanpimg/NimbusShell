@@ -98,7 +98,7 @@ if [ "$CHECK" = "1" ]; then
         || fail ".local/bin/nimbus-screenshot ausente o sin +x (binds SUPER+SHIFT+3/4/5)"
 
     echo "-- coherencia QS_ICON_THEME (hyprland.conf + hyprland.lua vs macshell/env):"
-    q1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//' || true)"
+    q1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
     q1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
     q2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
     if [ -n "${q1:-}" ] && [ "${q1:-}" = "${q2:-}" ] && { [ -z "${q1lua:-}" ] || [ "${q1lua:-}" = "${q2:-}" ]; }; then ok "QS_ICON_THEME=$q1 en todos";
@@ -272,7 +272,7 @@ done < <(find "$DOTFILES" -type f | sort)
 if [ -f "$WALLPAPER_DST" ] && cmp -s "$WALLPAPER_SRC" "$WALLPAPER_DST"; then
     echo "    [OK] fondo"
 else echo "    [FALTA] fondo $WALLPAPER_DST ausente o distinto" >&2; VFAIL=1; fi
-v1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//' || true)"
+v1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
 v1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
 v2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
 if [ -n "${v1:-}" ] && [ "${v1:-}" = "${v2:-}" ] && { [ -z "${v1lua:-}" ] || [ "${v1lua:-}" = "${v2:-}" ]; }; then
