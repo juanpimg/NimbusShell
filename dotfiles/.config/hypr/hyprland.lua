@@ -141,7 +141,7 @@ hl.window_rule({ name = "nimbus-size-all",   match = { class = ".*" }, size   = 
 --     initialTitle/initialClass (verificado con zenity en Hyprland 0.56.2).
 hl.window_rule({ name = "nimbus-dialog-portal", match = { class = "^(org\\.freedesktop\\.impl\\.portal\\.desktop\\.(gtk|hyprland)|[Xx]dg-desktop-portal-gtk)$" }, size = "700 500" })
 hl.window_rule({ name = "nimbus-dialog-modal",  match = { modal = true }, size = "700 500" })
-hl.window_rule({ name = "nimbus-dialog-titles", match = { title = "^([Oo]pen|[Ss]ave|[Cc]hoose|[Ss]elect|[Aa]brir|[Gg]uardar|[Ee]legir|[Ss]eleccionar|[Aa]utenticaci|[Aa]uthentication).*" }, size = "700 500" })
+hl.window_rule({ name = "nimbus-dialog-titles", match = { title = "^([Oo]pen|[Ss]ave|[Cc]hoose|[Ss]elect|[Ee]xport|[Ii]mport|[Uu]pload|[Aa]ttach|[Aa]brir|[Gg]uardar|[Ee]legir|[Ss]eleccionar|[Ee]xportar|[Ii]mportar|[Aa]djuntar|[Ss]ubir|[Aa]utenticaci|[Aa]uthentication).*" }, size = "700 500" })
 
 -- --- Decoracion macOS: esquinas 10px, sombras suaves, blur ----------------
 hl.config({
