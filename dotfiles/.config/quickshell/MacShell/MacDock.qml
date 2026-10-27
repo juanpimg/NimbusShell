@@ -3474,7 +3474,10 @@ Scope {
                             Quickshell.execDetached(["sh", "-c", "MACLOCK_PREVIEW=1 MACLOCK_CLOCK=\"$1\" timeout 6 qs -c MacLock >/dev/null 2>&1", "sh", cfg]);
                         }
                     }
-                    SButton { t: pal; text: I18n.tr("Lock Screen Now"); onClicked: { prefsWindow.visible = false; Quickshell.execDetached(["sh", "-c", "pgrep -f -- \"-c [M]acLock\" >/dev/null 2>&1 || qs -c MacLock"]); } }
+                    // NimbusOS Ruling (sin MacLock vendoreado): bloquear via el shim
+                    // hyprlock, igual que SUPER+L. Solo MacLock upstream
+                    // provee "Preview"; sin el, ese boton queda sin efecto.
+                    SButton { t: pal; text: I18n.tr("Lock Screen Now"); onClicked: { prefsWindow.visible = false; Quickshell.execDetached([Quickshell.env("HOME") + "/.config/quickshell/MacLock/lock-via-ipc.sh"]); } }
                 }
             }
         }
