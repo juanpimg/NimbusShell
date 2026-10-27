@@ -188,7 +188,11 @@ echo "-- [3/8] paquetes AUR (paru, como $(whoami))..."
 echo "    (paru puede pedirte revisar PKGBUILD o importar claves UNA vez; no se salta a proposito)"
 # shellcheck disable=SC2046
 paru -S --needed --noconfirm $(read_list "$AUR_LIST") \
-    || { echo "ERROR: fallo paru AUR." >&2; exit 1; }
+    || { echo "ERROR: fallo paru AUR. Pendientes de instalar:" >&2;
+         # shellcheck disable=SC2046
+         for p in $(read_list "$AUR_LIST"); do
+             pacman -Qq "$p" >/dev/null 2>&1 || echo "  - $p" >&2;
+         done; exit 1; }
 
 # --- 4. Dotfiles -> $HOME (con backup previo, jamas borrar) -------------------
 echo "-- [4/8] dotfiles -> \$HOME..."
