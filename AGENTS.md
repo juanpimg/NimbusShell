@@ -2,6 +2,27 @@
 
 Lee esto antes de tocar nada. Proyecto en español; responde y documenta en español.
 
+## Objetivo (no negociable)
+
+Clonar la experiencia macOS **1:1** en comportamiento y apariencia: ventanas con
+semáforos nativos, Spaces, Mission Control, Spotlight, Launchpad, Dock, menús
+globales, atajos universales. Todo lo que se vea o se comporte distinto de un
+Mac real es un bug con nombre y prioridad. Sin activos propietarios de Apple
+(nada de logos, SF, wallpapers o sonidos suyos): equivalencia con arte propio
+y libre (Inter, logo N, Sequoia NPS).
+
+## Bucle de iteración (siempre igual)
+
+1. **Audita** contra macOS real (cita fuente: Apple Support/HIG o captura).
+2. **Implementa** lo mínimo que cierre el gap (preferencia: config > script >
+   parche QML documentado; nunca reescribir upstream).
+3. **Verifica con evidencia**: `--check` en seco + `hyprland --verify-config`
+   con HOME temporal + **captura de pantalla** del antes/después (VM o
+   sesión anidada). Sin captura no hay "listo".
+4. **Commitea** (`feat|fix|docs(scope): ...`) y documenta la Ruling si diverge.
+5. Si algo exige ISO (Calamares, greetd, drivers), NO lo hagas aquí: abre el
+   port en NimbusOS y documenta la dependencia.
+
 ## Fuente de verdad (Ruling, no bifurcar)
 
 1. **Los dotfiles canónicos viven AQUÍ** (`dotfiles/`). `nimbus-overlay/etc/skel`
