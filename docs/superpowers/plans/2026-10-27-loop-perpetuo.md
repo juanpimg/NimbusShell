@@ -77,7 +77,16 @@
 - [ ] **Step 4:** `./install.sh --check` → exit 1 en host dev (rojo esperado), exit 0 solo en sistema convergido.
 - [ ] **Step 5:** Si la vuelta tocó install: suite stub completa (solo fondo+logo FALTA sin root).
 
-### Task 5: Relanzamiento (si la cola se vacía)
+### Task 6: Plan nocturno UI 1:1 (batch actual)
+
+- [ ] **Step 1:** Terminar `lang/es.js` por tramos con paridad de claves node en cada commit.
+- [ ] **Step 2:** Install completo en VM CachyOS live en background (log vía POST + capturas periódicas).
+- [ ] **Step 3:** Sesión Hyprland en VM con screenshots (TTY + dotfiles desplegados).
+- [ ] **Step 4:** Cerrar gaps visibles contra checklist macOS; roadmap + commits.
+
+## Regla innegociable del bucle (2026-10-28)
+
+El orquestador NO para ni pregunta: audita → implementa atómico → verifica con evidencia → commitea → relanza. Si la cola se vacía, nueva oleada sobre deltas. Subagentes en dominios disjuntos; integración inmediata al volver cada informe. Solo se interrumpe por orden explícita de parada.
 
 - [ ] **Step 1:** Releer `.agent_roadmap.md` y marcar lo cerrado.
 - [ ] **Step 2:** Despachar nueva oleada G/H/I sobre los deltas desde la anterior.
