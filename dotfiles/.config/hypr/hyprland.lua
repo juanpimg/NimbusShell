@@ -1,7 +1,7 @@
 -- =============================================================================
 -- NimbusOS — hyprland.lua (sesion canonica Lua, Hyprland >= 0.55)
 -- Equivalente 1:1 de hyprland.conf + 10-shortcuts.conf en Lua (API hl.*).
--- Requiere: Hyprland >= 0.55, Quickshell >= 0.3.2, Qt 6.8+.
+-- Requiere: Hyprland >= 0.56, Quickshell >= 0.3.2, Qt 6.8+.
 -- Upstream shell: https://github.com/0-ss/MacShell (main @ 2026-10-23, MIT).
 -- Reglas globales: todo flotante, sin atajos con la tecla Control,
 --   Alt+Tab=switcher MacShell, esquinas 10px, blur Dual-Kawase.
