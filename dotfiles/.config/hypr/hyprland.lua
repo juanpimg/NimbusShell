@@ -10,7 +10,7 @@
 -- PRECEDENCIA (Hyprland 0.56.2, verificada con HOME temporal + --verify-config):
 --   si ~/.config/hypr/hyprland.lua existe, Hyprland lo usa e IGNORA
 --   hyprland.conf ("Using lua config found at ..."). Sin .lua usa el .conf
---   legacy (avisa: soporte .conf se elimina en Hyprland 0.57). El .conf queda
+--   legacy (avisa: hyprlang en desuso desde 0.55 a favor de Lua). El .conf queda
 --   como fallback: NO borrar (ver Ruling en el commit).
 -- RULING ALT+TAB p2-final (2026-10-26): UNA sola definicion en ambas
 --   sesiones (.conf + Lua -> `qs -c MacShell ipc call switcher next`).
@@ -143,7 +143,7 @@ hl.window_rule({ name = "nimbus-dialog-portal", match = { class = "^(org\\.freed
 hl.window_rule({ name = "nimbus-dialog-modal",  match = { modal = true }, size = "700 500" })
 hl.window_rule({ name = "nimbus-dialog-titles", match = { title = "^([Oo]pen|[Ss]ave|[Cc]hoose|[Ss]elect|[Aa]brir|[Gg]uardar|[Ee]legir|[Ss]eleccionar|[Aa]utenticaci|[Aa]uthentication).*" }, size = "700 500" })
 
--- --- Decoracion macOS: esquinas 12-14px, sombras suaves, blur ----------------
+-- --- Decoracion macOS: esquinas 10px, sombras suaves, blur ----------------
 hl.config({
     decoration = {
         rounding         = 10,   -- NimbusOS Ruling fidelidad-macos: 10 (era 13), radio Mac
