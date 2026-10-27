@@ -157,10 +157,9 @@ echo "-- [1/8] paquetes oficiales (pacman)..."
 # shellcheck disable=SC2046
 sudo pacman -S --needed --noconfirm $(read_list "$OFFICIAL_LIST") \
     || { echo "ERROR: fallo pacman oficial. Revisa tu conexion (o ejecuta sudo pacman -Sy) o estos paquetes:" >&2;
-         # shellcheck disable=SC2046
-         for p in $(read_list "$OFFICIAL_LIST"); do
+         while IFS= read -r p; do
              pacman -Si "$p" >/dev/null 2>&1 || echo "  - $p (no resoluble: typo, repo ausente o DB sin sincronizar)" >&2;
-         done; exit 1; }
+         done < <(read_list "$OFFICIAL_LIST"); exit 1; }
 
 # --- 2. paru (helper AUR; cachyos lo trae, en vanilla se compila) ------------
 echo "-- [2/8] helper AUR (paru)..."
@@ -189,10 +188,9 @@ echo "    (paru puede pedirte revisar PKGBUILD o importar claves UNA vez; no se 
 # shellcheck disable=SC2046
 paru -S --needed --noconfirm $(read_list "$AUR_LIST") \
     || { echo "ERROR: fallo paru AUR. Pendientes de instalar:" >&2;
-         # shellcheck disable=SC2046
-         for p in $(read_list "$AUR_LIST"); do
+         while IFS= read -r p; do
              pacman -Qq "$p" >/dev/null 2>&1 || echo "  - $p" >&2;
-         done; exit 1; }
+         done < <(read_list "$AUR_LIST"); exit 1; }
 
 # --- 4. Dotfiles -> $HOME (con backup previo, jamas borrar) -------------------
 echo "-- [4/8] dotfiles -> \$HOME..."
@@ -353,10 +351,9 @@ if command -v flatpak >/dev/null 2>&1 && flatpak remotes 2>/dev/null | grep -q '
 else echo "    [FALTA] flathub ausente" >&2; VFAIL=1; fi
 # Las listas al completo (un paquete sin binario en el loop de arriba tambien
 # cuenta: solo informa, pacman -Qq es local y rapido).
-# shellcheck disable=SC2046
-for p in $(read_list "$OFFICIAL_LIST") $(read_list "$AUR_LIST"); do
+while IFS= read -r p; do
     pacman -Qq "$p" >/dev/null 2>&1 || { echo "    [FALTA] paquete sin instalar: $p" >&2; VFAIL=1; }
-done
+done < <(read_list "$OFFICIAL_LIST"; read_list "$AUR_LIST")
 if command -v hyprland >/dev/null 2>&1; then
     tmpv="$(mktemp -d)" || { echo "    [FALTA] sin temporal para verificar" >&2; VFAIL=1; }
     if [ -n "${tmpv:-}" ]; then
