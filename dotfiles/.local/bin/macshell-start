@@ -16,7 +16,11 @@ while [ "$i" -lt 100 ]; do
 done
 
 # already running for this user? then there is nothing to do
-if pgrep -u "$(id -u)" -f "(^|/)(qs|quickshell)( .*)? (-c|--config) $NAME( |\$)" >/dev/null 2>&1; then exit 0; fi
+# NimbusOS Ruling (regex): $NAME viaja dentro de una ERE; sin escapar, un
+# nombre con metacaracteres (p. ej. "a+b") no matchea su propio proceso y se
+# arrancaria una segunda copia de qs. Propuesto aguas arriba.
+esc_name="$(printf '%s' "$NAME" | sed 's/[][(){}.*+?^$|\\]/\\&/g')"
+if pgrep -u "$(id -u)" -f "(^|/)(qs|quickshell)( .*)? (-c|--config) $esc_name( |\$)" >/dev/null 2>&1; then exit 0; fi
 
 # ── environment: the variables Qt and Quickshell need, whatever started this script ──
 export XDG_SESSION_TYPE="${XDG_SESSION_TYPE:-wayland}"
