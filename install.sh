@@ -242,15 +242,16 @@ command -v fc-cache >/dev/null 2>&1 && fc-cache -f >/dev/null 2>&1 || true
 if command -v ffmpeg >/dev/null 2>&1; then
     SOUNDS="$HOME/.local/share/sounds/macshell"
     FDO="/usr/share/sounds/freedesktop/stereo"
-    mkdir -p "$SOUNDS" 2>/dev/null || echo "    AVISO: sin dir de sonidos" >&2
+    snd_fail=0
+    mkdir -p "$SOUNDS" 2>/dev/null || { echo "    AVISO: sin dir de sonidos" >&2; snd_fail=5; }
     for m in "pop:audio-volume-change" "charge:power-plug" "shutter:camera-shutter" "glass:dialog-information" "tink:bell"; do
         n="${m%%:*}"; src="$FDO/${m#*:}.oga"
         if [ ! -s "$SOUNDS/$n.wav" ]; then
             ffmpeg -y -v error -i "$src" "$SOUNDS/$n.wav" >/dev/null 2>&1 \
-                || echo "    AVISO: sin sonido $n (falta $src)" >&2
+                || { echo "    AVISO: sin sonido $n (falta $src)" >&2; snd_fail=$((snd_fail + 1)); }
         fi
     done
-    echo "    sonidos UI listos (pop/charge/shutter/glass/tink)"
+    [ "$snd_fail" = "0" ] && echo "    sonidos UI listos (pop/charge/shutter/glass/tink)"
 else
     echo "    AVISO: sin ffmpeg, salto sonidos UI" >&2
 fi
