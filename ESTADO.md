@@ -17,7 +17,7 @@ Paridad macOS 1:1 en comportamiento y apariencia (ver AGENTS.md: bucle audita→
 1. Mission Control real (switcher actual es fallback; hyprexpo rechazado).
 2. Menú global D-Bus (descartado V1; entradas falsas eliminadas).
 3. Minimizar con retorno genie al icono (hoy: shelf + SUPER+M).
-4. Reloj en español (requiere locale + `lang/es.js` upstream).
+4. Reloj en español (HECHO `lang/es.js` 584 claves + selector; PENDIENTE V2: CalendarWidget/repeatText hardcodeados, y contrato ISO con `es_ES.UTF-8`).
 5. Exposé/Show-desktop por gesto, Hide (`SUPER+H` existe), mosaico por arrastre.
 6. Capturas estilo Mac (HECHO `nimbus-screenshot` + binds `SUPER+SHIFT+3/4/5` (R4); PENDIENTE solo panel con temporizador estilo Mac).
 7. Spotlight con ficheros/calculadora/diccionario por defecto.
