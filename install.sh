@@ -279,6 +279,8 @@ if command -v systemctl >/dev/null 2>&1; then
         if systemctl list-unit-files 2>/dev/null | grep -q "^${u}"; then
             sudo systemctl enable "$u" >/dev/null 2>&1 \
                 && echo "    $u habilitado" || echo "    AVISO: no se pudo habilitar $u" >&2
+        else
+            echo "    AVISO: $u sin unit-file (se revisara en [8/8])" >&2
         fi
     done
 else
@@ -322,7 +324,10 @@ if [ -n "${v1:-}" ] && [ "${v1:-}" = "${v2:-}" ] && { [ -z "${v1lua:-}" ] || [ "
 else echo "    [FALTA] QS_ICON_THEME (conf='$v1' lua='$v1lua' env='$v2')" >&2; VFAIL=1; fi
 if command -v systemctl >/dev/null 2>&1; then
     for u in auto-cpufreq.service thermald.service bluetooth.service; do
-        systemctl is-enabled "$u" >/dev/null 2>&1 && echo "    [OK] $u" || { echo "    [FALTA] $u no habilitado" >&2; VFAIL=1; }
+        if ! systemctl list-unit-files 2>/dev/null | grep -q "^${u}[[:space:]]"; then
+            echo "    [AVISO] $u sin unit-file (paquete ausente o entorno sin systemd)" >&2
+        elif systemctl is-enabled "$u" >/dev/null 2>&1; then echo "    [OK] $u"
+        else echo "    [FALTA] $u no habilitado" >&2; VFAIL=1; fi
     done
 else echo "    [FALTA] sin systemctl" >&2; VFAIL=1; fi
 if command -v flatpak >/dev/null 2>&1 && flatpak remotes 2>/dev/null | grep -q '^flathub'; then
