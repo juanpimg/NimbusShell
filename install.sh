@@ -119,7 +119,7 @@ if [ "$CHECK" = "1" ]; then
     echo "-- config Hyprland (HOME temporal):"
     if command -v hyprland >/dev/null 2>&1 && { [ -f "$HOME/.config/hypr/hyprland.lua" ] || [ -f "$HOME/.config/hypr/hyprland.conf" ]; }; then
         tmpcheck="$(mktemp -d)" || { echo "ERROR: sin temporal (TMPDIR lleno)" >&2; exit 1; }
-        ln -s "$HOME/.config" "$tmpcheck/.config"
+        ln -s "$HOME/.config" "$tmpcheck/.config" || { echo "ERROR: sin enlace temporal (disco lleno)" >&2; rm -rf "$tmpcheck"; exit 1; }
         if HOME="$tmpcheck" hyprland --verify-config >/dev/null 2>&1; then ok "hyprland --verify-config";
         else fail "hyprland --verify-config falla (o SKIP si pide plugin .so sin cargar: ver README)"; fi
         rm -rf "$tmpcheck"
@@ -177,6 +177,7 @@ if ! command -v paru >/dev/null 2>&1; then
         ( cd "$tmpaur/paru" && makepkg -si --noconfirm ) \
             || { echo "ERROR: fallo compilacion paru." >&2; rm -rf "$tmpaur"; exit 1; }
         rm -rf "$tmpaur"
+        trap 'kill $KA 2>/dev/null || true' EXIT
     fi
 fi
 command -v paru >/dev/null 2>&1 || { echo "ERROR: paru sigue ausente." >&2; exit 1; }
@@ -355,13 +356,14 @@ done
 if command -v hyprland >/dev/null 2>&1; then
     tmpv="$(mktemp -d)" || { echo "    [FALTA] sin temporal para verificar" >&2; VFAIL=1; }
     if [ -n "${tmpv:-}" ]; then
-        ln -s "$HOME/.config" "$tmpv/.config"
-        if HOME="$tmpv" hyprland --verify-config >/dev/null 2>&1; then
-            echo "    [OK] hyprland --verify-config"
-        else
-            echo "    [AVISO] hyprland --verify-config falla: si el error es solo por plugin .so" \
-                "sin cargar (hyprbars), es SKIP conocido, no FAIL (ver README)." >&2
-        fi
+        if ln -s "$HOME/.config" "$tmpv/.config" 2>/dev/null; then
+            if HOME="$tmpv" hyprland --verify-config >/dev/null 2>&1; then
+                echo "    [OK] hyprland --verify-config"
+            else
+                echo "    [AVISO] hyprland --verify-config falla: si el error es solo por plugin .so" \
+                    "sin cargar (hyprbars), es SKIP conocido, no FAIL (ver README)." >&2
+            fi
+        else echo "    [FALTA] sin enlace temporal" >&2; VFAIL=1; fi
         rm -rf "$tmpv"
     fi
 fi
