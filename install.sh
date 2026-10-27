@@ -41,6 +41,17 @@ read_list() { # $1=fichero -> stdout: paquetes (sin comentarios ni vacias)
     sed 's/#.*//; s/\r//g; s/^[[:space:]]*//; s/[[:space:]]*$//' "$1" | grep -v '^[[:space:]]*$'
 }
 
+# lib32-* solo existe en el repo [multilib] (comentado por defecto en Arch
+# vanilla). Sin el, pacman abortaria TODA la transaccion [1/8] (P0 cazado en
+# VM vanilla: lib32-nvidia-utils + lib32-vulkan-mesa-layers). Se omiten con
+# AVISO; activa [multilib] y re-ejecuta para soporte 32-bit completo.
+PACMAN_CONF="${PACMAN_CONF:-/etc/pacman.conf}"
+multilib_on() { grep -q '^\[multilib\]' "$PACMAN_CONF" 2>/dev/null; }
+pkg_list() { # $1=fichero: como read_list pero sin lib32-* si no hay multilib
+    if multilib_on; then read_list "$1";
+    else read_list "$1" | grep -v '^lib32-'; fi
+}
+
 # --- 0. Precondiciones (ambos modos) ------------------------------------------
 if [ "$(id -u)" = "0" ]; then
     echo "ERROR: no ejecutar como root. Entra como tu usuario (con sudo) y reintenta." >&2
@@ -68,12 +79,12 @@ if [ "$CHECK" = "1" ]; then
     _installed="$(pacman -Qq 2>/dev/null || true)"
     while IFS= read -r p; do
         printf '%s\n' "$_installed" | grep -Fxq "$p" && ok "$p" || fail "paquete oficial ausente: $p"
-    done < <(read_list "$OFFICIAL_LIST")
+    done < <(pkg_list "$OFFICIAL_LIST")
 
     echo "-- paquetes AUR:"
     while IFS= read -r p; do
         printf '%s\n' "$_installed" | grep -Fxq "$p" && ok "$p" || fail "paquete AUR ausente: $p"
-    done < <(read_list "$AUR_LIST")
+    done < <(pkg_list "$AUR_LIST")
 
     echo "-- dotfiles ($HOME):"
     while IFS= read -r src; do
@@ -157,12 +168,14 @@ trap 'kill $KA 2>/dev/null || true' EXIT
 
 # --- 1. Paquetes oficiales ----------------------------------------------------
 echo "-- [1/8] paquetes oficiales (pacman)..."
+n_skip=$(($(read_list "$OFFICIAL_LIST" | wc -l) - $(pkg_list "$OFFICIAL_LIST" | wc -l)))
+[ "$n_skip" -gt 0 ] && echo "    AVISO: $n_skip paquetes lib32-* omitidos (sin [multilib] en $PACMAN_CONF; activalo y re-ejecuta para soporte 32-bit)" >&2
 # shellcheck disable=SC2046
-sudo pacman -S --needed --noconfirm $(read_list "$OFFICIAL_LIST") \
+sudo pacman -S --needed --noconfirm $(pkg_list "$OFFICIAL_LIST") \
     || { echo "ERROR: fallo pacman oficial. Revisa tu conexion (o ejecuta sudo pacman -Sy) o estos paquetes:" >&2;
          while IFS= read -r p; do
              pacman -Si "$p" >/dev/null 2>&1 || echo "  - $p (no resoluble: typo, repo ausente o DB sin sincronizar)" >&2;
-         done < <(read_list "$OFFICIAL_LIST"); exit 1; }
+         done < <(pkg_list "$OFFICIAL_LIST"); exit 1; }
 
 # --- 2. paru (helper AUR; cachyos lo trae, en vanilla se compila) ------------
 echo "-- [2/8] helper AUR (paru)..."
@@ -189,11 +202,11 @@ echo "    paru OK"
 echo "-- [3/8] paquetes AUR (paru, como $(whoami))..."
 echo "    (paru puede pedirte revisar PKGBUILD o importar claves UNA vez; no se salta a proposito)"
 # shellcheck disable=SC2046
-paru -S --needed --noconfirm $(read_list "$AUR_LIST") \
+paru -S --needed --noconfirm $(pkg_list "$AUR_LIST") \
     || { echo "ERROR: fallo paru AUR. Pendientes de instalar:" >&2;
          while IFS= read -r p; do
              pacman -Qq "$p" >/dev/null 2>&1 || echo "  - $p" >&2;
-         done < <(read_list "$AUR_LIST"); exit 1; }
+         done < <(pkg_list "$AUR_LIST"); exit 1; }
 
 # --- 4. Dotfiles -> $HOME (con backup previo, jamas borrar) -------------------
 echo "-- [4/8] dotfiles -> \$HOME..."
@@ -359,7 +372,7 @@ else echo "    [FALTA] flathub ausente" >&2; VFAIL=1; fi
 _installed8="$(pacman -Qq 2>/dev/null || true)"
 while IFS= read -r p; do
     printf '%s\n' "$_installed8" | grep -Fxq "$p" || { echo "    [FALTA] paquete sin instalar: $p" >&2; VFAIL=1; }
-done < <(read_list "$OFFICIAL_LIST"; read_list "$AUR_LIST")
+done < <(pkg_list "$OFFICIAL_LIST"; pkg_list "$AUR_LIST")
 if command -v hyprland >/dev/null 2>&1; then
     tmpv="$(mktemp -d)" || { echo "    [FALTA] sin temporal para verificar" >&2; VFAIL=1; }
     if [ -n "${tmpv:-}" ]; then

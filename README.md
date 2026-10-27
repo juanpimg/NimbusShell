@@ -41,7 +41,7 @@ Los backups no se borran solos: tú decides cuándo borrarlos.
 
 ## Alcance y límites honestos
 
-- **Alcance:** cualquier Arch instalado (vanilla, CachyOS, EndeavourOS…): si hay `pacman`, hay NimbusShell. En Arch vanilla `paru` se compila desde el AUR automáticamente.
+- **Alcance:** cualquier Arch instalado (vanilla, CachyOS, EndeavourOS…): si hay `pacman`, hay NimbusShell. En Arch vanilla `paru` se compila desde el AUR automáticamente y los 2 paquetes `lib32-*` se omiten con AVISO (necesitan `[multilib]` en `/etc/pacman.conf`; actívalo y re-ejecuta para soporte 32-bit).
 - **Calamares (instalador del sistema) NO incluido:** vive en la ISO de NimbusOS, aquí no pinta nada — ya tienes tu sistema instalado.
 - **Login intacto:** no tocamos tu Display Manager ni tu greeter (`greetd` es ISO, R1). Entras a Hyprland desde lo que ya uses.
 - **Tuning de sistema ISO no incluido:** `etc/` de NimbusOS (greetd, modprobe, udev, sysctl, dconf db del sistema, auto-cpufreq.conf…) no se despliega; los ajustes con efecto equivalente a nivel usuario (Nautilus Finder, fuentes) sí se aplican.
