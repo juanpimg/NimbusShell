@@ -90,6 +90,8 @@ if [ "$CHECK" = "1" ]; then
         || fail ".local/bin/macshell-start ausente o sin +x"
     [ -x "$HOME/.local/bin/nimbus-minimize-toggle" ] && ok ".local/bin/nimbus-minimize-toggle" \
         || fail ".local/bin/nimbus-minimize-toggle ausente o sin +x"
+    [ -x "$HOME/.local/bin/nimbus-screenshot" ] && ok ".local/bin/nimbus-screenshot" \
+        || fail ".local/bin/nimbus-screenshot ausente o sin +x (binds SUPER+SHIFT+3/4/5)"
 
     echo "-- coherencia QS_ICON_THEME (hyprland.conf vs macshell/env):"
     q1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//' || true)"
@@ -242,6 +244,9 @@ echo "-- [8/8] verificacion..."
 VFAIL=0
 for c in hyprland qs kitty swaybg udiskie paru; do
     command -v "$c" >/dev/null 2>&1 && echo "    [OK] $c" || { echo "    [FALTA] $c" >&2; VFAIL=1; }
+done
+for b in macshell-start nimbus-minimize-toggle nimbus-screenshot; do
+    [ -x "$HOME/.local/bin/$b" ] && echo "    [OK] .local/bin/$b" || { echo "    [FALTA] .local/bin/$b" >&2; VFAIL=1; }
 done
 if command -v hyprland >/dev/null 2>&1; then
     tmpv="$(mktemp -d)"; ln -s "$HOME/.config" "$tmpv/.config"
