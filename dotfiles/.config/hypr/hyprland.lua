@@ -38,7 +38,7 @@ hl.monitor({
 
 -- --- Entorno -----------------------------------------------------------------
 -- (mismos valores que hyprland.conf; QS_ICON_THEME debe coincidir con
--- macshell/env — lo comprueba verify-macshell.sh).
+-- macshell/env — lo comprueban install.sh --check y el paso [8/8]).
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("QT_QPA_PLATFORM", "wayland")

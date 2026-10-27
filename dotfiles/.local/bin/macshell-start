@@ -69,7 +69,7 @@ while :; do
     case "$rc" in 0|130|143) exit 0 ;; esac          # quit on purpose (qs kill / Ctrl+C / SIGTERM)
     if [ $(( $(date +%s) - start )) -lt 5 ]; then fast=$((fast + 1)); else fast=0; fi
     if [ "$fast" -ge 5 ]; then
-        msg="MacShell keeps crashing right after it starts. Run:  qs -c $NAME   and read the log (or: bash install.sh --doctor)."
+        msg="MacShell keeps crashing right after it starts. Run:  qs -c $NAME   and read the log (or: ./install.sh --check)."
         echo "macshell-start: $msg" >&2
         command -v notify-send >/dev/null 2>&1 && notify-send -u critical "MacShell" "$msg"
         exit 1
