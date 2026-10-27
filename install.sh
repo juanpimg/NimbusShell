@@ -14,6 +14,8 @@ AUR_LIST="$SCRIPT_DIR/packages.nimbus-aur.txt"
 DOTFILES="$SCRIPT_DIR/dotfiles"
 WALLPAPER_SRC="$SCRIPT_DIR/assets/sequoia-light.jpg"
 WALLPAPER_DST="/usr/share/backgrounds/nimbus/sequoia-light.jpg"
+BRANDING_SRC="$SCRIPT_DIR/assets/nimbus-logo.svg"
+BRANDING_DST="/usr/share/nimbus/branding/nimbus-logo.svg"
 FLATHUB_URL="https://dl.flathub.org/repo/flathub.flatpakrepo"
 
 CHECK=0
@@ -83,6 +85,10 @@ if [ "$CHECK" = "1" ]; then
     echo "-- fondo de pantalla:"
     if [ -f "$WALLPAPER_DST" ] && cmp -s "$WALLPAPER_SRC" "$WALLPAPER_DST"; then ok "$WALLPAPER_DST";
     else fail "$WALLPAPER_DST ausente o distinto"; fi
+
+    echo "-- logo de barra:"
+    if [ -f "$BRANDING_DST" ] && cmp -s "$BRANDING_SRC" "$BRANDING_DST"; then ok "$BRANDING_DST";
+    else fail "$BRANDING_DST ausente o distinto (barCustomLogoPath de MacBar)"; fi
 
     echo "-- binarios de sesion:"
     for c in hyprland hyprlock qs kitty swaybg udiskie flatpak brightnessctl; do
@@ -201,13 +207,19 @@ echo "    nuevos=$n_new actualizados=$n_upd (backup en $BACKUP) identicos=$n_sam
 # backup con el mismo timestamp (mismo segundo), su contenido se conserva.
 rmdir "$BACKUP" 2>/dev/null || true
 
-# --- 5. Fondo de pantalla del sistema -----------------------------------------
-echo "-- [5/8] fondo de pantalla..."
+# --- 5. Fondo de pantalla + branding del sistema -------------------------------
+echo "-- [5/8] fondo de pantalla y branding..."
 if [ -f "$WALLPAPER_DST" ] && cmp -s "$WALLPAPER_SRC" "$WALLPAPER_DST"; then
-    echo "    ya presente"
+    echo "    fondo ya presente"
 else
     sudo install -Dm644 "$WALLPAPER_SRC" "$WALLPAPER_DST" \
         || echo "    AVISO: no se pudo instalar el fondo (swaybg/hyprpaper usaran fallback)." >&2
+fi
+if [ -f "$BRANDING_DST" ] && cmp -s "$BRANDING_SRC" "$BRANDING_DST"; then
+    echo "    logo ya presente"
+else
+    sudo install -Dm644 "$BRANDING_SRC" "$BRANDING_DST" \
+        || echo "    AVISO: no se pudo instalar el logo (la barra usara el modo arch)." >&2
 fi
 
 # --- 6. Fuentes + Nautilus estilo Finder (nivel usuario) ----------------------
@@ -273,6 +285,9 @@ done < <(find "$DOTFILES" -type f | sort)
 if [ -f "$WALLPAPER_DST" ] && cmp -s "$WALLPAPER_SRC" "$WALLPAPER_DST"; then
     echo "    [OK] fondo"
 else echo "    [FALTA] fondo $WALLPAPER_DST ausente o distinto" >&2; VFAIL=1; fi
+if [ -f "$BRANDING_DST" ] && cmp -s "$BRANDING_SRC" "$BRANDING_DST"; then
+    echo "    [OK] logo"
+else echo "    [FALTA] logo $BRANDING_DST ausente o distinto" >&2; VFAIL=1; fi
 v1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
 v1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
 v2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
