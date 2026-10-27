@@ -103,6 +103,12 @@ if [ "$CHECK" = "1" ]; then
     [ -x "$HOME/.local/bin/nimbus-screenshot" ] && ok ".local/bin/nimbus-screenshot" \
         || fail ".local/bin/nimbus-screenshot ausente o sin +x (binds SUPER+SHIFT+3/4/5)"
 
+    echo "-- sonidos UI:"
+    for s in pop charge shutter glass tink; do
+        [ -s "$HOME/.local/share/sounds/macshell/$s.wav" ] && ok "sonido $s" \
+            || fail "sonido ausente: $s.wav (paso [6/8] con ffmpeg)"
+    done
+
     echo "-- coherencia QS_ICON_THEME (hyprland.conf + hyprland.lua vs macshell/env):"
     q1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
     q1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
@@ -222,9 +228,26 @@ else
         || echo "    AVISO: no se pudo instalar el logo (la barra usara el modo arch)." >&2
 fi
 
-# --- 6. Fuentes + Nautilus estilo Finder (nivel usuario) ----------------------
-echo "-- [6/8] fuentes y ajustes de usuario..."
+# --- 6. Fuentes + sonidos UI + Nautilus estilo Finder (nivel usuario) ---------
+echo "-- [6/8] fuentes, sonidos y ajustes de usuario..."
 command -v fc-cache >/dev/null 2>&1 && fc-cache -f >/dev/null 2>&1 || true
+# Sonidos de MacShell (pw-play): se generan desde sound-theme-freedesktop
+# (licencia libre) con ffmpeg, ya en el manifest. Idempotente: no reconvierte.
+if command -v ffmpeg >/dev/null 2>&1; then
+    SOUNDS="$HOME/.local/share/sounds/macshell"
+    FDO="/usr/share/sounds/freedesktop/stereo"
+    mkdir -p "$SOUNDS" 2>/dev/null || echo "    AVISO: sin dir de sonidos" >&2
+    for m in "pop:audio-volume-change" "charge:power-plug" "shutter:camera-shutter" "glass:dialog-information" "tink:bell"; do
+        n="${m%%:*}"; src="$FDO/${m#*:}.oga"
+        if [ ! -s "$SOUNDS/$n.wav" ]; then
+            ffmpeg -y -v error -i "$src" "$SOUNDS/$n.wav" >/dev/null 2>&1 \
+                || echo "    AVISO: sin sonido $n (falta $src)" >&2
+        fi
+    done
+    echo "    sonidos UI listos (pop/charge/shutter/glass/tink)"
+else
+    echo "    AVISO: sin ffmpeg, salto sonidos UI" >&2
+fi
 if command -v gsettings >/dev/null 2>&1 \
     && gsettings list-schemas 2>/dev/null | grep -qx 'org.gnome.nautilus.preferences'; then
     gsettings set org.gnome.nautilus.preferences default-folder-viewer 'icon-view' 2>/dev/null || true
@@ -274,6 +297,9 @@ for c in hyprland hyprlock qs kitty swaybg udiskie flatpak brightnessctl paru; d
 done
 for b in macshell macshell-start nimbus-minimize-toggle nimbus-screenshot; do
     [ -x "$HOME/.local/bin/$b" ] && echo "    [OK] .local/bin/$b" || { echo "    [FALTA] .local/bin/$b" >&2; VFAIL=1; }
+done
+for s in pop charge shutter glass tink; do
+    [ -s "$HOME/.local/share/sounds/macshell/$s.wav" ] && echo "    [OK] sonido $s" || { echo "    [FALTA] sonido $s.wav" >&2; VFAIL=1; }
 done
 # Paridad con --check: lo desplegado se re-verifica aqui. Si algo ambiental
 # fallo arriba con AVISO (servicios/flathub/fondo), aqui cuenta como FALTA
