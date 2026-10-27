@@ -19,6 +19,10 @@ Scope {
     id: root
     property var hub: null
     property bool appEnabled: true
+    // Override manual (components.json): se guarda aparte para no romper el
+    // binding de appEnabled con el ajuste de Settings (ver shell.qml).
+    property bool manualOverride: false
+    property bool manualVal: true
     readonly property var dock: hub ? hub.dock : null
     readonly property var bar: hub ? hub.bar : null
     readonly property bool darkMode: dock ? dock.darkMode : true
@@ -100,7 +104,7 @@ Scope {
     FileView {
         path: root.home + "/.config/macshell/components.json"
         printErrors: false
-        onLoaded: { try { var o = JSON.parse(text()); if (o.clockEnabled !== undefined) root.appEnabled = !!o.clockEnabled; } catch (e) {} }
+        onLoaded: { try { var o = JSON.parse(text()); if (o.clockEnabled !== undefined) { root.manualVal = !!o.clockEnabled; root.manualOverride = true; } } catch (e) {} }
     }
     Timer { id: saveLater; interval: 150; onTriggered: root.saveNow() }
     function save() { if (loaded) saveLater.restart(); }
