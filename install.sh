@@ -85,7 +85,7 @@ if [ "$CHECK" = "1" ]; then
     else fail "$WALLPAPER_DST ausente o distinto"; fi
 
     echo "-- binarios de sesion:"
-    for c in hyprland qs kitty swaybg udiskie flatpak brightnessctl; do
+    for c in hyprland hyprlock qs kitty swaybg udiskie flatpak brightnessctl; do
         command -v "$c" >/dev/null 2>&1 && ok "$c" || fail "comando ausente: $c"
     done
     [ -x "$HOME/.local/bin/macshell" ] && ok ".local/bin/macshell" \
@@ -256,7 +256,7 @@ fi
 # --- 8. Verificacion ----------------------------------------------------------
 echo "-- [8/8] verificacion..."
 VFAIL=0
-for c in hyprland qs kitty swaybg udiskie flatpak brightnessctl paru; do
+for c in hyprland hyprlock qs kitty swaybg udiskie flatpak brightnessctl paru; do
     command -v "$c" >/dev/null 2>&1 && echo "    [OK] $c" || { echo "    [FALTA] $c" >&2; VFAIL=1; }
 done
 for b in macshell macshell-start nimbus-minimize-toggle nimbus-screenshot; do
