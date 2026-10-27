@@ -106,7 +106,8 @@ if [ "$CHECK" = "1" ]; then
 
     echo "-- config Hyprland (HOME temporal):"
     if command -v hyprland >/dev/null 2>&1 && { [ -f "$HOME/.config/hypr/hyprland.lua" ] || [ -f "$HOME/.config/hypr/hyprland.conf" ]; }; then
-        tmpcheck="$(mktemp -d)"; ln -s "$HOME/.config" "$tmpcheck/.config"
+        tmpcheck="$(mktemp -d)" || { echo "ERROR: sin temporal (TMPDIR lleno)" >&2; exit 1; }
+        ln -s "$HOME/.config" "$tmpcheck/.config"
         if HOME="$tmpcheck" hyprland --verify-config >/dev/null 2>&1; then ok "hyprland --verify-config";
         else fail "hyprland --verify-config falla (o SKIP si pide plugin .so sin cargar: ver README)"; fi
         rm -rf "$tmpcheck"
@@ -153,7 +154,7 @@ if ! command -v paru >/dev/null 2>&1; then
     else
         echo "    paru no esta en tus repos: compilando desde el AUR como $(whoami)..."
         command -v git >/dev/null 2>&1 || { echo "ERROR: sin git para compilar paru." >&2; exit 1; }
-        tmpaur="$(mktemp -d)"
+        tmpaur="$(mktemp -d)" || { echo "ERROR: sin temporal para compilar paru (TMPDIR lleno)" >&2; exit 1; }
         git clone --depth 1 https://aur.archlinux.org/paru.git "$tmpaur/paru" \
             || { echo "ERROR: sin red o sin AUR." >&2; rm -rf "$tmpaur"; exit 1; }
         ( cd "$tmpaur/paru" && makepkg -si --noconfirm ) \
@@ -287,14 +288,17 @@ if command -v flatpak >/dev/null 2>&1 && flatpak remotes 2>/dev/null | grep -q '
     echo "    [OK] flathub"
 else echo "    [FALTA] flathub ausente" >&2; VFAIL=1; fi
 if command -v hyprland >/dev/null 2>&1; then
-    tmpv="$(mktemp -d)"; ln -s "$HOME/.config" "$tmpv/.config"
-    if HOME="$tmpv" hyprland --verify-config >/dev/null 2>&1; then
-        echo "    [OK] hyprland --verify-config"
-    else
-        echo "    [AVISO] hyprland --verify-config falla: si el error es solo por plugin .so" \
-            "sin cargar (hyprbars), es SKIP conocido, no FAIL (ver README)." >&2
+    tmpv="$(mktemp -d)" || { echo "    [FALTA] sin temporal para verificar" >&2; VFAIL=1; }
+    if [ -n "${tmpv:-}" ]; then
+        ln -s "$HOME/.config" "$tmpv/.config"
+        if HOME="$tmpv" hyprland --verify-config >/dev/null 2>&1; then
+            echo "    [OK] hyprland --verify-config"
+        else
+            echo "    [AVISO] hyprland --verify-config falla: si el error es solo por plugin .so" \
+                "sin cargar (hyprbars), es SKIP conocido, no FAIL (ver README)." >&2
+        fi
+        rm -rf "$tmpv"
     fi
-    rm -rf "$tmpv"
 fi
 
 echo
