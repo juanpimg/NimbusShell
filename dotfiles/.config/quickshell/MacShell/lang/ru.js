@@ -539,7 +539,7 @@ var strings = {
     "Save location": "Куда сохранять",
     "Leave empty for ~/Pictures/Screenshots": "Пусто = ~/Pictures/Screenshots",
     "Choose…": "Выбрать…",
-    "Bind the Print key:  bind = , Print, exec, qs -c macbar ipc call screenshot region.  Choose… needs zenity, kdialog or yad; otherwise type the path. Screenshots need grim.": "Назначьте клавишу Print:  bind = , Print, exec, qs -c macbar ipc call screenshot region.  Для «Выбрать…» нужен zenity, kdialog или yad; иначе введите путь. Для снимков нужен grim.",
+    "Bind the Print key:  bind = , Print, exec, qs -c macbar ipc call screenshot region.  Choose… needs zenity, kdialog or yad; otherwise type the path. Screenshots need grim.": "Назначьте клавишу Print:  bind = , Print, exec, qs -c MacShell ipc call screenshot region.  Для «Выбрать…» нужен zenity, kdialog или yad; иначе введите путь. Для снимков нужен grim.",
     "Drag to select an area   •   Return: whole screen   •   Esc: cancel": "Выделите область   •   Return: весь экран   •   Esc: отмена",
     "Quick folders": "Быстрые папки",
 
