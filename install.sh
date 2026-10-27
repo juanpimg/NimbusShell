@@ -99,7 +99,7 @@ if [ "$CHECK" = "1" ]; then
 
     echo "-- coherencia QS_ICON_THEME (hyprland.conf + hyprland.lua vs macshell/env):"
     q1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//' || true)"
-    q1lua="$(grep -h 'QS_ICON_THEME' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
+    q1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
     q2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
     if [ -n "${q1:-}" ] && [ "${q1:-}" = "${q2:-}" ] && { [ -z "${q1lua:-}" ] || [ "${q1lua:-}" = "${q2:-}" ]; }; then ok "QS_ICON_THEME=$q1 en todos";
     else fail "QS_ICON_THEME difiere (conf='$q1' lua='$q1lua' env='$q2')"; fi
@@ -262,6 +262,30 @@ done
 for b in macshell macshell-start nimbus-minimize-toggle nimbus-screenshot; do
     [ -x "$HOME/.local/bin/$b" ] && echo "    [OK] .local/bin/$b" || { echo "    [FALTA] .local/bin/$b" >&2; VFAIL=1; }
 done
+# Paridad con --check: lo desplegado se re-verifica aqui. Si algo ambiental
+# fallo arriba con AVISO (servicios/flathub/fondo), aqui cuenta como FALTA
+# igual que en --check (re-ejecutar tras arreglarlo; el install es idempotente).
+while IFS= read -r src; do
+    rel="${src#$DOTFILES/}"
+    cmp -s "$src" "$HOME/$rel" || { echo "    [FALTA] dotfile sin desplegar: $rel" >&2; VFAIL=1; }
+done < <(find "$DOTFILES" -type f | sort)
+if [ -f "$WALLPAPER_DST" ] && cmp -s "$WALLPAPER_SRC" "$WALLPAPER_DST"; then
+    echo "    [OK] fondo"
+else echo "    [FALTA] fondo $WALLPAPER_DST ausente o distinto" >&2; VFAIL=1; fi
+v1="$(grep -h '^env = QS_ICON_THEME' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*,//' || true)"
+v1lua="$(grep -h 'hl\.env("QS_ICON_THEME"' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*"QS_ICON_THEME", *"\([^"]*\)".*/\1/' || true)"
+v2="$(grep -h '^QS_ICON_THEME=' "$HOME/.config/macshell/env" 2>/dev/null | cut -d= -f2 || true)"
+if [ -n "${v1:-}" ] && [ "${v1:-}" = "${v2:-}" ] && { [ -z "${v1lua:-}" ] || [ "${v1lua:-}" = "${v2:-}" ]; }; then
+    echo "    [OK] QS_ICON_THEME=$v1"
+else echo "    [FALTA] QS_ICON_THEME (conf='$v1' lua='$v1lua' env='$v2')" >&2; VFAIL=1; fi
+if command -v systemctl >/dev/null 2>&1; then
+    for u in auto-cpufreq.service thermald.service bluetooth.service; do
+        systemctl is-enabled "$u" >/dev/null 2>&1 && echo "    [OK] $u" || { echo "    [FALTA] $u no habilitado" >&2; VFAIL=1; }
+    done
+else echo "    [FALTA] sin systemctl" >&2; VFAIL=1; fi
+if command -v flatpak >/dev/null 2>&1 && flatpak remotes 2>/dev/null | grep -q '^flathub'; then
+    echo "    [OK] flathub"
+else echo "    [FALTA] flathub ausente" >&2; VFAIL=1; fi
 if command -v hyprland >/dev/null 2>&1; then
     tmpv="$(mktemp -d)"; ln -s "$HOME/.config" "$tmpv/.config"
     if HOME="$tmpv" hyprland --verify-config >/dev/null 2>&1; then
