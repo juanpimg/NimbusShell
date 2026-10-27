@@ -313,6 +313,9 @@ done
 # Paridad con --check: lo desplegado se re-verifica aqui. Si algo ambiental
 # fallo arriba con AVISO (servicios/flathub/fondo), aqui cuenta como FALTA
 # igual que en --check (re-ejecutar tras arreglarlo; el install es idempotente).
+# NOTA asimetria intencional (P3-4): --check es auditor estricto (unit-file
+# ausente = FALTA); aqui unit-file ausente = AVISO para que el re-run converja
+# en entornos sin ese hardware/servicio.
 while IFS= read -r src; do
     rel="${src#$DOTFILES/}"
     cmp -s "$src" "$HOME/$rel" || { echo "    [FALTA] dotfile sin desplegar: $rel" >&2; VFAIL=1; }

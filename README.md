@@ -25,7 +25,7 @@ Detalles: instala 106 paquetes oficiales vía pacman, 6 AUR vía paru (lo instal
 
 ## `--check`
 
-Solo lectura: no instala, no escribe, no pide sudo. Informa qué paquetes faltan, qué dotfiles cambiarían, si los binarios/scripts/sonidos/fondo/logo están en su sitio, si el tema de iconos coincide en las 3 configs y si los servicios están habilitados. También comprueba `paru`, `hyprland --verify-config` con HOME temporal, Flathub y el conflicto `power-profiles-daemon`/`auto-cpufreq`. Exit `0` = sistema convergido, exit `1` = hay drift. Exit `2` = precondición (root, sin `pacman`, repo incompleto). Úsalo antes de instalar y para auditar después.
+Solo lectura: no instala, no escribe, no pide sudo. Informa qué paquetes faltan, qué dotfiles cambiarían, si los binarios/scripts/sonidos/fondo/logo están en su sitio, si el tema de iconos coincide en las 3 configs y si los servicios están habilitados. También comprueba `paru`, `hyprland --verify-config` con HOME temporal, Flathub y el conflicto `power-profiles-daemon`/`auto-cpufreq`. Exit `0` = sistema convergido, exit `1` = hay drift. Exit `2` = precondición (root, sin `pacman`, repo incompleto, argumento desconocido). Úsalo antes de instalar y para auditar después.
 
 ## Desinstalación / restaurar backup
 
