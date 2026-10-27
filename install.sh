@@ -189,7 +189,9 @@ while IFS= read -r src; do
     fi
 done < <(find "$DOTFILES" -type f | sort)
 echo "    nuevos=$n_new actualizados=$n_upd (backup en $BACKUP) identicos=$n_same"
-[ "$n_upd" = "0" ] && rm -rf "$BACKUP"
+# Solo quitar el dir si quedo vacio (rmdir, no rm -rf): si otro run creo un
+# backup con el mismo timestamp (mismo segundo), su contenido se conserva.
+rmdir "$BACKUP" 2>/dev/null || true
 
 # --- 5. Fondo de pantalla del sistema -----------------------------------------
 echo "-- [5/8] fondo de pantalla..."
