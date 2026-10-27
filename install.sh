@@ -171,6 +171,7 @@ if ! command -v paru >/dev/null 2>&1; then
         echo "    paru no esta en tus repos: compilando desde el AUR como $(whoami)..."
         command -v git >/dev/null 2>&1 || { echo "ERROR: sin git para compilar paru." >&2; exit 1; }
         tmpaur="$(mktemp -d)" || { echo "ERROR: sin temporal para compilar paru (TMPDIR lleno)" >&2; exit 1; }
+        trap 'rm -rf "$tmpaur" 2>/dev/null; kill $KA 2>/dev/null || true' EXIT
         git clone --depth 1 https://aur.archlinux.org/paru.git "$tmpaur/paru" \
             || { echo "ERROR: sin red o sin AUR." >&2; rm -rf "$tmpaur"; exit 1; }
         ( cd "$tmpaur/paru" && makepkg -si --noconfirm ) \
