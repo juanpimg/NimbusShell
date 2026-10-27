@@ -1,0 +1,15 @@
+# =============================================================================
+# NimbusShell — packages.nimbus-aur.txt (paquetes AUR, via paru)
+# Copia 1:1 de NimbusOS `packages.nimbus-aur.txt` (2026-10-27): el manifest
+# canonico de AUR es el mismo en la ISO y en el escritorio instalado.
+# libpamac-aur NO se lista: entra como dependencia de pamac-aur.
+# hyprland-plugin-hyprbars exige hyprland>=0.56.0,<0.57.0 (plugin oficial).
+# install.sh instala paru si falta (cachyos lo trae; en Arch vanilla lo
+# compila desde el AUR) y NUNCA compila como root.
+# =============================================================================
+whitesur-gtk-theme
+whitesur-icon-theme
+pamac-aur
+hyprshell
+hyprland-plugin-hyprbars
+# libpamac-aur viene como dependencia de pamac-aur (no listar aparte)

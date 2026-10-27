@@ -1,0 +1,28 @@
+NimbusShell — Instalador que transforma cualquier Arch instalado en el
+escritorio NimbusOS (install.sh, dotfiles, listas de paquetes y documentación).
+
+Copyright (C) 2026 Juan P. Moreno y colaboradores de NimbusShell.
+
+Este programa es software libre: puedes redistribuirlo y/o modificarlo bajo
+los términos de la Licencia Pública General GNU publicada por la Free
+Software Foundation, ya sea la versión 3 de la Licencia, o (a tu elección)
+cualquier versión posterior.
+
+Este programa se distribuye con la esperanza de que sea útil, pero SIN
+NINGUNA GARANTÍA; ni siquiera la garantía implícita de COMERCIABILIDAD o
+ADECUACIÓN PARA UN PROPÓSITO PARTICULAR. Consulta la Licencia Pública
+General GNU para más detalles: <https://www.gnu.org/licenses/gpl-3.0.html>.
+
+Deberías haber recibido una copia de la Licencia Pública General GNU junto
+a este programa. Si no, escríbele a la Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+---
+
+Componentes de terceros incluidos o referenciados conservan sus propias
+licencias: MacShell (MIT, https://github.com/0-ss/MacShell, vendoreado en
+dotfiles/ con parches NimbusOS), temas WhiteSur (GPL-3.0), pamac (GPL-3.0),
+Hyprland (BSD-3-Clause). El fondo assets/sequoia-light.jpg es una fotografía
+del U.S. National Park Service, de dominio público. macOS y Mac son marcas
+registradas de Apple Inc. NimbusShell no está afiliado a Apple Inc.,
+CachyOS ni MacShell.
