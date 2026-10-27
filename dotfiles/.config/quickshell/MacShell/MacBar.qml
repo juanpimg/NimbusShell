@@ -3636,7 +3636,9 @@ Scope {
                 if (!same) root.screenCovered = next;
                 if (!root.videoWall) return;
                 for (var k in next) if (next[k] !== (root.wallPaused[k] === true))
-                    Quickshell.execDetached([root.wallPauseScript, k, next[k] ? "pause" : "resume"]);
+                    // NimbusOS Ruling (scripts opcionales no vendoreados): guarda -x
+                    // como en wpRestore; sin el script no se genera spawn fallido.
+                    Quickshell.execDetached(["sh", "-c", '[ -x "$1" ] && exec "$1" "$2" "$3"', "sh", root.wallPauseScript, k, next[k] ? "pause" : "resume"]);
                 root.wallPaused = next;
             }
         }
@@ -3719,12 +3721,13 @@ Scope {
         onTriggered: {
             if (!root.settingsReady || root.gaming === root.gamingApplied) return;
             root.gamingApplied = root.gaming;
-            Quickshell.execDetached([root.gamingScript, root.gaming ? "on" : "off"]);
+            // NimbusOS Ruling: idem guarda -x (script opcional no vendoreado).
+            Quickshell.execDetached(["sh", "-c", '[ -x "$1" ] && exec "$1" "$2"', "sh", root.gamingScript, root.gaming ? "on" : "off"]);
             if (root.uiSounds) Quickshell.execDetached(["pw-play", "--volume=0.6", root.soundDir + "/tink.wav"]);
         }
     }
     // a crash while Game Mode was on leaves Hyprland without blur/animations: put them back at start
-    Timer { interval: 1500; running: true; onTriggered: { if (!root.gaming) Quickshell.execDetached([root.gamingScript, "off"]); else gamingApply.restart(); } }
+    Timer { interval: 1500; running: true; onTriggered: { if (!root.gaming) Quickshell.execDetached(["sh", "-c", '[ -x "$1" ] && exec "$1" "$2"', "sh", root.gamingScript, "off"]); else gamingApply.restart(); } }
     // Automatic: on while the focused window is a fullscreen game
     readonly property var gameClassRe: /^(steam_app_\d+|gamescope|org\.vinegarhq\.sober|sober|robloxplayer.*|minecraft.*|com\.mojang.*|lutris|heroic|.*\.exe|osu!?|cs2|dota2|hl2_linux|factorio|terraria.*|stardew.*)$/i
     Process {
@@ -4327,7 +4330,8 @@ Scope {
         // animated wallpapers go through macshell-setwall.sh (mpvpaper for videos); pictures are always set with awww below
         if (root.wpIsVideo(path)) {
             root.wallpaperVideo = path;
-            setwallProc.command = [root.setwallScript, path];
+            // NimbusOS Ruling: idem guarda -x (sin setwall no hay wallpaper animado).
+            setwallProc.command = ["sh", "-c", '[ -x "$1" ] && exec "$1" "$2"', "sh", root.setwallScript, path];
             setwallProc.running = true;
             return;
         }
