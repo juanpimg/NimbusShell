@@ -335,6 +335,9 @@ if command -v systemctl >/dev/null 2>&1; then
         elif systemctl is-enabled "$u" >/dev/null 2>&1; then echo "    [OK] $u"
         else echo "    [FALTA] $u no habilitado" >&2; VFAIL=1; fi
     done
+    if pacman -Qq auto-cpufreq >/dev/null 2>&1 && systemctl is-enabled power-profiles-daemon.service >/dev/null 2>&1; then
+        echo "    [FALTA] power-profiles-daemon activo (conflicto con auto-cpufreq)" >&2; VFAIL=1
+    else echo "    [OK] sin conflicto power-profiles-daemon/auto-cpufreq"; fi
 else echo "    [FALTA] sin systemctl" >&2; VFAIL=1; fi
 if command -v flatpak >/dev/null 2>&1 && flatpak remotes 2>/dev/null | grep -q '^flathub'; then
     echo "    [OK] flathub"
