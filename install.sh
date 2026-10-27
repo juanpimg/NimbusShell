@@ -342,6 +342,12 @@ else echo "    [FALTA] sin systemctl" >&2; VFAIL=1; fi
 if command -v flatpak >/dev/null 2>&1 && flatpak remotes 2>/dev/null | grep -q '^flathub'; then
     echo "    [OK] flathub"
 else echo "    [FALTA] flathub ausente" >&2; VFAIL=1; fi
+# Las listas al completo (un paquete sin binario en el loop de arriba tambien
+# cuenta: solo informa, pacman -Qq es local y rapido).
+# shellcheck disable=SC2046
+for p in $(read_list "$OFFICIAL_LIST") $(read_list "$AUR_LIST"); do
+    pacman -Qq "$p" >/dev/null 2>&1 || { echo "    [FALTA] paquete sin instalar: $p" >&2; VFAIL=1; }
+done
 if command -v hyprland >/dev/null 2>&1; then
     tmpv="$(mktemp -d)" || { echo "    [FALTA] sin temporal para verificar" >&2; VFAIL=1; }
     if [ -n "${tmpv:-}" ]; then
