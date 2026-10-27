@@ -156,10 +156,10 @@ trap 'kill $KA 2>/dev/null || true' EXIT
 echo "-- [1/8] paquetes oficiales (pacman)..."
 # shellcheck disable=SC2046
 sudo pacman -S --needed --noconfirm $(read_list "$OFFICIAL_LIST") \
-    || { echo "ERROR: fallo pacman oficial. Revisa tu conexion o estos paquetes:" >&2;
+    || { echo "ERROR: fallo pacman oficial. Revisa tu conexion (o ejecuta sudo pacman -Sy) o estos paquetes:" >&2;
          # shellcheck disable=SC2046
          for p in $(read_list "$OFFICIAL_LIST"); do
-             pacman -Si "$p" >/dev/null 2>&1 || echo "  - $p (no resoluble: typo o repo ausente)" >&2;
+             pacman -Si "$p" >/dev/null 2>&1 || echo "  - $p (no resoluble: typo, repo ausente o DB sin sincronizar)" >&2;
          done; exit 1; }
 
 # --- 2. paru (helper AUR; cachyos lo trae, en vanilla se compila) ------------
