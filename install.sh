@@ -272,12 +272,12 @@ echo "-- [7/8] servicios y flathub..."
 if command -v systemctl >/dev/null 2>&1; then
     if pacman -Qq auto-cpufreq >/dev/null 2>&1 \
         && systemctl list-unit-files 2>/dev/null | grep -q '^power-profiles-daemon'; then
-        sudo systemctl mask power-profiles-daemon.service >/dev/null 2>&1 || true
+        sudo systemctl mask --now power-profiles-daemon.service >/dev/null 2>&1 || true
         echo "    power-profiles-daemon enmascarado (conflicto con auto-cpufreq)"
     fi
     for u in auto-cpufreq thermald bluetooth; do
-        if systemctl list-unit-files 2>/dev/null | grep -q "^${u}"; then
-            sudo systemctl enable "$u" >/dev/null 2>&1 \
+        if systemctl list-unit-files 2>/dev/null | grep -q "^${u}\\.service[[:space:]]"; then
+            sudo systemctl enable "${u}.service" >/dev/null 2>&1 \
                 && echo "    $u habilitado" || echo "    AVISO: no se pudo habilitar $u" >&2
         else
             echo "    AVISO: $u sin unit-file (se revisara en [8/8])" >&2
