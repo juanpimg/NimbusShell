@@ -315,6 +315,12 @@ ShellRoot {
     // sin asignar a appEnabled para no romper este binding).
     ClockApp { id: clockApp; hub: sharedHub; appEnabled: clockApp.manualOverride ? clockApp.manualVal : macBar.clockAppEnabled }
     AboutApp { id: aboutApp; hub: sharedHub }
+    // NimbusOS Ruling overlay-on: WindowBar.qml era código huérfano (ningún
+    // fichero lo instanciaba: 0 menciones en `qs log`, overlay imposible).
+    // Se instancia con el hub compartido; su `enabled` interno (MacBar
+    // windowBar:true) gobierna si aparece. Sin esto, los fixes de semáforos
+    // no tienen efecto observable (lección M1 2026-10-28).
+    WindowBar { hub: sharedHub }
 
     Component.onCompleted: {
         sharedHub.bar = macBar;

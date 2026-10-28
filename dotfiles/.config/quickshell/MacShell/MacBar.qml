@@ -98,6 +98,11 @@ Scope {
     property string ccStyle: "tiles"         // tiles = every control its own glass | macos = one frosted panel behind them
     property bool notificationsEnabled: true // banners + Notification Center (off = no D-Bus daemon at all, so mako/dunst can take over)
     property bool clockAppEnabled: true      // the Clock app (alarms and timers still ring while it is on)
+    // NimbusOS Ruling overlay-on: WindowBar (semáforos+título QML) encendido por
+    // defecto — era binding muerto (nadie lo declaraba y el overlay no aparecía
+    // nunca, 0 menciones en `qs log`). Fase 1: solo declarar; hyprbars sigue
+    // dibujando (si hay doble juego se ve en captura y se retira en fase 2).
+    property bool windowBar: true
     readonly property bool barLayerNeeded: barEnabled || spotlightEnabled || ccEnabled || notificationsEnabled
     property bool darkMode: true             // the resolved look (true = dark); follows appearanceMode
     property string appearanceMode: "dark"   // light | dark | auto (auto = light by day, dark by night)
@@ -401,7 +406,7 @@ Scope {
     readonly property var settingKeys: ["barEnabled", "darkMode", "appearanceMode", "accent", "fontFamily", "barHeight", "uiScaleAuto", "uiScaleManual", "glassOpacity",
         "barStyle", "barGlass", "glassRim", "glassGrain", "glassLiquid", "glassBlur", "barBgOpacity", "glassRealtime", "liveWallGlass", "glassDebug", "wallpaperPath", "use24h", "language", "showDate",
         "showSeconds", "showBatteryPercent", "showTray", "showSearch",
-        "spotlightEnabled", "reduceMotion", "ccEnabled", "notificationsEnabled", "clockAppEnabled", "ccStyle", "barLogoMode", "barCustomLogoPath", "barWidgets", "weekStartsMonday", "terminal", "launcher",
+        "spotlightEnabled", "reduceMotion", "ccEnabled", "notificationsEnabled", "clockAppEnabled", "windowBar", "ccStyle", "barLogoMode", "barCustomLogoPath", "barWidgets", "weekStartsMonday", "terminal", "launcher",
         "filesCmd", "clipboardCmd", "appUsage", "clipHistory", "clipAutoPaste", "emojiRecent", "screenshotDir", "screenshotSave", "screenshotClipboard", "screenshotNotify", "nightTemp", "ccControls", "ccMigRec", "wallpaperDir", "wallpaperFavs", "wallpaperCmd", "wallpaperVideo", "wpRestorePath", "uiSounds", "gamingMode", "gamingAuto", "ccMigGame", "lockArtBackground",
         "lockClockStyle", "switcherStyle", "lockClockFont", "lockClockWeight", "lockClockMaterial", "lockClockIntensity", "lockClockTint", "lockClockDate", "autoContrast", "wallpaperAppearance", "wpPairLight", "wpPairDark",
         "notifDnd", "dnd", "nightOn", "keepAwake",
@@ -3779,7 +3784,7 @@ Scope {
         darkMode = true; appearanceMode = "dark"; accent = "#0a84ff"; fontFamily = "Inter"; glassOpacity = 0.42; glassBlur = 5; barBgOpacity = 0.45; glassRealtime = false; liveWallGlass = false;
         barStyle = "liquid"; use24h = true; showDate = true; showSeconds = false; showBatteryPercent = true;
         showTray = true; showSearch = true;
-        spotlightEnabled = true; ccEnabled = true; notificationsEnabled = true; clockAppEnabled = true; ccStyle = "tiles";
+        spotlightEnabled = true; ccEnabled = true; notificationsEnabled = true; clockAppEnabled = true; windowBar = true; ccStyle = "tiles";
         barLogoMode = "arch"; barCustomLogoPath = "";
         barWidgets = ["appleMenu", "appMenus", "workspaces", "volume", "keyboard", "notifications", "wifi", "bluetooth", "privacy", "controlCenter", "clock"];
         ccControls = ccDefault.slice();
