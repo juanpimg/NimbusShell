@@ -683,7 +683,7 @@ Scope {
                         y: modelData.y
                         width: root.gridCell
                         height: root.gridCell
-                        radius: 28
+                        radius: 24
                         color: Qt.rgba(1, 1, 1, 0.018)
                         border.width: 1
                         border.color: Qt.rgba(1, 1, 1, 0.10)
@@ -708,7 +708,7 @@ Scope {
                         x: wx + dragDX
                         y: wy + dragDY
                         readonly property var baseDims: root.dims(wsize)
-                        readonly property real radiusPx: 28 * root.widgetScale * (wsize === "small" ? 168 / 158 : (wsize === "medium" ? 358 / 338 : 1))
+                        readonly property real radiusPx: 24 * root.widgetScale * (wsize === "small" ? 168 / 158 : (wsize === "medium" ? 358 / 338 : 1))
                         width: baseDims[0]
                         height: baseDims[1]
 
