@@ -111,7 +111,7 @@ Scope {
                             id: light
                             required property var modelData
                             required property int index
-                            width: 13; height: 13; radius: 6.5
+                            width: 12; height: 12; radius: 6
                             color: (root.colorOnHover ? hover.hovered : true) ? modelData.c
                                  : (root.darkMode ? Qt.rgba(1, 1, 1, 0.26) : Qt.rgba(0, 0, 0, 0.22))
                             Behavior on color { ColorAnimation { duration: 160 } }
