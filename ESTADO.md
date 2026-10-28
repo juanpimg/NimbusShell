@@ -27,9 +27,9 @@ audita→implementa→verifica-con-captura→commitea). Plan vigente:
 
 ## Cola conocida (backlog vivo en `.agent_roadmap.md`)
 
-1. M2 sistema único de radios + M5 semáforos: M5 COMPLETADO ✅ (unificación comunitaria total a 12px + gris SystemGray 35% #598E8E93 en toda la shell, R9). M2.1 placa 15px ✅ (R8). Siguiente: M4 transparencia barra Tahoe 0.10 + M2.4 paneles 24px.
-2. Genie al minimizar (hoy corte brusco al shelf + SUPER+M).
-3. Transparencia de barra Tahoe (hoy blur 0.45) + tintes del Dock.
+1. M2 sistema único de radios + M5 semáforos: M5 COMPLETADO ✅ (unificación comunitaria total a 12px + gris SystemGray 35% #598E8E93 en toda la shell, R9). M2.1 placa 15px ✅ (R8). M4 transparencia Tahoe 0.10 + M2.4 paneles 24px COMPLETADOS ✅ (R11). Siguiente: M2.3 unificación de radios de widgets a 24px (cierre de M2).
+2. Genie al minimizar (hoy corte brusco al shelf + SUPER+M; M3).
+3. Tintes y concentricidad del Dock.
 4. Mission Control real (switcher actual es fallback; hyprexpo rechazado).
 5. Menú global D-Bus (descartado V1; entradas falsas eliminadas).
 6. Nits: M6 completado ✅ (start-hyprland en TTY, OSD brillo -c backlight R10, timedatectl set-ntp true en install.sh y VM; CHECK VERDE 100%).

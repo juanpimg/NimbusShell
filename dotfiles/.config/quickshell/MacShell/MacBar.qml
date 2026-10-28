@@ -353,7 +353,7 @@ Scope {
     readonly property bool gaming: gamingMode || gamingAutoActive
     property bool ccMigGame: false            // one-time: add the Game Mode tile to an existing Control Center layout
     property bool barGlass: true              // the bar strip itself is Liquid Glass (needs barStyle "liquid")
-    property real barBgOpacity: 0.45          // NimbusOS Ruling fidelidad-macos: 0.45 (era 0.10 upstream). Must stay above the layerrule's ignore_alpha (0.05) for Hyprland to blur it
+    property real barBgOpacity: 0.10 // Tahoe 1:1 & upstream default (0.10 > ignore_alpha 0.05)
     property bool glassRealtime: false        // live-capture every window all the time; off by default now that popovers refract a screen snapshot       // keep every window capture live all the time (no wallpaper-first delay when a popover opens)
     // Animated wallpaper inside the Liquid Glass (bar, Dock, widgets, Settings): OFF by default. Off = no video decoder exists at all and the
     // glass refracts a still frame of the wallpaper (the wallpaper itself still plays through mpvpaper). On = the glass plays a small
@@ -3782,7 +3782,7 @@ Scope {
     }
     function resetSettings() {
         barEnabled = true;
-        darkMode = true; appearanceMode = "dark"; accent = "#0a84ff"; fontFamily = "Inter"; glassOpacity = 0.42; glassBlur = 5; barBgOpacity = 0.45; glassRealtime = false; liveWallGlass = false;
+        darkMode = true; appearanceMode = "dark"; accent = "#0a84ff"; fontFamily = "Inter"; glassOpacity = 0.42; glassBlur = 5; barBgOpacity = 0.10; glassRealtime = false; liveWallGlass = false;
         barStyle = "liquid"; use24h = true; showDate = true; showSeconds = false; showBatteryPercent = true;
         showTray = true; showSearch = true;
         spotlightEnabled = true; ccEnabled = true; notificationsEnabled = true; clockAppEnabled = true; windowBar = true; ccStyle = "tiles";
@@ -8385,7 +8385,7 @@ Scope {
                         liquid: root.liquidActive
                         dark: root.effDark
                         bx: swPanel.x; by: swPanel.y
-                        cornerR: 26
+                        cornerR: 24
                         // frosted: the same glass with no refraction, a heavier blur and more tint
                         tint: swPanel.style === "frosted" ? Math.max(0.5, root.glassOpacity) : root.glassOpacity
                         thickness: swPanel.style === "frosted" ? 6 : 20
@@ -8402,14 +8402,14 @@ Scope {
                         z: 2
                         anchors.fill: parent
                         visible: swPanel.style !== "opaque"
-                        cornerR: 26
+                        cornerR: 24
                         dark: root.effDark
                         tint: root.menuBorderColor
                     }
                     Rectangle {
                         anchors.fill: parent
                         visible: swPanel.style === "opaque"
-                        radius: 26
+                        radius: 24
                         color: root.effDark ? "#232325" : "#F2F2F5"
                         border.width: 1; border.color: root.effDark ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(0, 0, 0, 0.10)
                         layer.enabled: true
@@ -8544,7 +8544,7 @@ Scope {
                         liquid: root.liquidActive
                         dark: root.effDark
                         bx: wpPanel.x; by: wpPanel.y
-                        cornerR: 28
+                        cornerR: 24
                         tint: root.glassOpacity
                         thickness: 22
                         strength: 0.75 * root.glassLiquid
@@ -8559,7 +8559,7 @@ Scope {
                     MenuBorder {
                         z: 2
                         anchors.fill: parent
-                        cornerR: 28
+                        cornerR: 24
                         dark: root.effDark
                         tint: root.menuBorderColor
                     }
@@ -9280,8 +9280,8 @@ Scope {
                         height: listTop + Math.min(items.length > 0 ? items.length : keep, maxRows) * 46 + pad
                         // expands / contracts downward only: the pill above never moves
                         Behavior on height { NumberAnimation { duration: root.reduceMotion ? 0 : 220; easing.type: Easing.OutCubic } }
-                        GGlass { anchors.fill: parent; gx: spg; cornerR: 32; thickness: 30; strengthMul: 1.0; shadowAmt: 0.14 }
-                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 32; dark: root.panelDarkMode; tint: root.menuBorderColor }
+                        GGlass { anchors.fill: parent; gx: spg; cornerR: 24; thickness: 30; strengthMul: 1.0; shadowAmt: 0.14 }
+                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 24; dark: root.panelDarkMode; tint: root.menuBorderColor }
                         Item {
                             x: 8; y: resPanel.listTop
                             width: parent.width - 16
@@ -9413,8 +9413,8 @@ Scope {
                             : (ui.spQuery.trim() === "" && !root.clipLoading ? "Copy some text or an image and it will show up here" : ""))
                         height: 64 + (items.length > 0 ? shown * rowH + 14 : 118)
                         Behavior on height { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-                        GGlass { anchors.fill: parent; gx: spg; cornerR: 32; thickness: 34; strengthMul: 1.0; shadowAmt: 0.22 }
-                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 32; dark: root.panelDarkMode; tint: root.menuBorderColor }
+                        GGlass { anchors.fill: parent; gx: spg; cornerR: 24; thickness: 34; strengthMul: 1.0; shadowAmt: 0.22 }
+                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 24; dark: root.panelDarkMode; tint: root.menuBorderColor }
 
                         Item {
                             id: clipHeader
@@ -9696,8 +9696,8 @@ Scope {
                         readonly property var items: ui.spMode === "emoji" ? ui.spResults : []
                         readonly property var cur: items[Math.min(ui.spSel, items.length - 1)]
                         height: 64 + 42 + gridRows * cell + 46
-                        GGlass { anchors.fill: parent; gx: spg; cornerR: 32; thickness: 34; strengthMul: 1.0; shadowAmt: 0.22 }
-                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 32; dark: root.panelDarkMode; tint: root.menuBorderColor }
+                        GGlass { anchors.fill: parent; gx: spg; cornerR: 24; thickness: 34; strengthMul: 1.0; shadowAmt: 0.22 }
+                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 24; dark: root.panelDarkMode; tint: root.menuBorderColor }
 
                         Item {
                             x: 20
@@ -9862,8 +9862,8 @@ Scope {
                         Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
                         width: spot.width
                         height: Math.min(64 + appsCol.height + 14, 520)
-                        GGlass { anchors.fill: parent; gx: spg; cornerR: 32; thickness: 34; strengthMul: 1.0; shadowAmt: 0.22 }
-                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 32; dark: root.panelDarkMode; tint: root.menuBorderColor }
+                        GGlass { anchors.fill: parent; gx: spg; cornerR: 24; thickness: 34; strengthMul: 1.0; shadowAmt: 0.22 }
+                        MenuBorder { amount: 1; anchors.fill: parent; cornerR: 24; dark: root.panelDarkMode; tint: root.menuBorderColor }
 
                         Item {
                             id: appsHeader
