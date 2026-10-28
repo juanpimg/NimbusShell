@@ -27,7 +27,7 @@ audita→implementa→verifica-con-captura→commitea). Plan vigente:
 
 ## Cola conocida (backlog vivo en `.agent_roadmap.md`)
 
-1. M2 sistema único de radios + M5 semáforos: M2.1 placa WindowBar a 15px ✅ (paridad Tahoe R8). M2.2/M5.1 AboutApp.qml ✅ (radio 12px + semáforos 12px). M5.2 ClockApp.qml ✅ (semáforos 12px + gris #598E8E93, R9).
+1. M2 sistema único de radios + M5 semáforos: M5 COMPLETADO ✅ (unificación comunitaria total a 12px + gris SystemGray 35% #598E8E93 en toda la shell, R9). M2.1 placa 15px ✅ (R8). Siguiente: M4 transparencia barra Tahoe 0.10 + M2.4 paneles 24px.
 2. Genie al minimizar (hoy corte brusco al shelf + SUPER+M).
 3. Transparencia de barra Tahoe (hoy blur 0.45) + tintes del Dock.
 4. Mission Control real (switcher actual es fallback; hyprexpo rechazado).

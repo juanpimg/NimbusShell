@@ -836,7 +836,8 @@ Scope {
             readonly property color hover: dark ? Qt.rgba(1, 1, 1, 0.06) : Qt.rgba(0, 0, 0, 0.05)
             readonly property color selInactive: dark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(0, 0, 0, 0.12)
             function lightBorder(active, c) { return active ? Qt.darker(c, dark ? 1.12 : 1.22) : "transparent"; }
-            readonly property color lightOff: dark ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(0, 0, 0, 0.15)
+            // NimbusOS Ruling: Apple SystemGray #8E8E93 al 35% alpha para semáforos inactivos (paridad M5).
+            readonly property color lightOff: "#598E8E93"
             readonly property color danger: "#FF453A"
         }
 
@@ -1056,9 +1057,8 @@ Scope {
                 Item {
                     id: lights
                     x: 17; y: 14
-                    width: 58; height: 14
+                    width: 52; height: 12
                     Row {
-                        scale: 0.93; transformOrigin: Item.TopLeft      // a touch smaller
                         spacing: 8
                         Repeater {
                             model: [
@@ -1068,7 +1068,7 @@ Scope {
                             ]
                             delegate: Rectangle {
                                 required property var modelData
-                                width: 14; height: 14; radius: 7
+                                width: 12; height: 12; radius: 6
                                 color: (modelData.on && (prefsWindow.active || lightsMa.containsMouse))
                                        ? modelData.c : pal.lightOff
                                 border.width: 1
@@ -1085,24 +1085,24 @@ Scope {
                                             ctx.lineWidth = 1.1;
                                             ctx.lineCap = "round";
                                             ctx.beginPath();
-                                            ctx.moveTo(4.9, 4.9); ctx.lineTo(9.1, 9.1);
-                                            ctx.moveTo(9.1, 4.9); ctx.lineTo(4.9, 9.1);
+                                            ctx.moveTo(3.9, 3.9); ctx.lineTo(8.1, 8.1);
+                                            ctx.moveTo(8.1, 3.9); ctx.lineTo(3.9, 8.1);
                                             ctx.stroke();
                                         } else if (parent.modelData.g === "\u2212") {
                                             ctx.strokeStyle = "rgba(0,0,0,0.58)";
                                             ctx.lineWidth = 1.2;
                                             ctx.lineCap = "round";
                                             ctx.beginPath();
-                                            ctx.moveTo(3.5, 7.0); ctx.lineTo(10.5, 7.0);
+                                            ctx.moveTo(3.0, 6.0); ctx.lineTo(9.0, 6.0);
                                             ctx.stroke();
                                         } else if (parent.modelData.g === "↗") {
                                             ctx.fillStyle = "rgba(0,0,0,0.58)";
                                             ctx.beginPath();
-                                            ctx.moveTo(6, 4); ctx.lineTo(10, 4); ctx.lineTo(10, 8);
+                                            ctx.moveTo(5.1, 3.4); ctx.lineTo(8.6, 3.4); ctx.lineTo(8.6, 6.9);
                                             ctx.closePath();
                                             ctx.fill();
                                             ctx.beginPath();
-                                            ctx.moveTo(8, 10); ctx.lineTo(4, 10); ctx.lineTo(4, 6);
+                                            ctx.moveTo(6.9, 8.6); ctx.lineTo(3.4, 8.6); ctx.lineTo(3.4, 5.1);
                                             ctx.closePath();
                                             ctx.fill();
                                         }
@@ -1116,9 +1116,9 @@ Scope {
                         anchors.fill: parent
                         hoverEnabled: true
                         onClicked: mouse => {
-                            if (mouse.x < 22) prefsWindow.visible = false;
-                            else if (mouse.x < 44) { }      // minimize is greyed out and does nothing
-                            else if (mouse.x < 58) {
+                            if (mouse.x < 16) prefsWindow.visible = false;
+                            else if (mouse.x < 36) { }      // minimize is greyed out and does nothing
+                            else if (mouse.x <= 52) {
                                 if (prefsWindow.visibility === Window.FullScreen) prefsWindow.showNormal();
                                 else prefsWindow.showFullScreen();
                             }

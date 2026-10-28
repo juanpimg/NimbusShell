@@ -140,7 +140,8 @@ Scope {
             readonly property color edgeOuter: Qt.rgba(1, 1, 1, 0.50)     // thin dark line on the outside
             readonly property color edgeInner: dark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.65)      // soft highlight just inside it
             function lightBorder(active, c) { return active ? Qt.darker(c, dark ? 1.12 : 1.22) : "transparent"; }
-            readonly property color lightOff: dark ? Qt.rgba(1, 1, 1, 0.2) : Qt.rgba(0, 0, 0, 0.15)
+            // NimbusOS Ruling: Apple SystemGray #8E8E93 al 35% alpha para semáforos inactivos (paridad M5).
+            readonly property color lightOff: "#598E8E93"
             readonly property color btn: dark ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, 0.75)
             readonly property color btnDown: dark ? Qt.rgba(1, 1, 1, 0.2) : Qt.rgba(1, 1, 1, 0.5)
         }

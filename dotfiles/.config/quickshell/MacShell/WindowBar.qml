@@ -113,8 +113,8 @@ Scope {
                             required property var modelData
                             required property int index
                             width: 12; height: 12; radius: 6
-                            color: (root.colorOnHover ? hover.hovered : true) ? modelData.c
-                                 : (root.darkMode ? Qt.rgba(1, 1, 1, 0.26) : Qt.rgba(0, 0, 0, 0.22))
+                            // NimbusOS Ruling: Apple SystemGray #8E8E93 al 35% alpha para semáforos inactivos (paridad M5).
+                            color: (root.colorOnHover ? hover.hovered : true) ? modelData.c : "#598E8E93"
                             Behavior on color { ColorAnimation { duration: 160 } }
                             border.width: 1; border.color: Qt.rgba(0, 0, 0, 0.14)
                             scale: lMa.pressed ? 0.86 : 1
