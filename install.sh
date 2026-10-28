@@ -425,7 +425,7 @@ fi
 
 echo
 if [ "$VFAIL" = "0" ]; then
-    echo "NIMBUSSHELL OK. Cierra sesion y entra en Hyprland (tu DM o 'Hyprland' en TTY)."
+    echo "NIMBUSSHELL OK. Cierra sesion y entra en Hyprland (tu DM o 'start-hyprland' en TTY)."
     echo "Si vienes de otro escritorio, tu config anterior esta en ~/.config/nimbusshell-backup-*."
 else
     echo "INSTALACION CON FALTOS (ver [FALTA] arriba). Re-ejecuta ./install.sh; si persiste, abre issue." >&2

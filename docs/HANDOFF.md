@@ -6,15 +6,19 @@ Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
 
 ## Estado al pausar (2026-10-28 noche)
 
-- Rama `main`, ~120 commits por delante de `origin/main`. **Sin push**
+- Rama `main`, ~127 commits por delante de `origin/main`. **Sin push**
   (requiere orden explícita). `git status` limpio tras el commit de pausa.
-- Último trabajo: M1 overlay WindowBar vivo (`d35f436` + docs). SIGUIENTE: M2.
-- Upstream: fork `juanpimg/MacShell`, ramas `add-es-locale`,
-  `windowbar-hover-symbols`, `fix-ru-locale`, `fix-clockapp-enabled`,
-  `fix-ipc-config-name`; PRs **#35-#40 OPEN** (vigilar feedback <48h).
-  Parches + cuerpos EN respaldados en
-  `~/.cache/nimbusshell-vm/upstream-patches/` (`/tmp` es tmpfs: NO usar
-  `/tmp` para nada que deba sobrevivir un reinicio).
+- Último trabajo: M1 overlay WindowBar vivo (`d35f436` + docs) + fix verify-config hyprbars (`3619703`). SIGUIENTE: M2.
+- Upstream: fork `juanpimg/MacShell`. Estado PRs en `0-ss/MacShell`:
+  * PRs **#36, #38, #39, #40 MERGED** aguas arriba (es.js, ru, clockApp, IPC).
+  * PR **#35 OPEN** (sleep-notify fallback).
+  * PR **#37 rebaseado localmente** en `~/.cache/nimbusshell-vm/upstream-patches/windowbar-hover-symbols-rebased.patch`
+    (validado con `git apply --check` sobre `main` 0.4.3; listo para push cuando se ordene).
+  Parches + cuerpos EN respaldados en `~/.cache/nimbusshell-vm/upstream-patches/`
+  (`/tmp` es tmpfs: NO usar `/tmp` para nada que deba sobrevivir un reinicio).
+- Port pendiente a NimbusOS: 18 ficheros en `dotfiles/` (M1/Tahoe/ES) pendientes de sincronizar
+  con `NimbusOS/nimbus-overlay/etc/skel/`. Exige actualizar `NimbusOS/scripts/verify-macshell.sh`
+  (reemplazar aserciones obsoletas de "cero QML" por las Rulings R6/R7).
 
 ## VM de pruebas (disco persiste, todo lo demás es volátil)
 
@@ -22,7 +26,7 @@ Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
 - Lanzar: `~/.cache/nimbusshell-vm/run-arch-gtk.sh` (ventana nativa en el
   escritorio del usuario; la VM **muere al cerrar su ventana**, es normal).
 - Credenciales guest: usuario `nimbus`, clave `nimbus2026`; entrar con
-  `Hyprland` tras login. Red SLIRP (guest→host `10.0.2.2:18088`).
+  `start-hyprland` tras login en TTY (evita el aviso de watchdog de Hyprland). Red SLIRP (guest→host `10.0.2.2:18088`).
 - Servidor de staging: `bash ~/.cache/nimbusshell-vm/stage.sh` → imprime
   `TOKEN=…` nuevo (cada ejecución ROTA el token y el tarball). Último token
   conocido al pausar: `472b15e93fb23fe4` (si falla, re-stagear).

@@ -18,7 +18,7 @@ NimbusShell es la mitad "escritorio" de [NimbusOS](https://github.com/juanpimg/N
 git clone https://github.com/juanpimg/NimbusShell.git && cd NimbusShell
 ./install.sh --check    # paso 1 (opcional): qué falta o cambiaría, sin tocar nada
 ./install.sh            # paso 2: instala (pide sudo una vez al inicio)
-# paso 3: cierra sesión y entra en Hyprland (tu DM o `Hyprland` desde TTY)
+# paso 3: cierra sesión y entra en Hyprland (tu DM o start-hyprland desde TTY)
 ```
 
 Detalles: instala 106 paquetes oficiales vía pacman, 6 AUR vía paru (lo instala o compila si falta, **nunca como root**), despliega `dotfiles/` a `$HOME` con backup previo (`~/.config/nimbusshell-backup-*`), aplica fondo, fuentes, Nautilus estilo Finder, habilita `auto-cpufreq`/`thermald`/`bluetooth`, añade Flathub y verifica (`hyprland --verify-config` con HOME temporal).

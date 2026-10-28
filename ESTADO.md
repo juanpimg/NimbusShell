@@ -14,8 +14,10 @@ ver `docs/HANDOFF.md`). Rama: `main` (~120 commits por delante de
   (semáforos 12px + glifo solo al hover + título; hyprbars como tira).
 - Español completo (`lang/es.js`, 584→638 claves con el reconciliado upstream).
 - Marca propia (logo N, fondo Sequoia NPS, sonidos generados): cero activos Apple.
-- Colaboración aguas arriba: fork `juanpimg/MacShell`, PRs **#35–#40 OPEN**
-  (es.js, hover, ru, clockAppEnabled, IPC, sleep-notify previo).
+- Colaboración aguas arriba: fork `juanpimg/MacShell`.
+  * PRs **#36, #38, #39, #40 MERGED** en `0-ss/MacShell` (es.js, ru, clockApp, IPC).
+  * PR **#35 OPEN** (sleep-notify).
+  * PR **#37 rebaseado localmente** en `upstream-patches/windowbar-hover-symbols-rebased.patch` (apply--check PASS sobre 0.4.3).
 
 ## Objetivo
 
@@ -25,13 +27,13 @@ audita→implementa→verifica-con-captura→commitea). Plan vigente:
 
 ## Cola conocida (backlog vivo en `.agent_roadmap.md`)
 
-1. M2 sistema único de radios/sombras/blur (concentricidad Tahoe).
+1. M2 sistema único de radios/sombras/blur (concentricidad Tahoe; placa 11→15).
 2. Genie al minimizar (hoy corte brusco al shelf + SUPER+M).
 3. Transparencia de barra Tahoe (hoy blur 0.45) + tintes del Dock.
 4. Mission Control real (switcher actual es fallback; hyprexpo rechazado).
 5. Menú global D-Bus (descartado V1; entradas falsas eliminadas).
-6. Nits: reloj VM, OSD brillo, aviso start-hyprland, `--check` ROJO por SKIP.
-7. Upstream: responder feedback PRs <48h; proponer issue del overlay huérfano.
+6. Nits: M6 start-hyprland completado (aviso watchdog resuelto en TTY), reloj VM, OSD brillo.
+7. Upstream: vigilar PR #35; push de PR #37 rebaseado cuando se ordene.
 
 ## Dependencias de NimbusOS (NO hacer aquí)
 
