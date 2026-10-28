@@ -121,6 +121,11 @@ Scope {
                             TLGlyph {
                                 anchors.fill: parent
                                 kind: parent.modelData.g
+                                // NimbusOS Ruling: los glifos solo al hover (macOS los muestra
+                                // solo con el puntero encima); respeta el ajuste
+                                // Settings → Windows → alwaysSymbols. Propuesta aguas arriba:
+                                // cablear tlAlwaysSymbols al visible del glifo.
+                                visible: root.alwaysSymbols || hover.hovered
                                 Behavior on opacity { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
                             }
                             MouseArea {
