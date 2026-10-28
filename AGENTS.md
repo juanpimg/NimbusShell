@@ -58,3 +58,17 @@ y libre (Inter, logo N, Sequoia NPS).
    `~/.config/nimbusshell-backup-*` y nada borra backups ajenos. Sin binds
    `CTRL-*` nuevos en configs Hyprland (Ctrl intacto para el usuario) y sintaxis
    Hyprland 0.56 vigente (`--verify-config`, sesión Lua canónica).
+
+## Lecciones operativas M1 (2026-10-28, vinculantes)
+
+9. **Verificar la CARGA, no los bytes:** tras desplegar QML al guest,
+   `pkill -9 -f 'qs -c MacShell'` (lo relanza `macshell-start`) y confirmar
+   en `qs -c MacShell log` (un `property` duplicado rompe la carga en
+   silencio; el md5 igual no prueba nada).
+10. **Despliegue con eco + md5:** `curl` con `-s` oculta 404 (exit 0 igual);
+    exigir eco textual (`DEPLOY_OK`) y `md5sum` guest==host. Detalle en
+    `docs/HANDOFF.md` (trampas de `sendstr`, `$?`, `hyprctl reload` que
+    pierde `add_button`, `keyword` inexistente en Lua, calibración ×2.0).
+11. **Evidencia posicional cerrada:** medir coordenadas SIEMPRE en la captura
+    actual (detección de píxeles, `hyprctl cursorpos`); las ventanas se
+    recolocan entre sesiones y el ojo falla por 30px.
