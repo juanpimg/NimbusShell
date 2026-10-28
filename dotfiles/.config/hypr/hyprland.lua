@@ -304,12 +304,14 @@ hl.window_rule({ name = "nimbus-hyprbars-no-bar-macshell-titles", match = { titl
 hl.curve("nimbus",    { type = "bezier", points = { { 0.25, 0.1 }, { 0.25, 1 } } })
 hl.curve("nimbusOut", { type = "bezier", points = { { 0.4, 0.0 },  { 0.2, 1 } } })
 
-hl.animation({ leaf = "windows",     enabled = true, speed = 5, bezier = "nimbus",    style = "slide" })
-hl.animation({ leaf = "windowsIn",   enabled = true, speed = 5, bezier = "nimbus",    style = "slide" })
-hl.animation({ leaf = "windowsOut",  enabled = true, speed = 4, bezier = "nimbusOut", style = "slide" })
-hl.animation({ leaf = "fade",        enabled = true, speed = 5, bezier = "nimbus" })
-hl.animation({ leaf = "workspaces",  enabled = true, speed = 5, bezier = "nimbus",    style = "slide" })
-hl.animation({ leaf = "layers",      enabled = true, speed = 4, bezier = "nimbus",    style = "fade" })
+hl.animation({ leaf = "windows",          enabled = true, speed = 5, bezier = "nimbus",    style = "slide" })
+hl.animation({ leaf = "windowsIn",        enabled = true, speed = 5, bezier = "nimbus",    style = "slide" })
+hl.animation({ leaf = "windowsOut",       enabled = true, speed = 4, bezier = "nimbusOut", style = "slide" })
+hl.animation({ leaf = "windowsMove",      enabled = true, speed = 4, bezier = "nimbus",    style = "slide" })
+hl.animation({ leaf = "fade",             enabled = true, speed = 5, bezier = "nimbus" })
+hl.animation({ leaf = "workspaces",       enabled = true, speed = 5, bezier = "nimbus",    style = "slide" })
+hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 4, bezier = "nimbus",    style = "slidevert" })
+hl.animation({ leaf = "layers",           enabled = true, speed = 4, bezier = "nimbus",    style = "fade" })
 
 -- --- Misc --------------------------------------------------------------------
 hl.config({

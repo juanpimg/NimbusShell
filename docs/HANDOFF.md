@@ -6,9 +6,15 @@ Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
 
 ## Estado al pausar (2026-10-28 noche)
 
-- Rama `main`, ~127 commits por delante de `origin/main`. **Sin push**
+- Rama `main`, ~133 commits por delante de `origin/main`. **Sin push**
   (requiere orden explícita). `git status` limpio tras el commit de pausa.
-- Último trabajo: M1 overlay WindowBar vivo (`d35f436` + docs) + fix verify-config hyprbars (`3619703`). SIGUIENTE: M2.
+- Hitos completados y verificados con evidencia visual en VM y `./install.sh --check` CHECK VERDE:
+  * **M1 Overlay WindowBar**: vivo por defecto con semáforos limpios al hover y hyprbars como tira nativa (R6, R7).
+  * **M2 Radios**: unificación total de radios (M2.1 placa 15px R8, M2.2 AboutApp 12px R9, M2.4 paneles 24px R11, M2.3 widgets de escritorio 24px R8).
+  * **M3 Animación Minimizar**: hojas de animación `specialWorkspace slidevert` y `windowsMove slide` a 60fps con curva nimbus hacia/desde el shelf del Dock (R12).
+  * **M4 Transparencia Barra**: `barBgOpacity: 0.10` canónico macOS Tahoe 1:1 y slider `Bar background` en MacDock.qml:1719 (R11).
+  * **M5 Semáforos**: unificación a 12px nativo sin escala 0.93 + gris inactivo Apple SystemGray 35% #598E8E93 en toda la shell (R9).
+  * **M6 Integración/NTP**: start-hyprland en TTY, OSD brillo -c backlight R10, `timedatectl set-ntp true` en install.sh y VM (CHECK VERDE 100%).
 - Upstream: fork `juanpimg/MacShell`. Estado PRs en `0-ss/MacShell`:
   * PRs **#36, #38, #39, #40 MERGED** aguas arriba (es.js, ru, clockApp, IPC).
   * PR **#35 OPEN** (sleep-notify fallback).

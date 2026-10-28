@@ -25,15 +25,23 @@ Paridad macOS Tahoe 1:1 en comportamiento y apariencia (ver AGENTS.md: bucle
 audita→implementa→verifica-con-captura→commitea). Plan vigente:
 `docs/superpowers/plans/2026-10-28-tahoe-11.md` (M1 overlay ✅ → M2 radios).
 
+## Hitos del Plan Tahoe 1:1
+
+- **M1 Overlay WindowBar**: COMPLETADO ✅ (instanciado en `shell.qml` + `windowBar:true`, hyprbars como tira nativa, semáforos limpios, R7).
+- **M2 Sistema único de radios**: COMPLETADO ✅ (unificación Tahoe: M2.1 placa 15px R8, M2.2 AboutApp 12px R9, M2.4 paneles 24px R11, M2.3 widgets de escritorio 24px R8).
+- **M3 Animación de minimización**: COMPLETADO ✅ (`specialWorkspace slidevert` + `windowsMove slide` a 60fps con curva nimbus en `hyprland.lua` y `hyprland.conf`, shelf de minimizados en Dock, R12).
+- **M4 Transparencia de barra Tahoe**: COMPLETADO ✅ (`barBgOpacity: 0.10` en paridad canónica Tahoe y slider `Bar background` en `MacDock.qml:1719`, R11).
+- **M5 Semáforos unificados**: COMPLETADO ✅ (estándar comunitario 12px nativo sin escala 0.93 + gris inactivo Apple SystemGray al 35% #598E8E93 en toda la shell, R9).
+- **M6 Integración y NTP**: COMPLETADO ✅ (start-hyprland en TTY, OSD brillo -c backlight R10, `timedatectl set-ntp true` en install.sh y VM; CHECK VERDE 100%).
+- **M7 Upstream MacShell**: PRs #36, #38, #39, #40 MERGED en `0-ss/MacShell` v0.4.3; PR #35 OPEN; PR #37 rebaseado localmente en `upstream-patches/windowbar-hover-symbols-rebased.patch` (apply--check PASS).
+
 ## Cola conocida (backlog vivo en `.agent_roadmap.md`)
 
-1. M2 sistema único de radios + M5 semáforos: M5 COMPLETADO ✅ (unificación comunitaria total a 12px + gris SystemGray 35% #598E8E93 en toda la shell, R9). M2 COMPLETADO ✅ (unificación integral de radios macOS Tahoe: M2.1 placa 15px, M2.2 AboutApp 12px, M2.4 paneles 24px, M2.3 widgets 24px; R8, R9, R11). M4 transparencia Tahoe 0.10 COMPLETADO ✅ (R11).
-2. Genie al minimizar (M3: animación vertical slidevert de specialWorkspace y windowsMove).
-3. Tintes y concentricidad del Dock.
-4. Mission Control real (switcher actual es fallback; hyprexpo rechazado).
-5. Menú global D-Bus (descartado V1; entradas falsas eliminadas).
-6. Nits: M6 completado ✅ (start-hyprland en TTY, OSD brillo -c backlight R10, timedatectl set-ntp true en install.sh y VM; CHECK VERDE 100%).
-7. Upstream: vigilar PR #35; push de PR #37 rebaseado cuando se ordene.
+1. Port a NimbusOS: sincronizar dotfiles M1–M6 con `nimbus-overlay/etc/skel` y actualizar `verify-macshell.sh`.
+2. Tintes y concentricidad del Dock.
+3. Mission Control real (switcher actual es fallback; hyprexpo rechazado).
+4. Menú global D-Bus (descartado V1; entradas falsas eliminadas).
+5. Upstream: vigilar PR #35; push de PR #37 rebaseado cuando se ordene.
 
 ## Dependencias de NimbusOS (NO hacer aquí)
 
