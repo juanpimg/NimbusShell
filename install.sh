@@ -52,6 +52,45 @@ pkg_list() { # $1=fichero: como read_list pero sin lib32-* si no hay multilib
     else read_list "$1" | grep -v '^lib32-'; fi
 }
 
+verify_hypr_cfg() {
+    # Valida la configuracion de Hyprland con HOME temporal aislado.
+    # Argumento: $1 = ruta al directorio .config (defecto: "$HOME/.config")
+    # Retornos:
+    #   0: hyprland --verify-config limpio (exit 0)
+    #   2: solo fallos de plugin hyprbars sin .so cargado (SKIP conocido sin sesion)
+    #   1: cualquier otro error (sintaxis rota, clave invalida, crash, o sin hyprland/config)
+    local cfg_dir="${1:-$HOME/.config}"
+    command -v hyprland >/dev/null 2>&1 || return 1
+    [ -f "$cfg_dir/hypr/hyprland.lua" ] || [ -f "$cfg_dir/hypr/hyprland.conf" ] || return 1
+
+    local tmp
+    tmp="$(mktemp -d)" || return 1
+    if ! ln -s "$cfg_dir" "$tmp/.config" 2>/dev/null; then
+        rm -rf "$tmp"
+        return 1
+    fi
+
+    local out rc
+    out="$(HOME="$tmp" hyprland --verify-config 2>&1)"
+    rc=$?
+    rm -rf "$tmp"
+
+    [ "$rc" -eq 0 ] && return 0
+
+    local err_lines
+    err_lines="$(printf '%s\n' "$out" | sed -n '/Config parsing result:/,$ p' | grep -v 'Config parsing result:' | grep -v '^[[:space:]]*$' || true)"
+
+    [ -z "$err_lines" ] && return 1
+
+    local non_plugin
+    non_plugin="$(printf '%s\n' "$err_lines" | grep -v -E "(unknown config key 'plugin\.hyprbars\.|unknown field 'hyprbars:no_bar')" || true)"
+
+    if [ -z "$non_plugin" ]; then
+        return 2
+    fi
+    return 1
+}
+
 # --- 0. Precondiciones (ambos modos) ------------------------------------------
 if [ "$(id -u)" = "0" ]; then
     echo "ERROR: no ejecutar como root. Entra como tu usuario (con sudo) y reintenta." >&2
@@ -130,14 +169,16 @@ if [ "$CHECK" = "1" ]; then
     else fail "QS_ICON_THEME difiere (conf='$q1' lua='$q1lua' env='$q2')"; fi
 
     echo "-- config Hyprland (HOME temporal):"
-    if command -v hyprland >/dev/null 2>&1 && { [ -f "$HOME/.config/hypr/hyprland.lua" ] || [ -f "$HOME/.config/hypr/hyprland.conf" ]; }; then
-        tmpcheck="$(mktemp -d)" || { echo "ERROR: sin temporal (TMPDIR lleno)" >&2; exit 1; }
-        trap 'rm -rf "${tmpcheck:-}" 2>/dev/null' INT TERM
-        ln -s "$HOME/.config" "$tmpcheck/.config" || { echo "ERROR: sin enlace temporal (disco lleno)" >&2; rm -rf "$tmpcheck"; exit 1; }
-        if HOME="$tmpcheck" hyprland --verify-config >/dev/null 2>&1; then ok "hyprland --verify-config";
-        else fail "hyprland --verify-config falla (o SKIP si pide plugin .so sin cargar: ver README)"; fi
-        rm -rf "$tmpcheck"
-    else fail "hyprland ausente o sin config en ~/.config/hypr/"; fi
+    if ! command -v hyprland >/dev/null 2>&1 || { [ ! -f "$HOME/.config/hypr/hyprland.lua" ] && [ ! -f "$HOME/.config/hypr/hyprland.conf" ]; }; then
+        fail "hyprland ausente o sin config en ~/.config/hypr/"
+    else
+        verify_hypr_cfg "$HOME/.config"
+        case $? in
+            0) ok "hyprland --verify-config" ;;
+            2) ok "hyprland --verify-config (SKIP plugin hyprbars sin sesión activa)" ;;
+            *) fail "hyprland --verify-config falla" ;;
+        esac
+    fi
 
     echo "-- servicios de sistema:"
     if command -v systemctl >/dev/null 2>&1; then
@@ -374,18 +415,12 @@ while IFS= read -r p; do
     printf '%s\n' "$_installed8" | grep -Fxq "$p" || { echo "    [FALTA] paquete sin instalar: $p" >&2; VFAIL=1; }
 done < <(pkg_list "$OFFICIAL_LIST"; pkg_list "$AUR_LIST")
 if command -v hyprland >/dev/null 2>&1; then
-    tmpv="$(mktemp -d)" || { echo "    [FALTA] sin temporal para verificar" >&2; VFAIL=1; }
-    if [ -n "${tmpv:-}" ]; then
-        if ln -s "$HOME/.config" "$tmpv/.config" 2>/dev/null; then
-            if HOME="$tmpv" hyprland --verify-config >/dev/null 2>&1; then
-                echo "    [OK] hyprland --verify-config"
-            else
-                echo "    [AVISO] hyprland --verify-config falla: si el error es solo por plugin .so" \
-                    "sin cargar (hyprbars), es SKIP conocido, no FAIL (ver README)." >&2
-            fi
-        else echo "    [FALTA] sin enlace temporal" >&2; VFAIL=1; fi
-        rm -rf "$tmpv"
-    fi
+    verify_hypr_cfg "$HOME/.config"
+    case $? in
+        0) echo "    [OK] hyprland --verify-config" ;;
+        2) echo "    [OK] hyprland --verify-config (SKIP plugin hyprbars sin sesión activa)" ;;
+        *) echo "    [FALTA] hyprland --verify-config falla" >&2; VFAIL=1 ;;
+    esac
 fi
 
 echo

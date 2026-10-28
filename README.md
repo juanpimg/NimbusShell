@@ -45,7 +45,7 @@ Los backups no se borran solos: tú decides cuándo borrarlos.
 - **Calamares (instalador del sistema) NO incluido:** vive en la ISO de NimbusOS, aquí no pinta nada — ya tienes tu sistema instalado.
 - **Login intacto:** no tocamos tu Display Manager ni tu greeter (`greetd` es ISO, R1). Entras a Hyprland desde lo que ya uses.
 - **Tuning de sistema ISO no incluido:** `etc/` de NimbusOS (greetd, modprobe, udev, sysctl, dconf db del sistema, auto-cpufreq.conf…) no se despliega; los ajustes con efecto equivalente a nivel usuario (Nautilus Finder, fuentes) sí se aplican.
-- **Plugin hyprbars:** `hyprland --verify-config` no carga plugins `.so`; si `[8/8]` avisa SOLO por `hyprbars`, es SKIP conocido, no FAIL. En `--check` el mismo caso sale como `[FALTA]` (exit 1) y se revalida tras entrar en Hyprland.
+- **Plugin hyprbars:** `hyprland --verify-config` no carga plugins `.so` sin una sesión Hyprland activa; tanto `--check` como `[8/8]` inspeccionan el log del validador y distinguen este SKIP conocido de errores de sintaxis reales (permitiendo `CHECK VERDE` tras la instalación si no hay otro drift). Errores reales de configuración o sintaxis fallan de inmediato.
 - **Wayland/Hyprland 0.56:** la sesión canónica es Lua; el `.conf` queda como fallback, igual que en NimbusOS.
 
 ## Exclusiones respecto a NimbusOS (Rulings)
