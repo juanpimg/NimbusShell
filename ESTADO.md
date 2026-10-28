@@ -27,12 +27,12 @@ audita→implementa→verifica-con-captura→commitea). Plan vigente:
 
 ## Cola conocida (backlog vivo en `.agent_roadmap.md`)
 
-1. M2 sistema único de radios: M2.1 placa WindowBar a 15px ✅ (paridad Tahoe R8 con píldora perfecta). M2.2/M5.1 AboutApp.qml ✅ (radio diálogo 12px + semáforos 12px estándar comunitario R9). Siguiente: M6 OSD brillo / NTP reloj.
+1. M2 sistema único de radios: M2.1 placa WindowBar a 15px ✅ (paridad Tahoe R8 con píldora perfecta). M2.2/M5.1 AboutApp.qml ✅ (radio diálogo 12px + semáforos 12px estándar comunitario R9).
 2. Genie al minimizar (hoy corte brusco al shelf + SUPER+M).
 3. Transparencia de barra Tahoe (hoy blur 0.45) + tintes del Dock.
 4. Mission Control real (switcher actual es fallback; hyprexpo rechazado).
 5. Menú global D-Bus (descartado V1; entradas falsas eliminadas).
-6. Nits: M6 start-hyprland completado (aviso watchdog resuelto en TTY), reloj VM, OSD brillo.
+6. Nits: M6 completado ✅ (start-hyprland en TTY, OSD brillo -c backlight R10, timedatectl set-ntp true en install.sh y VM; CHECK VERDE 100%).
 7. Upstream: vigilar PR #35; push de PR #37 rebaseado cuando se ordene.
 
 ## Dependencias de NimbusOS (NO hacer aquí)

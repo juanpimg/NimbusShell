@@ -2353,13 +2353,14 @@ Scope {
     // brightness
     property real brightness: 0.5
     function refreshBrightness() { if (!brightProc.running) brightProc.running = true; }
+    // NimbusOS Ruling: filtrar clase backlight y silenciar OSD en sondeo pasivo para evitar OSD colgado en VM/desktop (M6). Propuesta aguas arriba.
     Process {
         id: brightProc
-        command: ["sh", "-c", "brightnessctl -m 2>/dev/null | head -n1"]
+        command: ["sh", "-c", "brightnessctl -c backlight -m 2>/dev/null | head -n1"]
         stdout: StdioCollector {
             onStreamFinished: {
                 var f = text.trim().split(",");
-                if (f.length >= 4) { var p = parseInt(f[3]); if (!isNaN(p)) root.brightness = p / 100; }
+                if (f.length >= 4) { var p = parseInt(f[3]); if (!isNaN(p) && Math.abs(root.brightness - p / 100) > 0.005) { root.osdQuiet("brightness", 200); root.brightness = p / 100; } }
             }
         }
     }

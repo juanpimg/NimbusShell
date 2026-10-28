@@ -338,6 +338,9 @@ fi
 
 # --- 7. Servicios de sistema + Flathub ----------------------------------------
 echo "-- [7/8] servicios y flathub..."
+if command -v timedatectl >/dev/null 2>&1; then
+    sudo timedatectl set-ntp true 2>/dev/null || true
+fi
 if command -v systemctl >/dev/null 2>&1; then
     if pacman -Qq auto-cpufreq >/dev/null 2>&1 \
         && systemctl list-unit-files 2>/dev/null | grep -q '^power-profiles-daemon'; then
