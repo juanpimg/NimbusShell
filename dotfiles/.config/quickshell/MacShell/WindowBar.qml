@@ -94,7 +94,8 @@ Scope {
                 Rectangle {
                     anchors.fill: parent
                     anchors.margins: -5
-                    radius: 11
+                    // NimbusOS Ruling: placa en píldora estilo macOS Tahoe (radius: 15 = 30px/2; upstream usa 11). Propuesta aguas arriba.
+                    radius: 15
                     color: root.darkMode ? Qt.rgba(0, 0, 0, 0.28) : Qt.rgba(1, 1, 1, 0.3)
                     opacity: hover.hovered ? 1 : 0.55
                     Behavior on opacity { NumberAnimation { duration: 180 } }
