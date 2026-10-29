@@ -146,7 +146,7 @@ hl.window_rule({ name = "nimbus-dialog-titles", match = { title = "^([Oo]pen|[Ss
 -- --- Decoracion macOS: esquinas 10px, sombras suaves, blur ----------------
 hl.config({
     decoration = {
-        rounding         = 10,   -- NimbusOS Ruling fidelidad-macos: 10 (era 13), radio Mac
+        rounding         = 12,   -- NimbusOS Ruling fidelidad-macos: 12 (canónico macOS Tahoe)
         rounding_power   = 2,
         active_opacity   = 1.0,
         inactive_opacity = 1.0,   -- NimbusOS Ruling fidelidad-macos: 1.0 (era 0.98): ventanas inactivas opacas como en Mac
@@ -237,13 +237,10 @@ hl.config({
             -- DECORATION_PART_OF_MAIN_WINDOW, barDeco.cpp lineas 624-626)
             -- y la sombra envuelve barra+ventana en una sola silueta macOS.
             bar_part_of_window    = true,
-            -- bar_precedence_over_border explicito (= defecto upstream
-            -- false): prioridad 5000 frente a 10005 con true
-            -- (getPositioningInfo, barDeco.cpp lineas 61-73); con false el
-            -- borde de 1px NO envuelve la barra (README: con true "border
-            -- will be around the bar"). Sin cambio visual: solo fija por
-            -- escrito el defecto auditado.
-            bar_precedence_over_border = false,
+            -- bar_precedence_over_border = true: prioridad 10005 (README hyprbars:
+            -- "border will be around the bar"). El borde de 1px y el redondeo
+            -- de 12px del compositor envuelven la barra completa al nivel de la ventana.
+            bar_precedence_over_border = true,
             on_double_click       = [[hyprctl dispatch 'hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })']],
         },
     },
