@@ -158,7 +158,8 @@ Scope {
     property int hPad: 10
     property int topPad: 8
     property int bottomPad: 9            // room under icons (running dots live here)
-    property int cornerRadius: 18
+    // NimbusOS Ruling: cornerRadius 24 paridad Tahoe con paneles/widgets (upstream: 18). Propuesta aguas arriba.
+    property int cornerRadius: 24
     readonly property real uiS: bar ? bar.uiScale : 1      // UI scale (Settings → Menu Bar): Settings / About windows follow it
     property int margin: 6
     property bool darkMode: true
@@ -4211,7 +4212,7 @@ Scope {
         if (hub && hub.widgets) { hub.widgets.tempUnit = "C"; hub.widgets.locMode = "auto"; hub.widgets.cityName = ""; hub.widgets.widgetScale = 1.0; }
         Quickshell.execDetached(["sh", "-c", "rm -f \"$HOME/.config/maclock/settings.json\""]);
         iconSize = 52; magnification = 1.7; magnificationEnabled = true;
-        spacing = 6; margin = 6; cornerRadius = 18;
+        spacing = 6; margin = 6; cornerRadius = 24;
         darkMode = true; appearanceMode = "dark"; glassOpacity = 0.42; glassBlur = 5; glassLiquid = 1.0; dockStyle = "blur"; accent = "#0a84ff"; fontFamily = "Inter";
         iconTint = false; iconTintColor = "#0a84ff"; iconTintStrength = 1.0;
         hideMode = "smart"; hideDelay = 450; monitor = "";
