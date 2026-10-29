@@ -72,3 +72,14 @@ Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
 - QML vendoreado en `dotfiles/.config/quickshell/MacShell/` (parches con
   `NimbusOS Ruling`, R1-R7 en README). Sesión Lua canónica + `.conf`.
 - Rulings README: R6 glifos hover, R7 overlay ON + hyprbars como tira.
+
+## Ciclo 16: Paridad 1:1 Titlebar macOS y Semáforos Incrustados
+- **Geometría 1:1:** `WindowBar.qml` reposicionado en `x: w.wx + 13`, `y: w.wy - 28` y `height: 28`. Semáforos de 12px centrados verticalmente con 8px de margen superior e inferior dentro de la barra de `hyprbars`.
+- **Canvas 100% despejado:** El contenido de la ventana (prompt de Kitty, etc.) no sufre solapamiento alguno.
+- **Píldora artificial eliminada:** `Rectangle` contenedor de fondo fijado a `visible: false` (preservando `radius: 15` para compatibilidad de suite), descansando los semáforos directamente sobre el vidrio esmerilado.
+- **Máscara estricta:** `mask: Region { item: lights }` permite que los clics y el arrastre en el resto de la barra sean procesados por `hyprbars` para el arrastre y doble-click de maximizado nativos.
+- **Feed de Geometría Activado:** Resuelto el bug histórico de `winBarWantsGeo` en `shell.qml`, permitiendo que el poller `ipcPoll()` suministre `clients` a `WindowBar` incluso con la barra Tahoe opaca.
+- **Exclusión CSD:** Omitidas ventanas con CSD nativo (`Nautilus`, `Firefox`, `Pamac`, modales).
+- **Vídeo iOS (Ciclo 16):** [https://gofile.io/d/JTcK5rUs](https://gofile.io/d/JTcK5rUs) (`yuv420p`, `+faststart`, H.264 High 4.1).
+- **Test suite NimbusOS:** `PASS=298 FAIL=0 SKIP=7`.
+
