@@ -182,7 +182,8 @@ hl.config({
 -- y el efecto `hyprbars:no_bar` son desconocidos y --verify-config falla.
 -- Path verificado en el PKGBUILD AUR (x70b1, split hyprland-plugins):
 -- package_hyprbars instala hyprbars.so en /usr/lib/libhyprbars.so.
-hl.plugin.load("/usr/lib/libhyprbars.so")
+local _ok,_err = pcall(hl.plugin.load, "/usr/lib/libhyprbars.so")
+assert(_ok, "Falta hyprland-plugin-hyprbars (/usr/lib/libhyprbars.so): instala el paquete AUR o repo [nimbus]. Detalle: "..tostring(_err))
 -- Sintaxis Lua verificada contra el README del monorepo (tag v0.56.0) y el
 -- codigo fuente (main.cpp newLuaButton, barDeco.cpp):
 --   * `hl.config({ plugin = { hyprbars = { ... } } })` para opciones.
