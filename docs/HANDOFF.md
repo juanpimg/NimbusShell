@@ -11,7 +11,7 @@ Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
 - Hitos completados y verificados con evidencia visual en VM y `./install.sh --check` CHECK VERDE:
   * **M1 Overlay WindowBar**: vivo por defecto con semáforos limpios al hover y hyprbars como tira nativa (R6, R7).
   * **M2 Radios**: unificación total de radios (M2.1 placa 15px R8, M2.2 AboutApp 12px R9, M2.4 paneles 24px R11, M2.3 widgets de escritorio 24px R8).
-  * **M3 Animación Minimizar**: hojas de animación `specialWorkspace slidevert` y `windowsMove slide` a 60fps con curva nimbus hacia/desde el shelf del Dock (R12).
+  * **M3 Animación Minimizar & Genie Shader**: hojas de animación `specialWorkspace slidevert` y `windowsMove slide` a 60fps con curva nimbus; instanciado `MinimizeFx.qml` en `shell.qml` y `sharedHub.minimizeFx`, shader `genie.vert.qsb` GridMesh 6x64; minimización en `WindowBar.qml` con `no_anim: 1` durante el vuelo y supresión de doble imagen; cálculo analítico `targetRectForToplevel()` y restauración inversa fluida desde el shelf en `MacDock.qml`; IPCs `window.minimize` y `dock.restoreFirst`; script `nimbus-minimize-toggle` integrado; evidencias `m3_genie_midflight.png`, `m3_genie_minimized.png`, `m3_genie_restored.png` y `m3_genie_comparison.png` (R12).
   * **M4 Transparencia Barra**: `barBgOpacity: 0.10` canónico macOS Tahoe 1:1 y slider `Bar background` en MacDock.qml:1719 (R11).
   * **M5 Semáforos**: unificación a 12px nativo sin escala 0.93 + gris inactivo Apple SystemGray 35% #598E8E93 en toda la shell (R9).
   * **M6 Integración/NTP**: start-hyprland en TTY, OSD brillo -c backlight R10, `timedatectl set-ntp true` en install.sh y VM (CHECK VERDE 100%).

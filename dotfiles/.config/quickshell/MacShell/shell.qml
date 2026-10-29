@@ -41,6 +41,7 @@ ShellRoot {
         property var widgets: macWidgets
         property var clock: clockApp
         property var about: aboutApp
+        property var minimizeFx: minimizeFx
         function openSettings(pane) { macDock.openPrefs(pane); }
 
         // set by MacBar / MacDock (Binding elements) when their glass needs live data
@@ -320,12 +321,14 @@ ShellRoot {
     // Se instancia con el hub compartido; su `enabled` interno (MacBar
     // windowBar:true) gobierna si aparece. Sin esto, los fixes de semáforos
     // no tienen efecto observable (lección M1 2026-10-28).
-    WindowBar { hub: sharedHub }
+    WindowBar { id: windowBarItem; hub: sharedHub }
+    MinimizeFx { id: minimizeFx; hub: sharedHub }
 
     Component.onCompleted: {
         sharedHub.bar = macBar;
         sharedHub.dock = macDock;
         sharedHub.widgets = macWidgets;
+        sharedHub.minimizeFx = minimizeFx;
     }
 
     // reopen settings even when both the Dock and the Menu Bar are disabled:
@@ -371,5 +374,33 @@ ShellRoot {
     IpcHandler {
         target: "glass"
         function captures(on: bool): void { macDock.windowCapture = on; }
+    }
+    // qs -c MacShell ipc call window minimize
+    IpcHandler {
+        target: "window"
+        function minimize(): void {
+            if (windowBarItem && typeof windowBarItem.minimize === "function") {
+                windowBarItem.minimize();
+            }
+        }
+    }
+    // qs -c MacShell ipc call dock restoreFirst | activate <key>
+    IpcHandler {
+        target: "dock"
+        function restoreFirst(): void {
+            if (macDock && macDock.items) {
+                for (var i = 0; i < macDock.items.length; i++) {
+                    if (macDock.items[i].kind === "win") {
+                        macDock.activate(macDock.items[i], false);
+                        return;
+                    }
+                }
+            }
+        }
+        function activate(key: string): void {
+            if (macDock && macDock.itemMap && macDock.itemMap[key]) {
+                macDock.activate(macDock.itemMap[key], false);
+            }
+        }
     }
 }

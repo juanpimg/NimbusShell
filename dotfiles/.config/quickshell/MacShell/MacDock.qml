@@ -4381,8 +4381,117 @@ Scope {
         return out;
     }
 
+    function hyprOf(tl) {
+        if (!tl) return null;
+        var v = Hyprland.toplevels.values;
+        for (var i = 0; i < v.length; i++) if (v[i].wayland === tl) return v[i];
+        return null;
+    }
+
+    function screenNameForMon(monId) {
+        if (monId !== undefined) {
+            var ms = Hyprland.monitors.values;
+            for (var i = 0; i < ms.length; i++) {
+                if (ms[i].id === monId) return ms[i].name;
+            }
+        }
+        return Quickshell.screens[0] ? Quickshell.screens[0].name : "";
+    }
+
+    function targetRectForToplevel(tl, screenName) {
+        var s = null;
+        if (screenName) {
+            for (var i = 0; i < Quickshell.screens.length; i++) {
+                if (Quickshell.screens[i].name === screenName) { s = Quickshell.screens[i]; break; }
+            }
+        }
+        if (!s && root.monitor) {
+            for (var j = 0; j < Quickshell.screens.length; j++) {
+                if (Quickshell.screens[j].name === root.monitor) { s = Quickshell.screens[j]; break; }
+            }
+        }
+        if (!s && Quickshell.screens.length > 0) s = Quickshell.screens[0];
+        if (!s) return { x: 0, y: 0, width: root.iconSize, height: root.iconSize };
+
+        var it = null;
+        if (tl) {
+            for (var k = 0; k < items.length; k++) {
+                if (items[k].kind === "win" && items[k].tl === tl) { it = items[k]; break; }
+            }
+            if (!it && tl.appId) {
+                var akey = keyOf(appOf(tl));
+                for (var m = 0; m < items.length; m++) {
+                    if (items[m].kind === "app" && items[m].key === akey) { it = items[m]; break; }
+                }
+            }
+        }
+
+        var totalW = appCount * (iconSize + spacing) + sepCount * (sepWidth + spacing) - spacing;
+        var rowLeft = (s.width - totalW) / 2;
+        var itemW = iconSize;
+        var c0 = 0;
+
+        if (it) {
+            itemW = (it.kind === "sep") ? sepWidth : iconSize;
+            c0 = it.nA * (iconSize + spacing) + it.nS * (sepWidth + spacing) + itemW / 2;
+        } else {
+            c0 = totalW - iconSize / 2;
+        }
+
+        var gx = s.x + rowLeft + c0 - itemW / 2;
+        var gy = s.y + s.height - bottomPad - iconSize;
+        return { x: Math.round(gx), y: Math.round(gy), width: Math.round(itemW), height: Math.round(iconSize) };
+    }
+
     function activate(item, forceNew) {
-        if (item.kind === "win") { if (item.tl) item.tl.activate(); return; }
+        if (item.kind === "win") {
+            var tl = item.tl;
+            if (!tl) return;
+            var h = root.hyprOf(tl);
+            var o = h ? h.lastIpcObject : null;
+            var addr = h ? ("0x" + String(h.address).replace(/^0x/, "")) : "";
+
+            var targetWs = (Hyprland.activeWorkspace && Hyprland.activeWorkspace.name)
+                ? String(Hyprland.activeWorkspace.name) : "1";
+            if (targetWs.indexOf("special:") === 0) targetWs = "1";
+
+            var isSpecial = o && o.workspace && (String(o.workspace.name).indexOf("special:") === 0 || o.workspace.id < 0);
+
+            var doRestore = function() {
+                if (addr) {
+                    Hyprland.dispatch('hl.dsp.window.set_prop({ prop = "no_anim", value = "1", window = "address:' + addr + '" })');
+                    Hyprland.dispatch('hl.dsp.window.move({ workspace = "' + targetWs + '", follow = false, window = "address:' + addr + '" })');
+                    Hyprland.dispatch('hl.dsp.window.focus_window({ window = "address:' + addr + '" })');
+                    Hyprland.dispatch('hl.dsp.window.set_prop({ prop = "no_anim", value = "0", window = "address:' + addr + '" })');
+                }
+                tl.activate();
+            };
+
+            var fx = root.hub ? root.hub.minimizeFx : null;
+            if (!isSpecial || !fx || fx.effect === "instant" || !o || !o.at || !o.size) {
+                doRestore();
+                return;
+            }
+
+            var screenName = (o && o.monitor !== undefined) ? root.screenNameForMon(o.monitor) : (Quickshell.screens[0] ? Quickshell.screens[0].name : "");
+            var targetRect = root.targetRectForToplevel(tl, screenName);
+            var winGeo = {
+                x: o.at[0],
+                y: o.at[1],
+                width: o.size[0],
+                height: o.size[1]
+            };
+
+            fx.play({
+                screen: screenName,
+                tl: tl,
+                win: winGeo,
+                target: targetRect,
+                reverse: true,
+                after: doRestore
+            });
+            return;
+        }
         if (item.special === "trash") {
             // the file manager first (Dolphin understands trash:/ natively); xdg-open only as the last resort
             Quickshell.execDetached(["sh", "-c",
@@ -4395,7 +4504,14 @@ Scope {
         if (wins.length > 0 && !forceNew) {
             var idx = -1;
             for (var i = 0; i < wins.length; i++) if (wins[i].activated) idx = i;
-            wins[(idx + 1) % wins.length].activate();
+            var targetTl = wins[(idx + 1) % wins.length];
+            var th = root.hyprOf(targetTl);
+            var to = th ? th.lastIpcObject : null;
+            if (to && to.workspace && (String(to.workspace.name).indexOf("special:") === 0 || to.workspace.id < 0)) {
+                root.activate({ kind: "win", tl: targetTl, key: "win:" + winIdFor(targetTl) }, false);
+                return;
+            }
+            targetTl.activate();
             return;
         }
         if (item.entry || item.key) {
@@ -5033,9 +5149,7 @@ Scope {
                     else ghostFade.finished.connect(function () { if (!ui.tearing) ui.tearItem = null; });
                 }
                 function hyprOf(tl) {
-                    var v = Hyprland.toplevels.values;
-                    for (var i = 0; i < v.length; i++) if (v[i].wayland === tl) return v[i];
-                    return null;
+                    return root.hyprOf(tl);
                 }
                 function beginTear(item, src, homeX, homeY) {
                     if (dragging) { dragTarget = dragIndex; endDrag(); }

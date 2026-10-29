@@ -53,9 +53,57 @@ Scope {
     // Window positions come from the shell's geometry feed, which only runs when something asks for it (the glass
     // did; in Opaque nothing did, so the controls had nowhere to go)
     Binding { target: root.hub; property: "winBarWantsGeo"; value: root.enabled; when: root.hub !== null }
+    function screenForClient(c) {
+        if (!c || c.monitor === undefined) return (Quickshell.screens[0] ? Quickshell.screens[0].name : "");
+        var ms = Hyprland.monitors.values;
+        for (var i = 0; i < ms.length; i++) {
+            if (ms[i].id === c.monitor) return ms[i].name;
+        }
+        return Quickshell.screens[0] ? Quickshell.screens[0].name : "";
+    }
     function dispatch(d) { Hyprland.dispatch(d + "({ window = \"address:" + activeAddr + "\" })"); }
     function close() { Hyprland.dispatch('hl.dsp.window.close({ window = "address:' + activeAddr + '" })'); }
-    function minimize() { Hyprland.dispatch('hl.dsp.window.move({ workspace = "special:minimized", follow = false, window = "address:' + activeAddr + '" })'); }
+    function minimize() {
+        var addr = root.activeAddr;
+        if (!addr) return;
+        var fx = hub ? hub.minimizeFx : null;
+        var c = root.active;
+        var tl = root.activeTl;
+
+        var doMove = function() {
+            Hyprland.dispatch('hl.dsp.window.set_prop({ prop = "no_anim", value = "1", window = "address:' + addr + '" })');
+            Hyprland.dispatch('hl.dsp.window.move({ workspace = "special:minimized", follow = false, window = "address:' + addr + '" })');
+        };
+
+        if (!fx || !c || !tl || fx.effect === "instant") {
+            doMove();
+            return;
+        }
+
+        var sName = root.screenForClient(c);
+        var target = (dock && typeof dock.targetRectForToplevel === "function")
+            ? dock.targetRectForToplevel(tl, sName)
+            : ({ x: 0, y: 0, width: 48, height: 48 });
+
+        var winGeo = {
+            x: c.at[0],
+            y: c.at[1],
+            width: c.size[0],
+            height: c.size[1]
+        };
+
+        fx.play({
+            screen: sName,
+            tl: tl,
+            win: winGeo,
+            target: target,
+            reverse: false,
+            before: doMove,
+            after: function() {
+                Hyprland.dispatch('hl.dsp.window.set_prop({ prop = "no_anim", value = "0", window = "address:' + addr + '" })');
+            }
+        });
+    }
     function zoom() { Hyprland.dispatch('hl.dsp.window.fullscreen_state({ internal = 2, client = 0, window = "address:' + activeAddr + '" })'); }
 
     Variants {

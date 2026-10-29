@@ -29,7 +29,7 @@ audita→implementa→verifica-con-captura→commitea). Plan vigente:
 
 - **M1 Overlay WindowBar**: COMPLETADO ✅ (instanciado en `shell.qml` + `windowBar:true`, hyprbars como tira nativa, semáforos limpios, R7).
 - **M2 Sistema único de radios**: COMPLETADO ✅ (unificación Tahoe: M2.1 placa 15px R8, M2.2 AboutApp 12px R9, M2.4 paneles 24px R11, M2.3 widgets de escritorio 24px R8).
-- **M3 Animación de minimización**: COMPLETADO ✅ (`specialWorkspace slidevert` + `windowsMove slide` a 60fps con curva nimbus en `hyprland.lua` y `hyprland.conf`, shelf de minimizados en Dock, R12).
+- **M3 Animación de minimización y Genie Shader**: COMPLETADO ✅ (`specialWorkspace slidevert` + `windowsMove slide` a 60fps con curva nimbus en `hyprland.lua` y `hyprland.conf`; instanciado y conectado `MinimizeFx.qml` Genie Shader `genie.vert.qsb` GridMesh 6x64 en `shell.qml`, `WindowBar.qml` y `MacDock.qml` con cálculo analítico `targetRectForToplevel()` y restauración inversa con foco; IPCs expuestos y `nimbus-minimize-toggle` integrado; CHECK VERDE 100%, R12).
 - **M4 Transparencia de barra Tahoe**: COMPLETADO ✅ (`barBgOpacity: 0.10` en paridad canónica Tahoe y slider `Bar background` en `MacDock.qml:1719`, R11).
 - **M5 Semáforos unificados**: COMPLETADO ✅ (estándar comunitario 12px nativo sin escala 0.93 + gris inactivo Apple SystemGray al 35% #598E8E93 en toda la shell, R9).
 - **M6 Integración y NTP**: COMPLETADO ✅ (start-hyprland en TTY, OSD brillo -c backlight R10, `timedatectl set-ntp true` en install.sh y VM; CHECK VERDE 100%).
