@@ -66,14 +66,14 @@ verify_hypr_cfg() {
     local tmp
     tmp="$(mktemp -d)" || return 1
     if ! ln -s "$cfg_dir" "$tmp/.config" 2>/dev/null; then
-        rm -rf "$tmp"
+        rm -rf "${tmp:?}"
         return 1
     fi
 
     local out rc
     out="$(HOME="$tmp" hyprland --verify-config 2>&1)"
     rc=$?
-    rm -rf "$tmp"
+    rm -rf "${tmp:?}"
 
     [ "$rc" -eq 0 ] && return 0
 
