@@ -168,6 +168,16 @@ if [ "$CHECK" = "1" ]; then
     if [ -n "${q1:-}" ] && [ "${q1:-}" = "${q2:-}" ] && { [ -z "${q1lua:-}" ] || [ "${q1lua:-}" = "${q2:-}" ]; }; then ok "QS_ICON_THEME=$q1 en todos";
     else fail "QS_ICON_THEME difiere (conf='$q1' lua='$q1lua' env='$q2')"; fi
 
+    echo "-- paridad R14 (rounding + hyprbars precedence conf vs lua):"
+    r14_round_conf="$(grep -h '^[[:space:]]*rounding[[:space:]]*=' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*=[[:space:]]*//; s/,.*//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
+    r14_round_lua="$(grep -h '^[[:space:]]*rounding[[:space:]]*=' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*=[[:space:]]*//; s/,.*//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
+    r14_prec_conf="$(grep -h '^[[:space:]]*bar_precedence_over_border[[:space:]]*=' "$HOME/.config/hypr/hyprland.conf" 2>/dev/null | sed 's/.*=[[:space:]]*//; s/,.*//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
+    r14_prec_lua="$(grep -h '^[[:space:]]*bar_precedence_over_border[[:space:]]*=' "$HOME/.config/hypr/hyprland.lua" 2>/dev/null | sed 's/.*=[[:space:]]*//; s/,.*//; s/^[[:space:]]*//; s/[[:space:]]*$//' || true)"
+    if [ -n "${r14_round_conf:-}" ] && [ "${r14_round_conf:-}" = "${r14_round_lua:-}" ]; then ok "R14 rounding=${r14_round_conf} (conf=lua)";
+    else fail "R14 rounding difiere (conf='${r14_round_conf:-}' lua='${r14_round_lua:-}')"; fi
+    if [ -n "${r14_prec_conf:-}" ] && [ "${r14_prec_conf:-}" = "${r14_prec_lua:-}" ]; then ok "R14 precedence=${r14_prec_conf} (conf=lua)";
+    else fail "R14 precedence difiere (conf='${r14_prec_conf:-}' lua='${r14_prec_lua:-}')"; fi
+
     echo "-- config Hyprland (HOME temporal):"
     if ! command -v hyprland >/dev/null 2>&1 || { [ ! -f "$HOME/.config/hypr/hyprland.lua" ] && [ ! -f "$HOME/.config/hypr/hyprland.conf" ]; }; then
         fail "hyprland ausente o sin config en ~/.config/hypr/"
