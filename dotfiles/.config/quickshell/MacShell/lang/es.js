@@ -613,6 +613,8 @@ var strings = {
     "Smaller": "Más pequeño",
     "Larger": "Más grande",
     "Windows behind the Dock stream live (every frame); workspace switches, new windows and wallpaper changes show through at once": "Las ventanas tras el Dock se ven en vivo (cada fotograma); los cambios de escritorio, ventanas nuevas y fondos se muestran al momento",
+    "Reduce transparency": "Reducir transparencia",
+    "Use opaque backgrounds for the Dock and menu bar": "Usa fondos opacos para el Dock y la barra de menús",
     "Version 0.4.2 • Hyprland • Quickshell": "Version 0.4.2 • Hyprland • Quickshell",
     "Just now": "Ahora mismo",
     "min ago": "min",

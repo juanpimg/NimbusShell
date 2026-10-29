@@ -2374,6 +2374,15 @@ Scope {
                         SSwitch { t: pal; checked: root.glassLive; onToggled: v => root.glassLive = v }
                     }
                 }
+                SCard {
+                    t: pal
+                    SRow {
+                        t: pal
+                        title: I18n.tr("Reduce transparency")
+                        subtitle: I18n.tr("Use opaque backgrounds for the Dock and menu bar")
+                        SSwitch { t: pal; checked: root.reduceTransparency; onToggled: v => root.reduceTransparency = v }
+                    }
+                }
                 SLabel { t: pal; text: root.dockStyle === "liquid"
                                        ? I18n.tr("Liquid Glass refracts the wallpaper and windows behind the Dock in real time. Corner radius also shapes the glass.")
                                        : I18n.tr("The blur behind the Dock comes from your Hyprland layer rule.") }
