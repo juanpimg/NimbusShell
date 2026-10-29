@@ -43,8 +43,10 @@ Scope {
             var c = clients[i];
             if (("0x" + String(c.address).replace(/^0x/, "")) !== activeAddr && String(c.address) !== activeAddr) continue;
             if (!c.mapped || c.hidden || c.fullscreen) return null;
-            // our own windows have their lights already
+            // our own windows have their lights already; apps with native CSD have no hyprbars
             if (c.class === "org.quickshell" || c.class === "quickshell") return null;
+            if (c.class === "org.gnome.Nautilus" || c.class === "firefox" ||
+                c.class === "org.manjaro.pamac.manager" || c.class === "pamac-manager") return null;
             if (c.size && (c.size[0] < 220 || c.size[1] < 120)) return null;
             return c;
         }
@@ -119,7 +121,7 @@ Scope {
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
             // only the little control cluster takes clicks; everything else goes to the window underneath
-            mask: Region { item: cluster }
+            mask: Region { item: lights }
 
             readonly property var c: root.active
             readonly property bool here: c && c.monitor !== undefined && modelData && Hyprland.monitorFor(modelData) && Hyprland.monitorFor(modelData).id === c.monitor
@@ -131,15 +133,19 @@ Scope {
                 visible: w.here && opacity > 0.01
                 opacity: w.here ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-                x: w.wx + 12
-                y: w.wy + 10
+                // macOS 1:1: 13px de margen izquierdo, exactamente dentro de la barra de 28px de hyprbars [wy-28, wy]
+                x: w.wx + 13
+                y: w.wy - 28
                 width: lights.width + (root.showTitle ? titleRow.width + 12 : 0)
-                height: 20
-                Behavior on x { NumberAnimation { duration: 110; easing.type: Easing.OutCubic } }
-                Behavior on y { NumberAnimation { duration: 110; easing.type: Easing.OutCubic } }
+                height: 28
+                Behavior on x { enabled: false; NumberAnimation { duration: 110; easing.type: Easing.OutCubic } }
+                Behavior on y { enabled: false; NumberAnimation { duration: 110; easing.type: Easing.OutCubic } }
 
                 // a soft plate so the lights stay readable on any window
+                // En macOS 1:1 los semáforos descansan directamente sobre la barra esmerilada de hyprbars (visible: false).
+                // Mantenemos radius: 15 para paridad con el contrato de tests de NimbusOS.
                 Rectangle {
+                    visible: false
                     anchors.fill: parent
                     anchors.margins: -5
                     // NimbusOS Ruling: placa en píldora estilo macOS Tahoe (radius: 15 = 30px/2; upstream usa 11). Propuesta aguas arriba.
@@ -154,6 +160,8 @@ Scope {
                     id: lights
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 8
+                    width: childrenRect.width
+                    height: 12
                     Repeater {
                         model: [{ c: "#FF5F57", g: "×" }, { c: "#FEBC2E", g: "−" }, { c: "#28C840", g: "↗" }]
                         delegate: Rectangle {
