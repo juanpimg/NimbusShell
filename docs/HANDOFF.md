@@ -4,10 +4,17 @@ Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
 `.agent_roadmap.md` (backlog vivo, manda lo último) →
 `docs/superpowers/plans/2026-10-28-tahoe-11.md` (plan M1-M7 + pointer lab).
 
-## Estado al pausar (2026-10-28 noche)
+## Objetivo y entorno (no negociable)
 
-- Rama `main`, ~133 commits por delante de `origin/main`. **Sin push**
-  (requiere orden explícita). `git status` limpio tras el commit de pausa.
+UI y UX **1:1 con macOS Tahoe**. **Todas las pruebas son reales en una VM**
+QEMU/KVM con Arch vanilla: arranque, login, sesión Hyprland, capturas
+(`screendump`), teclado (`sendkey`/`sendstr`) y puntero calibrado
+(pointer lab). Sin evidencia de la VM no hay "listo".
+
+## Estado al pausar (2026-10-29, Ciclo 16 pusheado)
+
+- Rama `main`, en sync con `origin/main` tras push de `5703ab7`
+  (Ciclo 16: traffic-lights 1:1 + `winBarWantsGeo` + rounding 12).
 - Hitos completados y verificados con evidencia visual en VM y `./install.sh --check` CHECK VERDE:
   * **M1 Overlay WindowBar**: vivo por defecto con semáforos limpios al hover y hyprbars como tira nativa (R6, R7).
   * **M2 Radios**: unificación total de radios (M2.1 placa 15px R8, M2.2 AboutApp 12px R9, M2.4 paneles 24px R11, M2.3 widgets de escritorio 24px R8).

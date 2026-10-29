@@ -4,12 +4,14 @@ Lee esto antes de tocar nada. Proyecto en español; responde y documenta en espa
 
 ## Objetivo (no negociable)
 
-Clonar la experiencia macOS **1:1** en comportamiento y apariencia: ventanas con
-semáforos nativos, Spaces, Mission Control, Spotlight, Launchpad, Dock, menús
-globales, atajos universales. Todo lo que se vea o se comporte distinto de un
-Mac real es un bug con nombre y prioridad. Sin activos propietarios de Apple
-(nada de logos, SF, wallpapers o sonidos suyos): equivalencia con arte propio
-y libre (Inter, logo N, Sequoia NPS).
+Clonar la experiencia macOS **Tahoe 1:1** en comportamiento y apariencia:
+ventanas con semáforos nativos, Spaces, Mission Control, Spotlight, Launchpad,
+Dock, menús globales, atajos universales. Todo lo que se vea o se comporte
+distinto de un Mac real es un bug con nombre y prioridad. **Todas las
+pruebas son reales en VM** (QEMU/KVM + capturas + pointer lab, ver
+`docs/HANDOFF.md`): sin evidencia de la VM no hay "listo". Sin activos
+propietarios de Apple (nada de logos, SF, wallpapers o sonidos suyos):
+equivalencia con arte propio y libre (Inter, logo N, Sequoia NPS).
 
 ## Bucle de iteración (siempre igual)
 

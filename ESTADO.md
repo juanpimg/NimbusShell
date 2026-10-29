@@ -1,8 +1,13 @@
 # Estado — NimbusShell
 
-Actualizado: 2026-10-28 noche (pausa documentada, lista para retomar;
-ver `docs/HANDOFF.md`). Rama: `main` (~120 commits por delante de
-`origin/main`, **sin push**: requiere orden explícita).
+Actualizado: 2026-10-29 (Ciclo 16 completo y pusheado a `origin/main`:
+`5703ab7`; ver `docs/HANDOFF.md`). Rama: `main`, en sync con GitHub.
+
+## Objetivo (recordatorio para cada sesión)
+
+UI y UX **1:1 con macOS Tahoe**, verificado con **pruebas reales en VM**
+(QEMU/KVM Arch vanilla + capturas + pointer lab). Nada de afirmaciones sin
+evidencia de la VM. Sin activos propietarios de Apple.
 
 ## Qué hay (v1 + octubre)
 
