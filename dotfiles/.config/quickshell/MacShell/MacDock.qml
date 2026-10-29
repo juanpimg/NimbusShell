@@ -5523,7 +5523,7 @@ Scope {
                             ShaderEffectSource {
                                 id: bblur
                                 sourceItem: bblurFx
-                                live: !ui.tucked
+                                live: !ui.tucked && !root.reduceTransparency
                                 visible: false
                             }
                             MultiEffect {
@@ -5541,7 +5541,7 @@ Scope {
                                 id: bblur2
                                 // the 2nd pass is a pure copy unless the blur radius exceeds one pass: skip it then (same pixels, one GPU pass less)
                                 sourceItem: dg.bn > 1.0 ? bblur2Fx : null
-                                live: !ui.tucked
+                                live: !ui.tucked && !root.reduceTransparency
                                 visible: false
                             }
                             ShaderEffect {
