@@ -22,9 +22,11 @@ Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
     (validado con `git apply --check` sobre `main` 0.4.3; listo para push cuando se ordene).
   Parches + cuerpos EN respaldados en `~/.cache/nimbusshell-vm/upstream-patches/`
   (`/tmp` es tmpfs: NO usar `/tmp` para nada que deba sobrevivir un reinicio).
-- Port pendiente a NimbusOS: 18 ficheros en `dotfiles/` (M1/Tahoe/ES) pendientes de sincronizar
-  con `NimbusOS/nimbus-overlay/etc/skel/`. Exige actualizar `NimbusOS/scripts/verify-macshell.sh`
-  (reemplazar aserciones obsoletas de "cero QML" por las Rulings R6/R7).
+- Port a NimbusOS: COMPLETADO 100% CONVERGENTE (Ciclo 15 2026-10-29). Sincronizados 27 ficheros
+  en `dotfiles/` hacia `NimbusOS/nimbus-overlay/etc/skel/` y `/usr/bin/`; `diff -rq` produce exactamente
+  las 4 líneas canónicas documentadas en `README.md:53` (las 3 herramientas de `.local/bin` y `Desktop/`).
+  `NimbusOS/scripts/verify-macshell.sh` actualizado a R6-R12 y verificado con PASS=298 FAIL=0.
+  Commit atómico `a4b2ef7` en NimbusOS (sin push).
 
 ## VM de pruebas (disco persiste, todo lo demás es volátil)
 

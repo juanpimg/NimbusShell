@@ -37,7 +37,7 @@ audita→implementa→verifica-con-captura→commitea). Plan vigente:
 
 ## Cola conocida (backlog vivo en `.agent_roadmap.md`)
 
-1. Port a NimbusOS: sincronizar dotfiles M1–M6 con `nimbus-overlay/etc/skel` y actualizar `verify-macshell.sh`.
+1. Port a NimbusOS: COMPLETADO 100% CONVERGENTE ✅ (dotfiles sincronizados 1:1, `verify-macshell.sh` PASS=298 FAIL=0, commit `a4b2ef7`).
 2. Tintes y concentricidad del Dock.
 3. Mission Control real (switcher actual es fallback; hyprexpo rechazado).
 4. Menú global D-Bus (descartado V1; entradas falsas eliminadas).
