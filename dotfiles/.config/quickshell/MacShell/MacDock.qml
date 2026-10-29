@@ -5575,7 +5575,7 @@ Scope {
                                 property real magnify: 0.08 * root.glassLiquid
                                 property real rim: root.glassRim * 0.20
                                 property real grain: root.glassGrain * 0.3     // quieter noise on the Dock glass
-                                property real blurPx: 1.5            // tiny residual smoothing; the real blur is the MultiEffect pre-pass
+                                property real blurPx: root.reduceTransparency ? 0 : 1.5            // tiny residual smoothing; the real blur is the MultiEffect pre-pass
                                 property real tintMix: root.reduceTransparency ? 1 : root.glassOpacity * 0.55
                                 property real saturation: 1.25
                                 property real dark: root.dockDark ? 1 : 0
