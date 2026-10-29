@@ -90,3 +90,22 @@ QEMU/KVM con Arch vanilla: arranque, login, sesión Hyprland, capturas
 - **Vídeo iOS (Ciclo 16):** [https://gofile.io/d/JTcK5rUs](https://gofile.io/d/JTcK5rUs) (`yuv420p`, `+faststart`, H.264 High 4.1).
 - **Test suite NimbusOS:** `PASS=298 FAIL=0 SKIP=7`.
 
+
+## Sesión orquestación 2026-10-29 (ciclos 1-11)
+- Rango `4c551e2..d8189ac`: Dock `cornerRadius` 24 paridad Tahoe (R13);
+  gobernanza post-Ciclo16 R14-R16; `reduceTransparency` sistémico (R17);
+  checkbox Reduce transparency en prefs + i18n es/ru; `blurPx 0` en
+  modo opaco (halo inútil); congelar `bblur.live` en opaco;
+  guarda `${tmp:?}` en `verify_hypr_cfg`; assert accionable si falta
+  hyprbars; comentario R14 `true` en `hyprland.conf`; check R14
+  paridad conf-lua en `install.sh --check`.
+- Validaciones: `bash -n` BASHN_OK, `shellcheck -S warning`
+  SHELLCHECK_OK cero warnings, `luac -p` LUAC_OK, `diff -rq`
+  drift 0 indocumentado (8 ficheros cubiertos R6-R17; `bins`/`Desktop`
+  excepciones canónicas README).
+- Pendientes: VM (screendump before/after + crop 3x + `md5sum`
+  guest==host + `pkill -9 -f 'qs -c MacShell'` + `qs log` carga);
+  port NimbusOS R13-R17 (dotfiles→skel + verify-macshell.sh);
+  tintes por-tema aparcado (fallback roto + sin alias, tesis v2 pendiente).
+- Ruling orquestador: tintes aparcados por riesgo (15 líneas/8 toques
+  en caliente); `pcall`+`if ok` rechazado (oculta SKIP, viola set -u).
