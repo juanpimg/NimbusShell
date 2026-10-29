@@ -181,6 +181,8 @@ Scope {
     property bool glassDebug: false       // settings.json only: draw the raw Liquid Glass backdrop texture
     property string wallpaperPath: ""    // optional override for the wallpaper the Liquid Glass refracts
     property real glassOpacity: 0.42     // 0 = fully clear; below the layerrule's ignore_alpha (0.2) the blur turns off
+    // NimbusOS Ruling accesibilidad-macos: Reduce Transparency (dueño único el Dock; la Bar hereda). Propuesta aguas arriba.
+    property bool reduceTransparency: false
     // "smart"  = hide while a non-floating window is open on that monitor's workspace
     // "always" = always auto-hide, "never" = always visible and reserves space
     property string hideMode: "smart"
@@ -2024,8 +2026,7 @@ Scope {
                         width: prow.width + 16
                         height: pv.base + 14
                         radius: root.cornerRadius * 0.6
-                        color: root.dockDark ? Qt.rgba(0.10, 0.10, 0.11, root.glassOpacity)
-                                             : Qt.rgba(1, 1, 1, root.glassOpacity * 0.55)
+                        color: root.reduceTransparency ? (root.dockDark ? Qt.rgba(0.10, 0.10, 0.11, 1) : Qt.rgba(1, 1, 1, 1)) : (root.dockDark ? Qt.rgba(0.10, 0.10, 0.11, root.glassOpacity) : Qt.rgba(1, 1, 1, root.glassOpacity * 0.55))
                         border.width: 1
                         border.color: root.dockDark ? Qt.rgba(1, 1, 1, 0.18) : Qt.rgba(1, 1, 1, 0.45)
                     }
@@ -4216,13 +4217,13 @@ Scope {
         darkMode = true; appearanceMode = "dark"; glassOpacity = 0.42; glassBlur = 5; glassLiquid = 1.0; dockStyle = "blur"; accent = "#0a84ff"; fontFamily = "Inter";
         iconTint = false; iconTintColor = "#0a84ff"; iconTintStrength = 1.0;
         hideMode = "smart"; hideDelay = 450; monitor = "";
-        showTrash = true; showLabels = true; showIndicators = true; bounceOnLaunch = true; showThumbs = true; windowCapture = true; glassLive = true;
+        showTrash = true; showLabels = true; showIndicators = true; bounceOnLaunch = true; showThumbs = true; windowCapture = true; glassLive = true; reduceTransparency = false;
     }
 
     // ── settings persistence (~/.config/macdock/settings.json) ──
     readonly property string settingsSig: [dockEnabled, settingsEnabled, iconSize, magnification, magnificationEnabled, spacing, margin,
         cornerRadius, darkMode, appearanceMode, glassOpacity, glassBlur, glassLiquid, dockStyle, wallpaperPath, String(accent), fontFamily, hideMode, hideDelay, monitor,
-        showTrash, showLabels, showIndicators, bounceOnLaunch, showThumbs, windowCapture, glassLive, iconTint, iconTintColor, iconTintStrength].join("|")
+        showTrash, showLabels, showIndicators, bounceOnLaunch, showThumbs, windowCapture, glassLive, reduceTransparency, iconTint, iconTintColor, iconTintStrength].join("|")
     property bool settingsReady: false
     onSettingsSigChanged: if (settingsReady) saveTimer.restart()
     onShowTrashChanged: { rebuild(); if (showTrash) trashCheck(); }
@@ -4238,7 +4239,7 @@ Scope {
             accent: String(accent), fontFamily: fontFamily,
             hideMode: hideMode, hideDelay: hideDelay, monitor: monitor,
             showTrash: showTrash, showLabels: showLabels, showIndicators: showIndicators,
-            bounceOnLaunch: bounceOnLaunch, showThumbs: showThumbs, windowCapture: windowCapture, glassLive: glassLive,
+            bounceOnLaunch: bounceOnLaunch, showThumbs: showThumbs, windowCapture: windowCapture, glassLive: glassLive, reduceTransparency: reduceTransparency,
             iconTint: iconTint, iconTintColor: iconTintColor, iconTintStrength: iconTintStrength
         };
         settingsStore.setText(JSON.stringify(o, null, 2));
@@ -4248,7 +4249,7 @@ Scope {
         if (!o || typeof o !== "object") return;
         var keys = ["dockEnabled", "settingsEnabled", "iconSize", "magnification", "magnificationEnabled", "spacing", "margin", "cornerRadius",
                     "darkMode", "appearanceMode", "glassOpacity", "dockStyle", "wallpaperPath", "glassDebug", "glassRim", "glassGrain", "glassLiquid", "glassBlur", "accent", "fontFamily", "hideMode", "hideDelay", "monitor",
-                    "showTrash", "showLabels", "showIndicators", "bounceOnLaunch", "showThumbs", "windowCapture", "glassLive", "iconTint", "iconTintColor", "iconTintStrength"];
+                    "showTrash", "showLabels", "showIndicators", "bounceOnLaunch", "showThumbs", "windowCapture", "glassLive", "reduceTransparency", "iconTint", "iconTintColor", "iconTintStrength"];
         for (var i = 0; i < keys.length; i++) {
             if (o[keys[i]] === undefined) continue;
             try { root[keys[i]] = o[keys[i]]; } catch (err) { }
@@ -5490,7 +5491,7 @@ Scope {
                                 id: bsrc
                                 sourceItem: glassBackdrop.item
                                 hideSource: true
-                                live: !ui.tucked
+                                live: !ui.tucked && !root.reduceTransparency
                                 visible: false
                                 sourceRect: Qt.rect(dock.x - parent.padPx - parent.margin,
                                                     dock.y + (win.modelData.height - ui.height) - parent.padPx - parent.margin,
@@ -5566,7 +5567,7 @@ Scope {
                                 property real rim: root.glassRim * 0.20
                                 property real grain: root.glassGrain * 0.3     // quieter noise on the Dock glass
                                 property real blurPx: 1.5            // tiny residual smoothing; the real blur is the MultiEffect pre-pass
-                                property real tintMix: root.glassOpacity * 0.55
+                                property real tintMix: root.reduceTransparency ? 1 : root.glassOpacity * 0.55
                                 property real saturation: 1.25
                                 property real dark: root.dockDark ? 1 : 0
                                 property real debug: root.glassDebug ? 1 : 0
@@ -5582,8 +5583,7 @@ Scope {
                         visible: !root.liquidActive
                         anchors.fill: parent
                         radius: root.cornerRadius
-                        color: root.dockDark ? Qt.rgba(0.10, 0.10, 0.11, root.glassOpacity)
-                                             : Qt.rgba(1, 1, 1, root.glassOpacity * 0.55)
+                        color: root.reduceTransparency ? (root.dockDark ? Qt.rgba(0.10, 0.10, 0.11, 1) : Qt.rgba(1, 1, 1, 1)) : (root.dockDark ? Qt.rgba(0.10, 0.10, 0.11, root.glassOpacity) : Qt.rgba(1, 1, 1, root.glassOpacity * 0.55))
                         border.width: 0      // dark outer border removed
 
                         Rectangle {

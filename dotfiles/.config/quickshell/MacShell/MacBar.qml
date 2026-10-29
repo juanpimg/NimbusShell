@@ -159,6 +159,8 @@ Scope {
     // popovers and the Control Center scale with the same slider (smaller bar -> smaller panels, down to 70 %)
     readonly property real barPopupScale: Math.max(0.5, Math.min(1.25, (1 + (barHeight - 28) / 60) * uiScale))
     property real glassOpacity: 0.42
+    // NimbusOS Ruling accesibilidad-macos: hereda Reduce Transparency del Dock (dueño único); solo lectura, sin settingKeys. Propuesta aguas arriba.
+    readonly property bool reduceTransparency: hub && hub.dock ? hub.dock.reduceTransparency : false
     property string barStyle: "liquid"        // "liquid" = Apple Liquid Glass popovers, "blur" = flat translucent
     property real glassRim: 0.45
     property real glassGrain: 0.015
@@ -1226,7 +1228,7 @@ Scope {
             liquid: root.liquidActive
             shaderUrl: root.glassShaderUrl
             dark: root.effDark
-            tint: root.glassOpacity
+            tint: root.reduceTransparency ? 1 : root.glassOpacity
             strength: root.glassLiquid
             rim: root.glassRim * 0.25
             rimTint: 1
@@ -1796,7 +1798,7 @@ Scope {
         glassLiquid: root.glassLiquid
         glassRim: root.glassRim
         glassGrain: root.glassGrain
-        glassTint: root.glassOpacity
+        glassTint: root.reduceTransparency ? 1 : root.glassOpacity
         borderTint: root.menuBorderColor
         onGlassFailed: root.glassState = "failed"
     }
@@ -1816,7 +1818,7 @@ Scope {
         glassLiquid: root.glassLiquid
         glassRim: root.glassRim
         glassGrain: root.glassGrain
-        glassTint: root.glassOpacity
+        glassTint: root.reduceTransparency ? 1 : root.glassOpacity
         borderTint: root.menuBorderColor
         onGlassFailed: root.glassState = "failed"
     }
@@ -4600,7 +4602,7 @@ Scope {
             // whole bar (icons and text included). Mapped from the start (declared before the bar) it stays under it. With the
             // fill off it shrinks to 1 px and stays fully transparent, so nothing is blurred.
             visible: true
-            readonly property bool fillOn: root.barBgOpacity > 0.001
+            readonly property bool fillOn: root.reduceTransparency || root.barBgOpacity > 0.001
             anchors { left: true; right: true; top: true }
             implicitHeight: fillOn ? root.barH : 1
             color: "transparent"
@@ -4615,7 +4617,7 @@ Scope {
 
             Rectangle {
                 anchors.fill: parent
-                color: !barBgWin.fillOn ? "transparent" : (root.darkMode ? Qt.rgba(0.10, 0.10, 0.11, root.barBgOpacity) : Qt.rgba(1, 1, 1, root.barBgOpacity))
+                color: !barBgWin.fillOn ? "transparent" : (root.darkMode ? Qt.rgba(0.10, 0.10, 0.11, root.reduceTransparency ? 1 : root.barBgOpacity) : Qt.rgba(1, 1, 1, root.reduceTransparency ? 1 : root.barBgOpacity))
             }
         }
 
