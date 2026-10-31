@@ -155,9 +155,9 @@ void AppModel::rescan()
     m_all.clear();
     QSet<QString> seen; // deduplica por desktop id: user-local gana.
     QStringList dirs = dataDirs();
-    // Orden inverso: inserta user-local primero para que gane la dedup.
-    for (int di = dirs.size() - 1; di >= 0; --di) {
-        QDir d(dirs[di]);
+    // Orden de prioridad (user-local primero): skip-if-seen, gana el primero.
+    for (const QString &dirPath : dirs) {
+        QDir d(dirPath);
         if (!d.exists()) continue;
         const QStringList files = d.entryList(QStringList() << QStringLiteral("*.desktop"), QDir::Files);
         for (const QString &fn : files) {
@@ -166,7 +166,7 @@ void AppModel::rescan()
             if (!parseDesktopFile(d.filePath(fn), app)) continue;
             seen.insert(fn);
             app.usage = m_usage.value(app.id, 0);
-            m_all.prepend(app);
+            m_all.append(app);
         }
     }
     std::sort(m_all.begin(), m_all.end(),

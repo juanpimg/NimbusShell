@@ -44,3 +44,11 @@
 - Atajo Meta+1 registrado al instalar el script KWin (no verificado en
   nested: el harness no instala scripts; DBus toggle sí verificado).
 - Sin assets Apple: iconos del tema del sistema + fallback propio.
+- Ventana estática sin animación de apertura; fps real se mide en F6-T08/A5.
+
+## Fix reviewer (dedup user-local)
+- `rescan()` iteraba `dataDirs()` en orden inverso con skip-if-seen: ganaba
+  `/usr/share` sobre `~/.local/share`. Corregido a orden de prioridad
+  (user-local primero, skip-if-seen, `append`).
+- Test: fixtures `dedup-system/` + `dedup-user/` con mismo id `dup.desktop`;
+  2 checks nuevos (gana user; el primero en prioridad gana) → 11/11 PASS.

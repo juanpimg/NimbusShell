@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=App Usuario
+Exec=user-app
+Icon=user-app
+Categories=Utility;

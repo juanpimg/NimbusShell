@@ -58,6 +58,22 @@ def check(cond, msg):
     return cond
 
 
+def dedup(dirs):
+    """Réplica de AppModel::rescan: orden de prioridad, gana el primero."""
+    seen = set()
+    out = {}
+    for d in dirs:
+        for fn in sorted(d.glob("*.desktop")):
+            if fn.name in seen:
+                continue
+            app = parse(fn)
+            if app is None:
+                continue
+            seen.add(fn.name)
+            out[fn.name] = app
+    return out
+
+
 def main():
     ok = True
     a = parse(FIX / "kate.desktop")
@@ -72,6 +88,13 @@ def main():
     ok &= check(t and t["exec"] == "mytool --opt", f"Exec con %f limpio (got {t['exec'] if t else None})")
     # Sin inyección shell: el exec limpio no contiene % ni ; encadenado raro
     ok &= check(t and "%" not in t["exec"], "Sin %codes residuales")
+    # Dedup: mismo id en system y user → gana user-local (prioridad).
+    apps = dedup([FIX / "dedup-user", FIX / "dedup-system"])
+    ok &= check(apps.get("dup.desktop", {}).get("name") == "App Usuario",
+                "Dedup: user-local gana sobre sistema")
+    apps_inv = dedup([FIX / "dedup-system", FIX / "dedup-user"])
+    ok &= check(apps_inv.get("dup.desktop", {}).get("name") == "App Sistema",
+                "Dedup: el primero en prioridad gana (orden)")
     print("RESULT:", "OK" if ok else "FAIL")
     return 0 if ok else 1
 
