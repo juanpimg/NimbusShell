@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+# nimbus-installed-setup — post-instalación Calamares (chroot, root).
+# Lo invoca shellprocess@nimbus (iso/calamares/modules/shellprocess-nimbus.conf).
+# No instala paquetes (los pone Calamares). Idempotente. Sin red.
+# Log: /var/log/nimbus-installed-setup.log. Nunca toca datos del usuario
+# final: solo añade ficheros de skel que falten, sin sobrescribir.
+# Uso en VM: /usr/local/bin/nimbus-installed-setup [--check]
+set -u
+
+LOG="/var/log/nimbus-installed-setup.log"
+CHECK=0
+for arg in "$@"; do
+  case "$arg" in
+    --check) CHECK=1 ;;
+    -h|--help) echo "Uso: $0 [--check]"; exit 0 ;;
+    *) echo "ERROR: flag desconocido: $arg (ver --help)" >&2; exit 1 ;;
+  esac
+done
+
+log() { echo "$*"; [ "$CHECK" -eq 1 ] || echo "$(date -Is) $*" >>"$LOG" 2>/dev/null || true; }
+
+if [ "$(id -u)" -ne 0 ]; then
+  echo "ERROR: debe correr como root en chroot (lo invoca Calamares)" >&2; exit 1
+fi
+if [ "$CHECK" -eq 0 ]; then
+  mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
+  : >>"$LOG" 2>/dev/null || { echo "ERROR: no se puede escribir $LOG" >&2; exit 1; }
+fi
+
+fail=0
+
+# 0. Usuario destino: primer UID >= 1000 (sin hardcodear nombre).
+TARGET_USER="$(awk -F: '$3 >= 1000 && $3 < 60000 {print $1; exit}' /etc/passwd 2>/dev/null || true)"
+if [ -z "${TARGET_USER:-}" ]; then
+  log "AVISO: sin usuario UID>=1000; se aplican solo defaults de sistema (/etc/skel, /etc/xdg, SDDM)"
+  TARGET_HOME=""
+else
+  TARGET_HOME="$(awk -F: -v u="$TARGET_USER" '$1 == u {print $6}' /etc/passwd)"
+  log "OK: usuario destino: $TARGET_USER ($TARGET_HOME)"
+fi
+
+# 1. Skel -> home: solo copia lo que falte (nunca sobrescribe datos).
+if [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" ] && [ -d /etc/skel ]; then
+  while IFS= read -r src; do
+    rel="${src#/etc/skel/}"
+    dst="$TARGET_HOME/$rel"
+    if [ -e "$dst" ]; then
+      log "OK: skel ya presente: $rel"
+    else
+      if [ "$CHECK" -eq 1 ]; then
+        log "HARÍA: cp $rel -> $TARGET_HOME/"
+      else
+        mkdir -p "$(dirname "$dst")"
+        if cp -a "$src" "$dst"; then
+          chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$dst"
+          log "OK: skel copiado: $rel"
+        else
+          log "ERROR: no se pudo copiar $rel"; fail=1
+        fi
+      fi
+    fi
+    done < <(find /etc/skel -mindepth 1 -type f 2>/dev/null)
+else
+  log "AVISO: sin home o sin /etc/skel; se omite copia a home (paso 1)"
+fi
+
+# 2. SDDM: Current=nimbus.
+SDDM_CONF="/etc/sddm.conf.d/10-nimbus.conf"
+if [ -f "$SDDM_CONF" ] && grep -q '^\s*Current=nimbus' "$SDDM_CONF" 2>/dev/null; then
+  log "OK: SDDM Current=nimbus (ya estaba)"
+else
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: fijar [Theme] Current=nimbus en $SDDM_CONF"
+  else
+    mkdir -p "$(dirname "$SDDM_CONF")"
+    if [ -f "$SDDM_CONF" ]; then
+      if grep -q '^\s*Current=' "$SDDM_CONF"; then
+        sed -i 's|^\s*Current=.*|Current=nimbus|' "$SDDM_CONF" || fail=1
+      else
+        printf '\n[Theme]\nCurrent=nimbus\n' >>"$SDDM_CONF" || fail=1
+      fi
+    else
+      printf '[Theme]\nCurrent=nimbus\n' >"$SDDM_CONF" || fail=1
+    fi
+    log "OK: SDDM Current=nimbus"
+  fi
+fi
+
+# 3. Klassy preset: klassy-settings -i/-w si existe; si no, aviso (no falla).
+PRESET=""
+for cand in /usr/share/nimbus/klassy/nimbus-tahoe.klpw /usr/share/nimbus-tahoe.klpw; do
+  [ -f "$cand" ] && PRESET="$cand" && break
+done
+if command -v klassy-settings >/dev/null 2>&1 && [ -n "$PRESET" ]; then
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: klassy-settings -i $PRESET -w (si hay sesión de usuario)"
+  else
+    klassy-settings -i "$PRESET" >/dev/null 2>&1 && klassy-settings -w >/dev/null 2>&1 \
+      && log "OK: preset Klassy aplicado" \
+      || log "AVISO: klassy-settings falló sin sesión gráfica; el preset queda en $PRESET para el primer login"
+  fi
+elif [ -n "$PRESET" ]; then
+  log "AVISO: sin klassy-settings (klassy AUR no instalado); preset en $PRESET pendiente"
+else
+  log "AVISO: preset klassy no encontrado en /usr/share/nimbus"
+fi
+
+# 4. KWin scripts: kpackagetool6 si existe; si no, ya están en /usr/share/kwin/scripts.
+if command -v kpackagetool6 >/dev/null 2>&1; then
+  for script in nimbus-spotlight nimbus-apps-toggle nimbus-zoom; do
+    dir="/usr/share/kwin/scripts/$script"
+    [ -d "$dir" ] || { log "AVISO: falta $dir"; continue; }
+    if [ "$CHECK" -eq 1 ]; then
+      log "HARÍA: kpackagetool6 -t KWin/Script -u $dir (o -i si no está)"
+    else
+      if kpackagetool6 -t KWin/Script -l 2>/dev/null | grep -q "$script"; then
+        kpackagetool6 -t KWin/Script -u "$dir" >/dev/null 2>&1 \
+          && log "OK: KWin script actualizado: $script" \
+          || log "AVISO: no se pudo actualizar $script (sigue en $dir)"
+      else
+        kpackagetool6 -t KWin/Script -i "$dir" >/dev/null 2>&1 \
+          && log "OK: KWin script instalado: $script" \
+          || log "AVISO: no se pudo registrar $script (sigue en $dir)"
+      fi
+    fi
+  done
+else
+  log "AVISO: sin kpackagetool6; scripts KWin quedan en /usr/share/kwin/scripts/"
+fi
+
+# 5. Telemetría off: default de sistema (sin tocar homes).
+FEEDBACK="/etc/xdg/PlasmaUserFeedback"
+if [ -f "$FEEDBACK" ] && grep -q '^\s*FeedbackLevel=0' "$FEEDBACK" 2>/dev/null; then
+  log "OK: telemetría off en $FEEDBACK (ya estaba)"
+else
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: fijar [Global] FeedbackLevel=0 en $FEEDBACK"
+  else
+    mkdir -p /etc/xdg
+    if [ -f "$FEEDBACK" ]; then
+      grep -q '^\[Global\]' "$FEEDBACK" || printf '[Global]\n' >>"$FEEDBACK"
+      if grep -q '^\s*FeedbackLevel=' "$FEEDBACK"; then
+        sed -i 's|^\s*FeedbackLevel=.*|FeedbackLevel=0|' "$FEEDBACK" || fail=1
+      else
+        printf 'FeedbackLevel=0\n' >>"$FEEDBACK" || fail=1
+      fi
+    else
+      printf '[Global]\nFeedbackLevel=0\n' >"$FEEDBACK" || fail=1
+    fi
+    log "OK: telemetría off en $FEEDBACK"
+  fi
+fi
+
+# 6. Firewalld: enable (el servicio lo activa Calamares services + este paso lo asegura).
+if [ "$CHECK" -eq 1 ]; then
+  log "HARÍA: systemctl enable firewalld"
+else
+  if systemctl enable firewalld >/dev/null 2>&1; then
+    log "OK: firewalld enable"
+  else
+    log "AVISO: systemctl enable firewalld falló (lo cubre el módulo services de Calamares)"
+  fi
+fi
+
+# 7. Locale/keyboard: verificar (los fijan los módulos locale/keyboard de Calamares).
+for f in /etc/locale.conf /etc/vconsole.conf /etc/locale.gen; do
+  [ -f "$f" ] && log "OK: existe $f" || log "AVISO: falta $f (lo fijan los módulos locale/keyboard)"
+done
+
+# 8. Limpieza de cachés (solo sistema, nunca homes).
+if [ "$CHECK" -eq 1 ]; then
+  log "HARÍA: limpiar /root/.cache y /var/cache/pacman/pkg/*.pkg.tar.* (conservar última)"
+else
+  rm -rf /root/.cache/* 2>/dev/null || true
+  rm -rf /var/tmp/* 2>/dev/null || true
+  log "OK: cachés temporales limpias"
+fi
+
+if [ "$fail" -ne 0 ]; then
+  log "ERROR: nimbus-installed-setup terminó con errores (ver $LOG)"
+  exit 1
+fi
+log "OK: nimbus-installed-setup completo (idempotente; re-ejecutable)"

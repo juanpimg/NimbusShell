@@ -25,6 +25,20 @@ layer-shell-qt
 power-profiles-daemon
 powerdevil
 
+# --- runtime Nimbus (bar/apps/spotlight; F2-ISO) ---
+# layer-shell-qt y krunner (arriba) cubren el dock/bar y el backend KRunner
+# (KF6::Runner vive en el paquete `krunner`, sin paquete kf6-krunner aparte).
+# plasma-meta ya arrastra qt6-base, pipewire y qt6-multimedia: no se duplican.
+qt6-declarative
+kdecoration
+
+# NOTA build: qt6-tools solo hace falta para compilar (cmake/qt_add_qml_module),
+# no en runtime: NO va en esta lista (ver iso/build-iso.sh §5, deps de la VM).
+# NOTA klassy: AUR `klassy` 6.7.3 (pin F2-T01, R-KLASSY) queda FUERA del
+# netinstall (R-CACHYOS: sin AUR no fijado); el live usa la deco Breeze de
+# fallback y el instalado aplica el preset + klassy-hover-plus.patch
+# (packages/kwin/decoration/nimbus-decoration/) vía nimbus-installed-setup.
+
 # --- instalador y red ---
 calamares
 networkmanager
