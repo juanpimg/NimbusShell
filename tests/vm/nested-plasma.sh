@@ -180,6 +180,12 @@ fi
 export WAYLAND_DISPLAY
 export XDG_SESSION_TYPE=wayland
 export XDG_CURRENT_DESKTOP=KDE
+# Semilla opcional: si el --home trae $HOME/.local/share (color-schemes,
+# wallpapers, iconos), se replica al XDG_DATA_HOME temporal para que la
+# sesion anidada los resuelva. Sin .local previo no cambia nada (F3-T11).
+if [ -d "$HOME/.local/share" ]; then
+  cp -rn "$HOME/.local/share/." "$XDG_DATA_HOME/" 2>/dev/null || true
+fi
 # Al salir este subshell, matar TODOS los hijos (kwin/plasmashell/krunner/kate):
 # sin esto sobreviven al fin de dbus-run-session y ensucian la sesion del host.
 trap '"'"'kill $(jobs -p) 2>/dev/null || true'"'"' EXIT
