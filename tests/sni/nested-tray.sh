@@ -101,13 +101,13 @@ sleep 2
 echo "[tray] arranque plasmashell (watcher SNI) ..." | tee -a "$LOG"
 plasmashell >>"$LOG" 2>&1 &
 PLASMA_PID=$!
-sleep 8
+sleep 6
 qdbus6 org.kde.StatusNotifierWatcher /StatusNotifierWatcher org.kde.StatusNotifierWatcher.ProtocolVersion >>"$LOG" 2>&1 \
   && echo "[tray] watcher OK" | tee -a "$LOG" \
   || echo "[tray] WARN: sin watcher" | tee -a "$LOG"
 
-echo "[tray] arranque fake-sni A + B ..." | tee -a "$LOG"
-"$FAKE_BIN" --service org.nimbus.FakeSniA --title "Nimbus A" --letter A >>"$LOG" 2>&1 &
+echo "[tray] arranque fake-sni A (quit-after 15s) + B ..." | tee -a "$LOG"
+"$FAKE_BIN" --service org.nimbus.FakeSniA --title "Nimbus A" --letter A --quit-after 15 >>"$LOG" 2>&1 &
 FAKEA_PID=$!
 "$FAKE_BIN" --service org.nimbus.FakeSniB --title "Nimbus B" --letter B >>"$LOG" 2>&1 &
 FAKEB_PID=$!
@@ -118,7 +118,7 @@ qdbus6 org.kde.StatusNotifierWatcher /StatusNotifierWatcher org.kde.StatusNotifi
 echo "[tray] arranque nimbus-bar --tray-open-menu ..." | tee -a "$LOG"
 "$BAR_BIN" --tray-open-menu >>"$LOG" 2>&1 &
 BAR_PID=$!
-sleep 6
+sleep 4
 if kill -0 $BAR_PID 2>/dev/null; then echo "[tray] nimbus-bar VIVO pid=$BAR_PID" | tee -a "$LOG";
 else echo "[tray] ERROR: nimbus-bar muerto" | tee -a "$LOG"; fi
 
@@ -127,7 +127,7 @@ echo "[tray] captura CON tray + menu ..." | tee -a "$LOG"
 # (kscreenlocker_greet --immediateLock), se intenta desbloquear.
 qdbus6 org.freedesktop.ScreenSaver /ScreenSaver SimulateUserActivity >>"$LOG" 2>&1 || true
 qdbus6 org.kde.screensaver /ScreenSaver org.kde.screensaver.setActive false >>"$LOG" 2>&1 || true
-sleep 2
+sleep 1
 spectacle -b -n -o "$OUT_ABS/f3-tray.png" >>"$LOG" 2>&1 \
   && echo "[tray] f3-tray.png OK" | tee -a "$LOG" \
   || echo "[tray] WARN: captura fallo" | tee -a "$LOG"
@@ -142,6 +142,17 @@ sleep 1
 grep -a "fake-sni" "$LOG" | tee -a "$LOG"
 
 ls -la "$OUT_ABS"/f3-tray.png >>"$LOG" 2>&1
+
+echo "[tray] fase unregister: A sale solo (--quit-after 15) ..." | tee -a "$LOG"
+sleep 6
+echo "[tray] items tras quit:" | tee -a "$LOG"
+qdbus6 org.kde.StatusNotifierWatcher /StatusNotifierWatcher org.kde.StatusNotifierWatcher.RegisteredStatusNotifierItems 2>>"$LOG" | tee -a "$LOG"
+if kill -0 $BAR_PID 2>/dev/null; then echo "[tray] nimbus-bar SIGUE VIVA tras unregister" | tee -a "$LOG";
+else echo "[tray] ERROR: nimbus-bar murio con unregister" | tee -a "$LOG"; fi
+spectacle -b -n -o "$OUT_ABS/f3-tray-unregister.png" >>"$LOG" 2>&1 \
+  && echo "[tray] f3-tray-unregister.png OK" | tee -a "$LOG" \
+  || echo "[tray] WARN: captura unregister fallo" | tee -a "$LOG"
+ls -la "$OUT_ABS"/f3-tray-unregister.png >>"$LOG" 2>&1
 echo "$KWIN_PID $PLASMA_PID $FAKEA_PID $FAKEB_PID" > "$PIDFILE"
 kill $BAR_PID 2>/dev/null || true
 echo "[tray] FIN." | tee -a "$LOG"

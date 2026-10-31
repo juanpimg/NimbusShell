@@ -18,6 +18,7 @@
 #include <QGuiApplication>
 #include <QImage>
 #include <QPainter>
+#include <QTimer>
 #include <cstdio>
 
 static void logLine(const char *msg)
@@ -378,6 +379,7 @@ int main(int argc, char *argv[])
     p.addOption({QStringLiteral("title"), QString(), QStringLiteral("t")});
     p.addOption({QStringLiteral("letter"), QString(), QStringLiteral("l")});
     p.addOption(QCommandLineOption(QStringLiteral("stay")));
+    p.addOption({QStringLiteral("quit-after"), QString(), QStringLiteral("q")});
     p.process(app);
     const QString svc = p.value(QStringLiteral("service"));
     s_title = p.value(QStringLiteral("title"));
@@ -426,6 +428,18 @@ int main(int argc, char *argv[])
     }
     qInfo().noquote() << "fake-sni: registrado" << svc << s_title
                       << "DEPLOY_OK";
+    // F3-T07-fix: --quit-after N sale tras N segundos (test unregister:
+    // el watcher emite StatusNotifierItemUnregistered y la barra debe
+    // quitar el icono sin morir).
+    const int quitAfter = p.value(QStringLiteral("quit-after")).toInt();
+    if (quitAfter > 0) {
+        QTimer::singleShot(quitAfter * 1000, &app, [&svc]() {
+            fprintf(stderr, "fake-sni: quit-after %s\n",
+                    svc.toUtf8().constData());
+            fflush(stderr);
+            QGuiApplication::quit();
+        });
+    }
     return app.exec();
 }
 

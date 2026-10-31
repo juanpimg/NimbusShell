@@ -84,9 +84,18 @@ StatusNotifierModel::StatusNotifierModel(QObject *parent)
     qDBusRegisterMetaType<SniToolTip>();
     m_watcher = new QDBusInterface(kWatcherSvc, kWatcherPath, kWatcherIface,
                                    QDBusConnection::sessionBus(), this);
-    // Lista inicial (prop RegisteredStatusNotifierItems: "servicio/ruta").
-    QVariant v = m_watcher->property("RegisteredStatusNotifierItems");
-    const QStringList initial = v.toStringList();
+    // Lista inicial vía GetAll (no property(): exige <property> en la
+    // introspección y no todos los watchers la declaran).
+    QDBusInterface watcherProps(kWatcherSvc, kWatcherPath, kPropsIface,
+                                QDBusConnection::sessionBus());
+    QDBusReply<QVariantMap> all =
+        watcherProps.call(QStringLiteral("GetAll"), kWatcherIface);
+    const QStringList initial =
+        all.isValid()
+            ? all.value()
+                  .value(QStringLiteral("RegisteredStatusNotifierItems"))
+                  .toStringList()
+            : QStringList();
     for (const QString &sp : initial) {
         QString svc, path;
         splitServicePath(sp, svc, path);

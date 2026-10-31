@@ -91,6 +91,34 @@ shelly):
    línea literal, no compilaba); fix mínimo propio (`'\n'`,
    equivalente al `QLatin1Char('\n')` de `plasma-migration`).
 
+## Alcance (Ruling)
+
+- `commandrunner.h`: fix de build preexistente (no compilaba), NO
+  divergencia respecto a NimbusOS (no es dotfile ni cambia
+  comportamiento; solo une un literal partido).
+- Apps SNI reales (IconName de tema, submenús profundos, residentes
+  tipo red/sonido) se validan en VM F2-T08; el fake cubre el
+  protocolo (registro, props, pixmap, tooltip, menú, unregister).
+
+## Unregister (F3-T07-fix)
+
+`fake-sni --quit-after N` + `tests/sni/test-unregister.sh` (watcher
+mínimo `mini-watcher.py` + probe del modelo REAL, sin kwin; el nested
+completo sufre SIGTERM externos recurrentes —ver límites):
+
+- Secuencia verificada: `Registered B` → count=1, `Registered A` →
+  count=2, `quit-after A` → `Unregistered A` → count=1 (solo B),
+  exit 0 (`UNREGISTER_OK`), sin crash.
+- Nested completo (`nested-tray.sh`, exit=0): watcher lista solo B
+  tras el quit, `nimbus-bar SIGUE VIVA tras unregister`, captura
+  `spikes/nested/f3-tray-unregister.png` (solo icono B verde; PIL:
+  blue=0 en ex-zona-A [1195,1230], B desplazado a la derecha).
+- `StatusArea.qml` cierra el popup si su fila desaparece (guarda
+  `menuRow >= count` en `onCountChanged`).
+- Fix de paso en el modelo: la lista inicial se lee vía `GetAll`
+  (no `QDBusInterface::property`, que exige `<property>` en la
+  introspección y falla silencioso si falta).
+
 ## Límites
 
 - Sin clic real izq/der en nested (el harness no inyecta puntero);

@@ -38,6 +38,10 @@ Item {
         function onCountChanged() {
             if (root.autoOpenRow >= 0 && !root.autoOpened && trayModel.count > root.autoOpenRow)
                 root.autoOpened = true; // el Timer hace el open (defer)
+            // F3-T07-fix: si la fila del menú abierto desaparece
+            // (unregister), se cierra el popup (evita índice colgado).
+            if (root.menuOpened && root.menuRow >= trayModel.count)
+                root.closeMenu();
         }
     }
     // Auto-apertura diferida (flag --tray-open-menu, solo captura nested).
