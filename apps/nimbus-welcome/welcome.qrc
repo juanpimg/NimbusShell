@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file>qml/Welcome.qml</file>
+    <file>qml/I18n.js</file>
+  </qresource>
+</RCC>
