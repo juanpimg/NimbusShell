@@ -1,0 +1,90 @@
+#!/bin/sh
+# NimbusOS — nimbus-zoom (R21, 2026-10-31)
+# Zoom macOS: llena el area de trabajo (bajo el MacBar) sin entrar en
+# fullscreen, y alterna a la geometria previa. Lo llaman el boton verde de
+# hyprbars y el doble-click de la barra. Se mantiene flotante (fs=0) para que
+# arrastrar conserve el punto de agarre: Hyprland 0.56.2 centra la ventana en
+# el cursor al salir de fs=1 (DragController.cpp:107, sin opcion de config).
+# Requiere hyprctl + python3; si faltan, no hace nada (fallback silencioso).
+set -u
+command -v hyprctl >/dev/null 2>&1 || exit 0
+command -v python3 >/dev/null 2>&1 || exit 0
+
+bar_h=28
+# Altura real del MacBar (bar_height de MacBar/MacShell). El `reserved` del
+# monitor puede ser menor (17px en la VM) y dejaria la barra hyprbars bajo el
+# MacBar; usamos la altura visual conocida.
+menu_h=28
+state_dir="${XDG_RUNTIME_DIR:-/tmp}/nimbus-zoom"
+mkdir -p "$state_dir" 2>/dev/null || state_dir="/tmp"
+
+# Ventana activa: address, monitor, fullscreen, at.x, at.y, size.w, size.h.
+data=$(hyprctl activewindow -j 2>/dev/null | python3 -c '
+import json,sys
+try: win=json.load(sys.stdin)
+except Exception: sys.exit(0)
+at=win.get("at",[0,0]); size=win.get("size",[0,0])
+print(win.get("address",""), win.get("monitor",-1), win.get("fullscreen",0),
+      at[0], at[1], size[0], size[1])
+' 2>/dev/null)
+[ -n "$data" ] || exit 0
+set -- $data
+addr=$1; mon=$2; fs=$3; ax=$4; ay=$5; aw=$6; ah=$7
+[ -n "$addr" ] || exit 0
+
+# Fullscreen real (SUPER+F): el verde sale de fullscreen, como macOS.
+if [ "$fs" != "0" ]; then
+    if [ -f "$HOME/.config/hypr/hyprland.lua" ]; then
+        hyprctl dispatch "hl.dsp.window.fullscreen({ mode = \"maximized\", action = \"toggle\", window = \"address:$addr\" })" >/dev/null 2>&1
+    else
+        hyprctl dispatch fullscreen 1 >/dev/null 2>&1
+    fi
+    exit 0
+fi
+
+# Area de trabajo del monitor (reserved incluye el MacBar).
+mdata=$(hyprctl monitors -j 2>/dev/null | python3 -c '
+import json,sys
+try: mons=json.load(sys.stdin)
+except Exception: sys.exit(0)
+mid=int(sys.argv[1])
+for m in mons:
+    if m.get("id")==mid:
+        r=m.get("reserved",[0,0,0,0])
+        print(m.get("x",0), m.get("y",0), m.get("width",0), m.get("height",0),
+              r[0], r[1], r[2], r[3])
+        break
+' "$mon" 2>/dev/null)
+[ -n "$mdata" ] || exit 0
+set -- $mdata
+mx=$1; my=$2; mw=$3; mh=$4; rl=$5; rt=$6; rr=$7; rb=$8
+tx=$((mx + rl))
+ty=$((my + menu_h + bar_h))
+tw=$((mw - rl - rr))
+th=$((mh - menu_h - rb - bar_h))
+[ "$tw" -ge 200 ] && [ "$th" -ge 120 ] || exit 0
+
+sf="$state_dir/$(printf '%s' "$addr" | tr -cd 'A-Za-z0-9')"
+restore=0
+if [ -f "$sf" ]; then
+    read -r ox oy ow oh < "$sf"
+    dx=$((ax - tx)); dy=$((ay - ty)); dw=$((aw - tw)); dh=$((ah - th))
+    [ "${dx#-}" -le 3 ] 2>/dev/null && [ "${dy#-}" -le 3 ] 2>/dev/null && \
+        [ "${dw#-}" -le 3 ] 2>/dev/null && [ "${dh#-}" -le 3 ] 2>/dev/null && restore=1
+fi
+
+if [ "$restore" = "1" ]; then
+    tw=$ow; th=$oh; tx=$ox; ty=$oy
+    rm -f "$sf"
+else
+    printf '%s %s %s %s\n' "$ax" "$ay" "$aw" "$ah" > "$sf"
+fi
+
+# resize conserva el centro: primero resize, luego move exacto.
+if [ -f "$HOME/.config/hypr/hyprland.lua" ]; then
+    hyprctl dispatch "hl.dsp.window.resize({ x = $tw, y = $th, window = \"address:$addr\" })" >/dev/null 2>&1
+    hyprctl dispatch "hl.dsp.window.move({ x = $tx, y = $ty, window = \"address:$addr\" })" >/dev/null 2>&1
+else
+    hyprctl dispatch "resizewindowpixel exact $tw $th,address:$addr" >/dev/null 2>&1
+    hyprctl dispatch "movewindowpixel exact $tx $ty,address:$addr" >/dev/null 2>&1
+fi

@@ -120,3 +120,8 @@ QEMU/KVM con Arch vanilla: arranque, login, sesión Hyprland, capturas
 - **Síntoma:** al agarrar la barra, la ventana se centraba en el cursor en vez de conservar el offset.
 - **Causa:** Hyprland 0.56.2 hardcodea `setPositionGlobal(mouse - size/2)` al arrastrar una ventana que sale de fullscreen/maximized (`DragController.cpp:107`); no hay opción de config (`binds:drag_center_window` es 0.57+, en 0.56 da "unknown key" y **aborta los binds posteriores**). Las ventanas nacían fs=1 porque `remember_window_size` de kitty restauraba el estado maximizado.
 - **Fix:** `remember_window_size no` en kitty.conf + `kitty --start-as=normal` en SUPER+T → nacen fs=0; en fs=0 el hotspot se conserva (`m_dragHotspot = begin - position`). Limitación: arrastrar una ventana maximizada a mano (botón verde) sigue centrando por diseño de 0.56.
+
+## R21 — Zoom macOS flotante (2026-10-31)
+- El verde de hyprbars y el doble-click llaman a `nimbus-zoom`: resize+move al área de trabajo (en 1280x800: `[0,56] 1280x744`) manteniendo `fs=0`; segundo clic restaura la geometría previa en `/run/user/1000/nimbus-zoom/`.
+- El PATH del compositor no incluía `~/.local/bin` (los scripts por nombre fallaban); `hl.env("PATH", ...)` lo prefija (repara también `nimbus-minimize-toggle`).
+- Verificado en VM: PRE `[90,59] 1100x700 fs=0` → ZOOM `[0,56] 1280x744 fs=0` → RESTORE `[90,59] 1100x700 fs=0` con el botón verde real.

@@ -50,6 +50,10 @@ hl.env("XCURSOR_THEME", "capitaine-cursors-light")
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_THEME", "capitaine-cursors-light")
 hl.env("HYPRCURSOR_SIZE", "24")
+-- NimbusOS Ruling R21: los binds y acciones de hyprbars llaman scripts
+-- propios por nombre (nimbus-zoom, nimbus-minimize-toggle); el PATH de la
+-- sesion no incluye ~/.local/bin. Prefijarlo para todos los hijos.
+hl.env("PATH", (os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin") .. ":" .. (os.getenv("HOME") or "") .. "/.local/bin")
 
 -- --- Autostart ---------------------------------------------------------------
 -- macshell va via dofile(macshell.lua) al final (single-instance, espera al
@@ -244,7 +248,7 @@ hl.config({
             -- "border will be around the bar"). El borde de 1px y el redondeo
             -- de 12px del compositor envuelven la barra completa al nivel de la ventana.
             bar_precedence_over_border = true,
-            on_double_click       = [[hyprctl dispatch 'hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })']],
+            on_double_click       = "nimbus-zoom",
         },
     },
 })
@@ -257,10 +261,12 @@ hl.config({
 -- parse); por eso rojo/verde usan `hl.dsp.window.*` via `hyprctl dispatch '...'`.
 -- Amarillo = IPC `window minimize`
 -- (shell.qml: WindowBar.minimize con genie sobre la activa; restaurar con SUPER+M).
--- Verde = zoom macOS (maximizar toggle, igual que on_double_click de la barra).
+-- Verde = zoom macOS (R21: `nimbus-zoom` llena el area de trabajo bajo el
+-- MacBar sin fullscreen, alterna a la geometria previa y mantiene fs=0 para
+-- que arrastrar conserve el punto de agarre; mismo comando en on_double_click).
 hl.plugin.hyprbars.add_button({ bg_color = "0xffff5f57", fg_color = "0xcc000000", size = 12, icon = "×", action = "hyprctl dispatch 'hl.dsp.window.close()'" })
 hl.plugin.hyprbars.add_button({ bg_color = "0xfffebc2e", fg_color = "0xcc000000", size = 12, icon = "−", action = "qs -c MacShell ipc call window minimize" })
-hl.plugin.hyprbars.add_button({ bg_color = "0xff28c840", fg_color = "0xcc000000", size = 12, icon = "+", action = [[hyprctl dispatch 'hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })']] })
+hl.plugin.hyprbars.add_button({ bg_color = "0xff28c840", fg_color = "0xcc000000", size = 12, icon = "+", action = "nimbus-zoom" })
 
 -- Sin doble barra en apps con CSD propio bueno (headerbar/tabs nativos):
 -- Nautilus (GTK4 headerbar) y Firefox (tabs en la barra de titulo).

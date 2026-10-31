@@ -154,6 +154,8 @@ if [ "$CHECK" = "1" ]; then
         || fail ".local/bin/nimbus-minimize-toggle ausente o sin +x"
     [ -x "$HOME/.local/bin/nimbus-screenshot" ] && ok ".local/bin/nimbus-screenshot" \
         || fail ".local/bin/nimbus-screenshot ausente o sin +x (binds SUPER+SHIFT+3/4/5)"
+    [ -x "$HOME/.local/bin/nimbus-zoom" ] && ok ".local/bin/nimbus-zoom" \
+        || fail ".local/bin/nimbus-zoom ausente o sin +x (zoom macOS R21)"
 
     echo "-- sonidos UI:"
     for s in pop charge shutter glass tink; do
@@ -379,7 +381,7 @@ VFAIL=0
 for c in hyprland hyprlock qs kitty swaybg udiskie flatpak brightnessctl paru; do
     command -v "$c" >/dev/null 2>&1 && echo "    [OK] $c" || { echo "    [FALTA] $c" >&2; VFAIL=1; }
 done
-for b in macshell macshell-start nimbus-minimize-toggle nimbus-screenshot; do
+for b in macshell macshell-start nimbus-minimize-toggle nimbus-screenshot nimbus-zoom; do
     [ -x "$HOME/.local/bin/$b" ] && echo "    [OK] .local/bin/$b" || { echo "    [FALTA] .local/bin/$b" >&2; VFAIL=1; }
 done
 for s in pop charge shutter glass tink; do
