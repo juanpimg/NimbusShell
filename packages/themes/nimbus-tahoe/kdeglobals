@@ -1,0 +1,34 @@
+[General]
+ColorScheme=NimbusTahoe
+Name=NimbusTahoe
+ShadeSortColumn=true
+XftAntialias=true
+XftHintStyle=hintslight
+XftSubPixel=rgb
+fixed=JetBrains Mono,10,-1,5,50,0,0,0,0,0
+font=Inter,10,-1,5,50,0,0,0,0,0
+menuFont=Inter,10,-1,5,50,0,0,0,0,0
+smallestReadableFont=Inter,8,-1,5,50,0,0,0,0,0
+toolBarFont=Inter,10,-1,5,50,0,0,0,0,0
+
+[KDE]
+ColorScheme=NimbusTahoe
+LookAndFeelPackage=org.nimbus.desktop
+SingleClick=false
+ShowDeleteCommand=false
+contrast=4
+
+[Fonts]
+Fixed=JetBrains Mono,10,-1,5,50,0,0,0,0,0
+Font=Inter,10,-1,5,50,0,0,0,0,0
+Menu=Inter,10,-1,5,50,0,0,0,0,0
+SmallestReadable=Inter,8,-1,5,50,0,0,0,0,0
+Toolbar=Inter,10,-1,5,50,0,0,0,0,0
+
+[Icons]
+Theme=WhiteSur
+FollowsColorScheme=true
+
+[MouseCursors]
+Theme=WhiteSur-cursors
+Size=24

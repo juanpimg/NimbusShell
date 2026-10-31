@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# Aplica el tema base Nimbus Tahoe (F2-T04). Idempotente, sin root.
+# Copia kdeglobals/colorschemes/Kvantum/wallpaper a $HOME y los activa con
+# kwriteconfig6/plasma-apply-wallpaperimage si existen (fallback: copia).
+# Uso: scripts/apply-theme [--variant light|dark] [--check] [--revert]
+set -u
+
+VARIANT="dark"
+CHECK=""
+REVERT=""
+for arg in "$@"; do
+  case "$arg" in
+    --variant) shift_next=1; continue ;;
+    light|dark) if [ "${shift_next:-0}" = "1" ]; then VARIANT="$arg"; shift_next=0; fi ;;
+    --check) CHECK="yes" ;;
+    --revert) REVERT="yes" ;;
+    -h|--help) echo "Uso: scripts/apply-theme [--variant light|dark] [--check] [--revert]"; exit 0 ;;
+    *) echo "ERROR: flag desconocido: $arg (ver --help)" >&2; exit 1 ;;
+  esac
+done
+
+if [ "$(id -u)" = "0" ]; then
+  echo "ERROR: no ejecutar como root (el tema es por usuario)" >&2; exit 1
+fi
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+THEME="$REPO_ROOT/packages/themes/nimbus-tahoe"
+BACKUP_BASE="$HOME/.config"
+STAMP_FILE="$HOME/.config/nimbus-theme-applied"
+BACKUP_LINK=""
+
+find_backup() {
+  ls -dt "$BACKUP_BASE"/nimbusshell-backup-* 2>/dev/null | head -n 1
+}
+
+make_backup() {
+  local bkp
+  bkp="$(find_backup)"
+  if [ -z "$bkp" ]; then
+    bkp="$BACKUP_BASE/nimbusshell-backup-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$bkp"
+    echo "backup: $bkp"
+  fi
+  BACKUP_LINK="$bkp"
+  for f in kdeglobals kwinrc Kvantum/kvantum.kvconfig; do
+    if [ -e "$HOME/.config/$f" ] && [ ! -e "$bkp/$f" ]; then
+      mkdir -p "$bkp/$(dirname "$f")"
+      cp -a "$HOME/.config/$f" "$bkp/$f"
+    fi
+  done
+}
+
+scheme_name() { if [ "$VARIANT" = "light" ]; then echo "NimbusTahoeLight"; else echo "NimbusTahoe"; fi; }
+
+do_check() {
+  local fail=0
+  local scheme
+  scheme="$(scheme_name)"
+  [ -f "$HOME/.config/kdeglobals" ] || { echo "FAIL: falta ~/.config/kdeglobals"; fail=1; }
+  [ -f "$HOME/.local/share/color-schemes/$scheme.colors" ] || { echo "FAIL: falta color-scheme $scheme"; fail=1; }
+  [ -f "$HOME/.config/Kvantum/nimbus.conf" ] || { echo "FAIL: falta Kvantum/nimbus.conf"; fail=1; }
+  [ -f "$HOME/.local/share/wallpapers/nimbus/contents/images/sequoia-light.jpg" ] || { echo "FAIL: falta wallpaper"; fail=1; }
+  if command -v kreadconfig6 >/dev/null 2>&1; then
+    local cur
+    cur="$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)"
+    [ "$cur" = "$scheme" ] || { echo "FAIL: ColorScheme=$cur (esperado $scheme)"; fail=1; }
+  fi
+  if [ "$fail" = "0" ]; then echo "CHECK_OK variant=$VARIANT"; else echo "CHECK_FAIL"; fi
+  return "$fail"
+}
+
+do_revert() {
+  local bkp
+  bkp="$(find_backup)"
+  if [ -z "$bkp" ]; then echo "ERROR: sin backup nimbusshell-backup-* (nada que revertir)" >&2; exit 1; fi
+  for f in kdeglobals Kvantum/kvantum.kvconfig; do
+    if [ -e "$bkp/$f" ]; then cp -a "$bkp/$f" "$HOME/.config/$f"; else rm -f "$HOME/.config/$f"; fi
+  done
+  # Artefactos propios (nombres exclusivos Nimbus): solo revertibles así.
+  rm -f "$HOME/.config/Kvantum/nimbus.conf"
+  rm -f "$HOME"/.local/share/color-schemes/NimbusTahoe.colors \
+    "$HOME"/.local/share/color-schemes/NimbusTahoeLight.colors
+  rm -rf "$HOME/.local/share/wallpapers/nimbus"
+  rm -f "$STAMP_FILE" "$HOME/.config/kdeglobals.nimbus-src"
+  echo "REVERT_OK desde $bkp"
+}
+
+if [ -n "$REVERT" ]; then do_revert; exit 0; fi
+if [ -n "$CHECK" ]; then do_check; exit "$?"; fi
+
+[ -d "$THEME" ] || { echo "ERROR: falta $THEME" >&2; exit 1; }
+[ -f "$THEME/kdeglobals" ] || { echo "ERROR: falta $THEME/kdeglobals" >&2; exit 1; }
+
+make_backup
+SCHEME="$(scheme_name)"
+mkdir -p "$HOME/.config/Kvantum" "$HOME/.local/share/color-schemes" \
+  "$HOME/.local/share/wallpapers/nimbus/contents/images"
+
+# 1. kdeglobals (fusión: respeta claves ajenas; solo fija las Nimbus).
+cp -a "$THEME/kdeglobals" "$HOME/.config/kdeglobals.nimbus-src"
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+  kwriteconfig6 --file kdeglobals --group General --key ColorScheme "$SCHEME"
+  kwriteconfig6 --file kdeglobals --group KDE --key ColorScheme "$SCHEME"
+  kwriteconfig6 --file kdeglobals --group KDE --key SingleClick false
+  kwriteconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage org.nimbus.desktop
+  kwriteconfig6 --file kdeglobals --group Fonts --key Font "Inter,10,-1,5,50,0,0,0,0,0"
+  kwriteconfig6 --file kdeglobals --group Fonts --key Fixed "JetBrains Mono,10,-1,5,50,0,0,0,0,0"
+  kwriteconfig6 --file kdeglobals --group Icons --key Theme WhiteSur
+  kwriteconfig6 --file kdeglobals --group MouseCursors --key Theme WhiteSur-cursors
+else
+  cp -a "$THEME/kdeglobals" "$HOME/.config/kdeglobals"
+  echo "AVISO: kwriteconfig6 ausente; kdeglobals copiado íntegro (puede sobrescribir claves ajenas)." >&2
+fi
+
+# 2. Color schemes (copia idempotente).
+cp -a "$THEME/colorschemes/NimbusTahoe.colors" "$HOME/.local/share/color-schemes/"
+cp -a "$THEME/colorschemes/NimbusTahoeLight.colors" "$HOME/.local/share/color-schemes/"
+
+# 3. Kvantum (copia idempotente + estilo por defecto si es viable).
+cp -a "$THEME/kvantum/nimbus.kvconfig" "$HOME/.config/Kvantum/nimbus.conf"
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+  kwriteconfig6 --file Kvantum/kvantum.kvconfig --group General --key theme nimbus
+fi
+
+# 4. Iconos/cursor: aviso si WhiteSur no está instalado (fallback Breeze).
+if [ ! -d "$HOME/.local/share/icons/WhiteSur" ] && [ ! -d /usr/share/icons/WhiteSur ]; then
+  echo "AVISO: iconos WhiteSur no instalados; Plasma usará el fallback (Breeze). Ver README del tema." >&2
+fi
+
+# 5. Wallpaper (fichero + aplicación si hay herramienta).
+WP_SRC="$(readlink -f "$THEME/wallpapers/sequoia-light.jpg")"
+WP_DST="$HOME/.local/share/wallpapers/nimbus/contents/images/sequoia-light.jpg"
+cp -a "$WP_SRC" "$WP_DST"
+if command -v plasma-apply-wallpaperimage >/dev/null 2>&1; then
+  plasma-apply-wallpaperimage "$WP_DST" >/dev/null 2>&1 || \
+    echo "AVISO: plasma-apply-wallpaperimage falló; wallpaper copiado pero no aplicado." >&2
+fi
+
+echo "$VARIANT $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STAMP_FILE"
+echo "APPLY_OK variant=$VARIANT scheme=$SCHEME backup=$BACKUP_LINK"
