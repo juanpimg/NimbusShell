@@ -1,5 +1,7 @@
 # Migración NimbusShell → Plasma 6 — diseño (2026-10-31)
 
+> **Contrato de diseño aplicable:** `docs/design/tahoe-design-contract.md` (tokens §2, componentes §3, mapeo Plasma §4, aceptación A1-A10 §5, Rulings §6). Es la fuente única de valores visuales; este documento manda en arquitectura y alcance.
+
 ## 1. Decisión
 
 NimbusShell pasa a ser la **capa de personalización macOS Tahoe de NimbusOS
