@@ -123,8 +123,8 @@ ApplicationWindow {
             root.clipView = initialClipView;
         if (initialQuery !== "")
             searchField.text = initialQuery;
-            // onTextChanged+debounce lanza
         else
+            // onTextChanged+debounce lanza
             root.doSearch(); // clipboard con consulta vacía no dispara debounce
         searchField.forceActiveFocus();
     }
