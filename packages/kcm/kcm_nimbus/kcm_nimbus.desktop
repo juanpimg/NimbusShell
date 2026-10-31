@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+NoDisplay=true
+X-KDE-AliasFor=systemsettings
+Exec=systemsettings kcm_nimbus
+Icon=preferences-system
+Name=Nimbus
+Name[es]=Nimbus
+Comment=Ajustes Nimbus (español, lenguaje llano)
+Comment[es]=Ajustes Nimbus (español, lenguaje llano)
+X-KDE-System-Settings-Parent-Category=appearance
+X-KDE-PluginInfo-Name=kcm_nimbus
+X-KDE-Weight=10

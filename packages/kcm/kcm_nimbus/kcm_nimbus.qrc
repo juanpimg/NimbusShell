@@ -1,0 +1,13 @@
+<RCC>
+  <!-- F8-T01: alias sin prefijo ui/ (el cargador pide :/kcm/kcm_nimbus/main.qml) -->
+  <qresource prefix="/kcm/kcm_nimbus">
+    <file alias="main.qml">ui/main.qml</file>
+    <file alias="AppearancePage.qml">ui/AppearancePage.qml</file>
+    <file alias="NetworkPage.qml">ui/NetworkPage.qml</file>
+    <file alias="ShortcutsPage.qml">ui/ShortcutsPage.qml</file>
+    <file alias="AccessibilityPage.qml">ui/AccessibilityPage.qml</file>
+    <file alias="SystemPage.qml">ui/SystemPage.qml</file>
+    <file alias="UpdatesPage.qml">ui/UpdatesPage.qml</file>
+    <file alias="NimbusPlaceholder.qml">ui/NimbusPlaceholder.qml</file>
+  </qresource>
+</RCC>
