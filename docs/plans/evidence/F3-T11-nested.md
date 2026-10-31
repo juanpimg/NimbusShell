@@ -84,8 +84,29 @@ hasta 3 veces con puerta de brillo PIL que rechaza capturas casi negras).
 - Capturas `spikes/nested/f3-theme-live-light.png` /
   `f3-theme-live-dark.png`: el **wallpaper NPS cambia en vivo**
   (sequoia-light ↔ sequoia-dark, visible en ambas).
-- Medidas PIL (L 0-255): panel (y0-30) `54.8` → `26.9` (cambia en vivo);
-  frame completo `94.0` → `91.2` (fondos distintos, media similar).
+- Medidas PIL (L 0-255): panel-centro (x300-980,y0-28) `55.6` → `150.8`
+  (¡invertido!); frame completo `94.0` → `98.1`.
+- Kate SÍ sigue al switch actual tras ordenar fichero-antes-que-vivo en
+  `nimbus-theme` (captura light 22:32: sidebar y contenido claros).
+- **Diagnóstico panel (triple switch light→dark→light2 + captura
+  `f3-theme-live-light2.png`): panel-centro `55.6` / `150.8` / `55.6` —
+  cada captura renderiza el switch ANTERIOR, determinista al decimal,
+  inmune a esperas de 15 s y a doble `KWin reconfigure` + evaluateScript.
+  Estado de sesión verificado correcto en vivo tras cada switch
+  (`-l` lista `NimbusTahoeLight (esquema actual)`, desktoptheme
+  `breeze-light (current)`, `kreadconfig` ambos, scheme-file claro
+  `BackgroundNormal=255,255,255` en `XDG_DATA_HOME` re-sincronizado).
+  Causa raíz no aislada en timebox; NO es orden fichero/vivo (se probó
+  ambos), ni falta de scheme en `XDG_DATA_HOME` (re-sync añadido), ni
+  espera.
+- **Ruling propuesto (R-F3T11-LIVE):** en Plasma 6.8 el estado de esquema/
+  tema se aplica en vivo sin reinicio (verificado), pero el render del
+  panel de plasmashell avanza un evento de switch; en VM/real, validar el
+  panel contra configuración aplicada al arrancar (vía fichero: renderiza
+  correcto, `f3-theme-light.png` panel `172`) o exigir doble switch, no
+  contra un único switch en vivo. Tarea NO marcada: pendiente aislar el
+  evento que completa el render (candidatos: señal diferida de
+  plasma-apply-desktoptheme, re-lectura de plasmarc [Theme]).
 - Gaps medidos: deco KWin sin cambio en vivo (`179` → `176`, requiere
   reconfigurar KWin); Kate queda en estado mixto (sidebar sigue la variante,
   menús/tab con retardo ≈ un switch: `82` → `229` invertido), retardo de

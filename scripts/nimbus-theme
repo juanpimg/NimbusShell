@@ -243,14 +243,11 @@ cp -a "$THEME_DIR/colorschemes/NimbusTahoe.colors" \
       "$THEME_DIR/colorschemes/NimbusTahoeLight.colors" \
       "$HOME/.local/share/color-schemes/"
 
-# 2. Esquema + acento: canal en vivo solo en sesión propia; siempre claves
-# deterministas a fichero (lo que lee el nested al arrancar).
-if [ "$LIVE" = "1" ] && command -v plasma-apply-colorscheme >/dev/null 2>&1; then
-  plasma-apply-colorscheme -a "$ACCENT" "$SCHEME" >/dev/null 2>&1 \
-    || echo "AVISO: plasma-apply-colorscheme falló; se fija por fichero." >&2
-elif [ "$LIVE" = "0" ]; then
-  echo "AVISO: sin sesión Plasma propia (LIVE=0); esquema por fichero, sin cambio en vivo." >&2
-fi
+# 2. Esquema + acento: PRIMERO todo a fichero y DESPUÉS el canal en vivo.
+# Orden crítico (medido en nested): plasma-apply-colorscheme notifica
+# "scheme changed" y las apps leen la paleta de kdeglobals EN ESE MOMENTO;
+# si el merge a fichero va después, las apps aplican la paleta vieja y el
+# cambio visible llega con un switch de retardo (panel/Kate invertidos).
 if command -v kwriteconfig6 >/dev/null 2>&1; then
   kwriteconfig6 --file kdeglobals --group General --key ColorScheme "$SCHEME"
   kwriteconfig6 --file kdeglobals --group KDE --key ColorScheme "$SCHEME"
@@ -274,6 +271,13 @@ PYEOF
   accent_to_file "$(hex_to_rgb "$ACCENT")"
 else
   echo "ERROR: kwriteconfig6 no disponible" >&2; exit 1
+fi
+# Canal en vivo DESPUÉS del fichero (ver nota de orden arriba).
+if [ "$LIVE" = "1" ] && command -v plasma-apply-colorscheme >/dev/null 2>&1; then
+  plasma-apply-colorscheme -a "$ACCENT" "$SCHEME" >/dev/null 2>&1 \
+    || echo "AVISO: plasma-apply-colorscheme falló; queda el fichero." >&2
+elif [ "$LIVE" = "0" ]; then
+  echo "AVISO: sin sesión Plasma propia (LIVE=0); esquema por fichero, sin cambio en vivo." >&2
 fi
 
 # 3. LookAndFeel + desktop theme. org.nimbus.desktop aún no existe como

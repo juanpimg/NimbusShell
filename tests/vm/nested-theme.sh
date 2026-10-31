@@ -107,25 +107,74 @@ qdbus6 org.freedesktop.ScreenSaver /ScreenSaver \
     sleep 5
   done ) &
 
+# Los .colors que instala nimbus-theme van a $HOME/.local/share, pero la
+# sesión mira $XDG_DATA_HOME (temporal): re-sincronizar tras cada apply para
+# que los canales en vivo encuentren los schemes (F3-T11 fix panel oscuro).
+resync_data() {
+  if [ -d "$HOME/.local/share" ]; then
+    cp -rn "$HOME/.local/share/." "$XDG_DATA_HOME/" 2>/dev/null || true
+  fi
+  echo "schemes en XDG_DATA_HOME: $(ls "$XDG_DATA_HOME/color-schemes/" 2>/dev/null | tr '\n' ' ')" | tee -a "$LOG"
+}
+
+echo "=== diagnóstico pre-switch ===" | tee -a "$LOG"
+echo "ColorScheme inicial: $(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)" | tee -a "$LOG"
+resync_data
+
 echo "=== switch light (en vivo) ===" | tee -a "$LOG"
 "$THEME" light 2>&1 | tee -a "$LOG"
+resync_data
+echo "scheme claro: $(grep -h "BackgroundNormal" "$XDG_DATA_HOME/color-schemes/NimbusTahoeLight.colors" 2>/dev/null | head -2 | tr '\n' ' ')" | tee -a "$LOG"
+echo "--- canal directo plasma-apply-colorscheme (con stderr) ---" | tee -a "$LOG"
+plasma-apply-colorscheme NimbusTahoeLight 2>&1 | tee -a "$LOG"
+echo "rc=$?" | tee -a "$LOG"
+plasma-apply-colorscheme -l 2>/dev/null | grep -iE "nimbus|actual" | tee -a "$LOG"
 echo "greeters tras light: $(pgrep -c -f "[k]screenlocker_greet" || true)" | tee -a "$LOG"
-sleep 3
+sleep 15
+qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
+qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'desktops().length' >>"$LOG" 2>&1 || true
+sleep 2
 CS1="$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)"
 echo "ColorScheme tras light: $CS1" | tee -a "$LOG"
+echo "desktoptheme tras light: $(plasma-apply-desktoptheme --list-themes 2>/dev/null | grep -i current)" | tee -a "$LOG"
 echo "locked antes shot-light: $(qdbus6 org.freedesktop.ScreenSaver /ScreenSaver org.freedesktop.ScreenSaver.GetActive 2>&1)" | tee -a "$LOG"
 spectacle -b -n -o "$OUT_ABS/f3-theme-live-light.png" >>"$LOG" 2>&1 \
   && echo "shot light OK" | tee -a "$LOG" || echo "WARN: shot light fallo" | tee -a "$LOG"
 
 echo "=== switch dark (en vivo, sin reinicio) ===" | tee -a "$LOG"
 "$THEME" dark 2>&1 | tee -a "$LOG"
+resync_data
 echo "greeters tras dark: $(pgrep -c -f "[k]screenlocker_greet" || true)" | tee -a "$LOG"
+sleep 15
+# Doble flush: el render del panel va un evento por detrás del estado;
+# el 2º reconfigure fuerza la aplicación del switch actual antes del shot.
+qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
 sleep 3
+qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'desktops().length' >>"$LOG" 2>&1 || true
+sleep 3
+qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
+sleep 5
 CS2="$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null)"
 echo "ColorScheme tras dark: $CS2" | tee -a "$LOG"
+echo "desktoptheme tras dark: $(plasma-apply-desktoptheme --list-themes 2>/dev/null | grep -i current)" | tee -a "$LOG"
 echo "locked antes shot-dark: $(qdbus6 org.freedesktop.ScreenSaver /ScreenSaver org.freedesktop.ScreenSaver.GetActive 2>&1)" | tee -a "$LOG"
 spectacle -b -n -o "$OUT_ABS/f3-theme-live-dark.png" >>"$LOG" 2>&1 \
   && echo "shot dark OK" | tee -a "$LOG" || echo "WARN: shot dark fallo" | tee -a "$LOG"
+
+echo "=== switch light2 (tercer switch: discrimina lag off-by-one) ===" | tee -a "$LOG"
+"$THEME" light 2>&1 | tee -a "$LOG"
+resync_data
+sleep 15
+# Doble flush: el render del panel va un evento por detrás del estado;
+# el 2º reconfigure fuerza la aplicación del switch actual antes del shot.
+qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
+sleep 3
+qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'desktops().length' >>"$LOG" 2>&1 || true
+sleep 3
+qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
+sleep 5
+spectacle -b -n -o "$OUT_ABS/f3-theme-live-light2.png" >>"$LOG" 2>&1 \
+  && echo "shot light2 OK" | tee -a "$LOG" || echo "WARN: shot light2 fallo" | tee -a "$LOG"
 
 if kill -0 "$PLASMA_PID" 2>/dev/null; then
   echo "PLASMA_ALIVE pid=$PLASMA_PID (0 reinicios)" | tee -a "$LOG"
