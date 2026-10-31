@@ -8,6 +8,7 @@ import org.kde.layershell as LayerShellQt
 
 Item {
     id: root
+    objectName: "appleMenuObj"
     property bool opened: false
     property bool demo: false
     property string pendingAction: ""
@@ -23,6 +24,13 @@ Item {
             runner.run(cmd);
         console.log("menu: run " + cmd + (demo ? " (demo, no ejecutado)" : ""));
         close();
+    }
+    // F3-T04 fix: recorre los 7 items y loguea sin ejecutar nada.
+    function logAllActions() {
+        for (var i = 0; i < actionModel.count; i++) {
+            var it = actionModel.get(i);
+            runner.logAction(i, it.cmd);
+        }
     }
 
     Window {
@@ -78,6 +86,7 @@ Item {
                 Repeater {
                     id: rows
                     model: ListModel {
+                        id: actionModel
                         ListElement { label: "Acerca de Nimbus"; cmd: ""; glyph: "N" }
                         ListElement { label: "Ajustes del sistema…"; cmd: "systemsettings"; glyph: "S" }
                         ListElement { label: "Dormir"; cmd: "systemctl suspend"; glyph: "Z" }

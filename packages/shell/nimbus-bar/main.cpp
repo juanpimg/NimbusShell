@@ -27,14 +27,20 @@ int main(int argc, char *argv[])
     app.setOrganizationName(QStringLiteral("nimbus"));
 
     bool demoMenu = false;
-    for (int i = 1; i < argc; ++i)
-        if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-menu"))
+    bool logActions = false;
+    for (int i = 1; i < argc; ++i) {
+        const QString a = QString::fromLocal8Bit(argv[i]);
+        if (a == QStringLiteral("--demo-menu"))
             demoMenu = true;
+        else if (a == QStringLiteral("--log-actions"))
+            logActions = true;
+    }
 
     CommandRunner runner;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("runner"), &runner);
     engine.rootContext()->setContextProperty(QStringLiteral("demoMenu"), demoMenu);
+    engine.rootContext()->setContextProperty(QStringLiteral("logActions"), logActions);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
@@ -44,6 +50,20 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty()) {
         qWarning("nimbus-bar: fallo al cargar qrc:/Bar.qml");
         return 1;
+    }
+    qInfo().noquote() << QStringLiteral("nimbus-bar: demoMenu=%1 logActions=%2")
+                             .arg(demoMenu)
+                             .arg(logActions);
+    // --log-actions: invoca Menu.logAllActions desde C++ (recorre el
+    // modelo QML real; runner.run inhibido en demo → solo log).
+    if (demoMenu && logActions) {
+        QObject *menu = engine.rootObjects().first()->findChild<QObject *>(
+            QStringLiteral("appleMenuObj"));
+        if (!menu) {
+            qWarning("nimbus-bar: --log-actions sin Menu (appleMenuObj no encontrado)");
+        } else if (!QMetaObject::invokeMethod(menu, "logAllActions")) {
+            qWarning("nimbus-bar: --log-actions invokeMethod fallo");
+        }
     }
 
     // Refuerzo en C++ de los mismos valores declarados en Bar.qml
