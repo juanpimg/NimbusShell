@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "KCM",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "NimbusShell"
+            }
+        ],
+        "Description": "Ajustes Nimbus (español, lenguaje llano)",
+        "Description[es]": "Ajustes Nimbus (español, lenguaje llano)",
+        "EnabledByDefault": true,
+        "Icon": "preferences-system",
+        "Id": "kcm_nimbus",
+        "License": "GPL-3.0-or-later",
+        "Name": "Nimbus",
+        "Name[es]": "Nimbus",
+        "Version": "0.1"
+    },
+    "X-KDE-System-Settings-Parent-Category": "appearance"
+}
