@@ -47,11 +47,13 @@ glifos solo en hover (macOS); el hover físico sigue sin verificador.
 
 ```bash
 klassy-settings -i packages/themes/klassy-preset/nimbus-tahoe.klpw
-klassy-settings -w Klassy   # escribe klassy/klassyrc por grupos + kwinrc
+klassy-settings -w NimbusTahoe   # escribe klassy/klassyrc por grupos + kwinrc
 qdbus6 org.kde.KWin /KWin reconfigure
 ```
 
 `-i` sin `-w` solo guarda en `klassy/windecopresetsrc` (no aplica).
+El nombre interno del preset pasó de Klassy a NimbusTahoe para evitar
+el import bundled stock (F4-T02).
 Claves sueltas con `kwriteconfig6` en `klassy/klassyrc` las pisa el import
 del preset bundled en el primer arranque: no usar.
 
