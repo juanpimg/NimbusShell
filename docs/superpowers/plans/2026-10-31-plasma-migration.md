@@ -147,7 +147,7 @@
 - [ ] **F4-T06 — Ventanas inactivas.** Files: `packages/kwin/`, `klassy-preset`. Acciones: gris, título, sin hover glyphs, sin dim de contenido; contraste. Accept: captura activa/inactiva; muestra RGB. Dep: F4-T01.
 - [ ] **F4-T07 — Reglas de ventana.** Files: `dotfiles/.config/kwinrulesrc`. Acciones: float por defecto, tamaño 1100x700, centrar, diálogos, CSD, excepciones MacShell; no maximizar al abrir. Accept: apps abren normal; reglas probadas. Dep: F4-T02.
 - [x] **F4-T08 — Atajos Cmd/Ctrl.** Files: `dotfiles/.config/kglobalshortcutsrc`, `settings/`. Acciones: Meta como Cmd, toggle Cmd/Ctrl, cheat sheet, sin Ctrl nuevos; aplicar vía `kglobalaccel setShortcut` (no solo fichero) y tabla de colisiones Meta+F/Meta+Espacio. Accept: 22 acciones KWin únicas invocadas (28/28 rc=0) + 32 binds; cero Ctrl nuevos; toggle implementado (prueba en VM); Meta+Espacio pasa a Spotlight al integrar F6-T01. Dep: F4-T04.
-- [ ] **F4-T09 — Empaquetado/pin de Klassy y scripts.** Files: `packages/`, `scripts/ci.sh`. Acciones: PKGBUILD o dependencia pinneada, rebuild por Plasma, CI. Accept: instalación limpia; update simulado no rompe. Dep: F4-T01.
+- [ ] **F4-T09 — Empaquetado/pin de Klassy y scripts.** Files: `packages/`, `scripts/ci.sh`. Acciones: PKGBUILD o dependencia pinneada, rebuild por Plasma, CI. Accept: instalación limpia; update simulado no rompe. Estado: paquete `klassy-nimbus` 6.7.3 compilado (3,8 MB, patch+preset dentro); `pacman -U`/update pendiente VM F2-T08. Dep: F4-T01.
 - [ ] **F4-T10 — Aceptación de ventanas.** Files: `tests/vm/windows.sh`, evidence. Acciones: matriz de 8 apps (Qt/GTK/Electron/CSD), capturas, interacción. Accept: todos los estados; 0 fallos críticos. Dep: F4-T03..T09.
 
 ---
