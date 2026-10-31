@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Test del índice local Nimbus (F6-T02): compila y ejecuta tst_index (QtTest).
 
-Uso: python3 tests/spotlight/test_index.py [--build-dir ...]
+Uso: python3 tests/spotlight/test_index.py [--build-dir DIR]
+Por defecto configura en un dir temporal fresco (nunca `build/` del repo,
+evita CMakeCache rancio). TST_BUILD_DIR lo fuerza (útil para depurar).
 Verifica: fuzzy, calculadora (precedencia/errores), parser .desktop,
-10k sintéticos <50ms, searchLocal("kate") <50ms.
+clipboard (fallback klipper + parser), settings/files/tabs en vivo,
+10k sintéticos <50ms, searchLocal <50ms.
 """
+import argparse
 import os
 import subprocess
 import sys
+import tempfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SRC = os.path.join(REPO, "apps", "nimbus-spotlight")
@@ -22,13 +27,18 @@ def run(cmd, **kw):
 
 
 def main():
-    build = os.environ.get("TST_BUILD_DIR", os.path.join(SRC, "build"))
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--build-dir", default=os.environ.get("TST_BUILD_DIR", ""))
+    args = ap.parse_args()
+    build = args.build_dir or tempfile.mkdtemp(prefix="nimbus-tst-",
+                                                dir="/tmp/opencode")
     os.makedirs(build, exist_ok=True)
+    print(f"build-dir: {build}", flush=True)
     r = run(["cmake", "-S", SRC, "-B", build, "-DCMAKE_BUILD_TYPE=Release"])
     if r.returncode != 0:
         print("FALLO: cmake configure", file=sys.stderr)
         return 1
-    r = run(["cmake", "--build", build, "--target", "tst_index", "nimbus-spotlight", "-j4"])
+    r = run(["cmake", "--build", build, "--target", "tst_index", "-j4"])
     if r.returncode != 0:
         print("FALLO: build", file=sys.stderr)
         return 1
@@ -38,7 +48,7 @@ def main():
     if r.returncode != 0:
         print("FALLO: tst_index", file=sys.stderr)
         return 1
-    print("OK: tst_index pasa (fuzzy, calc, desktop, perf 10k <50ms)")
+    print("OK: tst_index pasa (fuzzy, calc, desktop, clipboard, runners, perf <50ms)")
     return 0
 
 

@@ -305,38 +305,46 @@ void NimbusIndex::scanApps()
     }
 }
 
+QList<LocalFile> NimbusIndex::scanRoots(const QStringList &roots, int maxFiles)
+{
+    QList<LocalFile> files;
+    QSet<QString> seen;
+    for (const QString &r : roots) {
+        if (files.size() >= maxFiles) break;
+        QDirIterator it(r, QDir::Files | QDir::NoDotAndDotDot,
+                        QDirIterator::Subdirectories);
+        const int depth0 = r.count('/');
+        int count = 0;
+        while (it.hasNext() && files.size() < maxFiles && count < 1500) {
+            const QString p = it.next();
+            ++count;
+            if (p.count('/') - depth0 > 3) continue; // profundidad limitada
+            const QString name = QFileInfo(p).fileName();
+            if (name.startsWith('.')) continue;
+            if (seen.contains(p)) continue;
+            seen.insert(p);
+            files.append({name, p, false});
+        }
+    }
+    return files;
+}
+
 void NimbusIndex::scanFilesAsync()
 {
     if (m_scanRunning.exchange(true)) return;
     // Copia caminos en el hilo de llamada (QDir::homePath es barato).
     const QString home = QDir::homePath();
     const QString xbel = home + QStringLiteral("/.local/share/recently-used.xbel");
-    std::thread([this, home, xbel]() {
-        QList<LocalFile> files;
+    const QStringList roots = {home + QStringLiteral("/Desktop"),
+                               home + QStringLiteral("/Documents"),
+                               home + QStringLiteral("/Downloads"),
+                               home + QStringLiteral("/Escritorio"),
+                               home + QStringLiteral("/Documentos"),
+                               home + QStringLiteral("/Descargas")};
+    std::thread([this, xbel, roots]() {
+        QList<LocalFile> files = scanRoots(roots, kMaxFiles);
         QSet<QString> seen;
-        const QStringList roots = {home + QStringLiteral("/Desktop"),
-                                   home + QStringLiteral("/Documents"),
-                                   home + QStringLiteral("/Downloads"),
-                                   home + QStringLiteral("/Escritorio"),
-                                   home + QStringLiteral("/Documentos"),
-                                   home + QStringLiteral("/Descargas")};
-        for (const QString &r : roots) {
-            if (files.size() >= kMaxFiles) break;
-            QDirIterator it(r, QDir::Files | QDir::NoDotAndDotDot,
-                            QDirIterator::Subdirectories);
-            int depth0 = r.count('/');
-            int count = 0;
-            while (it.hasNext() && files.size() < kMaxFiles && count < 1500) {
-                const QString p = it.next();
-                ++count;
-                if (p.count('/') - depth0 > 3) continue; // profundidad limitada
-                const QString name = QFileInfo(p).fileName();
-                if (name.startsWith('.')) continue;
-                if (seen.contains(p)) continue;
-                seen.insert(p);
-                files.append({name, p, false});
-            }
-        }
+        for (const LocalFile &f : files) seen.insert(f.path);
         // Recientes de recently-used.xbel (solo file:// existentes).
         QFile xf(xbel);
         if (xf.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -558,6 +566,24 @@ void NimbusIndex::recordUse(const QString &id)
 void NimbusIndex::requestKRunner() { setKRunnerFallback(true); }
 void NimbusIndex::clearKRunnerFallback() { setKRunnerFallback(false); }
 
+QVariantMap NimbusIndex::clipEntry(const QString &text, int i)
+{
+    const QString t = text.left(16384);
+    QVariantMap o;
+    o[QStringLiteral("text")] = t.left(80);
+    o[QStringLiteral("subtext")] = QStringLiteral("Portapapeles");
+    o[QStringLiteral("category")] = QStringLiteral("clipboard");
+    o[QStringLiteral("runner")] = QStringLiteral("Nimbus");
+    o[QStringLiteral("relevance")] = 1.0;
+    o[QStringLiteral("icon")] = QString();
+    o[QStringLiteral("quickKey")] = i < kMaxQuickKeys
+        ? QString(QChar::fromLatin1(kQuickKeys[i])) : QString();
+    o[QStringLiteral("localKind")] = QStringLiteral("clip");
+    o[QStringLiteral("localId")] = t.left(80);
+    o[QStringLiteral("localExec")] = t;
+    return o;
+}
+
 QVariantList NimbusIndex::clipboardEntries()
 {
     // Solo klipper vía DBus; texto <16384 sin formato (no passwords).
@@ -572,20 +598,7 @@ QVariantList NimbusIndex::clipboardEntries()
     int i = 0;
     for (const QString &e : r.value()) {
         if (i >= 20) break;
-        const QString t = e.left(16384);
-        QVariantMap o;
-        o[QStringLiteral("text")] = t.left(80);
-        o[QStringLiteral("subtext")] = QStringLiteral("Portapapeles");
-        o[QStringLiteral("category")] = QStringLiteral("clipboard");
-        o[QStringLiteral("runner")] = QStringLiteral("Nimbus");
-        o[QStringLiteral("relevance")] = 1.0;
-        o[QStringLiteral("icon")] = QString();
-        o[QStringLiteral("quickKey")] = i < kMaxQuickKeys
-            ? QString(QChar::fromLatin1(kQuickKeys[i])) : QString();
-        o[QStringLiteral("localKind")] = QStringLiteral("clip");
-        o[QStringLiteral("localId")] = t.left(80);
-        o[QStringLiteral("localExec")] = t;
-        out.append(o);
+        out.append(clipEntry(e, i));
         ++i;
     }
     return out;

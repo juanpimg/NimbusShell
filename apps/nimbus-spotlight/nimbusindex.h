@@ -58,6 +58,10 @@ public:
     static bool parseDesktopFile(const QString &path, LocalApp &out);
     static QString cleanExec(const QString &exec);
     static QString webUrl(const QString &term);
+    // Entrada de portapapeles (truncado <16k, sin formato): testeable sin DBus.
+    static QVariantMap clipEntry(const QString &text, int i);
+    // Escaneo de raíces de ficheros (fixture-testeable; el worker lo usa).
+    static QList<LocalFile> scanRoots(const QStringList &roots, int maxFiles = 4000);
 
 Q_SIGNALS:
     void localMatchesChanged();

@@ -28,12 +28,24 @@ HOME/XDG temporales):
 `spikes/nested/f6-runners.png` (query "kate", Kate primera, Motor: Nimbus,
 0 errores QML en log).
 
-Tests: `tests/spotlight/test_index.py` → `tst_index` (QtTest): 9/9 pasan —
+Tests: `tests/spotlight/test_index.py` → `tst_index` (QtTest): 13/13 pasan —
 fuzzy (exacto<prefijo<subcadena<fuzzy), calculadora (precedencia
 `2+3*4=14`, `(2+3)*4=20`, `2^3=8`, errores `1/0`, `2++2`, `(2+3`),
 parser .desktop (`%U` limpio, NoDisplay/sin-Exec rechazados),
 perf fuzzy 10 k sintéticos: 0 ms (<50 ms), `searchLocal("kate")`: 0 ms.
+El wrapper configura siempre en dir temporal fresco (`TST_BUILD_DIR` o
+`mkdtemp`; nunca `build/` del repo: evita CMakeCache rancio).
 `qmllint qml/Spotlight.qml`: limpio. Build `nimbus-spotlight` + `tst_index`: OK.
+
+## Latencias por runner (test en vivo, `tst_index`, host)
+
+- `tab=apps` ("kate"): 0 ms, 20 resultados, todos categoría `apps`.
+- Settings ("wifi", tab actions): 0 ms, 5 resultados, KCM Red presente.
+- Files: `scanRoots` sobre fixture (`Documents/proyectos/
+  informe-fixture-nimbus.odt`): 0 ms, indexado=1; query tab=files: 0 ms.
+- Clipboard: klipper vivo en host con 20 entradas; parser verificado
+  (título ≤80, cuerpo <16384); sin klipper → vacío + fallback KRunner.
+- Calc ("2+2", tab actions): 0 ms, resultado inline `= 4`.
 
 ## Límites
 

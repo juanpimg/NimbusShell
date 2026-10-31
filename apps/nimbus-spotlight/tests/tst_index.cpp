@@ -140,6 +140,91 @@ private Q_SLOTS:
         QCOMPARE(idx.localMatches().first().toMap().value(QStringLiteral("localKind")).toString(),
                  QStringLiteral("calc"));
     }
+
+    void tabAppsOnly()
+    {
+        // tab=apps: solo categoría apps (sin ajustes, ficheros ni web).
+        NimbusIndex idx;
+        QElapsedTimer t;
+        t.start();
+        idx.searchLocal(QStringLiteral("kate"), QStringLiteral("apps"));
+        const qint64 ms = t.elapsed();
+        QVERIFY(!idx.localMatches().isEmpty());
+        for (const QVariant &v : idx.localMatches())
+            QCOMPARE(v.toMap().value(QStringLiteral("category")).toString(),
+                     QStringLiteral("apps"));
+        qInfo("latency-tab-apps: %lldms results=%d", ms, idx.localMatches().size());
+        QVERIFY2(ms < 50, qPrintable(QStringLiteral("tab=apps tardó %1ms").arg(ms)));
+    }
+
+    void settingsWifi()
+    {
+        // Runner Ajustes en vivo: "wifi" debe dar el KCM de red.
+        NimbusIndex idx;
+        QElapsedTimer t;
+        t.start();
+        idx.searchLocal(QStringLiteral("wifi"), QStringLiteral("actions"));
+        const qint64 ms = t.elapsed();
+        QVERIFY(!idx.localMatches().isEmpty());
+        bool hasSetting = false;
+        for (const QVariant &v : idx.localMatches()) {
+            const QVariantMap m = v.toMap();
+            if (m.value(QStringLiteral("localKind")).toString() == QLatin1String("setting"))
+                hasSetting = true;
+        }
+        QVERIFY2(hasSetting, "wifi sin KCM de ajustes");
+        qInfo("latency-settings-wifi: %lldms results=%d", ms, idx.localMatches().size());
+        QVERIFY2(ms < 50, qPrintable(QStringLiteral("settings tardó %1ms").arg(ms)));
+    }
+
+    void filesFixture()
+    {
+        // Runner Archivos con fixture real (scanRoots) + latencia tab=files.
+        QTemporaryDir home;
+        QVERIFY(home.isValid());
+        QDir().mkpath(home.filePath(QStringLiteral("Documents/proyectos")));
+        const QString fix = home.filePath(
+            QStringLiteral("Documents/proyectos/informe-fixture-nimbus.odt"));
+        QFile f(fix);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("fixture");
+        f.close();
+        QElapsedTimer t;
+        t.start();
+        const QList<LocalFile> files = NimbusIndex::scanRoots(
+            {home.filePath(QStringLiteral("Documents"))});
+        const qint64 scanMs = t.elapsed();
+        bool found = false;
+        for (const LocalFile &lf : files)
+            if (lf.path == fix) found = true;
+        QVERIFY2(found, "fixture no indexado por scanRoots");
+        qInfo("latency-files-scan: %lldms indexed=%d", scanMs, files.size());
+        NimbusIndex idx;
+        t.start();
+        idx.searchLocal(QStringLiteral("informe-fixture"), QStringLiteral("files"));
+        const qint64 ms = t.elapsed();
+        qInfo("latency-files-query: %lldms results=%d", ms, idx.localMatches().size());
+        QVERIFY2(ms < 50, qPrintable(QStringLiteral("files tardó %1ms").arg(ms)));
+    }
+
+    void clipboardFallback()
+    {
+        // Sin klipper (offscreen/CI): fallback declarado + parser unitario.
+        NimbusIndex idx;
+        const QVariantList clips = idx.clipboardEntries();
+        if (clips.isEmpty())
+            qInfo("clipboard: klipper ausente, fallback KRunner (clipboardHistory)");
+        else
+            qInfo("clipboard: klipper con %d entradas", clips.size());
+        const QVariantMap e = NimbusIndex::clipEntry(QStringLiteral("hola mundo"), 0);
+        QCOMPARE(e.value(QStringLiteral("category")).toString(), QStringLiteral("clipboard"));
+        QCOMPARE(e.value(QStringLiteral("quickKey")).toString(), QStringLiteral("A"));
+        QCOMPARE(e.value(QStringLiteral("text")).toString(), QStringLiteral("hola mundo"));
+        // Truncado: texto <16384, título ≤80.
+        const QVariantMap big = NimbusIndex::clipEntry(QString(20000, 'x'), 1);
+        QCOMPARE(big.value(QStringLiteral("localExec")).toString().size(), 16384);
+        QCOMPARE(big.value(QStringLiteral("text")).toString().size(), 80);
+    }
 };
 
 QTEST_MAIN(TstIndex)
