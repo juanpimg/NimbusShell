@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Ledger de progreso ponderado por fase (F1-T06).
+
+Lee docs/superpowers/plans/2026-10-31-plasma-migration.md, cuenta
+checkboxes por fase y pondera con el peso del header.
+"""
+import argparse
+import json
+import os
+import re
+import sys
+
+DEFAULT_PLAN = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "docs", "superpowers", "plans", "2026-10-31-plasma-migration.md",
+)
+
+PHASE_RE = re.compile(
+    r"^##\s+Fase\s+(\d+)\s+[—-]\s+(.*?)\(\s*(\d+)\s+tareas?,\s*(\d+(?:\.\d+)?)\s*%",
+    re.IGNORECASE,
+)
+TASK_RE = re.compile(r"^-\s*\[( |x|X)\]\s*\*\*(F\d+-T\d+)\s*[—-]\s*(.*?)\*\*")
+
+
+def parse_plan(path):
+    phases = []
+    current = None
+    pending = []
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            m = PHASE_RE.match(line.strip())
+            if m:
+                num, title, ntasks, weight = m.groups()
+                current = {
+                    "id": "F%s" % num,
+                    "title": title.strip(),
+                    "total": int(ntasks),
+                    "weight": float(weight),
+                    "done": 0,
+                }
+                phases.append(current)
+                continue
+            t = TASK_RE.match(line.strip())
+            if t and current is not None:
+                mark, tid, ttitle = t.groups()
+                done = mark.lower() == "x"
+                if done:
+                    current["done"] += 1
+                else:
+                    pending.append({"id": tid, "title": ttitle.strip()})
+    return phases, pending
+
+
+def compute(phases):
+    rows = []
+    total_pct = 0.0
+    total_done = 0
+    total_tasks = 0
+    for p in phases:
+        pct = (p["weight"] * p["done"] / p["total"]) if p["total"] else 0.0
+        total_pct += pct
+        total_done += p["done"]
+        total_tasks += p["total"]
+        rows.append({**p, "pct": round(pct, 1),
+                     "phase_pct": round(100.0 * p["done"] / p["total"], 1) if p["total"] else 0.0})
+    return rows, total_done, total_tasks, round(total_pct, 1)
+
+
+def bar(pct, width=30):
+    fill = int(round(pct / 100.0 * width))
+    return "[" + "#" * fill + "-" * (width - fill) + "]"
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="Ledger de progreso ponderado por fase.")
+    ap.add_argument("--plan", default=DEFAULT_PLAN)
+    ap.add_argument("--phase", default=None, help="Filtrar una fase (p.ej. F5 o 5)")
+    ap.add_argument("--json", action="store_true")
+    args = ap.parse_args(argv)
+
+    if not os.path.isfile(args.plan):
+        print("nimbus-progress: no se encuentra el plan: %s" % args.plan, file=sys.stderr)
+        return 2
+
+    phases, pending = parse_plan(args.plan)
+    rows, done, total, total_pct = compute(phases)
+
+    if args.phase:
+        want = args.phase.strip().upper()
+        if not want.startswith("F"):
+            want = "F" + want
+        rows = [r for r in rows if r["id"] == want]
+        if not rows:
+            print("nimbus-progress: fase %s no encontrada" % args.phase, file=sys.stderr)
+            return 2
+
+    if args.json:
+        print(json.dumps({"done": done, "total": total, "percent": total_pct,
+                          "phases": rows, "next": pending[:5]},
+                         ensure_ascii=False, indent=2))
+        return 0
+
+    print("%s %.1f%%" % (bar(total_pct), total_pct))
+    print("Total: %d/%d (%.1f%%)" % (done, total, total_pct))
+    print("")
+    print("%-4s %5s %7s %7s  %s" % ("Fase", "Hechas", "Fase%", "Pond%", "Titulo"))
+    for r in rows:
+        print("%-4s %3d/%-3d %6.1f%% %6.1f%%  %s" % (
+            r["id"], r["done"], r["total"], r["phase_pct"], r["pct"], r["title"]))
+    print("")
+    print("Proximas 5 pendientes:")
+    for p in pending[:5]:
+        print("  %s — %s" % (p["id"], p["title"][:72]))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
