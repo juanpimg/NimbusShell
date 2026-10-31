@@ -40,8 +40,8 @@ class Toggle : public QObject {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.nimbus.Spotlight")
 public:
-    explicit Toggle(QWindow *w, QObject *parent = nullptr)
-        : QObject(parent), m_win(w) {}
+    explicit Toggle(QWindow *w, NimbusIndex *idx, QObject *parent = nullptr)
+        : QObject(parent), m_win(w), m_index(idx) {}
 public Q_SLOTS:
     void toggle()
     {
@@ -49,8 +49,16 @@ public Q_SLOTS:
         if (m_win->isVisible())
             m_win->requestActivate();
     }
+    // F6-T08: gancho de benchmark (solo reexpone searchLocal síncrono;
+    // permite cronometrar query local en caliente vía qdbus).
+    void query(const QString &term)
+    {
+        if (m_index)
+            m_index->searchLocal(term, QString());
+    }
 private:
     QWindow *m_win = nullptr;
+    NimbusIndex *m_index = nullptr;
 };
 
 static void centerOnScreen(QWindow *win, int w, int h)
@@ -157,7 +165,7 @@ int main(int argc, char *argv[])
         }
     });
 
-    Toggle toggler(win);
+    Toggle toggler(win, &nimbus);
     QDBusConnection bus = QDBusConnection::sessionBus();
     if (!bus.registerService(QStringLiteral("org.nimbus.Spotlight")))
         qWarning("nimbus-spotlight: sin servicio DBus (otra instancia?)");
