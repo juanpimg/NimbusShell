@@ -24,7 +24,13 @@ Meta+1..4→`none` en plasmashell (reserva Apps F6-T04); Meta+Espacio→KRunner
 Alt+F4 liberado (Close=Meta+Q); Meta+Z global tapa deshacer en apps;
 Ctrl+Alt+Del del sistema intacto (ksmserver no se toca).
 ## Pruebas (`spikes/nested/f4-keys-nested.log`; `.png` muestra KRunner)
-`kreadconfig6` 8/8 binds OK; `grep -ri ctrl`=4 líneas (solo Meta+Ctrl+
-flechas); `invokeShortcut` 14/14 rc=0 en 11 acciones KWin; krunner anidado
-fusiona `_launch=Search Alt+F2 Meta+Space` ✓. Requiere RELOGIN
+`kreadconfig6` 32/32 binds OK (toda la tabla); `grep -ri ctrl`=4 líneas
+(solo Meta+Ctrl+flechas); `invokeShortcut` 28/28 rc=0 en **22 acciones
+KWin únicas** (Overview, Expose, Show Desktop, Switch×4, Tile×4,
+WinOneDesktop×4, Nimbus Zoom/Fullscreen, Minimize, Walk×3, Close);
+krunner anidado fusiona `_launch=Search Alt+F2 Meta+Space` ✓. Log sin
+duplicados (el ×2 anterior era `tee` dentro del bloque ya redirigido; las
+6 líneas repetidas hoy son toggles on/off intencionados). Hallazgo: sin
+`--no-lockscreen` el greet tapa la captura; el harness lo usa y limpia
+solo sus PIDs (snapshot previo; lo ajeno no se toca). Requiere RELOGIN
 (kglobalacceld lee al iniciar); scripts KWin aplican sin relogin.
