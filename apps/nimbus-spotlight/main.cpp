@@ -20,6 +20,7 @@
 #include <LayerShellQt/Window>
 
 #include "krunnerbackend.h"
+#include "nimbusindex.h"
 
 class IconProvider : public QQuickImageProvider {
 public:
@@ -99,9 +100,11 @@ int main(int argc, char *argv[])
     }
 
     KRunnerBackend backend(demo);
+    NimbusIndex nimbus; // fast-path local F6-T02 (KRunner = fallback)
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("nimbusicon"), new IconProvider);
     engine.rootContext()->setContextProperty(QStringLiteral("backend"), &backend);
+    engine.rootContext()->setContextProperty(QStringLiteral("nimbus"), &nimbus);
     engine.rootContext()->setContextProperty(QStringLiteral("initialQuery"), initialQuery);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
