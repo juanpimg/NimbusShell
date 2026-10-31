@@ -1,0 +1,146 @@
+[f4t08] desplegados 9 ficheros
+[f4t08] Desktops.Number=2
+BIND OK [kwin] Window Close=Meta+Q,Meta+Q,cerrar ventana (Cmd+Q)
+BIND OK [kwin] Overview=Meta+W,Meta+W,Mission Control (Vista Overview)
+BIND OK [kwin] Window Fullscreen=none,none,delegado al script Nimbus Fullscreen Meta+F (F4-T04)
+BIND OK [kwin] Switch One Desktop to the Left=Meta+Ctrl+Left,Meta+Ctrl+Left,Space anterior (Ctrl permitido: Spaces Ctrl+flechas)
+BIND OK [kwin] Window Minimize=Meta+M	Meta+H,Meta+M	Meta+H,minimizar/ocultar (Cmd+M/Cmd+H; KDE sin hide-app: alias a minimizar)
+BIND OK [plasmashell] activate task manager entry 1=none,none,reservado Apps/Spotlight F6-T04 (Cmd+1)
+BIND OK krunner _launch tiene Meta+Space
+BIND OK spectacle region Meta+Shift+4
+[f4t08] grep -ri ctrl (solo 4 Meta+Ctrl+flechas):
+Switch One Desktop Down=Meta+Ctrl+Down,Meta+Ctrl+Down,Space inferior (Ctrl permitido)
+Switch One Desktop Up=Meta+Ctrl+Up,Meta+Ctrl+Up,Space superior (Ctrl permitido)
+Switch One Desktop to the Left=Meta+Ctrl+Left,Meta+Ctrl+Left,Space anterior (Ctrl permitido: Spaces Ctrl+flechas)
+Switch One Desktop to the Right=Meta+Ctrl+Right,Meta+Ctrl+Right,Space siguiente (Ctrl permitido)
+[f4t08] cargo nimbus-zoom (Nimbus Zoom Meta+Z + Nimbus Fullscreen Meta+F) ...
+[f4t08] cargo nimbus-zoom (Nimbus Zoom Meta+Z + Nimbus Fullscreen Meta+F) ...
+0
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.3' (uid=1000 pid=182565 comm="krunner")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.5' (uid=1000 pid=182572 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.5' (uid=1000 pid=182572 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:182572): xdg-desktop-portal-WARNING **: 22:11:54.822: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.5' (uid=1000 pid=182572 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.8' (uid=1000 pid=182599 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+fusermount3: failed to access mountpoint /run/user/1000/gvfs: Permission denied
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.5' (uid=1000 pid=182572 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.3' (uid=1000 pid=182565 comm="krunner")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.5' (uid=1000 pid=182572 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[182255]: [session uid=1000 pid=182255 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+[f4t08] invoke Overview rc=0
+[f4t08] invoke Overview rc=0
+[f4t08] invoke Overview rc=0
+[f4t08] invoke Overview rc=0
+[f4t08] invoke Expose rc=0
+[f4t08] invoke Expose rc=0
+[f4t08] invoke Expose rc=0
+[f4t08] invoke Expose rc=0
+[f4t08] invoke Show Desktop rc=0
+[f4t08] invoke Show Desktop rc=0
+[f4t08] invoke Show Desktop rc=0
+[f4t08] invoke Show Desktop rc=0
+[f4t08] invoke Switch One Desktop to the Left rc=0
+[f4t08] invoke Switch One Desktop to the Left rc=0
+[f4t08] invoke Switch One Desktop to the Right rc=0
+[f4t08] invoke Switch One Desktop to the Right rc=0
+[f4t08] invoke Window Quick Tile Left rc=0
+[f4t08] invoke Window Quick Tile Left rc=0
+[f4t08] invoke Window Quick Tile Right rc=0
+[f4t08] invoke Window Quick Tile Right rc=0
+[f4t08] invoke Nimbus Zoom rc=0
+[f4t08] invoke Nimbus Zoom rc=0
+[f4t08] invoke Nimbus Fullscreen rc=0
+[f4t08] invoke Nimbus Fullscreen rc=0
+[f4t08] invoke Nimbus Fullscreen rc=0
+[f4t08] invoke Nimbus Fullscreen rc=0
+[f4t08] invoke Window Minimize rc=0
+[f4t08] invoke Window Minimize rc=0
+[f4t08] invokes OK: 14/14 (minimo 10)
+[f4t08] invokes OK: 14/14 (minimo 10)
+[f4t08] kwin shortcutNames con Meta (muestra):
+[f4t08] kwin shortcutNames con Meta (muestra):
+Nimbus Zoom
+Expose
+Window Minimize
+Window Custom Quick Tile Right
+Cycle Overview Opposite
+Window Quick Tile Top
+Switch One Desktop to the Left
+Window Quick Tile Left
+Switch One Desktop to the Right
+Window Quick Tile Bottom Right
+ExposeAll
+Window Quick Tile Top Right
+Window Quick Tile Bottom Left
+ExposeClass
+Window Close
+Window Quick Tile Top Left
+Window Custom Quick Tile Bottom
+Window Quick Tile Bottom
+Window Custom Quick Tile Top
+Switch One Desktop Up
+Show Desktop
+Overview
+ExposeClassCurrentDesktop
+Cycle Overview
+Window Custom Quick Tile Left
+Window Quick Tile Right
+Switch One Desktop Down
+Nimbus Fullscreen
+Nimbus Zoom
+Expose
+Window Minimize
+Window Custom Quick Tile Right
+Cycle Overview Opposite
+Window Quick Tile Top
+Switch One Desktop to the Left
+Window Quick Tile Left
+Switch One Desktop to the Right
+Window Quick Tile Bottom Right
+ExposeAll
+Window Quick Tile Top Right
+Window Quick Tile Bottom Left
+ExposeClass
+Window Close
+Window Quick Tile Top Left
+Window Custom Quick Tile Bottom
+Window Quick Tile Bottom
+Window Custom Quick Tile Top
+Switch One Desktop Up
+Show Desktop
+Overview
+ExposeClassCurrentDesktop
+Cycle Overview
+Window Custom Quick Tile Left
+Window Quick Tile Right
+Switch One Desktop Down
+Nimbus Fullscreen
+[f4t08] krunner component:
+[f4t08] krunner component:
+_launch
+RunClipboard
+_launch
+RunClipboard
+  krunner._launch=Search	Alt+F2	Meta+Space
+  krunner._launch=Search	Alt+F2	Meta+Space
+  krunner.RunClipboard=Meta+Alt+Space, Meta+Alt+Space, 
+  krunner.RunClipboard=Meta+Alt+Space, Meta+Alt+Space, 
+  spectacle.FullScreenScreenShot=Meta+Shift+3, Meta+Shift+3, 
+  spectacle.FullScreenScreenShot=Meta+Shift+3, Meta+Shift+3, 
+  spectacle.RectangularRegionScreenShot=Meta+Shift+4, Meta+Shift+4, 
+  spectacle.RectangularRegionScreenShot=Meta+Shift+4, Meta+Shift+4, 
+  spectacle.ActiveWindowScreenShot=Meta+Shift+5, Meta+Shift+5, 
+  spectacle.ActiveWindowScreenShot=Meta+Shift+5, Meta+Shift+5, 
+[f4t08] f4-keys.png OK
+[f4t08] f4-keys.png OK
+[f4t08] NESTED OK
+[f4t08] NESTED OK
+A connection to the bus can't be made
