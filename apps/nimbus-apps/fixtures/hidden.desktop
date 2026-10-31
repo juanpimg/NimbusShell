@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Oculta
+Exec=hidden-app
+Icon=hidden
+Categories=Utility;
+NoDisplay=true

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Solo GNOME
+Exec=gnome-app
+Icon=gnome
+Categories=Utility;
+OnlyShowIn=GNOME;

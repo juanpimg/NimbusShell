@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=App Sistema
+Exec=system-app
+Icon=system-app
+Categories=Utility;
