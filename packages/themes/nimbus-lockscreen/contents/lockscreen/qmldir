@@ -1,0 +1,3 @@
+singleton NimbusTokens 1.0 NimbusTokens.qml
+NimbusLockClock 1.0 NimbusLockClock.qml
+NimbusLockUi 1.0 NimbusLockUi.qml
