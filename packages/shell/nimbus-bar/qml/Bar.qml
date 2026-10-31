@@ -88,8 +88,17 @@ Window {
         id: appleMenu
         demo: demoMenu
     }
-    Component.onCompleted: if (demoMenu)
-        appleMenu.open()
+    // F3-T05: Control Center anclado al icono CC (derecha).
+    ControlCenter {
+        id: cc
+        demo: demoCC
+    }
+    Component.onCompleted: {
+        if (demoMenu)
+            appleMenu.open();
+        if (demoCC)
+            cc.open();
+    }
 
     Row {
         id: rightBox
@@ -115,6 +124,49 @@ Window {
             Accessible.name: "Bluetooth (placeholder)"
         }
         // Batería dibujada (sin iconos externos).
+        // F3-T05: botón CC propio (dos toggles, sin activos externos).
+        Item {
+            id: ccButton
+            width: 22
+            height: 16
+            anchors.verticalCenter: parent.verticalCenter
+            Accessible.name: "Centro de control"
+            objectName: "ccButton"
+            Column {
+                anchors.centerIn: parent
+                spacing: 2
+                Rectangle {
+                    width: 16
+                    height: 6
+                    radius: 3
+                    color: Qt.rgba(1, 1, 1, 0.85)
+                    Rectangle {
+                        x: 9
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: NimbusTokens.colors(NimbusTokens.dark).accent
+                    }
+                }
+                Rectangle {
+                    width: 16
+                    height: 6
+                    radius: 3
+                    color: Qt.rgba(1, 1, 1, 0.85)
+                    Rectangle {
+                        x: 1
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: NimbusTokens.colors(NimbusTokens.dark).accent
+                    }
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: cc.toggle()
+            }
+        }
         Item {
             width: 26
             height: 12

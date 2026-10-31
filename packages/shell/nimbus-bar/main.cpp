@@ -26,15 +26,19 @@ int main(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("nimbus-bar"));
     app.setOrganizationName(QStringLiteral("nimbus"));
 
-    bool demoMenu = false;
-    for (int i = 1; i < argc; ++i)
+    bool demoMenu = false, demoCC = false;
+    for (int i = 1; i < argc; ++i) {
         if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-menu"))
             demoMenu = true;
+        if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-cc"))
+            demoCC = true;
+    }
 
     CommandRunner runner;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("runner"), &runner);
     engine.rootContext()->setContextProperty(QStringLiteral("demoMenu"), demoMenu);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoCC"), demoCC);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
