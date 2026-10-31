@@ -1,7 +1,7 @@
 # F4-T04 nested — fullscreen KWin (Meta+F)
 
 Fecha: 2026-10-31. Rama `plasma/f4-windows`. Extiende el script F4-T03
-(`packages/kwin/scripts/nimbus-zoom/`, ahora 24 líneas `main.js`):
+(`packages/kwin/scripts/nimbus-zoom/`, ahora 19 líneas `main.js`):
 `registerShortcut("Nimbus Fullscreen", …, "Meta+F")` alterna
 `window.fullScreen` con `print("FS on/off")`. El zoom (verde) sale de
 fullscreen antes de aplicar (ya existía; aquí se ejercita).
@@ -33,11 +33,10 @@ ZOOM zoomed x=0 y=24 w=1280 h=776   # verde sale de FS y llena bajo barra
    la relectura inmediata devuelve el valor previo (setter asíncrono).
    Fix: `var on = !w.fullScreen; w.fullScreen = on; print("FS "+(on?…))`.
    Re-verificado: journal post-fix muestra on→off→on ✓.
-2. GAP (zoom+barra, no de este ticket): con la barra viva (zona exclusiva
-   24px), `MaximizeArea.y=24` y el zoom suma +24 → `y=48, h=752` (24px
-   muertos entre barra y ventana). Sin barra: `y=24` ✓. Si la barra va a
-   reservar zona exclusiva siempre, el +24 debería ser condicional
-   (`area.y==0`). Se deja como gap para F4-T04/bar, no se toca aquí.
+2. FIX F4 (aplicado, cierra el gap): el zoom ya NO suma +24 — target =
+   `clientArea` tal cual. Re-testeado: con barra `y=24 h=776` ✓, sin barra
+   `y=0 h=800` ✓. Capturas: `f4-zoom.png` (barra + Kate en y=24),
+   `f4-zoom-nobar.png` (Kate en y=0). Detalle en `F4-T03-nested.md`.
 3. Nota harness: `nimbus-bar` muere si se arranca tras plasmashell/kate
    (log vacío, causa sin aislar); arrancar la barra justo tras KWin
    funciona (BAR-VIVA). Plasmashell anidado escupe `signal 6` en servicios
