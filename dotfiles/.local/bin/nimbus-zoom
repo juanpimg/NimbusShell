@@ -34,10 +34,11 @@ addr=$1; mon=$2; fs=$3; ax=$4; ay=$5; aw=$6; ah=$7
 
 # Fullscreen real (SUPER+F): el verde sale de fullscreen, como macOS.
 if [ "$fs" != "0" ]; then
+    if [ "$fs" = "1" ]; then mode="maximized"; legacy=1; else mode="fullscreen"; legacy=0; fi
     if [ -f "$HOME/.config/hypr/hyprland.lua" ]; then
-        hyprctl dispatch "hl.dsp.window.fullscreen({ mode = \"maximized\", action = \"toggle\", window = \"address:$addr\" })" >/dev/null 2>&1
+        hyprctl dispatch "hl.dsp.window.fullscreen({ mode = \"$mode\", action = \"toggle\", window = \"address:$addr\" })" >/dev/null 2>&1
     else
-        hyprctl dispatch fullscreen 1 >/dev/null 2>&1
+        hyprctl dispatch fullscreen "$legacy" >/dev/null 2>&1
     fi
     exit 0
 fi
