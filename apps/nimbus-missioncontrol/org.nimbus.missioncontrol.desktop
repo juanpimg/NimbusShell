@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Mission Control
+Comment=Overlay Mission Control/Spaces estilo macOS
+Exec=nimbus-missioncontrol
+Icon=system-switch-user
+Type=Application
+Categories=Utility;
+X-Nimbus-Scope=overlay
