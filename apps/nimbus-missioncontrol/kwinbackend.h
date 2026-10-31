@@ -1,8 +1,9 @@
 #pragma once
-// KWinBackend — puente QML <-> KWin scripting/DBus (F7-T01/T02).
+// KWinBackend — puente QML <-> KWin scripting/DBus (F7 R-MC-CUSTOM).
 // Sin KF obligatorio: solo Qt6 DBus. Thumbnails vía ScreenShot2 si
-// responde; si no, fallback icono+título (hasThumbnails=false).
+// responde (F7-T04); si no, fallback icono+título (hasThumbnails=false).
 #include <QObject>
+#include <QStringList>
 #include <QVariantList>
 
 class KWinBackend : public QObject {
@@ -16,6 +17,9 @@ class KWinBackend : public QObject {
     Q_PROPERTY(bool hasThumbnails READ hasThumbnails NOTIFY windowsChanged)
     Q_PROPERTY(int openLatencyMs READ openLatencyMs NOTIFY statsChanged)
     Q_PROPERTY(QString lastError READ lastError NOTIFY statsChanged)
+    Q_PROPERTY(bool reduceMotion READ reduceMotion WRITE setReduceMotion NOTIFY motionChanged)
+    Q_PROPERTY(int introKey READ introKey NOTIFY introChanged)
+    Q_PROPERTY(QString workspaceThumb READ workspaceThumb NOTIFY windowsChanged)
 public:
     explicit KWinBackend(bool demo, QObject *parent = nullptr);
 
@@ -27,7 +31,11 @@ public:
     bool hasThumbnails() const { return m_hasThumbnails; }
     int openLatencyMs() const { return m_latencyMs; }
     QString lastError() const { return m_lastError; }
+    bool reduceMotion() const { return m_reduceMotion; }
+    int introKey() const { return m_introKey; }
+    QString workspaceThumb() const { return m_workspaceThumb; }
     void setExposeActiveAppOnly(bool v);
+    void setReduceMotion(bool v);
 
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void activateWindow(const QString &winId);
@@ -38,6 +46,18 @@ public:
     Q_INVOKABLE void loadDemo();
     // Test: activa la primera ventana con título y devuelve su caption.
     Q_INVOKABLE QString activateFirst();
+    // F7-T01 Spaces: crea "Escritorio N" real; garantiza n al arrancar.
+    Q_INVOKABLE void createSpace();
+    Q_INVOKABLE void ensureSpaces(int n);
+    // F7-T05 test: mueve la 1ª ventana al Space nº idx (1-based).
+    Q_INVOKABLE QString moveFirstTo(int deskIndex);
+    // F7-T04: intenta thumbs ScreenShot2 (workspace + hasta 10 ventanas).
+    Q_INVOKABLE void requestThumbs();
+    Q_INVOKABLE QString thumbLog();
+    // F7-T06: re-lanza la intro (para medir fps durante la animación).
+    Q_INVOKABLE void replayIntro();
+    // F7-T07: Show Desktop passthrough.
+    Q_INVOKABLE void showDesktop(bool show);
 
 public Q_SLOTS:
     // Callback del helper KWin (callDBus ... pushState <json>).
@@ -50,6 +70,8 @@ Q_SIGNALS:
     void windowsChanged();
     void exposeChanged();
     void statsChanged();
+    void motionChanged();
+    void introChanged();
 
 private:
     void readDesktops();
@@ -57,10 +79,25 @@ private:
     void runOneshotScript(const QString &js, const QString &tag);
     void probeScreenshots();
     void setError(const QString &e);
+    void setWindowThumb(const QString &winId, const QString &url);
+    void nextThumb(); // cadena de capturas ScreenShot2 (F7-T04)
+    // Captura a outPath (convierte raw BGRA→PNG si el reply trae
+    // width/height). Devuelve "" ok o el error exacto (para evidencia).
+    QString captureTo(const QString &method, const QVariantList &leadArgs,
+                      const QString &outPath, const QString &label);
+    static int sizeClassFor(int w, int h);
 
     bool m_demo = false;
+    bool m_spacesEnsured = false;
     QVariantList m_desktops;
     QVariantList m_windows;
+    bool m_reduceMotion = false;
+    int m_introKey = 0;
+    QString m_workspaceThumb;
+    QStringList m_thumbLog;
+    int m_thumbIdx = -1; // -1 idle, 0 = workspace, 1..N ventanas
+    int m_thumbCount = 0;
+    QString m_thumbDir;
     int m_currentDesktop = 1;
     QString m_currentApp;
     bool m_exposeOnly = false;
