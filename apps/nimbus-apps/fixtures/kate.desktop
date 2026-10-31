@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Kate Editor
+Exec=kate %U
+Icon=kate
+Categories=Utility;TextEditor;

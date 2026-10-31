@@ -1,0 +1,33 @@
+Service 'org.nimbus.Apps' does not exist.
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.2' (uid=1000 pid=162345 comm="/home/jp/Escritorio/Proyectos/NimbusShell-f6apps/a")
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.3' (uid=1000 pid=162351 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.3' (uid=1000 pid=162351 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:162351): xdg-desktop-portal-WARNING **: 22:06:26.857: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.3' (uid=1000 pid=162351 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.6' (uid=1000 pid=162374 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.3' (uid=1000 pid=162351 comm="/usr/lib/xdg-desktop-portal")
+Service 'org.nimbus.Apps' does not exist.
+Service 'org.nimbus.Apps' does not exist.
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:162351): xdg-desktop-portal-WARNING **: 22:06:26.978: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.3' (uid=1000 pid=162351 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[162156]: [session uid=1000 pid=162156 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+OPEN_LATENCIA_MS=287
+OPEN_LATENCIA_MS=287
+GRID_OK
+GRID_OK
+Service 'org.nimbus.Apps' does not exist.
+Service 'org.nimbus.Apps' does not exist.
+Service 'org.nimbus.Apps' does not exist.
+LIST_OK
+LIST_OK
+QML_ERRORS=0
+QML_ERRORS=0
+A connection to the bus can't be made

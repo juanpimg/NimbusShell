@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Apps
+Name[es]=Apps
+Comment=Explorador de aplicaciones estilo Tahoe
+Comment[es]=Explorador de aplicaciones estilo Tahoe
+Exec=nimbus-apps --demo
+Icon=system-search
+Categories=System;Settings;
+NoDisplay=false
+X-Nimbus-App=true

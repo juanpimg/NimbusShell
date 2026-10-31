@@ -1,0 +1,13 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Authors": [{"Email": "nimbus@nimbus.local", "Name": "NimbusShell"}],
+        "Description": "Cmd+1 abre Apps Tahoe (nimbus-apps vía DBus org.nimbus.Apps)",
+        "Icon": "system-search",
+        "Id": "nimbus-apps-toggle",
+        "License": "GPL-3.0-or-later",
+        "Name": "Nimbus Apps Toggle"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}

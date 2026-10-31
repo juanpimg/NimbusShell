@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal App
+Exec=mytool --opt %f
+Icon=utilities-terminal
+Categories=System;TerminalEmulator;
+Terminal=true
