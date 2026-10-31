@@ -36,6 +36,8 @@ qt_add_executable(tst_index
   nimbusindex.cpp
 )
 target_link_libraries(tst_index PRIVATE Qt6::Gui Qt6::DBus Qt6::Test)
+target_compile_definitions(tst_index PRIVATE
+  NIMBUS_FIXTURES="${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures")
 add_test(NAME tst_index COMMAND tst_index)
 enable_testing()
 

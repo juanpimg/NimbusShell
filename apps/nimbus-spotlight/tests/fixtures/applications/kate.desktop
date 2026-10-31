@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Kate
+Exec=kate %U
+Icon=kate
+Categories=Utility;TextEditor;
+Keywords=editor;texto;

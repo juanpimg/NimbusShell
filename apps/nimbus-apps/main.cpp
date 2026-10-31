@@ -45,6 +45,8 @@ int main(int argc, char **argv)
     p.addOption({QStringLiteral("toggle"), QStringLiteral("Alterna mostrar/ocultar vía DBus y sale.")});
     p.addOption({QStringLiteral("demo"), QStringLiteral("Abre la ventana directamente.")});
     p.addOption({QStringLiteral("view"), QStringLiteral("Vista inicial (icons|list)."), QStringLiteral("vista")});
+    p.addOption({QStringLiteral("category"), QStringLiteral("Categoría inicial."), QStringLiteral("cat")});
+    p.addOption({QStringLiteral("shot"), QStringLiteral("Guarda captura PNG y sale (test nested)."), QStringLiteral("png")});
     p.process(app);
 
     if (p.isSet(QStringLiteral("toggle"))) {
@@ -90,7 +92,19 @@ int main(int argc, char **argv)
 
     // En --demo sin sesión gráfica persistente, nada especial.
     if (p.value(QStringLiteral("view")) == QLatin1String("list")) model.setListMode(true);
+    const QString initCat = p.value(QStringLiteral("category"));
+    if (!initCat.isEmpty() && model.fixedCategories().contains(initCat))
+        model.setCategory(initCat);
     QTimer::singleShot(0, [&] { win->requestActivate(); });
+    const QString shot = p.value(QStringLiteral("shot"));
+    if (!shot.isEmpty()) {
+        // Test nested: captura propia tras pintar y sale (rc=1 si falla).
+        QTimer::singleShot(2500, [&, shot] {
+            const QImage img = win->grabWindow();
+            if (img.isNull() || !img.save(shot)) exit(1);
+            exit(0);
+        });
+    }
     return app.exec();
 }
 

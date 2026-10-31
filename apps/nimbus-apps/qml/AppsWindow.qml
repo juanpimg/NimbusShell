@@ -82,7 +82,8 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     model: root.cats
                     spacing: 4
-                    currentIndex: 0
+                    // Refleja la categoría inicial del modelo (--category, F6-T05).
+                    currentIndex: Math.max(0, root.cats.indexOf(appModel.category))
                     delegate: Rectangle {
                         width: catList.width
                         height: 28

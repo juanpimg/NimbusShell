@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Firefox Nimbus
+Exec=firefox-nimbus %u
+Icon=firefox
+Categories=Network;WebBrowser;

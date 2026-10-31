@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Calc Nimbus
+Exec=calc-nimbus
+Icon=accessories-calculator
+Categories=Utility;Calculator;
