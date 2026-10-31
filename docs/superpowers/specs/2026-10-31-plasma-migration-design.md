@@ -116,7 +116,7 @@ install.sh                          # --profile=plasma|legacy-hypr|--check
   revierte un update roto; Orca/teclado probados.
 - **F4 — ISO netinstall (4-6 sem):** Calamares + perfil CachyOS pinneado,
   instalación en VM, primer arranque → wizard. ISO Full offline después.
-- **Total:** MVP 8-12 semanas desde F0; 1.0 6-9 meses.
+- **Total (refinado en el plan maestro):** MVP 18-22 semanas; 1.0 9-12 meses con 1-2 personas + IA. Plan maestro con 112 tareas y ledger de progreso: `docs/superpowers/plans/2026-10-31-plasma-migration.md`.
 
 ## 7. Rulings
 
