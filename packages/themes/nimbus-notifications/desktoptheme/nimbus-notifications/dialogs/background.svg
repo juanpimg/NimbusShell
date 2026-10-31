@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Nimbus Notifications: fondo 9-slice estilo macOS para banners Plasma.
+     Arte original NimbusShell (CC0). Geometría 9-slice compatible con
+     FrameSvg "dialogs/background" (miss Breeze LGPL solo como referencia
+     de formato, sin copiar su arte). Radio 14 (contrato §2.3 r-md),
+     vidrio oscuro translúcido + hairline + sheen superior. La sombra la
+     pone KWin; el blur real lo aplica KWin bajo el popup translúcido. -->
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="96" height="96" viewBox="0 0 96 96" version="1.1">
+  <defs>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- hints de contenido (margen 12 = pad macOS, contrato §2.3) -->
+  <rect id="hint-top-margin" x="0" y="-12" width="12" height="12" style="fill:#ff0000"/>
+  <rect id="hint-bottom-margin" x="0" y="96" width="12" height="12" style="fill:#ff0000"/>
+  <rect id="hint-left-margin" x="-12" y="0" width="12" height="12" style="fill:#ff0000"/>
+  <rect id="hint-right-margin" x="96" y="0" width="12" height="12" style="fill:#ff0000"/>
+  <!-- esquina sup-izq (relleno solapa 1px: evita hairlines de fondo
+       en las juntas del 9-slice; el trazo exterior queda exacto) -->
+  <g id="topleft">
+    <path d="M21,21 H0 V14 Q0,0 14,0 H21 Z"
+          fill="#242428" fill-opacity="0.72" stroke="none"/>
+    <path d="M20,0.5 H14 Q0.5,0.5 0.5,14 V20" fill="none"
+          stroke="#ffffff" stroke-opacity="0.16" stroke-width="1"/>
+  </g>
+  <!-- borde superior (estira en X; el gradiente vertical no se deforma) -->
+  <g id="top">
+    <rect x="19" y="0" width="58" height="21" fill="#242428" fill-opacity="0.72"/>
+    <rect x="20" y="0.5" width="56" height="1" fill="#ffffff" fill-opacity="0.16"/>
+    <rect x="20" y="1.5" width="56" height="7" fill="url(#sheen)"/>
+  </g>
+  <!-- esquina sup-der -->
+  <g id="topright">
+    <path d="M75,0 H82 Q96,0 96,14 V21 H75 Z"
+          fill="#242428" fill-opacity="0.72" stroke="none"/>
+    <path d="M76,0.5 H82 Q95.5,0.5 95.5,14 V20" fill="none"
+          stroke="#ffffff" stroke-opacity="0.16" stroke-width="1"/>
+  </g>
+  <!-- borde izquierdo -->
+  <g id="left">
+    <rect x="0" y="19" width="21" height="58" fill="#242428" fill-opacity="0.72"/>
+    <rect x="0.5" y="20" width="1" height="56" fill="#ffffff" fill-opacity="0.16"/>
+  </g>
+  <!-- centro -->
+  <g id="center">
+    <rect x="19" y="19" width="58" height="58" fill="#242428" fill-opacity="0.72"/>
+  </g>
+  <!-- borde derecho -->
+  <g id="right">
+    <rect x="75" y="19" width="21" height="58" fill="#242428" fill-opacity="0.72"/>
+    <rect x="94.5" y="20" width="1" height="56" fill="#ffffff" fill-opacity="0.16"/>
+  </g>
+  <!-- esquina inf-izq -->
+  <g id="bottomleft">
+    <path d="M0,75 H21 V96 H14 Q0,96 0,82 Z"
+          fill="#242428" fill-opacity="0.72" stroke="none"/>
+    <path d="M0.5,76 V82 Q0.5,95.5 14,95.5 H20" fill="none"
+          stroke="#ffffff" stroke-opacity="0.16" stroke-width="1"/>
+  </g>
+  <!-- borde inferior -->
+  <g id="bottom">
+    <rect x="19" y="75" width="58" height="21" fill="#242428" fill-opacity="0.72"/>
+    <rect x="20" y="94.5" width="56" height="1" fill="#ffffff" fill-opacity="0.16"/>
+  </g>
+  <!-- esquina inf-der -->
+  <g id="bottomright">
+    <path d="M75,75 H96 V82 Q96,96 82,96 H75 Z"
+          fill="#242428" fill-opacity="0.72" stroke="none"/>
+    <path d="M76,95.5 H82 Q95.5,95.5 95.5,82 V76" fill="none"
+          stroke="#ffffff" stroke-opacity="0.16" stroke-width="1"/>
+  </g>
+</svg>
