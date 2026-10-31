@@ -5,7 +5,8 @@ NimbusOS en una sola dirección (NimbusShell → NimbusOS).
 
 - `dotfiles/.config/plasma/`: configs base Plasma (`plasmarc`,
   `plasmashellrc`, `kwinrc`, `kdeglobals`, `kglobalshortcutsrc`, `krunnerrc`,
-  `kscreenlockerrc`, `kwinrulesrc`, `plasma-org.kde.plasma.desktop-appletsrc`).
+  `kscreenlockerrc`, `plasma-org.kde.plasma.desktop-appletsrc`).
+  (`kwinrulesrc` vive en la raíz de `dotfiles/.config`: KWin lo lee ahí.)
 - **Convención:** identificadores `org.nimbus.*` para plasmoids, efectos KWin
   y KCM propios.
 - **Qué va:** solo configs del perfil Plasma. **Qué no:** nada del
