@@ -103,6 +103,9 @@ elif ! command -v desktop-file-validate >/dev/null 2>&1; then
 else
     dfail=0
     while IFS= read -r f; do
+        # SDDM y otros metadata.desktop no son entradas freedesktop: solo se
+        # valida lo que declara [Desktop Entry] (apps, autostart, servicios).
+        grep -q '^\[Desktop Entry\]' "$f" || continue
         desktop-file-validate "$f" >/dev/null 2>&1 || { echo "  [FAIL] .desktop inválido: ${f#"$REPO_ROOT"/}" >&2; dfail=1; }
     done < <(printf '%s\n' "$desk_files")
     [ "$dfail" = "0" ] && pass ".desktop válidos" || fail ".desktop válidos"

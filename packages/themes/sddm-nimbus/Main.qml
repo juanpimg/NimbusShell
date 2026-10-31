@@ -174,7 +174,9 @@ Rectangle {
                 Component.onCompleted: {
                     var s = [];
                     for (var i = 0; i < sessionModel.count; i++)
-                        s.push({ "name": sessionModel.data(sessionModel.index(i, 0), Qt.UserRole + 4) });
+                        s.push({
+                            "name": sessionModel.data(sessionModel.index(i, 0), Qt.UserRole + 4)
+                        });
                     sessions = s;
                     sessionIndex = sessionModel.lastIndex;
                 }
