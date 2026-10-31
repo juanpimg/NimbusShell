@@ -377,7 +377,9 @@ hl.bind("SUPER + grave", hl.dsp.exec_cmd("hyprctl dispatch cyclenext"))
 -- MacLock (pantalla de bloqueo Liquid Glass, proceso separado).
 hl.bind("SUPER + L", hl.dsp.exec_cmd("sh ~/.config/quickshell/MacLock/lock-via-ipc.sh"))
 hl.bind("SUPER + Q", hl.dsp.window.close())
-hl.bind("SUPER + T", hl.dsp.exec_cmd("kitty"))
+-- --start-as=normal: lanzada desde Hyprland (sin TTY) kitty pide fullscreen
+-- (fsClient=1) y su barra queda bajo el MacBar; forzado normal = fs=0.
+hl.bind("SUPER + T", hl.dsp.exec_cmd("kitty --start-as=normal"))
 
 -- Task ui-flows: teclas hardware (volumen/brillo) -> OSD interno de MacBar.
 -- Sin swayosd/avizo (duplicarian el OSD). `repeating` = repite al mantener.
