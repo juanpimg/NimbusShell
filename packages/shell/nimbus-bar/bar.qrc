@@ -6,6 +6,7 @@
     <file alias="ControlCenter.qml">qml/ControlCenter.qml</file>
     <file alias="Calendar.qml">qml/Calendar.qml</file>
     <file alias="StatusArea.qml">qml/StatusArea.qml</file>
+    <file alias="OSD.qml">qml/OSD.qml</file>
     <file alias="NimbusTokens.qml">qml/NimbusTokens.qml</file>
     <file alias="qmldir">qml/qmldir</file>
   </qresource>

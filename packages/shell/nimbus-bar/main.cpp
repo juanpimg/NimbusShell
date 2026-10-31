@@ -10,12 +10,14 @@
 #include <QTimer>
 #include <QWindow>
 #include <QDebug>
+#include <QDBusConnection>
 #include <cstdio>
 #include <LayerShellQt/Shell>
 #include <LayerShellQt/Window>
 #include "commandrunner.h"
 #include "appmenumodel.h"
 #include "statusnotifiermodel.h"
+#include "osdbridge.h"
 
 // F3-T07: provider image://sni/<uid> (pixmap SNI, icono de tema o badge).
 class SniProvider : public QQuickImageProvider {
@@ -51,12 +53,25 @@ int main(int argc, char *argv[])
     app.setOrganizationName(QStringLiteral("nimbus"));
 
     bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false,
-         demoCalendar = false, demoAppmenu = false, logAppmenu = false, demoTray = false;
+         demoCalendar = false, demoAppmenu = false, logAppmenu = false, demoTray = false,
+         demoOsd = false;
+    QString demoOsdKind = QStringLiteral("volume");
+    double demoOsdValue = 0.7;
     int trayOpenMenu = -1;
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo-menu"))
             demoMenu = true;
+        else if (a == QStringLiteral("--demo-osd")) {
+            // --demo-osd volume|brightness (arg separado o =kind).
+            demoOsd = true;
+            if (i + 1 < argc && argv[i + 1][0] != '-') {
+                demoOsdKind = QString::fromLocal8Bit(argv[++i]);
+            }
+        } else if (a.startsWith(QStringLiteral("--demo-osd="))) {
+            demoOsd = true;
+            demoOsdKind = a.mid(QStringLiteral("--demo-osd=").size());
+        }
         else if (a == QStringLiteral("--demo-cc"))
             demoCC = true;
         else if (a == QStringLiteral("--open-cc"))
@@ -76,6 +91,14 @@ int main(int argc, char *argv[])
         else if (a == QStringLiteral("--tray-open-menu"))
             trayOpenMenu = 0;
     }
+    if (demoOsd && demoOsdKind != QStringLiteral("volume")
+        && demoOsdKind != QStringLiteral("brightness")) {
+        qWarning("nimbus-bar: --demo-osd kind '%s' invalido, uso volume",
+                 qUtf8Printable(demoOsdKind));
+        demoOsdKind = QStringLiteral("volume");
+    }
+    if (demoOsd && demoOsdKind == QStringLiteral("brightness"))
+        demoOsdValue = 0.6;
 
     CommandRunner runner;
     runner.setLogQuery(logQuery || demoCC);
@@ -97,6 +120,13 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("demoCalendar"), demoCalendar);
     engine.rootContext()->setContextProperty(QStringLiteral("appMenu"), &appMenu);
     engine.rootContext()->setContextProperty(QStringLiteral("demoAppmenu"), demoAppmenu);
+    // F3-T10: puente OSD (DBus org.nimbus.OSD /OSD show(kind,value)).
+    OsdBridge osdBridge;
+    new OsdAdaptor(&osdBridge);
+    engine.rootContext()->setContextProperty(QStringLiteral("osdBridge"), &osdBridge);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoOsd"), demoOsd);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoOsdKind"), demoOsdKind);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoOsdValue"), demoOsdValue);
     // F3-T07: modelo SNI + provider image://sni.
     StatusNotifierModel trayModel;
     engine.rootContext()->setContextProperty(QStringLiteral("trayModel"), &trayModel);
@@ -151,6 +181,13 @@ int main(int argc, char *argv[])
                 trayModel.seedDemoItems();
         });
     }
+
+    // F3-T10: servicio org.nimbus.OSD (/OSD show(kind,value)). No fatal:
+    // la barra funciona sin bus (nested sin sesión, OSD vía --demo-osd).
+    if (!QDBusConnection::sessionBus().registerService(QStringLiteral("org.nimbus.OSD")))
+        qWarning("nimbus-bar: no se pudo registrar org.nimbus.OSD (sigue sin DBus)");
+    if (!QDBusConnection::sessionBus().registerObject(QStringLiteral("/OSD"), &osdBridge))
+        qWarning("nimbus-bar: no se pudo registrar /OSD (sigue sin DBus)");
 
     return app.exec();
 }
