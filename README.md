@@ -55,6 +55,8 @@ R14 — hypr/hyprland.lua y hyprland.conf bar_precedence_over_border false→tru
 R15 — MacShell/shell.qml winBarWantsGeo:true + timers geo/ipc incluyen WindowBar: overlay de semáforos con geometría viva sin romper idle-CPU; proponer aguas arriba.
 R16 — MacShell/WindowBar.qml embedding en barra hyprbars 28px (x+13, y wy-28, h28, placa visible:false, mask:lights, filtros Nautilus/firefox/pamac): sin doble semáforo ni tramo plano; proponer aguas arriba.
 R17 — MacDock.qml reduceTransparency:false (dueño único, 4 listas) + MacBar.qml herencia readonly: modo opaco accesibilidad macOS (tint→1, live:false→Rectangle, blur alpha→1); proponer aguas arriba.
+R18 — (SUPERSEDED por R19) overlay multi-ventana descartado: sangrado z-order (los dots de ventanas tapadas se pintan sobre la de delante); se conserva WindowBar.qml vendoreado sin instanciar.
+R19 — hyprbars nativo: 3 botones solo-Lua (rojo killactive, amarillo minimize IPC genie, verde fullscreen 1; el fallback `.conf` no tiene semáforos) + título nativo Inter 12 centrado + inactive_button_color 0x598E8E93 + icon_on_hover; WindowBar se conserva instanciado con `overlayHidden:true` (sin pintar) solo para la ruta genie del IPC; oclusión/clics/arrastre correctos sin overlay; proponer aguas arriba.
 
 ## Filosofía
 

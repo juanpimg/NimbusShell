@@ -201,22 +201,24 @@ hl.config({
         hyprbars = {
             bar_height            = 28,
             bar_buttons_alignment = "left",
-            -- Overlay WindowBar ON (MacBar windowBar:true): el overlay QML
-            -- dibuja semaforos 12px + titulo; hyprbars aporta SOLO la tira.
+            -- NimbusOS Ruling R19: semáforos NATIVOS hyprbars (overlay
+            -- WindowBar.qml desactivado en shell.qml: sangrado z-order, los
+            -- dots de ventanas tapadas se pintaban sobre la de delante).
             -- LECCION 2026-10-28: `hyprctl reload` PIERDE los add_button
             -- (solo viven en el arranque); cambios hyprbars exigen reinicio
             -- completo, nunca reload. `hyprctl keyword` no existe en sesion
             -- Lua (non-legacy parser): solo fichero + reinicio.
-            bar_title_enabled     = false,
-            bar_text_size         = 11,
+            bar_title_enabled     = true,
+            bar_text_align        = "center",
+            bar_text_size         = 12,
             bar_text_font         = "Inter",
-            bar_padding           = 15,
+            ["col.text"]          = "rgba(ffffffe6)",
+            bar_padding           = 12,
             bar_button_padding    = 8,
-            -- Sin botones hyprbars (los dibuja el overlay WindowBar 12px +
-            -- glifo al hover + titulo): la tira aporta fondo+blur+arrastre.
-            -- bar_blur esmerila la tira; el tinte exacto por-tema es imposible
-            -- (un solo bar_color estatico en la API: se deja el defecto).
-            bar_blur              = true, -- tira esmerilada (el overlay dibuja encima)
+            -- Gris Apple 35% en inactivas (paridad overlay R9 #598E8E93).
+            inactive_button_color = "0x598E8E93",
+            -- Glifos solo al hover, como macOS.
+            icon_on_hover         = true,
             -- Task barra-resize: MOVER con la barra = nativo, sin opcion que
             -- activar. Upstream barDeco.cpp: pulsar dentro de la barra arma
             -- drag-pending (handleDownEvent, lineas 212-246) y mover el raton
@@ -246,11 +248,19 @@ hl.config({
         },
     },
 })
--- Semaforos (overlay WindowBar): rojo=cerrar, amarillo=minimizar a
--- special:minimized (RESTAURA con SUPER+M o click en el Dock), verde=ZOOM
--- macOS = maximizar sin tapar barra/dock. Pantalla completa real SOLO en
--- SUPER+F. Acciones en WindowBar.qml close()/minimize()/zoom().
--- (sin add_button: los dibuja el overlay WindowBar; ver nota arriba)
+-- Semaforos NATIVOS hyprbars R19 (orden: de fuera hacia dentro desde el borde;
+-- con alignment "left" el primero es el mas a la izquierda: rojo, amarillo,
+-- verde como en macOS). `action` viaja por shell (executor spawn).
+-- API verificada main.cpp: bg_color/fg_color/size/icon/action OBLIGATORIOS
+-- (fg_color ausente = error de carga). `hyprctl dispatch X` NATIVO falla en
+-- sesion Lua (dispatch = shorthand hl.dispatch: `fullscreen 1` da error de
+-- parse); por eso rojo/verde usan `hl.dsp.window.*` via `hyprctl dispatch '...'`.
+-- Amarillo = IPC `window minimize`
+-- (shell.qml: WindowBar.minimize con genie sobre la activa; restaurar con SUPER+M).
+-- Verde = zoom macOS (maximizar toggle, igual que on_double_click de la barra).
+hl.plugin.hyprbars.add_button({ bg_color = "0xffff5f57", fg_color = "0xcc000000", size = 12, icon = "×", action = "hyprctl dispatch 'hl.dsp.window.close()'" })
+hl.plugin.hyprbars.add_button({ bg_color = "0xfffebc2e", fg_color = "0xcc000000", size = 12, icon = "−", action = "qs -c MacShell ipc call window minimize" })
+hl.plugin.hyprbars.add_button({ bg_color = "0xff28c840", fg_color = "0xcc000000", size = 12, icon = "+", action = [[hyprctl dispatch 'hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })']] })
 
 -- Sin doble barra en apps con CSD propio bueno (headerbar/tabs nativos):
 -- Nautilus (GTK4 headerbar) y Firefox (tabs en la barra de titulo).

@@ -317,12 +317,10 @@ ShellRoot {
     // sin asignar a appEnabled para no romper este binding).
     ClockApp { id: clockApp; hub: sharedHub; appEnabled: clockApp.manualOverride ? clockApp.manualVal : macBar.clockAppEnabled }
     AboutApp { id: aboutApp; hub: sharedHub }
-    // NimbusOS Ruling overlay-on: WindowBar.qml era código huérfano (ningún
-    // fichero lo instanciaba: 0 menciones en `qs log`, overlay imposible).
-    // Se instancia con el hub compartido; su `enabled` interno (MacBar
-    // windowBar:true) gobierna si aparece. Sin esto, los fixes de semáforos
-    // no tienen efecto observable (lección M1 2026-10-28).
-    WindowBar { id: windowBarItem; hub: sharedHub }
+    // NimbusOS Ruling R19: overlay OCULTO (overlayHidden) pero instanciado:
+    // semáforos nativos hyprbars (ver hyprland.lua); la instancia conserva
+    // la ruta genie del IPC `window minimize`.
+    WindowBar { id: windowBarItem; hub: sharedHub; overlayHidden: true }
     MinimizeFx { id: minimizeFx; hub: sharedHub }
 
     Component.onCompleted: {
@@ -376,14 +374,15 @@ ShellRoot {
         target: "glass"
         function captures(on: bool): void { macDock.windowCapture = on; }
     }
-    // qs -c MacShell ipc call window minimize
+    // qs -c MacShell ipc call window minimize | close | zoom
+    // NimbusOS Ruling R19: overlay oculto pero instancia viva para el genie
+    // (WindowBar.minimize: hub.minimizeFx + dock.targetRectForToplevel).
+    // close/zoom delegan por address sin robar foco (botones hyprbars).
     IpcHandler {
         target: "window"
-        function minimize(): void {
-            if (windowBarItem && typeof windowBarItem.minimize === "function") {
-                windowBarItem.minimize();
-            }
-        }
+        function minimize(): void { windowBarItem.minimize(); }
+        function close(): void { windowBarItem.close(); }
+        function zoom(): void { windowBarItem.zoom(); }
     }
     // qs -c MacShell ipc call dock restoreFirst | activate <key>
     IpcHandler {

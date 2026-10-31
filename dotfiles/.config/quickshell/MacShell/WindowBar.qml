@@ -17,6 +17,9 @@ import "Fonts.js" as Fonts
 Scope {
     id: root
     property var hub: null
+    // NimbusOS Ruling R19: oculta el overlay sin desactivar la lógica
+    // (enabled + winBarWantsGeo siguen activos: clients/active frescos para el genie).
+    property bool overlayHidden: false
     readonly property var dock: hub ? hub.dock : null
     readonly property var bar: hub ? hub.bar : null
     readonly property string fam: dock ? dock.fontFamily : "Open Runde"
@@ -109,7 +112,7 @@ Scope {
     function zoom() { Hyprland.dispatch('hl.dsp.window.fullscreen_state({ internal = 2, client = 0, window = "address:' + activeAddr + '" })'); }
 
     Variants {
-        model: root.enabled ? Quickshell.screens : []
+        model: (root.enabled && !root.overlayHidden) ? Quickshell.screens : []
         PanelWindow {
             id: w
             required property var modelData

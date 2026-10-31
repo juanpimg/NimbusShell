@@ -109,3 +109,9 @@ QEMU/KVM con Arch vanilla: arranque, login, sesión Hyprland, capturas
   tintes por-tema aparcado (fallback roto + sin alias, tesis v2 pendiente).
 - Ruling orquestador: tintes aparcados por riesgo (15 líneas/8 toques
   en caliente); `pcall`+`if ok` rechazado (oculta SKIP, viola set -u).
+
+## R19 — Semáforos nativos hyprbars (2026-10-31)
+- **Overlay descartado:** el overlay multi-ventana pintaba los dots de ventanas tapadas sobre la ventana de delante (sangrado z-order; evidencia `/tmp/now.png` + `crop-topbar.png`). Imposible de mitigar con layer-shell.
+- **Nativo:** 3 botones hyprbars (rojo `hl.dsp.window.close()`, amarillo `qs ipc window minimize` con genie, verde `hl.dsp.window.fullscreen({mode="maximized"})`), título Inter 12 centrado, `inactive_button_color 0x598E8E93`, `icon_on_hover`.
+- **Verificado en VM:** activa a color / inactiva gris (muestreo RGB), glifos al hover, rojo cierra la ventana inactiva correcta, verde des-maximiza, amarillo minimiza; `qs log` limpio; md5 guest==host.
+- **Limitaciones:** botones solo en sesión Lua (el fallback `.conf` no tiene semáforos, el keyword INI no existe en main); ventanas maximizadas (`fs=1`) dejan la barra parcialmente bajo el MacBar (pendiente de geometría).
