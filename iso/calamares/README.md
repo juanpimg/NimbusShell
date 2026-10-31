@@ -17,7 +17,13 @@ Calamares para la ISO netinstall (`iso/profile/`). Orden unificado F2/F9
 
 ## Build / install en VM (PENDIENTE)
 
-1. Construir la ISO: `sudo mkarchiso -v -w /tmp/nimbus-work -o out iso/profile`
+1. Copiar la config Calamares al overlay del perfil (el live la espera
+   en `/etc/calamares/`; `groupsUrl` apunta a
+   `file:///etc/calamares/groups-nimbus.json`):
+   `mkdir -p iso/profile/airootfs/etc && cp -r iso/calamares iso/profile/airootfs/etc/`
+   (**PENDIENTE**: hacerlo al preparar el build en VM, F2-T08; no existe
+   `airootfs/` aún para no adelantar el build).
+2. Construir la ISO: `sudo mkarchiso -v -w /tmp/nimbus-work -o out iso/profile`
    (requiere root + `archiso`; **no ejecutar `calamares` ni `mkarchiso`
    en el host de desarrollo**).
 2. Boot de la ISO en VM KVM y lanzamiento de Calamares en el live Plasma.
@@ -29,9 +35,14 @@ Calamares para la ISO netinstall (`iso/profile/`). Orden unificado F2/F9
 
 - **netinstall (este perfil):** ISO ligera; `packages.conf`
   (`install`/`try_install`) descarga la lista Plasma durante la
-  instalación; `netinstall@nimbus` ofrece el grupo `plasma` opcional;
-  `remove` elimina paquetes solo-live (calamares, archiso).
+  instalación; `netinstall@nimbus` ofrece los grupos de
+  `groups-nimbus.json` (`base`, `plasma` requeridos + `dev`, `gaming`,
+  `office`, `browser` opcionales); `remove` elimina paquetes solo-live
+  (calamares, archiso).
   Sin NVIDIA (post-detección, F2-T10) y sin AUR no fijado (R-KLASSY).
+- **No-solape verificado:** ningún paquete de los grupos existe en
+  `packages.conf` (`install`/`try_install`); el grupo `plasma` trae solo
+  apps extra (gwenview, okular, ark, kate), nunca `plasma-meta`.
 - **Full (F12):** ISO offline con todo incluido + perfil NVIDIA.
   Requiere lista cerrada en `packages.conf` (sin netinstall).
 
