@@ -15,6 +15,8 @@ KRUNNER_QUERY=""
 DO_EXPOSE=""
 NESTED_HOME_ARG=""
 PLASMA_SRC=""
+KLASSY=""
+KLASSY_PREFIX="/tmp/klassy-prefix"
 for ((i=1; i<=$#; i++)); do
   case "${!i}" in
     --out) j=$((i+1)); OUT_DIR="${!j}" ;;
@@ -23,6 +25,7 @@ for ((i=1; i<=$#; i++)); do
     --expose|--overview) DO_EXPOSE="yes" ;;
     --home) j=$((i+1)); NESTED_HOME_ARG="${!j}" ;;
     --plasma-src) j=$((i+1)); PLASMA_SRC="${!j}" ;;
+    --klassy) KLASSY="yes" ;;
   esac
 done
 if [ -n "$KRUNNER_QUERY" ] && [[ ! "$KRUNNER_QUERY" =~ ^[A-Za-z0-9._-]+$ ]]; then
@@ -69,6 +72,53 @@ if [ -n "$NESTED_HOME_ARG" ]; then
   XDG_CONFIG_HOME="$NESTED_HOME/.config"
   export XDG_CONFIG_HOME
 fi
+# --klassy: decoracion Klassy compilada en host (solo lectura). Activa la
+# deco en el kwinrc del HOME temporal y expone plugin+lib+dato al nested.
+FOCUS_SCRIPT=""
+LAYOUT_SCRIPT=""
+if [ -n "$KLASSY" ]; then
+  XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file kwinrc \
+    --group org.kde.kdecoration2 --key library org.kde.klassy
+  XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file kwinrc \
+    --group org.kde.kdecoration2 --key ButtonsOnLeft XIA
+  XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file kwinrc \
+    --group org.kde.kdecoration2 --key ButtonsOnRight ""
+  # Semáforos: claves reales de klassy-decoration.kcfg (solo estas).
+  XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file klassy/klassyrc \
+    --group Windeco --key ButtonShape ShapeSmallCircle
+  XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file klassy/klassyrc \
+    --group ButtonSizing --key ButtonSpacingLeft 8
+  FOCUS_SCRIPT="$OUT_ABS/kwin-focus-toggle.js"
+  cat > "$FOCUS_SCRIPT" <<'EOF'
+// Flip de foco para el harness: activa la primera ventana normal que no
+// sea la actualmente activa. Sin ydotool en el host; solo sesion anidada.
+var wins = workspace.windowList();
+var cur = workspace.activeWindow;
+for (var i = 0; i < wins.length; i++) {
+    if (wins[i] !== cur && wins[i].normalWindow && !wins[i].minimized) {
+        workspace.activeWindow = wins[i];
+        break;
+    }
+}
+EOF
+  LAYOUT_SCRIPT="$OUT_ABS/kwin-layout.js"
+  cat > "$LAYOUT_SCRIPT" <<'EOF'
+// Mosaico kate-izq/konsole-der + activa konsole (kate queda inactive
+// visible). Los flags --qwindowgeometry los ignora el shell; esto no.
+var wins = workspace.windowList();
+var kate = null, kon = null;
+for (var i = 0; i < wins.length; i++) {
+    if (!wins[i].normalWindow) continue;
+    var c = wins[i].caption || "";
+    if (c.indexOf("Kate") !== -1) kate = wins[i];
+    if (c.indexOf("Konsole") !== -1) kon = wins[i];
+}
+if (kate) kate.frameGeometry = {x: 10, y: 70, width: 620, height: 460};
+if (kon) kon.frameGeometry = {x: 650, y: 70, width: 620, height: 460};
+if (kon) workspace.activeWindow = kon;
+EOF
+  echo "[nested] klassy: deco=org.kde.klassy en $NESTED_HOME/.config/kwinrc" | tee -a "$LOG"
+fi
 export QT_QPA_PLATFORM=wayland
 export WAYLAND_DISPLAY="nimbus-nested"
 LOG="$OUT_ABS/nested-plasma.log"
@@ -100,6 +150,10 @@ dbus-run-session -- bash -c '
 set -u
 OUT_ABS="'"$OUT_ABS"'"
 PIDFILE="'"$PIDFILE"'"
+KLASSY="'"$KLASSY"'"
+KLASSY_PREFIX="'"$KLASSY_PREFIX"'"
+FOCUS_SCRIPT="'"$FOCUS_SCRIPT"'"
+LAYOUT_SCRIPT="'"$LAYOUT_SCRIPT"'"
 TIMEOUT="'"$TIMEOUT"'"
 KRUNNER_QUERY="'"$KRUNNER_QUERY"'"
 DO_EXPOSE="'"$DO_EXPOSE"'"
@@ -112,6 +166,11 @@ export XDG_DATA_HOME="'"$XDG_DATA_HOME"'"
 export XDG_CACHE_HOME="'"$XDG_CACHE_HOME"'"
 export XDG_STATE_HOME="'"$XDG_STATE_HOME"'"
 export QT_QPA_PLATFORM=wayland
+if [ -n "$KLASSY" ]; then
+  export QT_PLUGIN_PATH="$KLASSY_PREFIX/lib/plugins${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
+  export LD_LIBRARY_PATH="$KLASSY_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  export XDG_DATA_DIRS="$KLASSY_PREFIX/share:/usr/share"
+fi
 export WAYLAND_DISPLAY
 export XDG_SESSION_TYPE=wayland
 export XDG_CURRENT_DESKTOP=KDE
@@ -223,7 +282,43 @@ echo "  CtrlBindings=$(grep -ciE "ctrl" "$HOME/.config/kglobalshortcutsrc" 2>/de
 spectacle -b -n -o "$OUT_ABS/f2-panel.png" >>"$LOG" 2>&1 \
   && echo "[nested] f2-panel.png OK" | tee -a "$LOG" \
   || echo "[nested] WARN: captura f2-panel fallo" | tee -a "$LOG"
-echo "$KWIN_PID $PLASMA_PID $KRUNNER_PID $KATE_PID" > "$PIDFILE"
+# --- F3/F4: Klassy (kate izq + konsole der, flip de foco via KWin scripting) ---
+KONSOLE_PID=""
+if [ -n "$KLASSY" ]; then
+  echo "[nested] klassy: reposiciona kate+konsole ..." | tee -a "$LOG"
+  kill $KATE_PID 2>/dev/null || true
+  sleep 1
+  kate --qwindowgeometry 620x460+10+60 >>"$LOG" 2>&1 &
+  KATE_PID=$!
+  konsole --qwindowgeometry 620x460+650+60 >>"$LOG" 2>&1 &
+  KONSOLE_PID=$!
+  sleep 4
+  echo "[nested] klassy en supportInformation:" | tee -a "$LOG"
+  qdbus6 org.kde.KWin /KWin supportInformation 2>/dev/null | grep -iE "klassy|decoration" | tee -a "$LOG" || echo "[nested] WARN: sin mencion a Klassy" | tee -a "$LOG"
+  # Sonda runtime: reescribe spacing + reconfigure (fire-and-forget con
+  # timeout: el metodo es Q_NOREPLY y qdbus esperaria en vano).
+  echo "[nested] klassy runtime reconfigure (spacing 8->20) ..." | tee -a "$LOG"
+  kwriteconfig6 --file klassy/klassyrc --group ButtonSizing --key ButtonSpacingLeft 20 >>"$LOG" 2>&1
+  timeout 8 qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
+  sleep 2
+  echo "[nested] klassy layout (mosaico + foco konsole) ..." | tee -a "$LOG"
+  qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.loadScript "$LAYOUT_SCRIPT" nimbus-layout >>"$LOG" 2>&1
+  qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.start >>"$LOG" 2>&1
+  sleep 2
+  qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript nimbus-layout >>"$LOG" 2>&1 || true
+  sleep 1
+  spectacle -b -n -o "$OUT_ABS/f3-klassy-inactive.png" >>"$LOG" 2>&1 \
+    && echo "[nested] f3-klassy-inactive.png OK (konsole activa esperada)" | tee -a "$LOG" \
+    || echo "[nested] WARN: captura inactive fallo" | tee -a "$LOG"
+  qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.loadScript "$FOCUS_SCRIPT" nimbus-focus >>"$LOG" 2>&1
+  qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.start >>"$LOG" 2>&1
+  sleep 2
+  qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript nimbus-focus >>"$LOG" 2>&1 || true
+  spectacle -b -n -o "$OUT_ABS/f3-klassy-active.png" >>"$LOG" 2>&1 \
+    && echo "[nested] f3-klassy-active.png OK (kate activa esperada)" | tee -a "$LOG" \
+    || echo "[nested] WARN: captura active fallo" | tee -a "$LOG"
+fi
+echo "$KWIN_PID $PLASMA_PID $KRUNNER_PID $KATE_PID $KONSOLE_PID" > "$PIDFILE"
 echo "KWIN_PID=$KWIN_PID PLASMA_PID=$PLASMA_PID KRUNNER_PID=$KRUNNER_PID KATE_PID=$KATE_PID" > "$OUT_ABS/result.env"
 echo "[nested] FIN. Ver $OUT_ABS/nested-plasma.png" | tee -a "$LOG"
 ' >>"$LOG" 2>&1
