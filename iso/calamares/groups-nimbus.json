@@ -1,0 +1,55 @@
+[
+  {
+    "name": "base",
+    "description": "Base del sistema (siempre instalada)",
+    "packages": [
+      { "name": "sudo", "description": "Permite ejecutar comandos como administrador" },
+      { "name": "nano", "description": "Editor de texto en terminal" },
+      { "name": "which", "description": "Localiza ejecutables en el PATH" }
+    ]
+  },
+  {
+    "name": "plasma",
+    "description": "Aplicaciones KDE Plasma (siempre instaladas)",
+    "packages": [
+      { "name": "gwenview", "description": "Visor de imágenes" },
+      { "name": "okular", "description": "Visor de documentos PDF" },
+      { "name": "ark", "description": "Gestor de archivadores" },
+      { "name": "kate", "description": "Editor de texto avanzado" }
+    ]
+  },
+  {
+    "name": "dev",
+    "description": "Herramientas de desarrollo",
+    "packages": [
+      { "name": "git", "description": "Control de versiones" },
+      { "name": "base-devel", "description": "Herramientas de compilación" },
+      { "name": "kdevelop", "description": "IDE de KDE" }
+    ]
+  },
+  {
+    "name": "gaming",
+    "description": "Juegos y rendimiento",
+    "packages": [
+      { "name": "steam", "description": "Plataforma de juegos Steam" },
+      { "name": "mangohud", "description": "Superposición de rendimiento" },
+      { "name": "gamemode", "description": "Optimizaciones automáticas para juegos" }
+    ]
+  },
+  {
+    "name": "office",
+    "description": "Oficina y productividad",
+    "packages": [
+      { "name": "libreoffice-fresh", "description": "Suite ofimática" },
+      { "name": "thunderbird", "description": "Correo y calendario" }
+    ]
+  },
+  {
+    "name": "browser",
+    "description": "Navegadores web",
+    "packages": [
+      { "name": "firefox", "description": "Navegador Firefox" },
+      { "name": "chromium", "description": "Navegador Chromium" }
+    ]
+  }
+]
