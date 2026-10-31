@@ -1,0 +1,139 @@
+#!/bin/bash
+# NimbusShell CI local — lint y verificaciones sin sudo, sin red, sin escritura.
+# Uso: scripts/ci.sh [--self-test]
+#   --self-test: verifica que el lint detecta un fichero con error (y limpia).
+# Salida [OK]/[FAIL] por paso; exit 0 verde, 1 rojo.
+set -u
+set -o pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+FAILS=0
+
+pass() { echo "  [OK] $1"; }
+fail() { echo "  [FAIL] $1" >&2; FAILS=$((FAILS + 1)); }
+
+SELF_TEST=0
+for arg in "$@"; do
+    case "$arg" in
+        --self-test) SELF_TEST=1 ;;
+        -h|--help) echo "Uso: scripts/ci.sh [--self-test]"; exit 0 ;;
+        *) echo "ERROR: argumento desconocido: $arg (ver --help)" >&2; exit 2 ;;
+    esac
+done
+
+sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
+    for f in "$REPO_ROOT/install.sh" "$REPO_ROOT"/lib/*.sh "$REPO_ROOT"/scripts/*.sh \
+             "$REPO_ROOT/legacy/hyprland/install.sh"; do
+        [ -f "$f" ] && printf '%s\n' "$f"
+    done
+}
+
+echo "== ci: bash -n =="
+while IFS= read -r f; do
+    if bash -n "$f" 2>/tmp/opencode/ci-err.txt; then pass "bash -n ${f#"$REPO_ROOT"/}";
+    else fail "bash -n ${f#"$REPO_ROOT"/} ($(cat /tmp/opencode/ci-err.txt))"; fi
+done < <(sh_files)
+
+echo "== ci: shellcheck -S warning =="
+if ! command -v shellcheck >/dev/null 2>&1; then
+    fail "shellcheck ausente (instálalo: pacman -S shellcheck)"
+else
+    while IFS= read -r f; do
+        if shellcheck -S warning "$f" 2>/tmp/opencode/ci-err.txt; then pass "shellcheck ${f#"$REPO_ROOT"/}";
+        else fail "shellcheck ${f#"$REPO_ROOT"/} ($(head -3 /tmp/opencode/ci-err.txt | tr '\n' '|'))"; fi
+    done < <(sh_files)
+fi
+
+echo "== ci: qml (packages/, apps/) =="
+qml_files="$(find "$REPO_ROOT/packages" "$REPO_ROOT/apps" -name '*.qml' 2>/dev/null || true)"
+if [ -z "$qml_files" ]; then
+    pass "sin .qml fuera de legacy (skip limpio; legacy/ no se linta)"
+else
+    if ! command -v qmllint >/dev/null 2>&1; then
+        fail "hay .qml pero falta qmllint"
+    else
+        qfail=0
+        while IFS= read -r f; do
+            qmllint "$f" >/dev/null 2>&1 || { echo "  [FAIL] qmllint ${f#"$REPO_ROOT"/}" >&2; qfail=1; }
+        done < <(printf '%s\n' "$qml_files")
+        [ "$qfail" = "0" ] && pass "qmllint" || fail "qmllint"
+    fi
+    if ! command -v qmlformat >/dev/null 2>&1; then
+        fail "hay .qml pero falta qmlformat"
+    else
+        ffail=0
+        while IFS= read -r f; do
+            qmlformat --check "$f" >/dev/null 2>&1 || { echo "  [FAIL] qmlformat ${f#"$REPO_ROOT"/}" >&2; ffail=1; }
+        done < <(printf '%s\n' "$qml_files")
+        [ "$ffail" = "0" ] && pass "qmlformat --check" || fail "qmlformat --check"
+    fi
+fi
+
+echo "== ci: json =="
+json_files="$(find "$REPO_ROOT" -path "$REPO_ROOT/.git" -prune -o -path "$REPO_ROOT/legacy" -prune -o \
+    \( -name 'metadata.json' -o -name 'settings*.json' \) -print 2>/dev/null || true)"
+if [ -z "$json_files" ]; then
+    pass "sin JSON fuera de legacy (skip limpio)"
+elif ! command -v python3 >/dev/null 2>&1; then
+    fail "hay JSON pero falta python3"
+else
+    jfail=0
+    while IFS= read -r f; do
+        python3 -m json.tool "$f" >/dev/null 2>&1 || { echo "  [FAIL] JSON inválido: ${f#"$REPO_ROOT"/}" >&2; jfail=1; }
+    done < <(printf '%s\n' "$json_files")
+    [ "$jfail" = "0" ] && pass "JSON válido" || fail "JSON válido"
+fi
+
+echo "== ci: desktop files =="
+desk_files="$(find "$REPO_ROOT" -path "$REPO_ROOT/.git" -prune -o -path "$REPO_ROOT/legacy" -prune -o \
+    -name '*.desktop' -print 2>/dev/null || true)"
+if [ -z "$desk_files" ]; then
+    pass "sin .desktop fuera de legacy (skip limpio)"
+elif ! command -v desktop-file-validate >/dev/null 2>&1; then
+    fail "hay .desktop pero falta desktop-file-validate"
+else
+    dfail=0
+    while IFS= read -r f; do
+        desktop-file-validate "$f" >/dev/null 2>&1 || { echo "  [FAIL] .desktop inválido: ${f#"$REPO_ROOT"/}" >&2; dfail=1; }
+    done < <(printf '%s\n' "$desk_files")
+    [ "$dfail" = "0" ] && pass ".desktop válidos" || fail ".desktop válidos"
+fi
+
+echo "== ci: tests del ledger =="
+if [ -x "$REPO_ROOT/tests/progress/test_progress.sh" ]; then
+    if "$REPO_ROOT/tests/progress/test_progress.sh" >/tmp/opencode/ci-progress.txt 2>&1; then
+        pass "tests/progress/test_progress.sh"
+    else fail "tests/progress/test_progress.sh (ver /tmp/opencode/ci-progress.txt)"; fi
+else fail "tests/progress/test_progress.sh ausente o sin +x"; fi
+
+echo "== ci: ledger de progreso =="
+if prog_out="$("$REPO_ROOT/scripts/nimbus-progress" 2>&1)"; then
+    total_line="$(printf '%s\n' "$prog_out" | grep -E '^Total: [0-9]+/112' || true)"
+    if [ -n "$total_line" ]; then pass "nimbus-progress ($total_line)";
+    else fail "nimbus-progress sin línea Total: X/112 parseable"; fi
+else fail "scripts/nimbus-progress exit distinto de 0"; fi
+
+echo "== ci: install.sh --check (solo lectura) =="
+"$REPO_ROOT/install.sh" --check >/tmp/opencode/ci-check.txt 2>&1
+rc=$?
+if [ "$rc" = "0" ] || [ "$rc" = "1" ]; then
+    pass "install.sh --check exit $rc (0 verde, 1 drift esperado en host)"
+else fail "install.sh --check exit $rc (se esperaba 0 o 1)"; fi
+
+if [ "$SELF_TEST" = "1" ]; then
+    echo "== ci: --self-test (el lint debe fallar con un fichero roto) =="
+    printf '#!/bin/bash\necho "$var_sin_definir"\n' > /tmp/ci-bad.sh
+    if ! command -v shellcheck >/dev/null 2>&1; then
+        fail "--self-test sin shellcheck (no se puede demostrar detección)"
+    elif shellcheck -S warning /tmp/ci-bad.sh >/dev/null 2>&1; then
+        fail "--self-test: shellcheck NO detectó el error inyectado (SC2154 esperado)"
+    else
+        pass "--self-test: shellcheck detecta el error inyectado"
+    fi
+    rm -f /tmp/ci-bad.sh
+    [ -e /tmp/ci-bad.sh ] && fail "--self-test no limpió /tmp/ci-bad.sh" || pass "--self-test limpió /tmp/ci-bad.sh"
+fi
+
+echo
+if [ "$FAILS" = "0" ]; then echo "CI VERDE."; exit 0; else echo "CI ROJO: $FAILS paso(s) en [FAIL]." >&2; exit 1; fi
