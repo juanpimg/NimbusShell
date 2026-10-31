@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# nimbus-gpu-setup — aplica perfil GPU/energía (NVIDIA Wayland + power).
+# Por defecto DRY-RUN (solo informa). --apply exige root y hace cambios.
+# Uso: nimbus-gpu-setup [--check|--dry-run] [--apply]
+# Idempotente: re-ejecutar no duplica entradas. Backups con sufijo fecha.
+set -u
+
+MODE="dry"
+for a in "$@"; do
+  case "$a" in
+    --apply) MODE=apply ;;
+    --check|--dry-run) MODE=dry ;;
+    --help|-h) echo "Uso: $0 [--dry-run] [--apply]"; exit 0 ;;
+    *) echo "Uso: $0 [--dry-run] [--apply]" >&2; exit 1 ;;
+  esac
+done
+
+HERE="$(dirname "$0")"
+DETECT=""
+if [ -x "$HERE/nimbus-gpu-detect" ]; then
+  DETECT="$("$HERE/nimbus-gpu-detect" 2>/dev/null || true)"
+fi
+echo "$DETECT"
+
+say() { printf '%s\n' "$*"; }
+do_cmd() { # describe o ejecuta según modo
+  if [ "$MODE" = dry ]; then say "DRY-RUN: $*";
+  else say "APLICANDO: $*"; "$@"; fi
+}
+backup() { # $1 fichero
+  [ -f "$1" ] || return 0
+  local b; b="$1.bak-$(date +%Y%m%d)"
+  [ -f "$b" ] && return 0
+  do_cmd cp -a "$1" "$b"
+}
+
+KERN_PARAM="nvidia-drm.modeset=1"
+GRUB="/etc/default/grub"
+MKINIT="/etc/mkinitcpio.conf"
+
+if [ "$MODE" = apply ] && [ "$(id -u)" -ne 0 ]; then
+  echo "ERROR: --apply exige root (ejecuta con sudo en el instalado/Calamares)" >&2
+  exit 1
+fi
+[ "$MODE" = apply ] && say "Modo APPLY (root OK)." || say "Modo DRY-RUN (sin cambios). Usa --apply como root para aplicar."
+
+# 1. Kernel cmdline: nvidia-drm.modeset=1
+if [ -f "$GRUB" ]; then
+  if grep -q 'nvidia-drm.modeset=1' "$GRUB"; then
+    say "OK grub: $KERN_PARAM ya presente."
+  else
+    backup "$GRUB"
+    if [ "$MODE" = dry ]; then
+      say "DRY-RUN: añadir '$KERN_PARAM' a GRUB_CMDLINE_LINUX_DEFAULT en $GRUB + grub-mkconfig"
+    else
+      if grep -q '^GRUB_CMDLINE_LINUX_DEFAULT=' "$GRUB"; then
+        sed -i "s/^GRUB_CMDLINE_LINUX_DEFAULT=\"/GRUB_CMDLINE_LINUX_DEFAULT=\"$KERN_PARAM /" "$GRUB"
+      else
+        printf 'GRUB_CMDLINE_LINUX_DEFAULT="%s"\n' "$KERN_PARAM" >> "$GRUB"
+      fi
+      grub-mkconfig -o /boot/grub/grub.cfg
+    fi
+  fi
+else
+  say "OMITIDO grub: $GRUB no existe (live sin grub instalado)."
+fi
+
+# 2. initramfs: módulo kms en MODULES de mkinitcpio
+if [ -f "$MKINIT" ]; then
+  if grep -qE '^MODULES=.*nvidia' "$MKINIT"; then
+    say "OK mkinitcpio: nvidia ya en MODULES."
+  else
+    backup "$MKINIT"
+    if [ "$MODE" = dry ]; then
+      say "DRY-RUN: añadir 'nvidia nvidia_modeset nvidia_uvm nvidia_drm' a MODULES en $MKINIT + mkinitcpio -P"
+    else
+      if grep -qE '^MODULES=\( *\)' "$MKINIT"; then
+        sed -i 's/^MODULES=( *)/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' "$MKINIT"
+      else
+        say "AVISO: MODULES no vacío en $MKINIT; añade nvidia* a mano." >&2
+      fi
+      mkinitcpio -P
+    fi
+  fi
+else
+  say "OMITIDO mkinitcpio: $MKINIT no existe."
+fi
+
+# 3. Energía: power-profiles-daemon
+if command -v systemctl >/dev/null 2>&1; then
+  if systemctl is-enabled power-profiles-daemon.service >/dev/null 2>&1; then
+    say "OK energía: power-profiles-daemon ya habilitado."
+  else
+    do_cmd systemctl enable power-profiles-daemon.service
+  fi
+else
+  say "OMITIDO energía: sin systemctl."
+fi
+
+# 4. Suspensión: no se fuerza; solo se informa del estado.
+if command -v systemctl >/dev/null 2>&1; then
+  SUSPEND="$(systemctl is-enabled suspend.target 2>/dev/null || echo desconocido)"
+  say "INFO suspensión: suspend.target=$SUSPEND (no se modifica; Plasma gestiona vía powerdevil)."
+else
+  say "INFO suspensión: sin systemctl."
+fi
+
+say "HECHO ($MODE). Rollback: restaura *.bak-<fecha> y regenera grub/initramfs."
