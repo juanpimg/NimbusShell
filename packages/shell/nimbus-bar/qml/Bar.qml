@@ -50,6 +50,7 @@ Window {
         anchors.verticalCenter: parent.verticalCenter
         spacing: 8
         // Logo "N" propio (arte Nimbus, sin activos Apple).
+        // F3-T04: clic abre/cierra el menú Apple.
         Rectangle {
             id: logo
             width: 16
@@ -57,6 +58,7 @@ Window {
             radius: 4
             anchors.verticalCenter: parent.verticalCenter
             color: NimbusTokens.colors(NimbusTokens.dark).accent
+            objectName: "appleLogo"
             Text {
                 anchors.centerIn: parent
                 text: "N"
@@ -64,6 +66,10 @@ Window {
                 font.pixelSize: 11
                 font.weight: 700
                 color: "white"
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: appleMenu.toggle()
             }
         }
         Text {
@@ -74,6 +80,24 @@ Window {
             font.weight: NimbusTokens.type.t13b.weight
             color: NimbusTokens.colors(NimbusTokens.dark).label
         }
+    }
+
+    // F3-T04: menú Apple (popup layer-shell propio en Menu.qml).
+    // demoMenu lo abre al arrancar (flag --demo-menu, solo UI nested).
+    Menu {
+        id: appleMenu
+        demo: demoMenu
+    }
+    // F3-T05: Control Center anclado al icono CC (derecha).
+    ControlCenter {
+        id: cc
+        demo: demoCC
+    }
+    Component.onCompleted: {
+        if (demoMenu)
+            appleMenu.open();
+        if (demoCC || openCC)
+            cc.open();
     }
 
     Row {
@@ -100,6 +124,49 @@ Window {
             Accessible.name: "Bluetooth (placeholder)"
         }
         // Batería dibujada (sin iconos externos).
+        // F3-T05: botón CC propio (dos toggles, sin activos externos).
+        Item {
+            id: ccButton
+            width: 22
+            height: 16
+            anchors.verticalCenter: parent.verticalCenter
+            Accessible.name: "Centro de control"
+            objectName: "ccButton"
+            Column {
+                anchors.centerIn: parent
+                spacing: 2
+                Rectangle {
+                    width: 16
+                    height: 6
+                    radius: 3
+                    color: Qt.rgba(1, 1, 1, 0.85)
+                    Rectangle {
+                        x: 9
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: NimbusTokens.colors(NimbusTokens.dark).accent
+                    }
+                }
+                Rectangle {
+                    width: 16
+                    height: 6
+                    radius: 3
+                    color: Qt.rgba(1, 1, 1, 0.85)
+                    Rectangle {
+                        x: 1
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: NimbusTokens.colors(NimbusTokens.dark).accent
+                    }
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: cc.toggle()
+            }
+        }
         Item {
             width: 26
             height: 12
