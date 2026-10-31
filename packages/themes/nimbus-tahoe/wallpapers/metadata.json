@@ -1,9 +1,12 @@
 {
-  "name": "Sequoia NPS (claro)",
+  "name": "Sequoia NPS",
   "file": "sequoia-light.jpg",
   "license": "Arte propio NimbusShell (CC0). NO es el wallpaper Sequoia de Apple (R-APPLE).",
-  "sourceRepoPath": "assets/sequoia-light.jpg",
+  "sourceRepoPath": "assets/",
   "resolution": "1920x1080",
-  "variant": "light",
+  "variants": {
+    "light": "sequoia-light.jpg",
+    "dark": "sequoia-dark.jpg"
+  },
   "plugin": "org.kde.image"
 }

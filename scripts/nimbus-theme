@@ -1,0 +1,302 @@
+#!/usr/bin/env bash
+# nimbus-theme (F3-T11): fondo, variante claro/oscuro y color de acento (Plasma 6.8).
+# Contrato docs/design/tahoe-design-contract.md §2: accent #007AFF (light) /
+# #0A84FF (dark); arte propio NPS (R-APPLE, sin activos Apple).
+#
+# Canales reales Plasma 6.8 (medidos en 6.8.2):
+# - plasma-apply-colorscheme [-a <hex>] <scheme>: fija esquema + reescribe los
+#   roles de acento en kdeglobals (NO existe clave [General] AccentColor: el
+#   -a reescribe DecorationFocus/Hover y ForegroundActive/Link; verificado).
+# - plasma-apply-desktoptheme <tema>: tema global (breeze-light/breeze-dark
+#   como base temporal hasta que exista org.nimbus.desktop).
+# - plasma-apply-wallpaperimage <img>: fondo (requiere plasmashell en vivo;
+#   en nested sin shell falla de forma controlada y deja el fichero copiado).
+# - kwriteconfig6/kreadconfig6: kdeglobals [General]/[KDE] ColorScheme,
+#   [KDE] LookAndFeelPackage; kwinrc/plasmarc intactos salvo backup.
+# - Cambio automático claro/oscuro: Plasma 6.8 NO lo trae (kcm_nighttime es
+#   solo el ciclo día-noche de Night Light, filtro azul, no cambia el tema).
+#   Se usa timer systemd de usuario propio (nimbus-theme-auto.timer).
+#
+# Uso:
+#   nimbus-theme [light|dark|auto] [--accent <hex>] [--wallpaper <img>]
+#                 [--auto enable|disable|status] [--check] [--revert]
+# Idempotente, sin root, con backup en ~/.config/nimbusshell-backup-*.
+set -u
+
+MODE="dark"
+ACCENT=""
+WALLPAPER_OVERRIDE=""
+AUTO_CMD=""
+CHECK=""
+REVERT=""
+ACCENT_NEXT=0
+MODE_SET=0
+for arg in "$@"; do
+  if [ "$ACCENT_NEXT" = "1" ]; then ACCENT="$arg"; ACCENT_NEXT=0; continue; fi
+  case "$arg" in
+    light|dark) MODE="$arg"; MODE_SET=1 ;;
+    auto) MODE="auto"; MODE_SET=1 ;;
+    --accent) ACCENT_NEXT=1 ;;
+    --wallpaper) WALLPAPER_NEXT=1 ;;
+    --auto) AUTO_NEXT=1 ;;
+    --check) CHECK="yes" ;;
+    --revert) REVERT="yes" ;;
+    -h|--help)
+      sed -n '1,30p' "${BASH_SOURCE[0]}" | cut -c3-
+      echo "Uso: nimbus-theme [light|dark|auto] [--accent <hex>] [--wallpaper <img>] [--auto enable|disable|status] [--check] [--revert]"
+      exit 0 ;;
+    *)
+      if [ "${WALLPAPER_NEXT:-0}" = "1" ]; then WALLPAPER_OVERRIDE="$arg"; WALLPAPER_NEXT=0; continue; fi
+      if [ "${AUTO_NEXT:-0}" = "1" ]; then AUTO_CMD="$arg"; AUTO_NEXT=0; continue; fi
+      echo "ERROR: flag desconocido: $arg (ver --help)" >&2; exit 1 ;;
+  esac
+done
+
+if [ "$(id -u)" = "0" ]; then
+  echo "ERROR: no ejecutar como root (el tema es por usuario)" >&2; exit 1
+fi
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+THEME_DIR="$REPO_ROOT/packages/themes/nimbus-tahoe"
+UNIT_SRC="$REPO_ROOT/dotfiles/.config/systemd/user"
+BACKUP_BASE="$HOME/.config"
+STAMP_FILE="$HOME/.config/nimbus-theme-applied"
+CONF_FILE="$HOME/.config/plasma/nimbus-theme.conf"
+
+# Config opcional del usuario (dotfiles/.config/plasma/nimbus-theme.conf).
+LIGHT_START=7
+LIGHT_END=19
+if [ -f "$CONF_FILE" ]; then
+  # shellcheck disable=SC1090
+  . "$CONF_FILE"
+fi
+
+scheme_for() { if [ "$1" = "light" ]; then echo "NimbusTahoeLight"; else echo "NimbusTahoe"; fi; }
+desk_for() { if [ "$1" = "light" ]; then echo "breeze-light"; else echo "breeze-dark"; fi; }
+default_accent() { if [ "$1" = "light" ]; then echo "#007AFF"; else echo "#0A84FF"; fi; }
+wp_for() { if [ "$1" = "light" ]; then echo "sequoia-light.jpg"; else echo "sequoia-dark.jpg"; fi; }
+
+valid_hex() { [[ "$1" =~ ^#[0-9A-Fa-f]{6}$ ]]; }
+
+find_backup() { ls -dt "$BACKUP_BASE"/nimbusshell-backup-* 2>/dev/null | head -n 1; }
+
+hex_to_rgb() {
+  local h="${1#\#}"
+  echo "$((16#${h:0:2})),$((16#${h:2:2})),$((16#${h:4:2}))"
+}
+
+# Acento sin sesión viva: plasma-apply-colorscheme -a reescribe estos roles
+# (medido); se replica a fichero para que nested/check sean deterministas.
+accent_to_file() {
+  local rgb="$1" g
+  for g in Selection Window Button View Complementary Tooltip Header; do
+    kwriteconfig6 --file kdeglobals --group "Colors:$g" --key DecorationFocus "$rgb"
+    kwriteconfig6 --file kdeglobals --group "Colors:$g" --key DecorationHover "$rgb"
+    kwriteconfig6 --file kdeglobals --group "Colors:$g" --key ForegroundActive "$rgb"
+    kwriteconfig6 --file kdeglobals --group "Colors:$g" --key ForegroundLink "$rgb"
+  done
+  kwriteconfig6 --file kdeglobals --group "Colors:Selection" --key BackgroundNormal "$rgb"
+}
+
+make_backup() {
+  local bkp
+  bkp="$(find_backup)"
+  if [ -z "$bkp" ]; then
+    bkp="$BACKUP_BASE/nimbusshell-backup-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$bkp"
+    echo "backup: $bkp" >&2
+  fi
+  for f in kdeglobals kwinrc plasmarc Kvantum/kvantum.kvconfig; do
+    if [ -e "$HOME/.config/$f" ] && [ ! -e "$bkp/$f" ]; then
+      mkdir -p "$bkp/$(dirname "$f")"
+      cp -a "$HOME/.config/$f" "$bkp/$f"
+    fi
+  done
+  echo "backup: $bkp" >&2
+  echo "$bkp"
+}
+
+resolve_auto() {
+  local h
+  h="$(date +%H)"
+  h="$((10#$h))"
+  if [ "$h" -ge "$LIGHT_START" ] && [ "$h" -lt "$LIGHT_END" ]; then echo "light"; else echo "dark"; fi
+}
+
+do_auto_cmd() {
+  local bin_dir="$HOME/.local/bin" unit_dir="$HOME/.config/systemd/user"
+  case "$AUTO_CMD" in
+    enable)
+      mkdir -p "$bin_dir" "$unit_dir"
+      ln -sfn "$REPO_ROOT/scripts/nimbus-theme" "$bin_dir/nimbus-theme"
+      cp -a "$UNIT_SRC/nimbus-theme-auto.service" "$UNIT_SRC/nimbus-theme-auto.timer" "$unit_dir/"
+      if command -v systemctl >/dev/null 2>&1 && systemctl --user daemon-reload 2>/dev/null; then
+        if systemctl --user enable --now nimbus-theme-auto.timer 2>/dev/null; then
+          echo "AUTO_OK enabled (timer cada 15 min, $LIGHT_START:00-$LIGHT_END:00 light)"
+        else
+          echo "AVISO: daemon-reload OK pero enable falló (bus sin manager; unidades en $unit_dir)." >&2
+          echo "AUTO_OK copied (enable pendiente)"
+        fi
+      else
+        echo "AVISO: sin bus systemd de usuario; unidades copiadas en $unit_dir (actívalas con login gráfico)." >&2
+        echo "AUTO_OK copied (sin daemon-reload)"
+      fi ;;
+    disable)
+      if command -v systemctl >/dev/null 2>&1; then
+        systemctl --user disable --now nimbus-theme-auto.timer 2>/dev/null || true
+      fi
+      rm -f "$unit_dir/nimbus-theme-auto.service" "$unit_dir/nimbus-theme-auto.timer"
+      echo "AUTO_OK disabled" ;;
+    status)
+      if command -v systemctl >/dev/null 2>&1; then
+        systemctl --user is-enabled nimbus-theme-auto.timer 2>/dev/null || echo "disabled"
+        systemctl --user is-active nimbus-theme-auto.timer 2>/dev/null || echo "inactive"
+      else
+        [ -f "$unit_dir/nimbus-theme-auto.timer" ] && echo "copied (sin bus)" || echo "disabled"
+      fi ;;
+    *) echo "ERROR: --auto admite enable|disable|status (dado: $AUTO_CMD)" >&2; exit 1 ;;
+  esac
+}
+
+do_check() {
+  local fail=0
+  local mode="$MODE"
+  if [ "$MODE_SET" = "0" ] && command -v kreadconfig6 >/dev/null 2>&1; then
+    # Sin modo explícito: verifica el estado actual, no el auto-resuelto.
+    case "$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)" in
+      NimbusTahoeLight) mode="light" ;;
+      NimbusTahoe) mode="dark" ;;
+      *) mode="$(resolve_auto)" ;;
+    esac
+  elif [ "$mode" = "auto" ]; then mode="$(resolve_auto)"; fi
+  local scheme wp
+  scheme="$(scheme_for "$mode")"; wp="$(wp_for "$mode")"
+  [ -f "$HOME/.local/share/color-schemes/$scheme.colors" ] || { echo "FAIL: falta color-scheme $scheme"; fail=1; }
+  [ -f "$HOME/.local/share/wallpapers/nimbus/contents/images/$wp" ] || { echo "FAIL: falta wallpaper $wp"; fail=1; }
+  if command -v kreadconfig6 >/dev/null 2>&1; then
+    local cur acc
+    cur="$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)"
+    [ "$cur" = "$scheme" ] || { echo "FAIL: ColorScheme=$cur (esperado $scheme)"; fail=1; }
+    acc="$(kreadconfig6 --file kdeglobals --group "Colors:Window" --key DecorationFocus 2>/dev/null || true)"
+    [ -n "$acc" ] || { echo "FAIL: sin acento en Colors:Window"; fail=1; }
+  fi
+  if [ "$fail" = "0" ]; then echo "CHECK_OK mode=$mode scheme=$scheme"; else echo "CHECK_FAIL"; fi
+  return "$fail"
+}
+
+do_revert() {
+  local bkp
+  bkp="$(find_backup)"
+  if [ -z "$bkp" ]; then echo "ERROR: sin backup nimbusshell-backup-* (nada que revertir)" >&2; exit 1; fi
+  for f in kdeglobals kwinrc plasmarc Kvantum/kvantum.kvconfig; do
+    if [ -e "$bkp/$f" ]; then cp -a "$bkp/$f" "$HOME/.config/$f"; else rm -f "$HOME/.config/$f"; fi
+  done
+  rm -f "$HOME"/.local/share/color-schemes/NimbusTahoe.colors \
+    "$HOME"/.local/share/color-schemes/NimbusTahoeLight.colors
+  rm -rf "$HOME/.local/share/wallpapers/nimbus"
+  rm -f "$STAMP_FILE"
+  echo "REVERT_OK desde $bkp"
+}
+
+# Las herramientas plasma-apply-* actúan sobre la SESIÓN VIVA del bus, no
+# sobre $HOME: llamarlas con un HOME ajeno muta la sesión del host (medido:
+# plasma-apply-wallpaperimage cambió el fondo del host). Solo se permite el
+# canal en vivo si el plasmashell en ejecución pertenece a este $HOME.
+session_is_mine() {
+  local p sh
+  p="$(pidof plasmashell 2>/dev/null | awk '{print $1}')"
+  [ -n "$p" ] || return 1
+  sh="$(tr '\0' '\n' < "/proc/$p/environ" 2>/dev/null | grep -E '^HOME=' | cut -d= -f2-)"
+  [ -n "$sh" ] && [ "$sh" = "$HOME" ]
+}
+
+if session_is_mine; then LIVE=1; else LIVE=0; fi
+
+if [ -n "$AUTO_CMD" ]; then do_auto_cmd; exit 0; fi
+if [ -n "$REVERT" ]; then do_revert; exit 0; fi
+if [ -n "$CHECK" ]; then do_check; exit "$?"; fi
+if [ "$MODE_SET" = "0" ] && [ -z "$ACCENT" ] && [ -z "$WALLPAPER_OVERRIDE" ]; then
+  MODE="$(resolve_auto)"
+fi
+if [ "$MODE" = "auto" ]; then MODE="$(resolve_auto)"; fi
+
+if [ -n "$ACCENT" ] && ! valid_hex "$ACCENT"; then
+  echo "ERROR: --accent exige hex #RRGGBB (dado: $ACCENT)" >&2; exit 1
+fi
+if [ -z "$ACCENT" ]; then ACCENT="$(default_accent "$MODE")"; fi
+if [ -n "${WALLPAPER_OVERRIDE:-}" ] && [ ! -f "$WALLPAPER_OVERRIDE" ]; then
+  echo "ERROR: wallpaper no existe: $WALLPAPER_OVERRIDE" >&2; exit 1
+fi
+[ -d "$THEME_DIR/colorschemes" ] || { echo "ERROR: falta $THEME_DIR/colorschemes" >&2; exit 1; }
+
+BKP="$(make_backup)"
+SCHEME="$(scheme_for "$MODE")"
+DESK="$(desk_for "$MODE")"
+WP_NAME="$(wp_for "$MODE")"
+WP_SRC="${WALLPAPER_OVERRIDE:-$THEME_DIR/wallpapers/$WP_NAME}"
+[ -f "$WP_SRC" ] || { echo "ERROR: falta wallpaper $WP_SRC" >&2; exit 1; }
+
+# 1. Color schemes (copia idempotente de ambas variantes).
+mkdir -p "$HOME/.local/share/color-schemes"
+cp -a "$THEME_DIR/colorschemes/NimbusTahoe.colors" \
+      "$THEME_DIR/colorschemes/NimbusTahoeLight.colors" \
+      "$HOME/.local/share/color-schemes/"
+
+# 2. Esquema + acento: canal en vivo solo en sesión propia; siempre claves
+# deterministas a fichero (lo que lee el nested al arrancar).
+if [ "$LIVE" = "1" ] && command -v plasma-apply-colorscheme >/dev/null 2>&1; then
+  plasma-apply-colorscheme -a "$ACCENT" "$SCHEME" >/dev/null 2>&1 \
+    || echo "AVISO: plasma-apply-colorscheme falló; se fija por fichero." >&2
+elif [ "$LIVE" = "0" ]; then
+  echo "AVISO: sin sesión Plasma propia (LIVE=0); esquema por fichero, sin cambio en vivo." >&2
+fi
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+  kwriteconfig6 --file kdeglobals --group General --key ColorScheme "$SCHEME"
+  kwriteconfig6 --file kdeglobals --group KDE --key ColorScheme "$SCHEME"
+  # Paleta completa a fichero: el nested (y cualquier sesión sin bus vivo)
+  # no ve ~/.local/share del HOME ajeno; incrustar el .colors en kdeglobals
+  # lo hace autocontenido. Después se aplica el acento encima.
+  if command -v python3 >/dev/null 2>&1; then
+    python3 - "$THEME_DIR/colorschemes/$SCHEME.colors" <<'PYEOF'
+import configparser, subprocess, sys
+cp = configparser.ConfigParser(strict=False)
+cp.optionxform = str
+cp.read(sys.argv[1])
+for sec in cp.sections():
+    for k, v in cp.items(sec):
+        subprocess.run(["kwriteconfig6", "--file", "kdeglobals",
+                        "--group", sec, "--key", k, v], check=True)
+PYEOF
+  else
+    echo "AVISO: python3 ausente; paleta solo por fichero de scheme." >&2
+  fi
+  accent_to_file "$(hex_to_rgb "$ACCENT")"
+else
+  echo "ERROR: kwriteconfig6 no disponible" >&2; exit 1
+fi
+
+# 3. LookAndFeel + desktop theme. org.nimbus.desktop aún no existe como
+# paquete instalado (solo está en kdeglobals como marcador F2-T04); hasta
+# entonces se fija el L&F breeze real por variante (temporal, documentado).
+LNFPKG=org.kde.breeze.desktop
+if [ "$MODE" = "dark" ]; then LNFPKG=org.kde.breezedark.desktop; fi
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+  kwriteconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage "$LNFPKG"
+  kwriteconfig6 --file plasmarc --group Theme --key name "$DESK"
+fi
+if command -v plasma-apply-desktoptheme >/dev/null 2>&1 && [ "$LIVE" = "1" ]; then
+  plasma-apply-desktoptheme "$DESK" >/dev/null 2>&1 \
+    || echo "AVISO: desktoptheme $DESK no aplicado (sin sesión viva); LookAndFeel queda en fichero." >&2
+fi
+
+# 4. Wallpaper (fichero + aplicación en vivo si hay plasmashell).
+WP_DST="$HOME/.local/share/wallpapers/nimbus/contents/images/$(basename "$WP_SRC")"
+mkdir -p "$(dirname "$WP_DST")"
+cp -fL "$WP_SRC" "$WP_DST"
+if [ "$LIVE" = "1" ] && command -v plasma-apply-wallpaperimage >/dev/null 2>&1; then
+  plasma-apply-wallpaperimage "$WP_DST" >/dev/null 2>&1 \
+    || echo "AVISO: plasma-apply-wallpaperimage falló; fichero copiado en $WP_DST." >&2
+fi
+
+echo "$MODE $ACCENT $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STAMP_FILE"
+echo "THEME_OK mode=$MODE scheme=$SCHEME accent=$ACCENT desk=$DESK wallpaper=$(basename "$WP_SRC") backup=$BKP"
