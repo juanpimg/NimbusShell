@@ -196,6 +196,12 @@ Window {
                 color: NimbusTokens.colors(NimbusTokens.dark).label
             }
         }
+        // F3-T07: system tray SNI (antes del reloj).
+        StatusArea {
+            id: tray
+            anchors.verticalCenter: parent.verticalCenter
+            autoOpenRow: trayOpenMenu
+        }
         Text {
             id: clock
             anchors.verticalCenter: parent.verticalCenter

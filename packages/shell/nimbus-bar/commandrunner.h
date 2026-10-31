@@ -22,15 +22,13 @@ public:
     // F3-T05-fix: traza tag + 1ª línea solo con --log-query/demo.
     Q_INVOKABLE void query(const QString &cmd, const QString &tag) {
         if (m_logQuery)
-            qDebug().noquote() << "cc-query:" << tag << cmd.split('
-').first().left(80);
+            qDebug().noquote() << "cc-query:" << tag << cmd.split('\n').first().left(80);
         auto *p = new QProcess(this);
         connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this, [this, p, tag](int, QProcess::ExitStatus) {
                     QString out = QString::fromUtf8(p->readAllStandardOutput()).trimmed();
                     if (m_logQuery)
-                        qDebug().noquote() << "cc-output:" << tag << out.split('
-').first().left(80);
+                        qDebug().noquote() << "cc-output:" << tag << out.split('\n').first().left(80);
                     emit outputReady(tag, out);
                     p->deleteLater();
                 });

@@ -1,0 +1,106 @@
+[tray] runtime=/tmp/opencode/nimbus-tray-TF8jBo/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-f3tray/spikes/nested/nested-tray.log bin=/tmp/nimbus-bar-f3tray/bin/nimbus-bar fake=/tmp/fake-sni
+[tray] arranque kwin_wayland --virtual ...
+[tray] arranque kwin_wayland --virtual ...
+[tray] arranque plasmashell (watcher SNI) ...
+[tray] arranque plasmashell (watcher SNI) ...
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=209031 comm="plasmashell")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=209035 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=209035 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:209035): xdg-desktop-portal-WARNING **: 22:20:06.291: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=209035 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=209057 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=209031 comm="plasmashell")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=209035 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:209035): xdg-desktop-portal-WARNING **: 22:20:06.429: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=209035 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.kde.kdeconnect' requested by ':1.1' (uid=1000 pid=209031 comm="plasmashell")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.kde.kdeconnect'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.freedesktop.Notifications' requested by ':1.13' (uid=1000 pid=209127 comm="/usr/bin/kdeconnectd")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.freedesktop.Notifications'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.1' (uid=1000 pid=209031 comm="plasmashell")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=209141 comm="/usr/bin/kded6")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=209141 comm="/usr/bin/kded6")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Successfully activated service 'org.bluez.obex'
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=209031 comm="plasmashell")
+0
+[tray] watcher OK
+[tray] watcher OK
+[tray] arranque fake-sni A + B ...
+[tray] arranque fake-sni A + B ...
+fake-sni: arranque
+fake-sni: arranque
+fake-sni: icono OK
+fake-sni: servicio OK
+fake-sni: objetos OK
+fake-sni: icono OK
+fake-sni: servicio OK
+fake-sni: objetos OK
+[tray] items registrados:
+[tray] items registrados:
+org.nimbus.FakeSniB/StatusNotifierItem
+org.nimbus.FakeSniA/StatusNotifierItem
+org.nimbus.FakeSniB/StatusNotifierItem
+org.nimbus.FakeSniA/StatusNotifierItem
+[tray] arranque nimbus-bar --tray-open-menu ...
+[tray] arranque nimbus-bar --tray-open-menu ...
+[tray] nimbus-bar VIVO pid=209382
+[tray] nimbus-bar VIVO pid=209382
+[tray] captura CON tray + menu ...
+[tray] captura CON tray + menu ...
+Service 'org.freedesktop.ScreenSaver' does not exist.
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.kde.screensaver' requested by ':1.38' (uid=1000 pid=209426 comm="qdbus6 org.kde.screensaver /ScreenSaver org.kde.sc")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activated service 'org.kde.screensaver' failed: Process org.kde.screensaver exited with status 1
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activating service name='org.kde.screensaver' requested by ':1.38' (uid=1000 pid=209426 comm="qdbus6 org.kde.screensaver /ScreenSaver org.kde.sc")
+dbus-daemon[208926]: [session uid=1000 pid=208926 pidfd=5] Activated service 'org.kde.screensaver' failed: Process org.kde.screensaver exited with status 1
+Cannot find 'org.kde.screensaver.setActive' in object /ScreenSaver at org.kde.screensaver
+[tray] f3-tray.png OK
+[tray] f3-tray.png OK
+[tray] Activate directo al item A (verifica metodo SNI) ...
+[tray] Activate directo al item A (verifica metodo SNI) ...
+fake-sni: Activate Nimbus A 0 0
+[tray] Event directo al menu A id=1 ...
+[tray] Event directo al menu A id=1 ...
+fake-sni: Event id=1 clicked Nimbus A
+[tray] runtime=/tmp/opencode/nimbus-tray-TF8jBo/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-f3tray/spikes/nested/nested-tray.log bin=/tmp/nimbus-bar-f3tray/bin/nimbus-bar fake=/tmp/fake-sni
+[tray] arranque fake-sni A + B ...
+[tray] arranque fake-sni A + B ...
+fake-sni: arranque
+fake-sni: arranque
+fake-sni: icono OK
+fake-sni: servicio OK
+fake-sni: objetos OK
+fake-sni: icono OK
+fake-sni: servicio OK
+fake-sni: objetos OK
+fake-sni: Activate Nimbus A 0 0
+fake-sni: Event id=1 clicked Nimbus A
+[tray] runtime=/tmp/opencode/nimbus-tray-TF8jBo/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-f3tray/spikes/nested/nested-tray.log bin=/tmp/nimbus-bar-f3tray/bin/nimbus-bar fake=/tmp/fake-sni
+[tray] arranque fake-sni A + B ...
+[tray] arranque fake-sni A + B ...
+fake-sni: arranque
+fake-sni: arranque
+fake-sni: icono OK
+fake-sni: servicio OK
+fake-sni: objetos OK
+fake-sni: icono OK
+fake-sni: servicio OK
+fake-sni: objetos OK
+fake-sni: Activate Nimbus A 0 0
+fake-sni: Event id=1 clicked Nimbus A
+-rw-r--r-- 1 jp jp 632021 oct 31 22:20 /home/jp/Escritorio/Proyectos/NimbusShell-f3tray/spikes/nested/f3-tray.png
+[tray] FIN.
+[tray] FIN.
+[tray] dbus-run-session exit=0
+A connection to the bus can't be made
