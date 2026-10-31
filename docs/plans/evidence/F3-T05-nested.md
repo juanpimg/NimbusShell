@@ -41,3 +41,4 @@ inhibe `runner.run/query`, solo UI/log). Toggles reales NO ejecutados.
   clickea; Wi-Fi/BT/audio/brillo mutan el host → se prueban en VM (F2-T08).
   DND no tiene rama en `flip()` (sin API KDE estable) → también diferido.
 - Solo apertura verificada en nested; cierre = patrón scrim/Esc de F3-T04.
+- Traza 100% nested (harness): `batt 81`/BT/wifiOn leen el host porque nested comparte kernel (sysfs) y bus de sistema; `vol —`/`theme —` confirman HOME y bus de sesión aislados.
