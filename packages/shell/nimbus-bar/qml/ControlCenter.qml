@@ -40,7 +40,7 @@ Item {
         runner.query("kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo —", "theme");
         runner.query("cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo —", "batt");
         runner.query("wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo —", "vol");
-        runner.query("brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d % || echo —", "bri");
+        runner.query("brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d '%'", "bri");
     }
     function flip(kind: string) {
         if (demo) {

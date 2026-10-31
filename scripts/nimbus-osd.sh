@@ -49,7 +49,7 @@ vol_value() {
 bri_value() {
   # Eco 0..1 del brillo actual (brightnessctl -m, fallback sysfs).
   local out d cur max
-  out="$(brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d ' %' || echo "")"
+  out="$(brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d ' %')"
   if [ -n "$out" ]; then
     awk -v n="$out" 'BEGIN { printf "%.2f", n / 100 }'
     return
