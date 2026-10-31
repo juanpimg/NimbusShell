@@ -24,5 +24,19 @@ wrapper a `nimbus-bar --demo-calendar` (abre el calendario al arrancar).
 - Sin `Calendar.qml` en `bar.qrc` la barra moría en silencio (este Qt no
   imprime `qWarning` sin handler; hallazgo ya documentado en F3-T05).
 - `x/y` del popup ignorados en layer-shell; anclaje real vía
-  `anchors: Top|Right` (igual que CC en F3-T05). Esc/scrim cierran.
+  `anchors: Top|Right` (igual que CC en F3-T05).
 - Sin clic/Esc reales en nested; eventos solo placeholder (días 1/15).
+
+## Test qmltestrunner (`tests/qml/tst_calendar.qml`, Qt 6.12 offscreen)
+
+Instancia el `Calendar.qml` real. Salida íntegra:
+`8 passed, 0 failed` (`test_daysIn`, `test_header`, `test_leadBlanks`,
+`test_leap`, `test_open_close`, `test_wrap` + init/cleanup).
+
+## Cierre Esc / clic-fuera
+
+Ambos llaman al mismo `root.close()` unit-testeado (`test_open_close`):
+`Shortcut { sequence: "Escape" ... onActivated: root.close() }` (línea 42)
+y scrim `MouseArea ... onClicked: root.close()` (línea 41), mismo patrón
+que `Menu.qml` (líneas 45/48). Gap aceptado: sin inyección de tecla/clic
+real en nested (el harness no la soporta); el camino `close()` sí verificado.
