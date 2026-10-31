@@ -1,6 +1,6 @@
 # kremarc-nimbus — settings Nimbus para Krema 0.12.0 (formato INI KConfig).
 # Grupo y claves exactas de src/config/krema.kcfg (kcfgfile name="kremarc").
-# Destino live: ~/.config/kremarc ; aplicar con: pkill krema (respawnea solo).
+# Destino live: ~/.config/kremarc ; aplicar con: pkill krema && krema & (sin respawn automatico; relanzar a mano).
 [General]
 # Tile 48px (min 24, max 96) + zoom parabólico macOS 1.6x (min 1.0, max 2.0)
 IconSize=48
