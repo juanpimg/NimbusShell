@@ -1,0 +1,36 @@
+# NimbusShell Plasma — paquetes del perfil plasma (F1-T03).
+# Copia de trabajo del brief docs/plans/research/F2-base.md (§1 y §8):
+# versiones medidas en host CachyOS 2026-10-31 (Plasma 6.8.2, krunner 6.31.0,
+# SDDM 0.21.0, Kvantum 1.1.8, PPD 0.30, plasma-meta 6.8-1). Los pins se
+# congelan en F2-T01 tras validar en VM; nada usa `latest` (R-CACHYOS).
+# Formato: un paquete por línea; "#" comentarios (read_list los ignora).
+# Sin AUR no fijado: klassy queda comentado hasta su pin (F2-T01).
+
+# --- base Plasma 6 (extra) ---
+plasma-meta  # 6.8-1, meta-paquete canónico (preferido al grupo plasma)
+kwin  # 6.8.2, compositor Wayland
+krunner  # 6.31.0, paquete Frameworks separado (base de Spotlight, F6)
+plasma-login-manager  # 6.8.2, DM nuevo por defecto (evaluar vs sddm en F2-T02)
+sddm  # 0.21.0, alternativa estable documentada
+sddm-kcm  # 6.8.2, aplica settings Plasma al greeter SDDM
+kde-gtk-config  # 6.8.2, sincroniza KDE->GTK
+kvantum  # 1.1.8, motor de temas Qt (solo Qt6)
+layer-shell-qt  # 6.8.2, requerido por el Dock (F5)
+power-profiles-daemon  # 0.30, fijar uno solo (no tuned-cachy-ppd a la vez)
+powerdevil  # 6.8.2, gestión de energía Plasma
+
+# --- apps base (extra) ---
+konsole
+dolphin
+spectacle
+plasma-nm
+networkmanager
+firewalld  # default CachyOS (una sola opción de firewall, F2-T09)
+
+# --- AUR: pendiente de pin (NO instalar sin fijar; F2-T01) ---
+#klassy  # AUR 6.7.3 (para Plasma >=6.6.1, KDecoration3, Qt6-only)
+
+# --- solo ISO netinstall (iso/profile/, F2-T06; no instalar en el desktop) ---
+#calamares
+#archiso
+#mkinitcpio-archiso
