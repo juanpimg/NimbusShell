@@ -13,15 +13,45 @@ Item {
     property int shownYear: new Date().getFullYear()
     property int shownMonth: new Date().getMonth()
     property var placeholderDays: [1, 15]
-    function toggle() { opened ? close() : open(); }
-    function open() { var d = new Date(); shownYear = d.getFullYear(); shownMonth = d.getMonth(); opened = true; }
-    function close() { opened = false; }
-    function prev() { if (shownMonth === 0) { shownMonth = 11; shownYear--; } else shownMonth--; }
-    function next() { if (shownMonth === 11) { shownMonth = 0; shownYear++; } else shownMonth++; }
-    function monthName(m) { return ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][m]; }
-    function daysIn(m, y) { return new Date(y, m + 1, 0).getDate(); }
-    function leadBlanks(m, y) { return (new Date(y, m, 1).getDay() + 6) % 7; }
-    function isToday(d) { var t = new Date(); return d === t.getDate() && shownMonth === t.getMonth() && shownYear === t.getFullYear(); }
+    function toggle() {
+        opened ? close() : open();
+    }
+    function open() {
+        var d = new Date();
+        shownYear = d.getFullYear();
+        shownMonth = d.getMonth();
+        opened = true;
+    }
+    function close() {
+        opened = false;
+    }
+    function prev() {
+        if (shownMonth === 0) {
+            shownMonth = 11;
+            shownYear--;
+        } else
+            shownMonth--;
+    }
+    function next() {
+        if (shownMonth === 11) {
+            shownMonth = 0;
+            shownYear++;
+        } else
+            shownMonth++;
+    }
+    function monthName(m) {
+        return ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"][m];
+    }
+    function daysIn(m, y) {
+        return new Date(y, m + 1, 0).getDate();
+    }
+    function leadBlanks(m, y) {
+        return (new Date(y, m, 1).getDay() + 6) % 7;
+    }
+    function isToday(d) {
+        var t = new Date();
+        return d === t.getDate() && shownMonth === t.getMonth() && shownYear === t.getFullYear();
+    }
 
     Window {
         id: scrim
@@ -38,8 +68,15 @@ Item {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityOnDemand
         LayerShellQt.Window.scope: "nimbus-cal-scrim"
         LayerShellQt.Window.activateOnShow: false
-        MouseArea { anchors.fill: parent; onClicked: root.close() }
-        Shortcut { sequence: "Escape"; enabled: root.opened; onActivated: root.close() }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.close()
+        }
+        Shortcut {
+            sequence: "Escape"
+            enabled: root.opened
+            onActivated: root.close()
+        }
     }
     Window {
         id: popup
@@ -71,10 +108,21 @@ Item {
                     width: parent.width
                     height: 28
                     Rectangle {
-                        width: 28; height: 28; radius: 6; color: "transparent"
+                        width: 28
+                        height: 28
+                        radius: 6
+                        color: "transparent"
                         objectName: "calPrev"
-                        Text { anchors.centerIn: parent; text: "‹"; font.pixelSize: 16; color: "white" }
-                        MouseArea { anchors.fill: parent; onClicked: root.prev() }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "‹"
+                            font.pixelSize: 16
+                            color: "white"
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.prev()
+                        }
                     }
                     Text {
                         width: parent.width - 56
@@ -89,10 +137,21 @@ Item {
                         objectName: "calHeader"
                     }
                     Rectangle {
-                        width: 28; height: 28; radius: 6; color: "transparent"
+                        width: 28
+                        height: 28
+                        radius: 6
+                        color: "transparent"
                         objectName: "calNext"
-                        Text { anchors.centerIn: parent; text: "›"; font.pixelSize: 16; color: "white" }
-                        MouseArea { anchors.fill: parent; onClicked: root.next() }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "›"
+                            font.pixelSize: 16
+                            color: "white"
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.next()
+                        }
                     }
                 }
                 Grid {
@@ -102,22 +161,30 @@ Item {
                     Repeater {
                         model: ["L", "M", "X", "J", "V", "S", "D"]
                         delegate: Text {
-                            width: (280 - 20 - 12) / 7; height: 18
+                            width: (280 - 20 - 12) / 7
+                            height: 18
                             horizontalAlignment: Text.AlignHCenter
-                            text: modelData; font.pixelSize: 11; font.weight: 600
+                            text: modelData
+                            font.pixelSize: 11
+                            font.weight: 600
                             color: Qt.rgba(1, 1, 1, 0.55)
                         }
                     }
                     Repeater {
                         id: blanks
                         model: root.leadBlanks(root.shownMonth, root.shownYear)
-                        delegate: Item { width: (280 - 20 - 12) / 7; height: 30 }
+                        delegate: Item {
+                            width: (280 - 20 - 12) / 7
+                            height: 30
+                        }
                     }
                     Repeater {
                         id: days
                         model: root.daysIn(root.shownMonth, root.shownYear)
                         delegate: Rectangle {
-                            width: (280 - 20 - 12) / 7; height: 30; radius: 6
+                            width: (280 - 20 - 12) / 7
+                            height: 30
+                            radius: 6
                             color: root.isToday(index + 1) ? NimbusTokens.colors(NimbusTokens.dark).accent : "transparent"
                             objectName: "calDay:" + (index + 1)
                             Column {
@@ -125,12 +192,15 @@ Item {
                                 spacing: 1
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    text: index + 1; font.pixelSize: 12
+                                    text: index + 1
+                                    font.pixelSize: 12
                                     color: "white"
                                 }
                                 Rectangle {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    width: 4; height: 4; radius: 2
+                                    width: 4
+                                    height: 4
+                                    radius: 2
                                     visible: root.placeholderDays.indexOf(index + 1) >= 0
                                     color: Qt.rgba(1, 1, 1, 0.7)
                                 }

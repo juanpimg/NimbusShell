@@ -97,13 +97,41 @@ Item {
                     id: rows
                     model: ListModel {
                         id: actionModel
-                        ListElement { label: "Acerca de Nimbus"; cmd: ""; glyph: "N" }
-                        ListElement { label: "Ajustes del sistema…"; cmd: "systemsettings"; glyph: "S" }
-                        ListElement { label: "Dormir"; cmd: "systemctl suspend"; glyph: "Z" }
-                        ListElement { label: "Bloquear"; cmd: "loginctl lock-session"; glyph: "L" }
-                        ListElement { label: "Cerrar sesión"; cmd: "loginctl terminate-session"; glyph: "C" }
-                        ListElement { label: "Reiniciar…"; cmd: "systemctl reboot"; glyph: "R" }
-                        ListElement { label: "Apagar…"; cmd: "systemctl poweroff"; glyph: "O" }
+                        ListElement {
+                            label: "Acerca de Nimbus"
+                            cmd: ""
+                            glyph: "N"
+                        }
+                        ListElement {
+                            label: "Ajustes del sistema…"
+                            cmd: "systemsettings"
+                            glyph: "S"
+                        }
+                        ListElement {
+                            label: "Dormir"
+                            cmd: "systemctl suspend"
+                            glyph: "Z"
+                        }
+                        ListElement {
+                            label: "Bloquear"
+                            cmd: "loginctl lock-session"
+                            glyph: "L"
+                        }
+                        ListElement {
+                            label: "Cerrar sesión"
+                            cmd: "loginctl terminate-session"
+                            glyph: "C"
+                        }
+                        ListElement {
+                            label: "Reiniciar…"
+                            cmd: "systemctl reboot"
+                            glyph: "R"
+                        }
+                        ListElement {
+                            label: "Apagar…"
+                            cmd: "systemctl poweroff"
+                            glyph: "O"
+                        }
                     }
                     delegate: Rectangle {
                         width: rows.parent.width
