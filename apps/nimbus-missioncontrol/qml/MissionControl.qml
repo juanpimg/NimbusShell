@@ -47,9 +47,15 @@ ApplicationWindow {
 
     Connections {
         target: backend
-        function onWindowsChanged() { root.refreshVisible(); }
-        function onDesktopsChanged() { root.refreshVisible(); }
-        function onExposeChanged() { root.refreshVisible(); }
+        function onWindowsChanged() {
+            root.refreshVisible();
+        }
+        function onDesktopsChanged() {
+            root.refreshVisible();
+        }
+        function onExposeChanged() {
+            root.refreshVisible();
+        }
     }
 
     Component.onCompleted: {
