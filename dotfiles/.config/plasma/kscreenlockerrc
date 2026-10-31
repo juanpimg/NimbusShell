@@ -1,0 +1,8 @@
+[Daemon]
+Autolock=false
+LockOnResume=false
+LockOnStart=false
+Timeout=10
+
+[Greeter]
+Theme=breeze

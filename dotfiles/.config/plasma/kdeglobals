@@ -1,0 +1,20 @@
+[Fonts]
+fixed=JetBrains Mono,11,-1,5,50,0,0,0,0,0
+font=Inter,11,-1,5,50,0,0,0,0,0
+menuFont=Inter,10,-1,5,50,0,0,0,0,0
+smallestReadableFont=Inter,8,-1,5,50,0,0,0,0,0
+titleFont=Inter,12,-1,5,75,0,0,0,0,0
+toolBarFont=Inter,10,-1,5,50,0,0,0,0,0
+
+[General]
+ColorScheme=NimbusDark
+Name=NimbusDark
+cursorSize=24
+cursorTheme=Breeze_Light
+
+[Icons]
+Theme=WhiteSur
+
+[KDE]
+LookAndFeelPackage=org.kde.breezedark.desktop
+SingleClick=false

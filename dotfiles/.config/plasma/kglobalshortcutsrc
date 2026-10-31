@@ -1,0 +1,14 @@
+[krunner]
+_launch=Meta+Space,none,Ejecutar KRunner
+
+[kwin]
+Overview=Meta+W,none,Vista Overview
+Show Desktop=Meta+D,none,Mostrar escritorio
+Switch to Next Desktop=Meta+Alt+Right,none,Cambiar al escritorio siguiente
+Switch to Previous Desktop=Meta+Alt+Left,none,Cambiar al escritorio anterior
+Window Close=Meta+Q,none,Cerrar ventana
+Window Fullscreen=Meta+F,none,Ventana a pantalla completa
+Window Maximize=Meta+M,none,Maximizar ventana
+Window Minimize=Meta+H,none,Minimizar ventana
+Window Quick Tile Left=Meta+Left,none,Mosaico izquierda
+Window Quick Tile Right=Meta+Right,none,Mosaico derecha
