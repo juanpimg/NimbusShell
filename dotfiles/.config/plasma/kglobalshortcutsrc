@@ -33,7 +33,7 @@ activate task manager entry 4=none,none,reservado Apps/Spotlight F6-T04 (Cmd+4)
 
 [services][org.kde.krunner.desktop]
 RunClipboard=Meta+Alt+Space,Meta+Alt+Space,historial del portapapeles (Opt+Cmd+Espacio)
-_launch=Meta+Space\tSearch\tAlt+F2
+_launch=none,none,reservado Spotlight Nimbus (Cmd+Espacio; F6-T01)
 
 [services][org.kde.spectacle.desktop]
 ActiveWindowScreenShot=Meta+Shift+5,Meta+Shift+5,ventana activa (≈Cmd+Shift+5)
