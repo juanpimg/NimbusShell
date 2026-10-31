@@ -1,0 +1,11 @@
+[SddmGreeterTheme]
+Name=Nimbus
+Description=Nimbus login — macOS-style centered login, arte propio NPS (sin activos Apple)
+Author=NimbusOS
+Version=0.1.0
+License=CC0-1.0
+Type=sddm-theme
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=nimbus
+Screenshot=Background.jpg
