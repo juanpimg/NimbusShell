@@ -1,0 +1,56 @@
+[measure] home-temporal=/tmp/opencode/nimbus-notifm-o5V9wC/home (9 ficheros)
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=321878 comm="plasmashell")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=321882 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=321882 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:321882): xdg-desktop-portal-WARNING **: 22:50:49.468: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=321882 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=321906 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=321878 comm="plasmashell")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=321882 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:321882): xdg-desktop-portal-WARNING **: 22:50:49.606: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=321882 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=321878 comm="plasmashell")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.14' (uid=1000 pid=321973 comm="/usr/lib/kf6/kioworker /usr/lib/qt6/plugins/kf6/ki")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=321978 comm="/usr/bin/kded6")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=321978 comm="/usr/bin/kded6")
+dbus-daemon[321769]: [session uid=1000 pid=321769 pidfd=5] Successfully activated service 'org.bluez.obex'
+[measure] notif-ready=yes
+[measure] notif-ready=yes
+[measure] T0=1793483457.434762416 send-rc=0
+[measure] T0=1793483457.434762416 send-rc=0
+[measure] T1=1793483459.470787602 (+2s, banner esperado visible)
+[measure] T1=1793483459.470787602 (+2s, banner esperado visible)
+[measure] T2=1793483464.750843226 (+7s, banner esperado ausente)
+[measure] T2=1793483464.750843226 (+7s, banner esperado ausente)
+[measure] f3-group.png OK (pila A1+A2 esperada)
+[measure] f3-group.png OK (pila A1+A2 esperada)
+(['body', 'body-hyperlinks', 'body-markup', 'body-images', 'icon-static', 'actions', 'persistence', 'inline-reply', 'sound', 'x-kde-urls', 'x-kde-origin-name', 'x-kde-display-appname', 'inhibitions'],)
+(['body', 'body-hyperlinks', 'body-markup', 'body-images', 'icon-static', 'actions', 'persistence', 'inline-reply', 'sound', 'x-kde-urls', 'x-kde-origin-name', 'x-kde-display-appname', 'inhibitions'],)
+[measure] Notify-A expire-1 id=4
+[measure] Notify-A expire-1 id=4
+[measure] f3-notify-a.png OK
+[measure] f3-notify-a.png OK
+[measure] Notify-B expire-30000 hold id=5
+[measure] Notify-B expire-30000 hold id=5
+[measure] f3-notify-b.png OK
+[measure] f3-notify-b.png OK
+[measure] f3-notify-id.png OK (banner id=4 con botón)
+[measure] f3-notify-id.png OK (banner id=4 con botón)
+[measure] QMLERR=0
+[measure] QMLERR=0
+[measure] FIN
+[measure] FIN
+[measure] dbus-run-session exit=0
+A connection to the bus can't be made
