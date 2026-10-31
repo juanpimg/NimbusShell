@@ -53,7 +53,9 @@ Calamares para la ISO netinstall (`iso/profile/`). Orden unificado F2/F9
   Imágenes `images/nimbus-*`: **placeholders propios pendientes (F8)**;
   ningún activo Apple (R-APPLE).
 - `partition.conf`: LUKS2 opcional/recomendado + btrfs con subvolúmenes
-  para snapper. `displaymanager.conf`: SDDM (Ruling D1).
+  para snapper (claves documentadas en la cabecera, F2-T09). `services.conf`
+  (F2-T09): habilita `firewalld` (zona `public`) en el instalado.
+  `displaymanager.conf`: SDDM (Ruling D1).
   `shellprocess@nimbus`: ejecuta `/usr/local/bin/nimbus-installed-setup`
   (script pendiente, F2-T08).
 - Sin secretos ni rutas de usuario hardcodeadas en ningún `.conf`.

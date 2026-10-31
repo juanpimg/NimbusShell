@@ -5,6 +5,8 @@
   `--check` en seco), `apply-theme` (F2-T04, idempotente y reversible),
   `nimbus-theme` (F3-T11: `light|dark|auto`, `--accent <hex>`,
   `--wallpaper <img>`, `--auto enable|disable|status`, `--check`,
-  `--revert`; idempotente, sin root, backup `nimbusshell-backup-*`).
+  `--revert`; idempotente, sin root, backup `nimbusshell-backup-*`),
+  `nimbus-privacy` (F2-T09: telemetría KDE off + purga UserFeedback),
+  `nimbus-flatpak-perms` (F2-T09: política Flatpak por app, no instala).
 - **Qué va:** solo scripts con `--help`, `set -u`, mensajes accionables.
   **Qué no:** lógica de instalador (vive en `install.sh` + `lib/`, F1-T03).
