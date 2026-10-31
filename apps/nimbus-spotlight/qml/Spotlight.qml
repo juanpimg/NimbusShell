@@ -17,7 +17,12 @@ ApplicationWindow {
 
     property int currentIndex: 0
     property string tab: "apps" // apps | files | actions | clipboard
-    property var tabNames: ({"apps": "Apps", "files": "Archivos", "actions": "Acciones", "clipboard": "Portapapeles"})
+    property var tabNames: ({
+            "apps": "Apps",
+            "files": "Archivos",
+            "actions": "Acciones",
+            "clipboard": "Portapapeles"
+        })
     property var filtered: []
     property string lastQuery: ""
 
@@ -28,7 +33,9 @@ ApplicationWindow {
         if (root.tab === "clipboard") {
             root.filtered = all;
         } else {
-            root.filtered = all.filter(function (m) { return m.category === root.tab; });
+            root.filtered = all.filter(function (m) {
+                return m.category === root.tab;
+            });
         }
         // Si la pestaña queda vacía pero hay resultados, mostrar todos.
         if (root.filtered.length === 0 && all.length > 0 && q !== "")
@@ -45,7 +52,9 @@ ApplicationWindow {
 
     Connections {
         target: backend
-        function onMatchesChanged() { root.refreshFilter(); }
+        function onMatchesChanged() {
+            root.refreshFilter();
+        }
     }
 
     Component.onCompleted: {
@@ -126,8 +135,7 @@ ApplicationWindow {
                     } else if (event.key === Qt.Key_Escape) {
                         root.visible = false;
                         event.accepted = true;
-                    } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_4
-                               && (event.modifiers & Qt.MetaModifier)) {
+                    } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_4 && (event.modifiers & Qt.MetaModifier)) {
                         var tabs = ["apps", "files", "actions", "clipboard"];
                         root.tab = tabs[event.key - Qt.Key_1];
                         root.doSearch();
@@ -255,7 +263,9 @@ ApplicationWindow {
                     opacity: 0.3
                     font.pixelSize: 11 // t11 [HIG]
                 }
-                Item { Layout.fillHeight: true }
+                Item {
+                    Layout.fillHeight: true
+                }
                 Text {
                     text: root.lastQuery !== "" ? ("Latencia: " + backend.lastLatencyMs + " ms · " + root.filtered.length + " resultados") : ""
                     color: "#0A84FF"
@@ -293,7 +303,9 @@ ApplicationWindow {
                     }
                 }
             }
-            Item { Layout.fillWidth: true }
+            Item {
+                Layout.fillWidth: true
+            }
             Text {
                 text: "Quick Keys A–L · Esc cierra"
                 color: "#EBEBF5"
