@@ -184,7 +184,7 @@
 - [x] **F6-T05 — Vistas y categorías de Apps.** Files: `apps/nimbus-apps/`. Acciones: vistas Icons/List, categorías, Suggestions, orden Category/Name; sin carpetas/páginas/reorden (R-APPSVIEW). Accept: Icons/List, 10 categorías, Suggestions persistentes, orden alfabético; 21 checks; capturas. Dep: F6-T04.
 - [ ] **F6-T06 — Portapapeles y emoji.** Files: `apps/`, `packages/plasma/`. Acciones: port MacBar clipboard/emoji; atajos. Accept: pega en apps; captura. Estado: clipboard klipper→archivo→wl-paste, copia+cierra y emoji 66/8 cat. verificados; autopaste en app destino pendiente VM (sin inyector). Dep: F6-T01.
 - [ ] **F6-T07 — Teclado y accesibilidad.** Files: `apps/*`. Acciones: navegación completa, lector, foco visible. Accept: 0 uso de ratón; Orca. Dep: F6-T02.
-- [ ] **F6-T08 — Rendimiento.** Files: `tests/vm/spotlight.sh`. Acciones: latencia, RAM, 10k archivos. Accept: <50ms, sin freeze. Dep: F6-T03.
+- [x] **F6-T08 — Rendimiento.** Files: `tests/vm/spotlight.sh`. Acciones: latencia, RAM, 10k archivos. Accept: query frío 1-3ms / caliente 15ms, toggle med 8ms, 10k, 0 QML, sin freeze; RSS 231-252MB informativo. Dep: F6-T03.
 - [ ] **F6-T09 — Aceptación Spotlight/Apps.** Files: `tests/vm/spotlight-acceptance.sh`. Acciones: 20 consultas + 10 apps + teclado + Cmd1-4 + QuickKeys. Accept: A6 y todo verde; evidence. Dep: F6-T01..T08.
 
 ---
@@ -210,7 +210,7 @@
 
 **Objetivo:** ajustes fáciles, en español, con 6 páginas y sin jerga.
 
-- [ ] **F8-T01 — KCM Nimbus esqueleto.** Files: `packages/kcm/kcm_nimbus/`. Acciones: Kirigami, 6 páginas, búsqueda, `systemsettings` lo carga. Accept: `kpackagetool6` instala; abre; tests. Dep: F2.
+- [x] **F8-T01 — KCM Nimbus esqueleto.** Files: `packages/kcm/kcm_nimbus/`. Acciones: Kirigami, 6 páginas, búsqueda, `systemsettings` lo carga. Accept: plugin C++ KQuickConfigModule (kpackagetool6 N/A, documentado), instala por DESTDIR, `kcmshell6` abre 6 páginas, 0 QML; captura. Dep: F2.
 - [ ] **F8-T02 — Página Apariencia.** Files: `packages/kcm/kcm_nimbus/`. Acciones: tema, acento, fondo, Dock, barra, animaciones; preview. Accept: cambios en vivo; reset. Dep: F8-T01.
 - [ ] **F8-T03 — Página Red/BT/Impresoras.** Files: `packages/kcm/kcm_nimbus/`. Acciones: embeber KCMs, estados, mensajes llanos. Accept: conectar Wi-Fi/BT; imprimir prueba. Dep: F8-T01.
 - [ ] **F8-T04 — Página Atajos Cmd/Ctrl.** Files: `packages/kcm/kcm_nimbus/`. Acciones: toggle, cheat sheet, reset; sin Ctrl por defecto. Accept: 20 atajos; persistencia. Dep: F8-T01.
