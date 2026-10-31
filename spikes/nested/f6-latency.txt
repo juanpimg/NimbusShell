@@ -1,2 +1,2 @@
-nimbus-spotlight[4]: spotlight-latency: query=235ms mode=krunner-progressive results=6
-nimbus-spotlight[4]: spotlight-latency: query=236ms mode=krunner results=6
+nimbus-spotlight[4]: spotlight-latency: query=271ms mode=krunner-progressive results=6
+nimbus-spotlight[4]: spotlight-latency: query=273ms mode=krunner results=6

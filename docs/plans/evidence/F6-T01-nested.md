@@ -46,16 +46,24 @@ Backend propio con la API oficial C++ `KF6Runner::RunnerManager`
   shell); pestaña Apps muestra 3. Capturas: `spikes/nested/f6-spotlight.png`
   (spectacle) y `f6-spotlight-grab.png` (grabWindow): campo "kate", lista con
   Quick Keys A/B/C, preview "Motor: Aplicaciones", footer ⌘1..4, línea
-  "Latencia: 236 ms · 3 resultados".
+  "Latencia: 273 ms · 3 resultados".
 - Latencia medida (`QElapsedTimer` query→render, log `spotlight-latency`):
-  progresiva 235ms + final 236ms (nested, frío y caliente ~230ms en host).
+  progresiva 271ms + final 273ms (rango medido 233–273ms según activación de
+  runners DBus; frío y caliente ~200–235ms en host).
 - DBus toggle: `qdbus6 org.nimbus.Spotlight /Spotlight …toggle` rc=0
-  (oculta y muestra).
+  (oculta, muestra y restaura tras el invoke).
+- Atajo KWin por nombre (harness `tests/vm/nested-spotlight.sh`, script
+  desplegado en DATA_HOME temporal, sin tocar `kglobalshortcutsrc`):
+  `isScriptLoaded nimbus-spotlight` → `true`; `shortcutNames` lista
+  `Nimbus Spotlight`; `invokeShortcut "Nimbus Spotlight"` → rc=0 (overlay
+  alternado). `NameHasOwner org.kde.krunner` → falso: **solo overlay Nimbus,
+  sin popup stock**. La tecla física Meta+Espacio (colisión con el atajo
+  stock de KRunner) se prueba en VM al integrar en `plasma-migration`.
 - QML: 0 errores (`qmllint` limpio + `f6-qmlerr.txt` vacío).
 
 ## 4. Límites conocidos (no bloquean T01; van a F6-T08/F6-T02)
 
-- **A6 <50ms NO alcanzado en query→render (~235ms)**: dominado por hilos de
+- **A6 <50ms NO alcanzado en query→render (~233–273ms)**: dominado por hilos de
   runners por `launchQuery` (medido también en caliente: 200ms; el popup
   stock comparte `RunnerManager`, misma clase de latencia). El toggle
   mostrar/ocultar sí es instantáneo. Optimización (caché, fast-path por

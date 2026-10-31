@@ -19,7 +19,8 @@ for ((i=1; i<=$#; i++)); do
   esac
 done
 [[ "$QUERY" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "ERROR: --query solo [A-Za-z0-9._-]" >&2; exit 1; }
-[ -x "$REPO_ROOT/$BIN" ] || { echo "ERROR: sin binario $REPO_ROOT/$BIN" >&2; exit 1; }
+case "$BIN" in /*) BIN_ABS="$BIN" ;; *) BIN_ABS="$REPO_ROOT/$BIN" ;; esac
+[ -x "$BIN_ABS" ] || { echo "ERROR: sin binario $BIN_ABS" >&2; exit 1; }
 
 OUT_ABS="$REPO_ROOT/$OUT_DIR"
 mkdir -p "$OUT_ABS"
@@ -47,12 +48,20 @@ trap cleanup EXIT INT TERM
 
 echo "[spot] runtime=$XDG_RUNTIME_DIR home=$NESTED_HOME log=$LOG" | tee -a "$LOG"
 
+# KWin script nimbus-spotlight en el DATA_HOME temporal + habilitado en el
+# kwinrc temporal (KWin lo carga al arrancar). No toca dotfiles del repo ni
+# kglobalshortcutsrc: la colisión Meta+Espacio se resuelve en plasma-migration.
+mkdir -p "$XDG_DATA_HOME/kwin/scripts"
+cp -r "$REPO_ROOT/packages/kwin/scripts/nimbus-spotlight" "$XDG_DATA_HOME/kwin/scripts/"
+kwriteconfig6 --file kwinrc --group Plugins --key nimbus-spotlightEnabled true >>"$LOG" 2>&1
+echo "[spot] kwin-script desplegado en DATA_HOME temporal" | tee -a "$LOG"
+
 dbus-run-session -- bash -c '
 set -u
 OUT_ABS="'"$OUT_ABS"'"
 TIMEOUT="'"$TIMEOUT"'"
 QUERY="'"$QUERY"'"
-BIN="'"$REPO_ROOT/$BIN"'"
+BIN="'"$BIN_ABS"'"
 LOG="'"$LOG"'"
 export HOME="'"$NESTED_HOME"'"
 export XDG_RUNTIME_DIR="'"$RUNTIME_DIR"'"
@@ -92,6 +101,26 @@ qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle >>"$LOG" 2>&1
 sleep 1
 qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle >>"$LOG" 2>&1 \
   && echo "[spot] toggle OK (muestra)" | tee -a "$LOG" || true
+sleep 1
+# --- Atajo KWin por nombre (sin tecla física: la tecla se prueba en VM) ---
+echo "[spot] kwin-script nimbus-spotlight:" | tee -a "$LOG"
+qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.isScriptLoaded nimbus-spotlight 2>>"$LOG" | tee -a "$LOG"
+qdbus6 org.kde.kglobalaccel /component/kwin org.kde.kglobalaccel.Component.shortcutNames 2>>"$LOG" | grep -i "Nimbus Spotlight" | tee -a "$LOG" \
+  && echo "[spot] shortcut Nimbus Spotlight registrado" | tee -a "$LOG" \
+  || echo "[spot] WARN: shortcut no listado" | tee -a "$LOG"
+qdbus6 org.kde.kglobalaccel /component/kwin org.kde.kglobalaccel.Component.invokeShortcut "Nimbus Spotlight" >>"$LOG" 2>&1 \
+  && echo "[spot] invokeShortcut Nimbus Spotlight rc=0 (overlay alternado)" | tee -a "$LOG" \
+  || echo "[spot] WARN: invokeShortcut fallo" | tee -a "$LOG"
+sleep 1
+# Solo overlay Nimbus: el KRunner stock NO debe haberse iniciado.
+# (Sonda segura: NameHasOwner al daemon, sin auto-arranque por D-Bus.)
+if qdbus6 org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.NameHasOwner "org.kde.krunner" 2>>"$LOG" | grep -q "true"; then
+  echo "[spot] AVISO: org.kde.krunner activo (¿doble popup?)" | tee -a "$LOG"
+else
+  echo "[spot] stock krunner inactivo: solo overlay Nimbus" | tee -a "$LOG"
+fi
+qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle >>"$LOG" 2>&1 \
+  && echo "[spot] toggle OK (restaura visible)" | tee -a "$LOG" || true
 sleep 2
 spectacle -b -n -o "$OUT_ABS/f6-spotlight.png" >>"$LOG" 2>&1 \
   && echo "[spot] f6-spotlight.png OK" | tee -a "$LOG" \
