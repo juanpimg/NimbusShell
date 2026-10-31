@@ -1,5 +1,6 @@
 // tst_index — unit tests del índice local Nimbus (F6-T02).
 // fuzzy, calculadora (precedencia/errores), parser .desktop, perf 10k.
+#include <QClipboard>
 #include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QTemporaryDir>
@@ -224,6 +225,152 @@ private Q_SLOTS:
         const QVariantMap big = NimbusIndex::clipEntry(QString(20000, 'x'), 1);
         QCOMPARE(big.value(QStringLiteral("localExec")).toString().size(), 16384);
         QCOMPARE(big.value(QStringLiteral("text")).toString().size(), 80);
+    }
+
+    // F6-T03: folding de acentos + mayúsculas (lógica de acción sin abrir apps).
+    void accentFolding()
+    {
+        QVERIFY(NimbusIndex::fuzzyScore(QStringLiteral("Música"),
+                                       QStringLiteral("musica"))
+                >= 0);
+        QVERIFY(NimbusIndex::fuzzyScore(QStringLiteral("Ratón y touchpad"),
+                                       QStringLiteral("raton"))
+                >= 0);
+        QCOMPARE(NimbusIndex::fuzzyScore(QStringLiteral("Café"),
+                                        QStringLiteral("CAFE")),
+                 0);
+        QCOMPARE(NimbusIndex::fuzzyScore(QStringLiteral("Música"),
+                                        QStringLiteral("música")),
+                 0);
+    }
+
+    // F6-T03: 10 consultas representativas contra NimbusIndex con fixtures
+    // aislados (HOME temporal + XDG_DATA_DIRS=tests/fixtures). Sin red, sin
+    // abrir apps reales: solo ranking esperado vs obtenido + preview.
+    void tenQueriesRanking()
+    {
+        const QByteArray oldHome = qgetenv("HOME");
+        const QByteArray oldXdg = qgetenv("XDG_DATA_DIRS");
+        QTemporaryDir home;
+        QVERIFY(home.isValid());
+        qputenv("HOME", home.path().toUtf8());
+        // Fixture de archivo para la consulta 4 (el worker lo indexa).
+        QDir().mkpath(home.filePath(QStringLiteral("Documents")));
+        QFile doc(home.filePath(QStringLiteral("Documents/informe-nimbus.odt")));
+        QVERIFY(doc.open(QIODevice::WriteOnly));
+        doc.write("fixture");
+        doc.close();
+        const QString fixDir = QStringLiteral(NIMBUS_FIXTURES);
+        qputenv("XDG_DATA_DIRS", fixDir.toUtf8());
+        NimbusIndex idx;
+        QTest::qWait(3000); // worker de ficheros sobre HOME temporal
+        struct Qry { const char *q, *tab, *expectTop, *expectKind; bool webLast; };
+        const Qry qs[] = {
+            {"Kate", "", "Kate", "app", false},          // 1 exacta
+            {"kat", "", "Kate", "app", false},           // 2 prefijo
+            {"kte", "", "Kate", "app", false},           // 3 fuzzy
+            {"informe", "files", "informe-nimbus.odt", "file", false}, // 4 archivo
+            {"wifi", "actions", nullptr, "setting", false}, // 5 ajuste KCM red
+            {"2+2", "", "= 4", "calc", false},           // 6 calculadora
+            {"clima manana", "", nullptr, "web", true}, // 7 web (acción final)
+            {"zzzzzsinmatch", "", nullptr, "web", true}, // 8 sin resultados: solo web
+            {"KATE", "", "Kate", "app", false},          // 9 mayúsculas
+            {"musica", "", "Música", "app", false},      // 10 acentos
+        };
+        for (const Qry &e : qs) {
+            idx.searchLocal(QString::fromUtf8(e.q), QString::fromUtf8(e.tab));
+            const QVariantList ms = idx.localMatches();
+            QVERIFY2(!ms.isEmpty(), qPrintable(QStringLiteral("vacío: %1").arg(e.q)));
+            // Preview: todos traen text/category/runner/localKind/Id/Exec.
+            for (const QVariant &v : ms) {
+                const QVariantMap m = v.toMap();
+                QVERIFY(!m.value(QStringLiteral("text")).toString().isEmpty());
+                QVERIFY(!m.value(QStringLiteral("category")).toString().isEmpty());
+                QVERIFY(!m.value(QStringLiteral("localKind")).toString().isEmpty());
+                QVERIFY(!m.value(QStringLiteral("localId")).toString().isEmpty());
+                QVERIFY(!m.value(QStringLiteral("localExec")).toString().isEmpty());
+            }
+            QCOMPARE(ms.first().toMap().value(QStringLiteral("quickKey")).toString(),
+                     QStringLiteral("A"));
+            const QVariantMap top = ms.first().toMap();
+            if (e.expectTop)
+                QCOMPARE(top.value(QStringLiteral("text")).toString(),
+                         QString::fromUtf8(e.expectTop));
+            if (e.expectKind) {
+                if (e.webLast) {
+                    // Web es acción final (relevancia 0,1): está presente.
+                    bool hasWeb = false;
+                    for (const QVariant &v : ms)
+                        if (v.toMap().value(QStringLiteral("localKind")).toString()
+                            == QLatin1String("web"))
+                            hasWeb = true;
+                    QVERIFY2(hasWeb, "sin acción web");
+                } else {
+                    QCOMPARE(top.value(QStringLiteral("localKind")).toString(),
+                             QString::fromUtf8(e.expectKind));
+                }
+            }
+            qInfo("t03-query: '%s' tab='%s' top='%s' kind='%s' n=%d", e.q, e.tab,
+                  qPrintable(top.value(QStringLiteral("text")).toString()),
+                  qPrintable(top.value(QStringLiteral("localKind")).toString()),
+                  ms.size());
+        }
+        // Sin resultados: SOLO la acción web (n=1).
+        idx.searchLocal(QStringLiteral("zzzzzsinmatch"), QString());
+        QCOMPARE(idx.localMatches().size(), 1);
+        QCOMPARE(idx.localMatches().first().toMap()
+                     .value(QStringLiteral("localKind"))
+                     .toString(),
+                 QStringLiteral("web"));
+        qputenv("HOME", oldHome);
+        if (oldXdg.isEmpty())
+            qunsetenv("XDG_DATA_DIRS");
+        else
+            qputenv("XDG_DATA_DIRS", oldXdg);
+    }
+
+    // F6-T03: acciones Abrir/Copiar/Revelar (lógica, sin lanzar procesos).
+    void localActions()
+    {
+        const QByteArray oldHome = qgetenv("HOME");
+        const QByteArray oldXdg = qgetenv("XDG_DATA_DIRS");
+        QTemporaryDir home;
+        QVERIFY(home.isValid());
+        qputenv("HOME", home.path().toUtf8());
+        qputenv("XDG_DATA_DIRS", QStringLiteral(NIMBUS_FIXTURES).toUtf8());
+        NimbusIndex idx;
+        // Índices inválidos: nunca lanzan nada.
+        QVERIFY(!idx.activateLocal(-1));
+        QVERIFY(!idx.activateLocal(999));
+        QVERIFY(!idx.activateLocal(0)); // sin resultados aún
+        // Copiar cálculo: va al portapapeles, no abre nada.
+        idx.searchLocal(QStringLiteral("2+2"), QString());
+        QVERIFY(!idx.localMatches().isEmpty());
+        QVERIFY(idx.activateLocal(0, QStringLiteral("copy")));
+        if (QGuiApplication::clipboard())
+            QCOMPARE(QGuiApplication::clipboard()->text(), QStringLiteral("4"));
+        // Revelar app (no fichero): false, sin lanzar proceso.
+        idx.searchLocal(QStringLiteral("Kate"), QString());
+        QVERIFY(!idx.localMatches().isEmpty());
+        QCOMPARE(idx.localMatches().first().toMap()
+                     .value(QStringLiteral("localKind"))
+                     .toString(),
+                 QStringLiteral("app"));
+        QVERIFY(!idx.activateLocal(0, QStringLiteral("reveal")));
+        // recordUse persiste frecuencia (sube en ranking de vacío).
+        idx.recordUse(QStringLiteral("kate.desktop"));
+        idx.searchLocal(QString(), QString());
+        bool hasKate = false;
+        for (const QVariant &v : idx.localMatches())
+            if (v.toMap().value(QStringLiteral("localId")).toString()
+                == QLatin1String("kate.desktop"))
+                hasKate = true;
+        QVERIFY2(hasKate, "recordUse no refleja kate.desktop en sugerencias");
+        qputenv("HOME", oldHome);
+        if (oldXdg.isEmpty())
+            qunsetenv("XDG_DATA_DIRS");
+        else
+            qputenv("XDG_DATA_DIRS", oldXdg);
     }
 };
 

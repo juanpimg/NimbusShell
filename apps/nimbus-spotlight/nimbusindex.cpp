@@ -11,6 +11,7 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPointer>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QStandardPaths>
@@ -26,6 +27,23 @@ const char *kQuickKeys = "ABCDEFGHIJKL"; // Quick Keys ≤12
 const int kMaxQuickKeys = 12;
 const int kMaxResults = 20;
 const int kMaxFiles = 4000;
+
+// Folding de acentos (F6-T03): "música" ~ "musica", "ratón" ~ "raton".
+// Descompone NFD y elimina marcas diacríticas antes de comparar.
+QString foldAccents(const QString &s)
+{
+    const QString n = s.normalized(QString::NormalizationForm_D);
+    QString out;
+    out.reserve(n.size());
+    for (const QChar c : n) {
+        const QChar::Category cat = c.category();
+        if (cat == QChar::Mark_NonSpacing || cat == QChar::Mark_SpacingCombining
+            || cat == QChar::Mark_Enclosing)
+            continue;
+        out += c;
+    }
+    return out;
+}
 
 // KCMs conocidos (id kcm, nombre, keywords) — sin depender de systemsettings.
 struct Kcm { const char *id, *name, *kw; };
@@ -129,9 +147,11 @@ bool NimbusIndex::parseDesktopFile(const QString &path, LocalApp &out)
 }
 
 // exacto=0 > prefijo=1 > subcadena=2 > subsecuencia=3(+span) ; -1 sin match.
+// Insensible a mayúsculas y acentos (foldAccents: música~musica).
 int NimbusIndex::fuzzyScore(const QString &candidate, const QString &query)
 {
-    const QString c = candidate.toLower(), q = query.toLower().trimmed();
+    const QString c = foldAccents(candidate).toLower(),
+                  q = foldAccents(query).toLower().trimmed();
     if (q.isEmpty() || c.isEmpty()) return -1;
     if (c == q) return 0;
     if (c.startsWith(q)) return 1;
@@ -341,7 +361,7 @@ void NimbusIndex::scanFilesAsync()
                                home + QStringLiteral("/Escritorio"),
                                home + QStringLiteral("/Documentos"),
                                home + QStringLiteral("/Descargas")};
-    std::thread([this, xbel, roots]() {
+    std::thread([this, guard = QPointer<NimbusIndex>(this), xbel, roots]() {
         QList<LocalFile> files = scanRoots(roots, kMaxFiles);
         QSet<QString> seen;
         for (const LocalFile &f : files) seen.insert(f.path);
@@ -358,6 +378,9 @@ void NimbusIndex::scanFilesAsync()
                 files.append({QFileInfo(p).fileName(), p, true});
             }
         }
+        // F6-T03: si el índice murió (tests crean/destruyen varios),
+        // no se toca `this`: el evento nunca se entrega a un colgado.
+        if (guard.isNull()) return;
         QMetaObject::invokeMethod(this, [this, files]() {
             m_files = files;
             m_scanRunning.store(false);

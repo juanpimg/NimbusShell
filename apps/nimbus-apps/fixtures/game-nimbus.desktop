@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Game Nimbus
+Exec=game-nimbus
+Icon=applications-games
+Categories=Game;ArcadeGame;

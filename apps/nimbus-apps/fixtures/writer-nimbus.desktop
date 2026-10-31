@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Writer Nimbus
+Exec=writer-nimbus %U
+Icon=libreoffice-writer
+Categories=Office;WordProcessor;
