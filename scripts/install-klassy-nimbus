@@ -67,4 +67,4 @@ sudo pacman -U --noconfirm "$pkgfile" || {
 }
 echo "[OK] klassy-nimbus instalado. Reinicia KWin para aplicarlo:"
 echo "  qdbus6 org.kde.KWin /KWin reconfigure   (o cierra sesión y entra)"
-echo "  klassy-settings -i /usr/share/klassy-nimbus/nimbus-tahoe.klpw && klassy-settings -w Klassy"
+echo "  klassy-settings -i /usr/share/klassy-nimbus/nimbus-tahoe.klpw && klassy-settings -w NimbusTahoe"

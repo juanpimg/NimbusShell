@@ -45,7 +45,7 @@ o re-login) y aplica el preset:
 
 ```bash
 klassy-settings -i /usr/share/klassy-nimbus/nimbus-tahoe.klpw
-klassy-settings -w Klassy
+klassy-settings -w NimbusTahoe
 ```
 
 ## Upgrade / rebuild por Plasma
