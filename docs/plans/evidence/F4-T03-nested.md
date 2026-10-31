@@ -6,11 +6,15 @@ Fecha: 2026-10-31. Rama `plasma/f4-windows`. KWin 6.8.2 anidado
 
 ## Qué hace
 
-`packages/kwin/scripts/nimbus-zoom/` (34 líneas `main.js` + `metadata.json`
+`packages/kwin/scripts/nimbus-zoom/` (19 líneas `main.js` + `metadata.json`
 KWin/Script): `registerShortcut("Nimbus Zoom", …, "Meta+Z")`; `toggleZoom()`
-llena el área de trabajo bajo la barra de 24px (`y=area.y+24`,
-`h=area.height-24`, fs=0), guarda la geometría por ventana y el 2.º invoke
-la restaura. Desactiva `fullScreen`/maximizado antes de aplicar.
+aplica `frameGeometry = clientArea` tal cual (fs=0), guarda la geometría por
+ventana y el 2.º invoke la restaura. Desactiva `fullScreen`/maximizado antes.
+
+**Regla (fix F4, 2026-10-31):** el target es `area.y`/`area.height` SIN
+sumar nada. `MaximizeArea` ya excluye la zona exclusiva de la barra, así
+que `+24` la contaba dos veces (daba `y=48` con barra viva). Con barra:
+`y=24`; sin barra: `y=0` (llena todo; en producción la barra siempre está).
 
 ## API KWin 6.8 verificada (nada inventado)
 
@@ -23,22 +27,23 @@ la restaura. Desactiva `fullScreen`/maximizado antes de aplicar.
   `…/component/kwin …shortcutNames` lista `Nimbus Zoom`;
   `…invokeShortcut "Nimbus Zoom"` → rc=0 (las 2 veces).
 
-## Evidencia (journal del KWin anidado, 3 runs idénticos)
+## Evidencia (journal del KWin anidado; fix F4 re-testeado en 1280x800)
 
 ```
-ZOOM loaded
-ZOOM area via MaximizeArea
-ZOOM zoomed x=0 y=24 w=1024 h=744      # y=24, h=768-24 ✓
-ZOOM restored x=189 y=127 w=646 h=513  # geometría original ✓
+# CON barra viva (zona exclusiva 24px):
+ZOOM zoomed x=0 y=24 w=1280 h=776      # antes del fix: y=48 (doble reserva)
+# SIN barra:
+ZOOM zoomed x=0 y=0 w=1280 h=800       # llena el área completa
+ZOOM restored x=189 y=127 w=646 h=513  # geometría original ✓ (run previo)
 ```
 
-Nota: el `--virtual 1280x800` se parseó como resolución por defecto
-1024x768 (la sintaxis es `--width/--height`); irrelevante porque la
-matemática es relativa al área (`h=area-24` se cumple igual).
+Nota histórica: el primer run usó `--virtual 1280x800` (mal parseado →
+1024x768); los runs del fix usan `--width/--height` (1280x800 real).
 
-Captura `spikes/nested/f4-zoom.png` (tras invoke #1): Kate llena la
-pantalla con gap negro arriba; medido por píxel filas 0–23 = `(0,0,0)`,
-fila 24+ = titlebar `(61,61,62)` → y=24 exacto.
+Captura `spikes/nested/f4-zoom.png` (CON barra, tras invoke): barra Nimbus
+visible filas 0–23, titlebar Kate desde fila 24 = `(61,61,62)` → y=24 exacto.
+Captura `spikes/nested/f4-zoom-nobar.png` (SIN barra): titlebar desde fila 0
+→ y=0, sin gap.
 
 ## Pendiente (documentado, no bloquea)
 
