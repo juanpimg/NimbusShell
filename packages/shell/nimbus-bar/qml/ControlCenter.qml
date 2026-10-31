@@ -20,9 +20,16 @@ Item {
     property string batt: "—"
     property real vol: -1
     property real bri: -1
-    function toggle() { opened ? close() : open(); }
-    function open() { opened = true; refresh(); }
-    function close() { opened = false; }
+    function toggle() {
+        opened ? close() : open();
+    }
+    function open() {
+        opened = true;
+        refresh();
+    }
+    function close() {
+        opened = false;
+    }
     function refresh() {
         if (demo)
             return; // demo: solo UI, sin comandos
@@ -137,10 +144,34 @@ Item {
                 spacing: 8
                 Repeater {
                     model: [
-                        { label: "Wi-Fi", sub: root.wifi, on: root.wifiOn, kind: "wifi", glyph: "W" },
-                        { label: "BT", sub: root.bt, on: root.btOn, kind: "bt", glyph: "B" },
-                        { label: "No molestar", sub: root.dnd, on: root.dndOn, kind: "dnd", glyph: "D" },
-                        { label: "Oscuro", sub: root.theme, on: root.darkOn, kind: "theme", glyph: "O" }
+                        {
+                            label: "Wi-Fi",
+                            sub: root.wifi,
+                            on: root.wifiOn,
+                            kind: "wifi",
+                            glyph: "W"
+                        },
+                        {
+                            label: "BT",
+                            sub: root.bt,
+                            on: root.btOn,
+                            kind: "bt",
+                            glyph: "B"
+                        },
+                        {
+                            label: "No molestar",
+                            sub: root.dnd,
+                            on: root.dndOn,
+                            kind: "dnd",
+                            glyph: "D"
+                        },
+                        {
+                            label: "Oscuro",
+                            sub: root.theme,
+                            on: root.darkOn,
+                            kind: "theme",
+                            glyph: "O"
+                        }
                     ]
                     delegate: Rectangle {
                         width: (300 - 28) / 2

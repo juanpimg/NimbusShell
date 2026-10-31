@@ -12,11 +12,21 @@ Item {
     property bool demo: false
     property string pendingAction: ""
     property string pendingLabel: ""
-    function toggle() { opened = !opened; }
-    function open() { opened = true; }
-    function close() { confirmBox.visible = false; pendingAction = ""; opened = false; }
+    function toggle() {
+        opened = !opened;
+    }
+    function open() {
+        opened = true;
+    }
+    function close() {
+        confirmBox.visible = false;
+        pendingAction = "";
+        opened = false;
+    }
     function askConfirm(cmd: string, label: string) {
-        pendingAction = cmd; pendingLabel = label; confirmBox.visible = true;
+        pendingAction = cmd;
+        pendingLabel = label;
+        confirmBox.visible = true;
     }
     function doRun(cmd: string) {
         if (!demo)
@@ -78,13 +88,41 @@ Item {
                 Repeater {
                     id: rows
                     model: ListModel {
-                        ListElement { label: "Acerca de Nimbus"; cmd: ""; glyph: "N" }
-                        ListElement { label: "Ajustes del sistema…"; cmd: "systemsettings"; glyph: "S" }
-                        ListElement { label: "Dormir"; cmd: "systemctl suspend"; glyph: "Z" }
-                        ListElement { label: "Bloquear"; cmd: "loginctl lock-session"; glyph: "L" }
-                        ListElement { label: "Cerrar sesión"; cmd: "loginctl terminate-session"; glyph: "C" }
-                        ListElement { label: "Reiniciar…"; cmd: "systemctl reboot"; glyph: "R" }
-                        ListElement { label: "Apagar…"; cmd: "systemctl poweroff"; glyph: "O" }
+                        ListElement {
+                            label: "Acerca de Nimbus"
+                            cmd: ""
+                            glyph: "N"
+                        }
+                        ListElement {
+                            label: "Ajustes del sistema…"
+                            cmd: "systemsettings"
+                            glyph: "S"
+                        }
+                        ListElement {
+                            label: "Dormir"
+                            cmd: "systemctl suspend"
+                            glyph: "Z"
+                        }
+                        ListElement {
+                            label: "Bloquear"
+                            cmd: "loginctl lock-session"
+                            glyph: "L"
+                        }
+                        ListElement {
+                            label: "Cerrar sesión"
+                            cmd: "loginctl terminate-session"
+                            glyph: "C"
+                        }
+                        ListElement {
+                            label: "Reiniciar…"
+                            cmd: "systemctl reboot"
+                            glyph: "R"
+                        }
+                        ListElement {
+                            label: "Apagar…"
+                            cmd: "systemctl poweroff"
+                            glyph: "O"
+                        }
                     }
                     delegate: Rectangle {
                         width: rows.parent.width
@@ -97,17 +135,24 @@ Item {
                             anchors.leftMargin: 8
                             spacing: 10
                             Rectangle {
-                                width: 20; height: 20; radius: 10
+                                width: 20
+                                height: 20
+                                radius: 10
                                 anchors.verticalCenter: parent.verticalCenter
                                 color: Qt.rgba(1, 1, 1, 0.14)
                                 Text {
-                                    anchors.centerIn: parent; text: glyph
-                                    font.pixelSize: 11; font.weight: 700; color: "white"
+                                    anchors.centerIn: parent
+                                    text: glyph
+                                    font.pixelSize: 11
+                                    font.weight: 700
+                                    color: "white"
                                 }
                             }
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                text: label; font.pixelSize: 13; color: "white"
+                                text: label
+                                font.pixelSize: 13
+                                color: "white"
                             }
                         }
                         MouseArea {
@@ -137,21 +182,44 @@ Item {
                         anchors.leftMargin: 8
                         anchors.top: parent.top
                         text: "¿" + root.pendingLabel + "?"
-                        font.pixelSize: 12; color: "#ff9d9d"
+                        font.pixelSize: 12
+                        color: "#ff9d9d"
                     }
                     Row {
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         spacing: 8
                         Rectangle {
-                            width: 64; height: 26; radius: 6; color: "#3a3a3e"
-                            Text { anchors.centerIn: parent; text: "No"; color: "white"; font.pixelSize: 12 }
-                            MouseArea { anchors.fill: parent; onClicked: confirmBox.visible = false }
+                            width: 64
+                            height: 26
+                            radius: 6
+                            color: "#3a3a3e"
+                            Text {
+                                anchors.centerIn: parent
+                                text: "No"
+                                color: "white"
+                                font.pixelSize: 12
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: confirmBox.visible = false
+                            }
                         }
                         Rectangle {
-                            width: 64; height: 26; radius: 6; color: "#b3261e"
-                            Text { anchors.centerIn: parent; text: "Sí"; color: "white"; font.pixelSize: 12 }
-                            MouseArea { anchors.fill: parent; onClicked: root.doRun(root.pendingAction) }
+                            width: 64
+                            height: 26
+                            radius: 6
+                            color: "#b3261e"
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Sí"
+                                color: "white"
+                                font.pixelSize: 12
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: root.doRun(root.pendingAction)
+                            }
                         }
                     }
                 }
