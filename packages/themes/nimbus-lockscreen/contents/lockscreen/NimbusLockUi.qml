@@ -67,7 +67,7 @@ Item {
     Connections {
         function onFailed(what, auth) {
             if (what != 0)
-                return ;
+                return;
 
             nimbusUi.showMessage("No se ha podido desbloquear");
             nimbusUi.clearPassword();
@@ -191,7 +191,6 @@ Item {
                     font.family: "Inter"
                     font.pixelSize: 28
                 }
-
             }
 
             Text {
@@ -215,7 +214,6 @@ Item {
                 onAccepted: {
                     if (nimbusUi.uiVisible)
                         nimbusUi.startLogin();
-
                 }
                 Accessible.name: "Contraseña"
             }
@@ -301,9 +299,7 @@ Item {
                     onClicked: sessionManagement.requestShutdown()
                     Accessible.name: "Apagar"
                 }
-
             }
-
         }
 
         Behavior on opacity {
@@ -311,9 +307,7 @@ Item {
                 duration: 250
                 easing.type: Easing.InOutQuad
             }
-
         }
-
     }
 
     // Animación de rechazo (desplazamiento horizontal de la tarjeta).
@@ -343,7 +337,6 @@ Item {
             to: card.x
             duration: 60
         }
-
     }
 
     // Pie: teclado virtual + layout + pista Esc (sincronizado con SDDM).
@@ -385,7 +378,6 @@ Item {
                 anchors.fill: parent
                 acceptedButtons: Qt.NoButton
             }
-
         }
 
         Item {
@@ -399,7 +391,6 @@ Item {
             font.family: "Inter"
             font.pixelSize: 11
         }
-
     }
 
     Timer {
@@ -416,8 +407,6 @@ Item {
         onTriggered: {
             if (passwordBox.text.length === 0 && !Keyboards.KWinVirtualKeyboard.visible)
                 nimbusUi.uiVisible = false;
-
         }
     }
-
 }

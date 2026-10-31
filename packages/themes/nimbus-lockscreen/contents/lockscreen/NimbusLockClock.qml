@@ -19,7 +19,6 @@ Item {
             h = h % 12;
             if (h === 0)
                 h = 12;
-
         }
         timeText.text = h + ":" + (m < 10 ? "0" + m : m);
         var days = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -56,7 +55,6 @@ Item {
             color: clockRoot.subColor
             opacity: 0.85
         }
-
     }
 
     Timer {
@@ -65,5 +63,4 @@ Item {
         repeat: true
         onTriggered: clockRoot.tick()
     }
-
 }

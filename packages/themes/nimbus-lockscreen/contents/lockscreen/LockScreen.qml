@@ -16,11 +16,11 @@ Item {
     property bool suspendToRamSupported: false
     property bool suspendToDiskSupported: false
 
-    signal clearPassword()
-    signal notificationRepeated()
+    signal clearPassword
+    signal notificationRepeated
     // Señales mágicas que kscreenlocker busca.
-    signal suspendToDisk()
-    signal suspendToRam()
+    signal suspendToDisk
+    signal suspendToRam
 
     LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
@@ -33,7 +33,7 @@ Item {
             root.clearPassword();
         }
     }
-    Keys.onPressed: (event) => {
+    Keys.onPressed: event => {
         nimbusUi.uiVisible = true;
         event.accepted = false;
     }
@@ -46,7 +46,6 @@ Item {
         onNotificationChanged: {
             if (nimbusUi.notification !== "")
                 root.notification = nimbusUi.notification;
-
         }
     }
 
@@ -57,5 +56,4 @@ Item {
 
         target: root
     }
-
 }
