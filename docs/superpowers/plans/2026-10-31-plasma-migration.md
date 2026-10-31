@@ -193,8 +193,8 @@
 
 **Objetivo:** exposé de ventanas, escritorios virtuales y animaciones macOS.
 
-- [ ] **F7-T01 — Spaces = escritorios virtuales.** Files: `dotfiles/.config/plasma/`, `packages/kwin/scripts/nimbus-spaces/`. Acciones: 4 spaces, nombres, atajos; R-SPACES: escritorios globales, 'por monitor' no es 1:1; documentar. Accept: cambiar/crear/mover; tests. Dep: F2.
-- [ ] **F7-T02 — Overview stock tematizado.** Files: `packages/themes/`, `dotfiles/.config/`. Acciones: activar Overview, tema, atajos; medir. Accept: abre/cierra, thumbs; captura. Dep: F7-T01.
+- [ ] **F7-T01 — Spaces = escritorios virtuales.** Files: `dotfiles/.config/plasma/`, `packages/kwin/scripts/nimbus-spaces/`. Acciones: 4 spaces, nombres, atajos; R-SPACES: escritorios globales, 'por monitor' no es 1:1; documentar. Accept: cambiar/crear/mover; tests. Estado: MC custom consulta 2 Spaces reales y activa/mueve ventanas; 4 Spaces/nombres/crear (+) y drag E2E pendientes. Dep: F2.
+- [ ] **F7-T02 — Overview stock tematizado.** Files: `packages/themes/`, `dotfiles/.config/`. Acciones: activar Overview, tema, atajos; medir. Accept: abre/cierra, thumbs; captura. Estado: R-MC-CUSTOM reemplaza el Overview stock por overlay propio (79ms, fallback iconos); Meta+W stock off; thumbs reales en F7-T09. Dep: F7-T01.
 - [ ] **F7-T03 — Efecto KWin `nimbus-overview` (esqueleto).** Files: `packages/kwin/effects/nimbus-overview/`. Acciones: QML/JS effect, grid, toggle; no crashea. Accept: carga en KWin; evidencia. Dep: F7-T02.
 - [ ] **F7-T04 — Thumbnails, grid y agrupación.** Files: `packages/kwin/effects/nimbus-overview/`. Acciones: thumbs reales, agrupar por app, tamaños. Accept: 10 ventanas; 60fps; captura. Dep: F7-T03.
 - [ ] **F7-T05 — Drag entre Spaces.** Files: `packages/kwin/`. Acciones: arrastrar ventana a otro space, drop, animación. Accept: 5 casos; sin perder ventanas. Dep: F7-T04.
@@ -335,6 +335,7 @@
 - **R-MENUBAR:** altura 24pt; F2-T05 28px era panel Plasma, no spec Apple.
 - **R-TITLEBAR:** 16 sin toolbar / 26 con toolbar-sidebar, concéntrico; título izquierda.
 - **R-BAR-PRESETS:** Colorizer/Window Buttons6 quedan fuera (no hay panel Plasma); los presets de la barra se versionan en `packages/shell/nimbus-bar/` y se fijan Qt/LayerShellQt/Krema.
+- **R-MC-CUSTOM:** Mission Control es overlay layer-shell propio (`apps/nimbus-missioncontrol`), no el Overview stock; `[kwin] Overview=none` libera Meta+W para `nimbus-mc`. R-MC-STOCK documentado; thumbs reales en F7-T09.
 - **R-APPSVIEW:** replicar Apps Tahoe (categorías, sin carpetas/páginas/reorden); Launchpad no existe; carpetas custom exigen Ruling nueva.
 - **R-CONFIDENCE:** `[INFERIDO]` no cierra tarea; medir en VM y promover a `[MEDIDO]`.
 - **R-F0-GATE:** F0-T03/T04 con GO funcional en live Plasma 6.7.4 + nested 6.8.2 (Krema 0.12 zoom, KRunner, Overview). Los umbrales de rendimiento (55/60fps, render <50/<300ms) se validan en F5-T11/A5 y F7-T09/A7; F0-T03/T04 siguen abiertas hasta esa medición. F2 puede avanzar.
