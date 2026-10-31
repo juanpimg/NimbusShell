@@ -180,6 +180,10 @@ command -v mkarchiso >/dev/null 2>&1 || { echo "ERROR: falta mkarchiso (paquete 
 ISO_OUT="${OUT}/out"
 mkdir -p "$ISO_OUT"
 mkdir -p "$WORK"
+# mkarchiso cachea ${buildmode}.pacman.conf con _run_once; si el perfil cambia
+# (p.ej. repos/Architecture) hay que invalidar el sello o reutiliza el viejo.
+rm -f "$WORK/iso.pacman.conf" "$WORK/iso._make_pacman_conf" \
+      "$WORK/netboot.pacman.conf" "$WORK/netboot._make_pacman_conf"
 mkarchiso -v -w "$WORK" -o "$ISO_OUT" "$OUT" || { echo "ERROR: mkarchiso falló" >&2; exit 1; }
 sha256sum "$ISO_OUT"/*.iso | tee "$ISO_OUT/SHA256SUMS"
 echo "== ISO lista en $ISO_OUT =="
