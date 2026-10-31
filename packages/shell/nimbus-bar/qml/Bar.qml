@@ -93,11 +93,18 @@ Window {
         id: cc
         demo: demoCC
     }
+    // F3-T08: calendario anclado al reloj (derecha).
+    Calendar {
+        id: cal
+        demo: demoCalendar
+    }
     Component.onCompleted: {
         if (demoMenu)
             appleMenu.open();
         if (demoCC || openCC)
             cc.open();
+        if (demoCalendar)
+            cal.open();
     }
 
     Row {
@@ -196,6 +203,12 @@ Window {
             font.pixelSize: NimbusTokens.type.t13.size
             color: NimbusTokens.colors(NimbusTokens.dark).label
             Accessible.name: "Reloj"
+            objectName: "clock"
+            // F3-T08: clic abre/cierra el calendario.
+            MouseArea {
+                anchors.fill: parent
+                onClicked: cal.toggle()
+            }
             Timer {
                 interval: 1000
                 running: true
