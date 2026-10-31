@@ -96,7 +96,7 @@ Window {
     Component.onCompleted: {
         if (demoMenu)
             appleMenu.open();
-        if (demoCC)
+        if (demoCC || openCC)
             cc.open();
     }
 

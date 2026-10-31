@@ -28,3 +28,16 @@ inhibe `runner.run/query`, solo UI/log). Toggles reales NO ejecutados.
 - En nested: batería/volumen/DND leen "—" (sin BAT en VM, sin PipeWire/
   D-Bus KDE en HOME temporal); sliders deshabilitados en demo.
 - Esc/scrim cierran; sin test de tecla real. Sin iconos externos.
+
+## Fix: lectura real trazada sin demo (`--open-cc --log-query`)
+
+- `nested-bar.log`: `cc-output: wifiOn enabled`, `bt on`, `batt 81`,
+  `vol —` (sin PipeWire en nested), `theme → —`, `bri` vacío,
+  `dnd Plasma`; cero líneas `nimbus-bar[` fuera de cc-* (cero QML).
+- Hallazgo: el `qDebug` por defecto de este Qt 6.12 no sale (verificado
+  con binario mínimo); con `--log-query` hay handler propio a stderr.
+  `theme` vacío ya no apaga el tile Oscuro (conserva `darkOn` inicial).
+- Toggles NO ejecutados: `flip()` solo corre bajo clic y el harness no
+  clickea; Wi-Fi/BT/audio/brillo mutan el host → se prueban en VM (F2-T08).
+  DND no tiene rama en `flip()` (sin API KDE estable) → también diferido.
+- Solo apertura verificada en nested; cierre = patrón scrim/Esc de F3-T04.

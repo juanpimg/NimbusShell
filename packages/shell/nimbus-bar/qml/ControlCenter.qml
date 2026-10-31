@@ -62,8 +62,12 @@ Item {
                 root.dndOn = out.trim() === "true";
                 root.dnd = out.trim() === "" || out.trim() === "—" ? "—" : (root.dndOn ? "on" : "off");
             } else if (tag === "theme") {
-                root.darkOn = out.indexOf("Dark") >= 0 || out === "—";
-                root.theme = out === "" ? "—" : out;
+                if (out !== "" && out !== "—") {
+                    root.darkOn = out.indexOf("Dark") >= 0;
+                    root.theme = out;
+                } else {
+                    root.theme = "—";
+                }
             } else if (tag === "batt")
                 root.batt = out === "" ? "—" : out + (out === "—" ? "" : "%");
             else if (tag === "vol") {

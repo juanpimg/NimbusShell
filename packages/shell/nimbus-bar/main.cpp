@@ -7,6 +7,7 @@
 #include <QQmlError>
 #include <QWindow>
 #include <QDebug>
+#include <cstdio>
 #include <LayerShellQt/Shell>
 #include <LayerShellQt/Window>
 #include "commandrunner.h"
@@ -26,19 +27,31 @@ int main(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("nimbus-bar"));
     app.setOrganizationName(QStringLiteral("nimbus"));
 
-    bool demoMenu = false, demoCC = false;
+    bool demoMenu = false, demoCC = false, openCC = false, logQuery = false;
     for (int i = 1; i < argc; ++i) {
         if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-menu"))
             demoMenu = true;
         if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-cc"))
             demoCC = true;
+        if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--open-cc"))
+            openCC = true;
+        if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--log-query"))
+            logQuery = true;
     }
 
     CommandRunner runner;
+    runner.setLogQuery(logQuery || demoCC);
+    // F3-T05-fix: el qDebug por defecto no sale en este Qt (verificado con
+    // binario mínimo); con --log-query se instala handler propio a stderr.
+    if (logQuery || demoCC)
+        qInstallMessageHandler([](QtMsgType t, const QMessageLogContext &, const QString &m) {
+            fprintf(stderr, "nimbus-bar[%d]: %s\n", static_cast<int>(t), m.toUtf8().constData());
+        });
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("runner"), &runner);
     engine.rootContext()->setContextProperty(QStringLiteral("demoMenu"), demoMenu);
     engine.rootContext()->setContextProperty(QStringLiteral("demoCC"), demoCC);
+    engine.rootContext()->setContextProperty(QStringLiteral("openCC"), openCC);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
