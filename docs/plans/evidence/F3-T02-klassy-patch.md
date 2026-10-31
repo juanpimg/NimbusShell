@@ -50,7 +50,7 @@ Deco `org.kde.klassy` 6.7.3 stock de `/tmp/klassy-prefix` en
 | offset | 8–9 | 9 (borde ventana→filo close) | OK |
 | titlebar | 26–28 | 26–27 (filas claras + separador 1 px) | OK |
 
-## 4. Hover `+`: parcheado y verificado (ya no es límite)
+## 4. Hover `+`: parcheado y verificado con glifos forzados (F4-T01 parcial)
 
 - Parche `packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.patch`
   (+48/−1, aplica limpio con `patch -p1` sobre 6.7.3): maximize pinta `+`.
@@ -59,8 +59,11 @@ Deco `org.kde.klassy` 6.7.3 stock de `/tmp/klassy-prefix` en
   del harness ahora admite entorno (ya no hardcodea `/tmp/klassy-prefix`).
 - Captura `spikes/nested/f3-klassy-plus.png` (seed con glifos forzados
   siempre visibles, sin puntero): `+` 8×9 px en verde, ×/− intactos,
-  Ø12/gap8/colores sin cambios. Límite restante: hover FÍSICO (puntero)
-  sigue sin inyector en nested; el preset shippeado deja glifos en hover.
+  Ø12/gap8/colores sin cambios.
+- Alcance: **F3-T02 (estático) cerrable** — Ø12/gap8/colores/inactivas/
+  offset/titlebar medidos @1x. **F4-T01 (hover real con puntero) NO** —
+  el nested no inyecta puntero y el `+` solo se verificó con glifos
+  forzados; el hover físico exige VM.
 
 ## 5. Archivos
 

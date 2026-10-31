@@ -1,13 +1,14 @@
-# nimbus-decoration — semáforos Tahoe sobre Klassy stock (sin parche C++)
+# nimbus-decoration — semáforos Tahoe: preset (contrato estático) + parche `+`
 
-Resultado F3-T02/F4-T01: **no hace falta parchear ni recompilar Klassy**.
-Todo el contrato estático se alcanza con el preset
-`packages/themes/klassy-preset/nimbus-tahoe.klpw` (= `Klassy.klpw` 6.7.3 +
-deltas documentados en su cabecera) aplicado por el canal real
-(`klassy-settings -i/-w`, no claves sueltas). Ver evidencia en
+Resultado: el preset `packages/themes/klassy-preset/nimbus-tahoe.klpw`
+(= `Klassy.klpw` 6.7.3 + deltas documentados en su cabecera) cubre TODO
+el contrato estático —Ø12, gap 8, colores, inactivas, offset, titlebar—,
+aplicado por el canal real (`klassy-settings -i/-w`, no claves sueltas).
+El único parche C++ es `klassy-hover-plus.patch` (el `+` de maximizar),
+ya incluido y verificado. Ver evidencia en
 `docs/plans/evidence/F3-T02-klassy-patch.md`.
 
-## Por qué no hay `klassy-12px.patch`
+## Contrato estático sin parche C++ (no hay `klassy-12px.patch`)
 
 Auditado el código 6.7.3, ningún cambio C++ es necesario para los estados
 estáticos (ver evidencia); cada gap tenía causa configurable. El único
@@ -25,9 +26,10 @@ parche C++ es `klassy-hover-plus.patch` (§ Hover +).
   bundled pisando claves sueltas al primer arranque.
 - Titlebar 26: sale solo de `max(fm.height, padded 14) + 3.6 + 3.6`.
 
-Límites duros (requieren plugin propio, R-DECO): hover `+` en maximizar
-(ningún `style*` lo dibuja; `stylematerialdynamic.cpp:renderMaximizeIcon`
-pinta □) y hover físico no inyectable en nested. No se inventa parche.
+Límites y alcance: el preset cierra el contrato estático al completo; el
+único parche C++ es el `+` (§ Hover +). El hover FÍSICO (puntero real
+sobre los botones) queda pendiente de VM: el nested no inyecta puntero
+(F4-T01, no cerrable aquí).
 
 ## Hover + (`klassy-hover-plus.patch`)
 
@@ -65,10 +67,11 @@ cmake --build /tmp/klassy-nimbus-build -j"$(nproc)"
 cmake --install /tmp/klassy-nimbus-build
 ```
 
-Uso en nested: el harness `tests/vm/nested-plasma.sh --klassy` expone
-`/tmp/klassy-prefix` (build 6.7.3 stock de las mismas fuentes; al no haber
-parche, es binariamente equivalente). La receta de arriba con
-`/tmp/klassy-nimbus-prefix` es para reconstrucción independiente.
+Uso en nested: el harness `tests/vm/nested-plasma.sh --klassy` expone por
+defecto `/tmp/klassy-prefix` (build 6.7.3 stock: cubre el contrato
+estático pero pinta □ en maximizar). Con
+`KLASSY_PREFIX=/tmp/klassy-nimbus-prefix` se usa el build con el parche
+`+`. La receta de arriba reconstruye dicho prefix.
 
 Pin: `PROJECT_VERSION "6.7.3"` en `CMakeLists.txt`; Plasma 6 host
 (Qt 6.12, KF6 sistema, ECM en `/tmp/ecm-prefix`).
