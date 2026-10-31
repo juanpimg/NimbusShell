@@ -11,8 +11,10 @@ Deco `org.kde.klassy` 6.7.3 stock de `/tmp/klassy-prefix` en
 
 - Claves sueltas NO bastan: el primer arranque importa el preset bundled.
 - Lo que funciona: `klassy-settings -i nimbus-tahoe.klpw` +
-  `klassy-settings -w Klassy` (escribe `klassy/klassyrc` por grupos +
+  `klassy-settings -w NimbusTahoe` (escribe `klassy/klassyrc` por grupos +
   `kwinrc`), y arrancar el nested con ese HOME como seed.
+- El nombre interno del preset pasó de Klassy a NimbusTahoe para evitar
+  el import bundled stock (F4-T02).
 - Las claves sobreviven al arranque (post-run intactas salvo
   `[Global] LookAndFeelSet` añadido por Klassy).
 
