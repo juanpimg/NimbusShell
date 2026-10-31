@@ -324,6 +324,7 @@
 - **R-CACHYOS:** perfil pinneado; sin `latest`.
 - **R-CTRL:** atajos por defecto Meta/Super; Ctrl libre; toggle Cmd/Ctrl opcional.
 - **R-TEST:** sin evidencia en VM no se marca tarea; `qdbus6`/`kwshot` + captura.
+- **R-PARALLEL:** F1 se ejecuta en el worktree `plasma/f1-restructure` en paralelo con los spikes F0; el gate F0 solo decide la implementación de Dock (F5) y Overview (F7), no la reestructuración. Orden de merge: F0 evidence → F1 → `plasma-migration`.
 
 ---
 
