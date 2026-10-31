@@ -77,7 +77,7 @@ dotfiles/.config/autostart/nimbus-shell.desktop
 packages/plasma/plasmoids/org.nimbus.{bar,menu,controlcenter}/
 packages/kwin/effects/nimbus-overview/
 packages/kwin/scripts/nimbus-spaces/
-packages/kcm/kcm_nimbus/            # 5 páginas: apariencia, red, atajos, a11y, sistema
+packages/kcm/kcm_nimbus/            # 6 páginas: apariencia, red, atajos, a11y, sistema/usuarios, updates
 packages/themes/{look-and-feel,desktoptheme,klassy-preset,icons,cursors}/
 packages/dock/                      # fork/theme Krema o dependencia pinneada
 apps/{nimbus-welcome,nimbus-migrate,nimbus-hw}/

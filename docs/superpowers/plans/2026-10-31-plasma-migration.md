@@ -56,7 +56,7 @@
 | F3 Fundación visual | 12% | 4 | Barra 1:1 |
 | F4 Ventanas/atajos | 10% | 3 | Controles 1:1 |
 | F5 Dock | 12% | 5 | Dock usable |
-| F6 Spotlight/Launchpad | 9% | 4 | Búsqueda 1:1 |
+| F6 Spotlight/Apps | 9% | 4 | Búsqueda 1:1 |
 | F7 Mission Control | 10% | 5 | Overview 1:1 |
 | F8 KCM | 6% | 3 | 6 páginas verdes |
 | F9 Onboarding/migración | 8% | 5 | Sin terminal |
@@ -103,7 +103,7 @@
 - [ ] **F2-T02 — Sesión Wayland, login y autologin.** Files: `dotfiles/.config/sddm/`, `iso/`, `docs/plans/evidence/F2-T02.md`. Acciones: SDDM 0.21 con tema Nimbus por defecto; plasma-login-manager solo spike F8; greetd descartado (kwallet-PAM); autologin en VM, `startplasma-wayland`, orden de servicios. Accept: boot → SDDM → Plasma en <20 s en VM; captura. Dep: F2-T01.
 - [ ] **F2-T03 — Configs base Plasma.** Files: `dotfiles/.config/{plasmarc,plasmashellrc,kwinrc,kdeglobals,kglobalshortcutsrc,krunnerrc,kscreenlockerrc}`. Acciones: defaults Nimbus (tema, fuentes, botones, doble clic, foco, animaciones), sin depender de KCM manual. Accept: `kwriteconfig6`/`--check` valida claves; sesión nueva hereda defaults. Dep: F2-T02.
 - [ ] **F2-T04 — Tema base aplicable.** Files: `packages/themes/`, `scripts/apply-theme`. Acciones: Klassy + Kvantum + WhiteSur con `-p` (quita logo Apple) + Inter + iconos + wallpaper NPS; auditar assets (`find/grep`) + ATTRIBUTION; script idempotente. Accept: `apply-theme` deja el look base; `tests/screenshot-diff/compare.sh <golden> <captura> --umbral 20`; reversible. Dep: F2-T03.
-- [ ] **F2-T05 — Panel superior base.** Files: `dotfiles/.config/plasma/plasma-org.kde.plasma.desktop-appletsrc`, `packages/plasma/plasmoids/org.nimbus.bar/`. Acciones: panel 28px superior, flotante, Colorizer preset, sin applets custom aún. Accept: panel visible, no tapa ventanas, reserva espacio; captura. Dep: F2-T04.
+- [ ] **F2-T05 — Panel superior base.** Files: `dotfiles/.config/plasma/plasma-org.kde.plasma.desktop-appletsrc`, `packages/plasma/plasmoids/org.nimbus.bar/`. Acciones: panel superior 24pt (24px a 1x; contrato A1; panel Plasma, no spec Apple), flotante, Colorizer preset, sin applets custom aún. Accept: panel visible, no tapa ventanas, reserva espacio; captura. Dep: F2-T04.
 - [ ] **F2-T06 — Perfil CachyOS netinstall.** Files: `iso/profile/{profiledef.sh,packages.x86_64,pacman.conf}`, `iso/README.md`. Acciones: perfil archiso/CachyOS pinneado, paquetes Plasma, Calamares, drivers, sin AUR no fijado. Accept: `mkarchiso` produce ISO netinstall; build reproducible (hash). Dep: F2-T01.
 - [ ] **F2-T07 — Calamares branding y módulos.** Files: `iso/calamares/{branding.desc,settings.conf,modules/}`. Acciones: `settings.conf` unificado con F9 (show→exec→finished; netinstall como instancia; removeuser solo OEM), idioma/teclado/zona/particiones/usuario, marca Nimbus, sin activos Apple. Accept: instalación completa en VM desde ISO. Dep: F2-T06.
 - [ ] **F2-T08 — Test de instalación y métricas.** Files: `tests/vm/install.sh`, `docs/plans/evidence/F2-T08.md`. Acciones: VM limpia → Calamares → primer boot → Plasma; medir tiempo, RAM, disco, errores en journal. Accept: instalación <20 min, boot usable, 0 errores críticos. Dep: F2-T07.
@@ -118,8 +118,8 @@
 
 **Objetivo:** el 80% visual de macOS Tahoe: tokens, Klassy, barra, menús, control center, reloj, notificaciones y OSD.
 
-- [ ] **F3-T01 — Design tokens Nimbus.** Files: `packages/themes/nimbus-tokens/{colors,radii,spacing,typography}.qml`. Acciones: extraer de MacShell/M2 (radios 24/12, gris #598E8E93, Inter 12/13, accent), sin valores mágicos. Accept: tokens consumidos por un componente demo; test de contraste. Dep: F2.
-- [ ] **F3-T02 — Preset Klassy Tahoe.** Files: `packages/themes/klassy-preset/`, `packages/kwin/`. Acciones: botones 12px izquierda, hover ×/−/+, gris inactivo, radio/sombra; ruta `~/.config/klassy/klassyrc` (confirmar en VM) y export con `klassy-settings`; probar 3 apps. Accept: captura activa/inactiva/hover; diff; sin artefactos. Dep: F3-T01.
+- [ ] **F3-T01 — Design tokens Nimbus.** Files: `packages/themes/nimbus-tokens/{colors,radii,spacing,typography}.qml`. Acciones: fuente única `docs/design/tahoe-design-contract.md` §2: color semántico light/dark, Inter 11-28 con tracking/lh, spacing 4-32, radios (r-sm 8, r-md 10-12, r-lg 20, ventana 16/26 concéntrico), glass/motion/estados; `tokens.json` + `NimbusTokens.qml`; sin valores mágicos. Accept: tokens consumidos por demo; contraste WCAG A4; qmllint. Dep: F2.
+- [ ] **F3-T02 — Preset Klassy Tahoe.** Files: `packages/themes/klassy-preset/`, `packages/kwin/`. Acciones: botones 12px izquierda, offset 8-9, gap 8, colores #FF5F57/#FEBC2E/#28C840, hover ×/−/+ SVG 7×7 stroke 1.2, gris inactivo, radio/sombra; ruta `~/.config/klassy/klassyrc` (confirmar VM) y export con `klassy-settings`; probar 3 apps. Accept: captura activa/inactiva/hover; diff; sin artefactos. Dep: F3-T01.
 - [ ] **F3-T03 — Plasm oxide barra superior.** Files: `packages/plasma/plasmoids/org.nimbus.bar/`. Acciones: layout logo/menús/estado/reloj/CC, API `plasmoid.*`. Accept: `kpackagetool6 -i` instala; panel lo carga sin errores. Dep: F3-T01.
 - [ ] **F3-T04 — Menú Apple.** Files: `packages/plasma/plasmoids/org.nimbus.menu/`. Acciones: Acerca de, Ajustes, Dormir, Bloquear, Cerrar sesión, Reiniciar, Apagar; i18n. Accept: cada acción ejecuta y se prueba en VM. Dep: F3-T03.
 - [ ] **F3-T05 — Control Center.** Files: `packages/plasma/plasmoids/org.nimbus.controlcenter/`. Acciones: Wi-Fi, BT, volumen, brillo, modo oscuro, No molestar, batería; DataEngines. Accept: toggles reflejan estado real; capturas. Dep: F3-T03.
@@ -127,9 +127,9 @@
 - [ ] **F3-T07 — System tray y status items.** Files: `packages/plasma/plasmoids/org.nimbus.bar/`. Acciones: bandeja, iconos, badges, menús; tema. Accept: apps SNI aparecen; captura. Dep: F3-T03.
 - [ ] **F3-T08 — Reloj y calendario.** Files: `packages/plasma/plasmoids/org.nimbus.bar/`, `apps/` (port MacBar). Acciones: popup calendario, eventos, zonas; i18n. Accept: abre/cierra, fechas correctas, teclado. Dep: F3-T03.
 - [ ] **F3-T09 — Notificaciones estilo macOS.** Files: `packages/themes/`, `dotfiles/.config/plasma/`. Acciones: tema de notificaciones, agrupación, DND, actions. Accept: notificación de prueba con acciones; captura. Dep: F3-T03.
-- [ ] **F3-T10 — OSD volumen/brillo.** Files: `packages/themes/`, `dotfiles/.config/plasma/`. Acciones: OSD Plasma tematizado, posición/tamaño; teclas. Accept: teclas muestran OSD; captura. Dep: F3-T03.
+- [ ] **F3-T10 — OSD volumen/brillo.** Files: `packages/themes/`, `dotfiles/.config/plasma/`. Acciones: OSD Plasma tematizado; volumen/brillo se expande in-situ en la barra (contrato §3); teclas. Accept: teclas muestran OSD; captura. Dep: F3-T03.
 - [ ] **F3-T11 — Fondo, claro/oscuro y acento.** Files: `packages/themes/`, `scripts/apply-theme`. Acciones: wallpaper NPS, switch claro/oscuro automático, acento; ventanas y panel siguen. Accept: cambio en vivo sin reiniciar; capturas. Dep: F3-T02.
-- [ ] **F3-T12 — Aceptación de barra superior.** Files: `tests/vm/topbar.sh`, `docs/plans/evidence/F3-T12.md`. Acciones: diff vs golden, clics en cada menú, teclado, multi-monitor. Accept: <15% diff, 0 errores, evidencia. Dep: F3-T04..T11.
+- [ ] **F3-T12 — Aceptación de barra superior.** Files: `tests/vm/topbar.sh`, `docs/plans/evidence/F3-T12.md`. Acciones: diff vs golden, clics en cada menú, teclado, multi-monitor. Accept: A1/A2 (<15% diff, 24pt, semáforos), 0 errores, evidencia. Dep: F3-T04..T11.
 
 - [ ] **F3-T13 — Presets Colorizer + Window Buttons6.** Files: `packages/plasma/`, `dotfiles/.config/`. Acciones: versionar presets de topbar/botones, `kpackagetool6`, pin de versiones. Accept: instala en VM limpia; captura; pin documentado. Dep: F3-T05.
 
@@ -139,8 +139,8 @@
 
 **Objetivo:** titlebar y controles 1:1, zoom/fullscreen/drag correctos y atajos universales.
 
-- [ ] **F4-T01 — Semáforos exactos.** Files: `packages/themes/klassy-preset/`, `packages/kwin/`. Acciones: 12px, colores, hover ×/−/+, gris inactivo, foco; comparar con golden. Accept: diff por estado; sin SVG de Apple. Dep: F3-T02.
-- [ ] **F4-T02 — Titlebar: altura, radio, sombra, borde.** Files: `packages/kwin/`, `dotfiles/.config/kwinrc`. Acciones: 28px, radio Tahoe, sombra única, borde 1px; apps CSD respetan o se excluyen. Accept: capturas activa/inactiva/maximizada; diff. Dep: F4-T01.
+- [ ] **F4-T01 — Semáforos exactos.** Files: `packages/themes/klassy-preset/`, `packages/kwin/`. Acciones: 12px, #FF5F57/#FEBC2E/#28C840, offset 8-9, gap 8, hover ×/−/+ 7×7 stroke 1.2, gris inactivo, foco; comparar con golden (A2). Accept: diff por estado; sin SVG de Apple. Dep: F3-T02.
+- [ ] **F4-T02 — Titlebar: altura, radio, sombra, borde.** Files: `packages/kwin/`, `dotfiles/.config/kwinrc`. Acciones: titlebar 16 sin toolbar / 26 con toolbar-sidebar (concéntrico), título a la izquierda, sombra 20-22px, borde 0.5-1px; apps CSD respetan o se excluyen (A3). Accept: capturas activa/inactiva/maximizada; diff. Dep: F4-T01.
 - [ ] **F4-T03 — Zoom (verde) flotante.** Files: `packages/kwin/scripts/nimbus-zoom/` o KCM; `apps/`. Acciones: maximizar al área de trabajo bajo la barra, fs=0, toggle, guardar geometría; drag conserva offset. Accept: zoom/restore; drag; 60fps. Dep: F4-T02.
 - [ ] **F4-T04 — Fullscreen real y salida.** Files: `dotfiles/.config/kglobalshortcutsrc`, `kwin/`. Acciones: Cmd/Ctrl+F o Meta+F; verde sale de fullscreen; barra oculta/muestra. Accept: fullscreen/exit; barra correcta. Dep: F4-T03.
 - [ ] **F4-T05 — Drag y doble clic.** Files: `packages/kwin/`, `dotfiles/.config/kwinrc`. Acciones: arrastre nativo por titlebar, doble clic zoom, umbral; sin shims. Accept: pointer lab; offset; sin saltos. Dep: F4-T02.
@@ -159,33 +159,33 @@
 - [ ] **F5-T01 — Evaluación/fork de Krema.** Files: `packages/dock/`, `LICENSE`, `docs/plans/evidence/F5-T01.md`. Acciones: clonar/pin, licencia, build; decisión recomendada: tema Nimbus sobre Krema pinneado, sin fork (fork solo con Ruling); atribución. Accept: dock arranca; licencia compatible; decisión registrada. Dep: F0-T03.
 - [ ] **F5-T02 — Backend TaskManager.** Files: `packages/dock/`. Acciones: apps corriendo, pins, badges, foco, launch/close; backend `libtaskmanager` (no D-Bus directo). Accept: 15 apps; estados correctos. Dep: F5-T01.
 - [ ] **F5-T03 — Tema visual Nimbus.** Files: `packages/dock/`, `themes/`. Acciones: glass, radio, iconos, separadores, papelera, tema claro/oscuro. Accept: diff vs golden; capturas. Dep: F5-T02.
-- [ ] **F5-T04 — Magnificación y bounce.** Files: `packages/dock/`. Acciones: curva parabólica, hover labels, bounce al abrir, 60fps. Accept: fps ≥55; sin jank; captura vídeo. Dep: F5-T03.
+- [ ] **F5-T04 — Magnificación y bounce.** Files: `packages/dock/`. Acciones: curva parabólica, hover labels, bounce al abrir. Accept: spike ≥55fps, producto 60fps (A5); sin jank; vídeo. Dep: F5-T03.
 - [ ] **F5-T05 — Autohide, multi-monitor y exclusive zone.** Files: `packages/dock/`, `kwin/`. Acciones: intellihide, reservar espacio, 1-2 pantallas, HiDPI. Accept: no tapa ventanas; reacciona a foco; capturas. Dep: F5-T03.
 - [ ] **F5-T06 — Clic, launch, foco, minimize.** Files: `packages/dock/`. Acciones: click abre/enfoca, minimiza con genie, menú contextual. Accept: 20 ciclos sin fallo; evidencia. Dep: F5-T02.
 - [ ] **F5-T07 — Previews de ventanas.** Files: `packages/dock/`. Acciones: `kpipewire`; si no hay previews estables, Ruling y fallback (icono+lista). Accept: previews o Ruling; sin crash. Dep: F5-T06.
 - [ ] **F5-T08 — Pin/unpin/reorder y persistencia.** Files: `packages/dock/`. Acciones: drag reorder, pins, JSON, reset. Accept: persiste tras reinicio; tests. Dep: F5-T06.
 - [ ] **F5-T09 — Papelera, stacks y badges.** Files: `packages/dock/`. Acciones: trash, Downloads, badges; abrir. Accept: estados vacío/lleno; captura. Dep: F5-T08.
 - [ ] **F5-T10 — Preferencias del Dock.** Files: `packages/dock/`, `settings/`. Acciones: tamaño, zoom, posición, autohide, tema; port MacDock prefs. Accept: cambios en vivo; persistencia. Dep: F5-T08.
-- [ ] **F5-T11 — Rendimiento y arranque.** Files: `tests/vm/dock.sh`. Acciones: fps, RAM, tiempo de arranque, 30 apps. Accept: 60fps, RAM <150MB, boot <1s extra. Dep: F5-T04.
-- [ ] **F5-T12 — Aceptación del Dock.** Files: `tests/vm/dock-acceptance.sh`, evidence. Acciones: matriz de interacciones + capturas + diff. Accept: todo verde o Ruling. Gate F5. Dep: F5-T01..T11.
+- [ ] **F5-T11 — Rendimiento y arranque.** Files: `tests/vm/dock.sh`. Acciones: fps, RAM, tiempo de arranque, 30 apps. Accept: A5 (60fps producto, RAM <150MB, boot <1s extra). Dep: F5-T04.
+- [ ] **F5-T12 — Aceptación del Dock.** Files: `tests/vm/dock-acceptance.sh`, evidence. Acciones: matriz de interacciones + capturas + diff. Accept: A5 y todo verde o Ruling. Gate F5. Dep: F5-T01..T11.
 
 **Gate F5:** Dock usable a diario y 60fps. Si no, se congela Krema o se usa Crystal Dock con Ruling.
 
 ---
 
-## Fase 6 — Spotlight y Launchpad (9 tareas, 9%, 4 semanas)
+## Fase 6 — Spotlight y Apps (9 tareas, 9%, 4 semanas)
 
 **Objetivo:** búsqueda universal y lanzador de apps 1:1.
 
 - [ ] **F6-T01 — KRunner fullscreen skin.** Files: `packages/plasma/`, `settings/`. Acciones: KRunner `FreeFloating=true` + skin RunCommand.qml; no hay API fullscreen oficial; overlay layer-shell solo opcional; Cmd+Espacio, Esc. Accept: abre/cierra <50ms; no rompe KRunner. Dep: F2.
-- [ ] **F6-T02 — Runners Nimbus.** Files: `apps/krunner-nimbus/`. Acciones: apps, archivos, ajustes, calculadora, web, portapapeles; runner Python primero, C++ solo si >50 ms/10k. Accept: cada runner devuelve resultados; tests. Dep: F6-T01.
-- [ ] **F6-T03 — Ranking, previews y acciones.** Files: `apps/krunner-nimbus/`. Acciones: fuzzy, orden, preview, acciones (abrir, copiar, revelar). Accept: 10 consultas; resultados correctos. Dep: F6-T02.
-- [ ] **F6-T04 — Launchpad.** Files: `packages/plasma/`, `apps/launchpad/`. Acciones: Application Dashboard tematizado o layer-shell; grid, iconos, búsqueda. Accept: abre/cierra, 60fps; captura. Dep: F2.
-- [ ] **F6-T05 — Carpetas, paginación y drag.** Files: `apps/launchpad/`. Acciones: folders, páginas, drag, persistencia. Accept: estados; tests. Dep: F6-T04.
+- [ ] **F6-T02 — Runners Nimbus.** Files: `apps/krunner-nimbus/`. Acciones: apps, archivos, ajustes, calculadora, web, portapapeles; Cmd+1..4 = Apps/Files/Actions/Clipboard; Quick Keys ≤12; runner Python primero, C++ solo si >50 ms/10k. Accept: cada runner devuelve resultados; tests. Dep: F6-T01.
+- [ ] **F6-T03 — Ranking, previews y acciones.** Files: `apps/krunner-nimbus/`. Acciones: fuzzy, orden, preview, acciones (abrir, copiar, revelar); clipboard texto <16384 sin formato (sin Passwords/Universal). Accept: 10 consultas; resultados correctos. Dep: F6-T02.
+- [ ] **F6-T04 — Apps (Tahoe, sin Launchpad).** Files: `packages/plasma/`, `apps/nimbus-apps/`. Acciones: Apps Tahoe (NO Launchpad, R-APPSVIEW): ventana centrada, Cmd+1, categorías fijas + Suggestions, vistas Icons/List; sin carpetas/páginas/reorden. Accept: abre/cierra, 60fps; captura. Dep: F2.
+- [ ] **F6-T05 — Vistas y categorías de Apps.** Files: `apps/nimbus-apps/`. Acciones: vistas Icons/List, categorías, Suggestions, orden Category/Name; sin carpetas/páginas/reorden (R-APPSVIEW). Accept: estados; tests. Dep: F6-T04.
 - [ ] **F6-T06 — Portapapeles y emoji.** Files: `apps/`, `packages/plasma/`. Acciones: port MacBar clipboard/emoji; atajos. Accept: pega en apps; captura. Dep: F6-T01.
 - [ ] **F6-T07 — Teclado y accesibilidad.** Files: `apps/*`. Acciones: navegación completa, lector, foco visible. Accept: 0 uso de ratón; Orca. Dep: F6-T02.
 - [ ] **F6-T08 — Rendimiento.** Files: `tests/vm/spotlight.sh`. Acciones: latencia, RAM, 10k archivos. Accept: <50ms, sin freeze. Dep: F6-T03.
-- [ ] **F6-T09 — Aceptación Spotlight/Launchpad.** Files: `tests/vm/spotlight-acceptance.sh`. Acciones: 20 consultas + 10 apps + teclado. Accept: todo verde; evidence. Dep: F6-T01..T08.
+- [ ] **F6-T09 — Aceptación Spotlight/Apps.** Files: `tests/vm/spotlight-acceptance.sh`. Acciones: 20 consultas + 10 apps + teclado + Cmd1-4 + QuickKeys. Accept: A6 y todo verde; evidence. Dep: F6-T01..T08.
 
 ---
 
@@ -199,8 +199,8 @@
 - [ ] **F7-T04 — Thumbnails, grid y agrupación.** Files: `packages/kwin/effects/nimbus-overview/`. Acciones: thumbs reales, agrupar por app, tamaños. Accept: 10 ventanas; 60fps; captura. Dep: F7-T03.
 - [ ] **F7-T05 — Drag entre Spaces.** Files: `packages/kwin/`. Acciones: arrastrar ventana a otro space, drop, animación. Accept: 5 casos; sin perder ventanas. Dep: F7-T04.
 - [ ] **F7-T06 — Animación de cambio de Space.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: slide/zoom, duración, reduce motion. Accept: 60fps; captura vídeo. Dep: F7-T05.
-- [ ] **F7-T07 — App Exposé.** Files: `packages/kwin/`. Acciones: ventanas de la app activa, atajo. Accept: abre/cierra; tests. Dep: F7-T04.
-- [ ] **F7-T08 — Multi-monitor y HiDPI.** Files: `packages/kwin/`, `tests/vm/`. Acciones: 2 pantallas, escalas; panel/Dock correctos; Spaces globales (R-SPACES). Accept: posiciones correctas; capturas. Dep: F7-T04.
+- [ ] **F7-T07 — App Exposé.** Files: `packages/kwin/`. Acciones: App Exposé de la app activa, atajo; Show Desktop; MC por display. Accept: abre/cierra; tests. Dep: F7-T04.
+- [ ] **F7-T08 — Multi-monitor y HiDPI.** Files: `packages/kwin/`, `tests/vm/`. Acciones: 2 pantallas, escalas; panel/Dock correctos; MC por display; Split-drag; Spaces globales (R-SPACES). Accept: posiciones correctas; capturas. Dep: F7-T04.
 - [ ] **F7-T09 — Rendimiento.** Files: `tests/vm/overview.sh`. Acciones: 20 ventanas, toggle, GPU. Accept: <300ms, 60fps. Dep: F7-T04.
 - [ ] **F7-T10 — Aceptación Mission Control.** Files: `tests/vm/overview-acceptance.sh`. Acciones: matriz de 10 interacciones + capturas. Accept: verde o Ruling. Dep: F7-T01..T09.
 
@@ -248,7 +248,7 @@
 - [ ] **F10-T02 — Finder-like Dolphin.** Files: `dotfiles/.config/dolphinrc`, `apps/`. Acciones: vista columnas, sidebar, previews, Quick Look si viable. Accept: 10 tareas de archivo; captura. Dep: F2.
 - [ ] **F10-T03 — Terminal y apps por defecto.** Files: `dotfiles/.config/konsolerc`, `apps/`. Acciones: Konsole tema, fuente, perfil; defaults (navegador, correo, imagen, archivo). Accept: abrir enlaces/archivos; tests. Dep: F2.
 - [ ] **F10-T04 — Lock/login.** Files: `packages/themes/`, `dotfiles/.config/kscreenlockerrc`. Acciones: kscreenlocker/SDDM tema Nimbus, avatar, blur; bloqueo por atajo. Accept: lock/unlock; capturas. Dep: F2.
-- [ ] **F10-T05 — OSD/notificaciones/sonidos/screenshot.** Files: `packages/themes/`, `apps/`. Acciones: OSD, sonidos propios, Spectacle, notificaciones; atajos. Accept: 5 acciones; capturas. Dep: F3.
+- [ ] **F10-T05 — OSD/notificaciones/sonidos/screenshot.** Files: `packages/themes/`, `apps/`. Acciones: OSD in-situ en barra, sonidos propios, Spectacle, notificaciones; atajos. Accept: 5 acciones; capturas. Dep: F3.
 - [ ] **F10-T06 — XWayland y apps legacy.** Files: `dotfiles/.config/`, `tests/vm/`. Acciones: XWayland, Electron/Ozone flags, GTK CSD, matriz de 8 apps; sin ventanas negras. Accept: matriz verde; captura. Dep: F10-T03.
 - [ ] **F10-T07 — nimbus-hw, Konsave y harness.** Files: `apps/nimbus-hw/`, `apps/backup/`, `tests/vm/`. Acciones: detección hardware estilo chwd, presets Konsave, harness `kwshot`/`qdbus6` versionado. Accept: detecta GPU/Wi-Fi/impresora; harness reproducible. Dep: F9-T10.
 
@@ -258,8 +258,8 @@
 
 **Objetivo:** cerrar la brecha visual y de accesibilidad.
 
-- [ ] **F11-T01 — Animaciones macOS.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: Magic Lamp, zoom, dock bounce, overview, sheets; duración/curva. Accept: 5 animaciones; 60fps; vídeo. Dep: F4,F5,F7.
-- [ ] **F11-T02 — Glass/Liquid Glass.** Files: `packages/kwin/effects/`, `packages/themes/`. Acciones: blur/refracción en barra/Dock/paneles; pin commit Better Blur/Glass/xarblu; tiers alto/bajo; fallback blur stock; reduce transparency. Accept: visual + fps; toggle. Dep: F11-T01.
+- [ ] **F11-T01 — Animaciones macOS.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: Magic Lamp, zoom, dock bounce, overview, sheets; t-quick 250ms, t-normal 350ms, MC 400-500ms, reduce motion fade 150ms; curvas del contrato §2.5. Accept: 5 animaciones; 60fps; vídeo. Dep: F4,F5,F7.
+- [ ] **F11-T02 — Glass/Liquid Glass.** Files: `packages/kwin/effects/`, `packages/themes/`. Acciones: blur/refracción en barra/Dock/paneles; preferir blur stock antes de Better Blur; pin commit xarblu/Glass; tiers alto/bajo; reduce transparency (A9). Accept: visual + fps; toggle. Dep: F11-T01.
 - [ ] **F11-T03 — Estados, dark/light y acento.** Files: `packages/themes/`. Acciones: hover/pressed/disabled, foco, dark/light, acento en todas las superficies. Accept: matriz de estados; capturas. Dep: F3,F4.
 - [ ] **F11-T04 — Accesibilidad.** Files: `dotfiles/.config/`, `apps/`. Acciones: Orca, zoom, contraste, sticky keys, reduce motion/transparency, navegación teclado. Accept: 10 tareas sin ratón; audit. Dep: F8.
 - [ ] **F11-T05 — i18n, docs y chuleta.** Files: `docs/`, `apps/`. Acciones: dueño único i18n ki18n/.ts (F9/F10 consumen); es/en completo, textos de UI, guía de usuario, atajos. Accept: 0 cadenas sin traducir; docs revisadas. Dep: F9,F10.
@@ -293,11 +293,11 @@
 
 | Superficie | Criterio |
 |---|---|
-| Barra superior | Apple menu, app menus Qt, status, reloj, CC, notificaciones |
-| Ventana | 12px, colores, hover, inactiva gris, título, zoom, fullscreen, drag, doble clic |
+| Barra superior | 24pt, Apple menu, app menus Qt, status, reloj, CC, notificaciones |
+| Ventana | semáforos 12px offset 8-9 gap 8, titlebar 16/26, título izquierda, inactiva gris, zoom, fullscreen, drag, doble clic |
 | Dock | posición, tamaño, magnificación, bounce, running, pins, papelera, stacks, menús, previews, autohide, multi-monitor |
 | Spotlight | Cmd+Espacio, ranking, previews, acciones, calc, apps, archivos, portapapeles, emoji |
-| Launchpad | grid, carpetas, búsqueda, paginación, drag |
+| Apps (sin Launchpad) | Cmd+1, categorías, Suggestions, Icons/List, sin carpetas/páginas |
 | Mission Control | ventanas, Spaces, drag, agrupación, animación |
 | Ajustes | 6 páginas Nimbus + System Settings; apariencia, Dock, escritorio, teclado, trackpad, pantallas, sonido, red, usuarios, privacidad, updates |
 | Sistema | notificaciones, OSD, lock, login, apagado, Acerca de |
@@ -329,6 +329,11 @@
 - **R-CACHYOS:** perfil pinneado; sin `latest`.
 - **R-CTRL:** atajos por defecto Meta/Super; Ctrl libre; toggle Cmd/Ctrl opcional.
 - **R-TEST:** sin evidencia en VM no se marca tarea; `qdbus6`/`kwshot` + captura.
+- **R-TAHOE-TOKENS:** `docs/design/tahoe-design-contract.md` §2 es la fuente única; prohibido hex/tamaño mágico; F3-T01 se reescribe con §2.
+- **R-MENUBAR:** altura 24pt; F2-T05 28px era panel Plasma, no spec Apple.
+- **R-TITLEBAR:** 16 sin toolbar / 26 con toolbar-sidebar, concéntrico; título izquierda.
+- **R-APPSVIEW:** replicar Apps Tahoe (categorías, sin carpetas/páginas/reorden); Launchpad no existe; carpetas custom exigen Ruling nueva.
+- **R-CONFIDENCE:** `[INFERIDO]` no cierra tarea; medir en VM y promover a `[MEDIDO]`.
 - **R-PARALLEL:** F1 se ejecuta en el worktree `plasma/f1-restructure` en paralelo con los spikes F0; el gate F0 solo decide la implementación de Dock (F5) y Overview (F7), no la reestructuración. Orden de merge: F0 evidence → F1 → `plasma-migration`.
 
 ---
