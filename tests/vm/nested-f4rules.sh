@@ -29,9 +29,14 @@ NESTED_HOME="$BASE_TMP/home"; mkdir -p "$NESTED_HOME/.config"
 for f in "$REPO_ROOT/dotfiles/.config/plasma/"*; do
   [ -f "$f" ] || continue
   case "$(basename "$f")" in README*) continue ;; esac
-  if [ -n "$BASELINE" ] && [ "$(basename "$f")" = "kwinrulesrc" ]; then continue; fi
   cp -f "$f" "$NESTED_HOME/.config/"
 done
+# kwinrulesrc vive en la RAIZ de dotfiles/.config (ahi lo lee KWin);
+# se despliega igual a la raiz del .config temporal (sin baseline).
+if [ -z "$BASELINE" ]; then
+  cp -f "$REPO_ROOT/dotfiles/.config/kwinrulesrc" "$NESTED_HOME/.config/kwinrulesrc"
+fi
+[ -e "$NESTED_HOME/.config/kwinrulesrc" ] && echo "[f4rules] kwinrulesrc desplegado (ruta real)" || echo "[f4rules] kwinrulesrc AUSENTE (modo baseline)"
 export XDG_CONFIG_HOME="$NESTED_HOME/.config"
 export XDG_DATA_HOME="$BASE_TMP/data" XDG_CACHE_HOME="$BASE_TMP/cache" XDG_STATE_HOME="$BASE_TMP/state"
 mkdir -p "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"

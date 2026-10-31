@@ -2,68 +2,68 @@
   General/count=5
   General/rules=1,2,3,4,5
 [f4rules] arranque kwin (--no-lockscreen: la sesion nested arranca bloqueada por defecto) ...
-[f4rules] kwin pid=227163
+[f4rules] kwin pid=270278
 [f4rules] anti-idle SimulateUserActivity cada 15s
 [f4rules] medida 1 (kate/konsole/dolphin esperan 1100x700 centradas):
 true
-oct 31 22:29:21 jp kwin_wayland[227163]: N4HELLO start
-oct 31 22:29:21 jp kwin_wayland[227163]: N4COUNT 6
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=116.66666666666667 y=81.04166666666667 w=1100 h=700
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
-oct 31 22:29:21 jp kwin_wayland[227163]: N4HELLO end
+oct 31 22:44:18 jp kwin_wayland[270278]: N4HELLO start
+oct 31 22:44:18 jp kwin_wayland[270278]: N4COUNT 6
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=116.66666666666667 y=81.04166666666667 w=1100 h=700
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
+oct 31 22:44:18 jp kwin_wayland[270278]: N4HELLO end
 [f4rules] captura temprana (antes del bloqueo ~60s) ...
 [f4rules] f4-rules-rules.png OK
 [f4rules] medida 2 (kate/konsole/dolphin esperan 1100x700 centradas):
 true
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
-oct 31 22:29:21 jp kwin_wayland[227163]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
-oct 31 22:29:21 jp kwin_wayland[227163]: N4HELLO end
-oct 31 22:29:32 jp kwin_wayland[227163]: N4HELLO start
-oct 31 22:29:32 jp kwin_wayland[227163]: N4COUNT 6
-oct 31 22:29:32 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
-oct 31 22:29:32 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
-oct 31 22:29:32 jp kwin_wayland[227163]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
-oct 31 22:29:32 jp kwin_wayland[227163]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=116.66666666666667 y=81.04166666666667 w=1100 h=700
-oct 31 22:29:32 jp kwin_wayland[227163]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
-oct 31 22:29:32 jp kwin_wayland[227163]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
-oct 31 22:29:32 jp kwin_wayland[227163]: N4HELLO end
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
+oct 31 22:44:18 jp kwin_wayland[270278]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
+oct 31 22:44:18 jp kwin_wayland[270278]: N4HELLO end
+oct 31 22:44:30 jp kwin_wayland[270278]: N4HELLO start
+oct 31 22:44:30 jp kwin_wayland[270278]: N4COUNT 6
+oct 31 22:44:30 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
+oct 31 22:44:30 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
+oct 31 22:44:30 jp kwin_wayland[270278]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
+oct 31 22:44:30 jp kwin_wayland[270278]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=116.66666666666667 y=81.04166666666667 w=1100 h=700
+oct 31 22:44:30 jp kwin_wayland[270278]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
+oct 31 22:44:30 jp kwin_wayland[270278]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
+oct 31 22:44:30 jp kwin_wayland[270278]: N4HELLO end
 [f4rules] Rule found (kwin_core debug):
-oct 31 22:29:01 jp kwin_wayland[227163]: Rule found: [ "Nimbus: Kate 1100x700 centrada" : "kate" ] : KWin::XdgToplevelWindow(0x558c04ffa750, surface=KWin::SurfaceInterface(0x558c0502d560), caption="Kate")
-oct 31 22:29:03 jp kwin_wayland[227163]: Rule found: [ "Nimbus: Konsole 1100x700 centrada" : "konsole" ] : KWin::XdgToplevelWindow(0x558c050182c0, surface=KWin::SurfaceInterface(0x558c05128dc0), caption="Integrado — Konsole")
-oct 31 22:29:05 jp kwin_wayland[227163]: Rule found: [ "Nimbus: Dolphin 1100x700 centrada" : "dolphin" ] : KWin::XdgToplevelWindow(0x558c05139e80, surface=KWin::SurfaceInterface(0x558c050f4be0), caption="Carpeta personal — Dolphin")
+oct 31 22:43:59 jp kwin_wayland[270278]: Rule found: [ "Nimbus: Kate 1100x700 centrada" : "kate" ] : KWin::XdgToplevelWindow(0x55f4b29b5580, surface=KWin::SurfaceInterface(0x55f4b29b2ba0), caption="Kate")
+oct 31 22:44:00 jp kwin_wayland[270278]: Rule found: [ "Nimbus: Konsole 1100x700 centrada" : "konsole" ] : KWin::XdgToplevelWindow(0x55f4b2ab57e0, surface=KWin::SurfaceInterface(0x55f4af5e8fa0), caption="Integrado — Konsole")
+oct 31 22:44:02 jp kwin_wayland[270278]: Rule found: [ "Nimbus: Dolphin 1100x700 centrada" : "dolphin" ] : KWin::XdgToplevelWindow(0x55f4b2aa4160, surface=KWin::SurfaceInterface(0x55f4b2aa3040), caption="Carpeta personal — Dolphin")
 [f4rules] maximizar-manual konsole (accion Window Maximize):
 true
 true
-oct 31 22:29:32 jp kwin_wayland[227163]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
-oct 31 22:29:32 jp kwin_wayland[227163]: N4HELLO end
-oct 31 22:29:43 jp kwin_wayland[227163]: N4FOCUS konsole activa
-oct 31 22:29:48 jp kwin_wayland[227163]: N4HELLO start
-oct 31 22:29:48 jp kwin_wayland[227163]: N4COUNT 6
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=0 y=30 w=1280 h=770
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
-oct 31 22:29:48 jp kwin_wayland[227163]: N4HELLO end
+oct 31 22:44:30 jp kwin_wayland[270278]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
+oct 31 22:44:30 jp kwin_wayland[270278]: N4HELLO end
+oct 31 22:44:41 jp kwin_wayland[270278]: N4FOCUS konsole activa
+oct 31 22:44:46 jp kwin_wayland[270278]: N4HELLO start
+oct 31 22:44:46 jp kwin_wayland[270278]: N4COUNT 6
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=0 y=30 w=1280 h=770
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
+oct 31 22:44:46 jp kwin_wayland[270278]: N4HELLO end
 [f4rules] des-maximizar (toggle):
 true
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
-oct 31 22:29:48 jp kwin_wayland[227163]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
-oct 31 22:29:48 jp kwin_wayland[227163]: N4HELLO end
-oct 31 22:29:54 jp kwin_wayland[227163]: N4HELLO start
-oct 31 22:29:54 jp kwin_wayland[227163]: N4COUNT 6
-oct 31 22:29:54 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
-oct 31 22:29:54 jp kwin_wayland[227163]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
-oct 31 22:29:54 jp kwin_wayland[227163]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
-oct 31 22:29:54 jp kwin_wayland[227163]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=116.66666666666663 y=81.04166666666669 w=1100 h=700
-oct 31 22:29:54 jp kwin_wayland[227163]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
-oct 31 22:29:54 jp kwin_wayland[227163]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
-oct 31 22:29:54 jp kwin_wayland[227163]: N4HELLO end
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
+oct 31 22:44:46 jp kwin_wayland[270278]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
+oct 31 22:44:46 jp kwin_wayland[270278]: N4HELLO end
+oct 31 22:44:52 jp kwin_wayland[270278]: N4HELLO start
+oct 31 22:44:52 jp kwin_wayland[270278]: N4COUNT 6
+oct 31 22:44:52 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=800
+oct 31 22:44:52 jp kwin_wayland[270278]: N4GEOM caption= | class=plasmashell | normal=false | x=0 y=0 w=1280 h=46
+oct 31 22:44:52 jp kwin_wayland[270278]: N4GEOM caption=Bienvenido — Kate | class=org.kde.kate | normal=true | x=90 y=65 w=1100 h=700
+oct 31 22:44:52 jp kwin_wayland[270278]: N4GEOM caption=NimbusShell-f4rules : fish — Konsole | class=org.kde.konsole | normal=true | x=116.66666666666663 y=81.04166666666669 w=1100 h=700
+oct 31 22:44:52 jp kwin_wayland[270278]: N4GEOM caption=Carpeta personal — Dolphin | class=org.kde.dolphin | normal=true | x=143.33333333333334 y=97.08333333333334 w=1100 h=700
+oct 31 22:44:52 jp kwin_wayland[270278]: N4GEOM caption=KDialog | class=org.kde.kdialog | normal=true | x=508 y=363 w=263 h=103
+oct 31 22:44:52 jp kwin_wayland[270278]: N4HELLO end
 [f4rules] desbloqueo + captura tardia (diagnostico) ...
 Cannot find 'org.freedesktop.ScreenSaver.SetActive' in object /ScreenSaver at org.kde.screensaver
 [f4rules] tardia OK

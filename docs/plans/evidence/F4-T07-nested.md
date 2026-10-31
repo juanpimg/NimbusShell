@@ -1,7 +1,8 @@
 # F4-T07 nested — reglas de ventana (`kwinrulesrc`)
 
-Fecha: 2026-10-31. Dotfile `dotfiles/.config/plasma/kwinrulesrc`,
-harness `tests/vm/nested-f4rules.sh`, foto `spikes/nested/f4-rules.png`.
+Fecha: 2026-10-31 (fix ruta: 2026-10-31). Dotfile
+`dotfiles/.config/kwinrulesrc` (raíz: ahí lo lee KWin), harness
+`tests/vm/nested-f4rules.sh`, foto `spikes/nested/f4-rules.png`.
 
 ## Formato real (KWin 6.8.2, `rules.cpp`+`rulesettings.kcfg` upstream)
 
