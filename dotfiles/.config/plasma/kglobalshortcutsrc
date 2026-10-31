@@ -29,7 +29,8 @@ Window Quick Tile Right=Meta+Right,Meta+Right,media ventana a la derecha
 Window Quick Tile Top=Meta+Up,Meta+Up,ventana arriba (borde sup.=maximizar)
 
 [plasmashell]
-activate task manager entry 1=none,none,reservado Apps/Spotlight F6-T04 (Cmd+1)activate task manager entry 2=none,none,reservado Apps/Spotlight F6-T04 (Cmd+2)
+activate task manager entry 1=none,none,reservado Apps/Spotlight F6-T04 (Cmd+1)
+activate task manager entry 2=none,none,reservado Apps/Spotlight F6-T04 (Cmd+2)
 activate task manager entry 3=none,none,reservado Apps/Spotlight F6-T04 (Cmd+3)
 activate task manager entry 4=none,none,reservado Apps/Spotlight F6-T04 (Cmd+4)
 
