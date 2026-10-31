@@ -1,0 +1,18 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "nimbus@nimbus.local",
+                "Name": "NimbusShell"
+            }
+        ],
+        "Description": "macOS green-button zoom: fill work area below the 24px bar (toggle, restores geometry)",
+        "Icon": "preferences-system-windows",
+        "Id": "nimbus-zoom",
+        "License": "GPL-2.0-or-later",
+        "Name": "Nimbus Zoom"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}
