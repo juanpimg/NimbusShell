@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="/">
     <file alias="Bar.qml">qml/Bar.qml</file>
+    <file alias="Menu.qml">qml/Menu.qml</file>
     <file alias="NimbusTokens.qml">qml/NimbusTokens.qml</file>
     <file alias="qmldir">qml/qmldir</file>
   </qresource>

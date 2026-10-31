@@ -50,6 +50,7 @@ Window {
         anchors.verticalCenter: parent.verticalCenter
         spacing: 8
         // Logo "N" propio (arte Nimbus, sin activos Apple).
+        // F3-T04: clic abre/cierra el menú Apple.
         Rectangle {
             id: logo
             width: 16
@@ -57,6 +58,7 @@ Window {
             radius: 4
             anchors.verticalCenter: parent.verticalCenter
             color: NimbusTokens.colors(NimbusTokens.dark).accent
+            objectName: "appleLogo"
             Text {
                 anchors.centerIn: parent
                 text: "N"
@@ -64,6 +66,10 @@ Window {
                 font.pixelSize: 11
                 font.weight: 700
                 color: "white"
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: appleMenu.toggle()
             }
         }
         Text {
@@ -75,6 +81,15 @@ Window {
             color: NimbusTokens.colors(NimbusTokens.dark).label
         }
     }
+
+    // F3-T04: menú Apple (popup layer-shell propio en Menu.qml).
+    // demoMenu lo abre al arrancar (flag --demo-menu, solo UI nested).
+    Menu {
+        id: appleMenu
+        demo: demoMenu
+    }
+    Component.onCompleted: if (demoMenu)
+        appleMenu.open()
 
     Row {
         id: rightBox

@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick)
 find_package(LayerShellQt REQUIRED)
 
-qt_add_executable(nimbus-bar main.cpp bar.qrc)
+qt_add_executable(nimbus-bar main.cpp commandrunner.h bar.qrc)
 
 target_link_libraries(nimbus-bar PRIVATE
   Qt6::Gui

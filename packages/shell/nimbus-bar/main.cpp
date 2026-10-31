@@ -1,17 +1,18 @@
 // nimbus-bar — barra superior layer-shell 24pt (F3-T03, R-TOPBAR-LAYER).
-// Contrato §3: menu bar 24pt, capa Top, anclada arriba, sin foco de teclado.
+// F3-T04: CommandRunner (QProcess, run(QString)) como `runner` + flag
+// --demo-menu (abre el menú al arrancar, acciones destructivas inhibidas).
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QQmlError>
 #include <QWindow>
 #include <QDebug>
 #include <LayerShellQt/Shell>
 #include <LayerShellQt/Window>
+#include "commandrunner.h"
 
 int main(int argc, char *argv[])
 {
-    // API LayerShellQt 6.8: obsoleta desde 6.6 (no necesaria desde Qt 6.5),
-    // pero sigue disponible y es la llamada canónica del requisito F3-T03.
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -25,7 +26,15 @@ int main(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("nimbus-bar"));
     app.setOrganizationName(QStringLiteral("nimbus"));
 
+    bool demoMenu = false;
+    for (int i = 1; i < argc; ++i)
+        if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-menu"))
+            demoMenu = true;
+
+    CommandRunner runner;
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty(QStringLiteral("runner"), &runner);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoMenu"), demoMenu);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
