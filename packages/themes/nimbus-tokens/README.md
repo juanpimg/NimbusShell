@@ -12,7 +12,8 @@ Prohíbe valores mágicos fuera del singleton.
 | `colors().bg/bgElevated/bg2` | §2.1 tabla | [HIG] |
 | `colors().trafficRed/Yellow/Green` | §3 semáforos `#FF5F57/#FEBC2E/#28C840` | [HIG] |
 | `inactive #DDD` | §2.5 inactivo gris | [HIG] |
-| `type.t11..t28`, `eyebrow` | §2.2 tabla | [HIG] |
+| `type.t11..t28` | §2.2 tabla | [HIG] |
+| `type.eyebrow` (lineHeight 15) | §2.2 tabla ("—" en lh) | [HIG] salvo lh [INFERIDO] |
 | `fontFamily Inter`, `monoFamily JetBrains Mono` | §2.2 | [HIG] |
 | `spacing` escala 4..32, marginWindow 20, padContent 16 | §2.3 | [HIG] |
 | `spacing.toolbarH 52, sidebarW 240, row 28, readMax 672` | §2.3 | [HIG/MEDIDO] |
@@ -21,6 +22,8 @@ Prohíbe valores mágicos fuera del singleton.
 | `controls.btnH 28/32/36, hitMin 24, hitTarget 32/44` | §2.3 | [HIG] |
 | `glass.menuSatMax, dockAdapt/sat/grain, slab*, popoverHairline*` | §2.4 | [MEDIDO] |
 | `glass.dockBlurPxEq 15-25` | §2.4 Dock | [INFERIDO] |
+| `glass.sidebarToolbarTint medium, sidebarScrollEdgeBlur` | §2.4 sidebar/toolbar | [HIG] |
+| Reduce Transparency | §2.4: vive en F8-T05; fallback = `bgElevated` | — (sin token nuevo) |
 | `motion.*` (150/250/350, curva, exit×0.7, fade 150) | §2.5 | [HIG] |
 | `motion.dockAutohide 500` | §2.5 | [INFERIDO] |
 | `states.*`, `a11y.*` (4.5:1/3:1, objetivo 7:1, reflujo 135%) | §2.5 | [HIG] |
@@ -39,4 +42,11 @@ Rectangle {
 
 ## Uso JSON (scripts/KCM)
 
-`tokens.json` es espejo exacto del QML: `python3 -c "import json; t=json.load(open('tokens.json')); print(t['colors']['dark']['accent'])"`.
+`tokens.json` es espejo lógico del QML (claves 1:1; `colors(isDark)` ≡ `colors.light/dark`): `python3 -c "import json; t=json.load(open('tokens.json')); print(t['colors']['dark']['accent'])"`.
+Confianza por valor en `_meta._inferred` / `_meta._measured`.
+
+## Regla de contraste (obligatoria)
+
+**label2/accent solo ≥15px/3:1; texto pequeño siempre `label`.**
+El test valida valores, no puede impedir el mal uso: esta regla vive aquí,
+en `_meta.contrastRule` y en la evidencia. Revisión en VM (A4).

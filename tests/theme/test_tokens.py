@@ -3,6 +3,9 @@
 
 label/bg exige 4.5:1; label2/accent (secundarios, base+alfa sobre bg)
 exigen 3:1 (umbral large-text/UI, §2.5 a11y [HIG]).
+
+Regla de uso (no verificable por este test, solo documentada):
+label2/accent solo ≥15px/3:1; texto pequeño siempre label.
 """
 import json
 import sys
@@ -41,10 +44,17 @@ def main():
 
     for mode in ("light", "dark"):
         c = t["colors"][mode]
-        for k in ("label", "label2", "label3", "label4", "separator", "accent",
-                  "success", "destructive", "warning", "bg", "bgElevated", "bg2",
-                  "trafficRed", "trafficYellow", "trafficGreen", "inactive"):
+        for k in ("label", "label2", "label3", "label4", "separator", "separatorAlpha",
+                  "accent", "success", "destructive", "warning", "bg", "bgElevated", "bg2",
+                  "trafficRed", "trafficYellow", "trafficGreen"):
             check(k in c, f"colors.{mode}.{k} existe", fails)
+        check(isinstance(c["separatorAlpha"], (int, float)),
+              f"colors.{mode}.separatorAlpha es número como en QML", fails)
+
+    check(t["dark"] is True, "dark top-level (espejo QML)", fails)
+    check(t["inactive"] == "#DDDDDD", "inactive top-level = #DDD (§2.5)", fails)
+    check(t["fontFamily"] == "Inter", "fontFamily top-level (espejo QML)", fails)
+    check(t["monoFamily"] == "JetBrains Mono", "monoFamily top-level (espejo QML)", fails)
 
     r = t["radii"]
     check(r["windowNoToolbar"] == 16, "radio ventana sin toolbar = 16 (§2.3)", fails)
@@ -60,6 +70,20 @@ def main():
     check((m["tInstant"], m["tQuick"], m["tNormal"], m["tModal"]) == (150, 250, 350, 350),
           "motion 150/250/350/350 (§2.5)", fails)
     check(m["mcSpaces"] == [400, 500], "motion mcSpaces 400-500 (§2.5)", fails)
+    check(m["curve"] == "cubic-bezier(0.25,0.1,0.25,1)",
+          "motion.curve en JSON y QML (§2.5)", fails)
+
+    g = t["glass"]
+    check("dock" not in g and "slab" not in g,
+          "glass plano como en QML (sin objetos dock/slab)", fails)
+    check(g["sidebarToolbarTint"] == "medium",
+          "glass sidebar/toolbar tint medio, sin color custom (§2.4)", fails)
+    check(g["sidebarScrollEdgeBlur"] is True,
+          "glass sidebar scroll-edge blur (§2.4)", fails)
+
+    meta = t["_meta"]
+    for p in ("glass.dockBlurPxEq", "motion.dockAutohide", "type.eyebrow.lineHeight"):
+        check(p in meta["_inferred"], f"_inferred contiene {p}", fails)
 
     for mode in ("light", "dark"):
         c = t["colors"][mode]

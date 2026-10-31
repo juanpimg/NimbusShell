@@ -44,7 +44,7 @@ QtObject {
         t17: { size: 17, weight: 400, weightEmph: 700, tracking: -0.025, lineHeight: 22 }, // [HIG]
         t22: { size: 22, weight: 400, weightEmph: 700, tracking: -0.02, lineHeight: 26 }, // [HIG]
         t28: { size: 28, weight: 600, tracking: -0.02, lineHeight: 34 }, // [HIG]
-        eyebrow: { size: 11, weight: 600, upper: true, tracking: 0.08, lineHeight: 15 } // [HIG]
+        eyebrow: { size: 11, weight: 600, upper: true, tracking: 0.08, lineHeight: 15 } // [HIG] todo salvo lineHeight; lineHeight 15 [INFERIDO] (contrato §2.2: "—")
     })
 
     // §2.3 spacing [HIG]; toolbarH/sidebarW/row/readMax [HIG/MEDIDO]
@@ -73,13 +73,18 @@ QtObject {
         dockGrain: [0.006, 0.03], // [MEDIDO] grano mono
         slabBlurPx: 1.5, slabThickness: 16, slabSnellN: 1.5, // [MEDIDO] slab pequeño
         slabDispersion: 0.06, slabMagnify: 0.05, // [MEDIDO]
-        popoverHairlineLight: 0.12, popoverHairlineDark: 0.16 // [MEDIDO] hairline Canvas
+        popoverHairlineLight: 0.12, popoverHairlineDark: 0.16, // [MEDIDO] hairline Canvas
+        sidebarToolbarTint: "medium", // [HIG] §2.4 tint medio, sin color custom en bars
+        sidebarScrollEdgeBlur: true // [HIG] §2.4 deja pasar scroll (scroll-edge blur)
+        // Reduce Transparency vive en F8-T05 (un solo interruptor KWin+QML);
+        // su fallback sólido es bgElevated, ya tokenizado — sin token nuevo aquí.
     })
 
     // §2.5 motion [HIG]; dockAutohide [INFERIDO]
     readonly property var motion: ({
         tInstant: 150, tQuick: 250, tNormal: 350, tModal: 350,
         mcSpaces: [400, 500], dockAutohide: 500, // dockAutohide [INFERIDO]
+        curve: "cubic-bezier(0.25,0.1,0.25,1)", // [HIG] §2.5
         exitFactor: 0.7, reduceMotionFade: 150
     })
 
