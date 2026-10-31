@@ -64,3 +64,15 @@ git
 nano
 sudo
 which
+
+# --- GPU/energía post-detección (F2-T10; NO activar ambos drivers a la vez) ---
+# Calamares/nimbus-installed-setup elige UNO según `nimbus-gpu-detect`:
+#   NVIDIA Turing+ (GTX 16xx/RTX) → nvidia-open-dkms
+#   NVIDIA anterior a Turing      → nvidia-dkms
+#   AMD/Intel/VM                  → mesa / virtio (ya incluidos arriba)
+# Descomentar solo en la ISO Full F12 o instalar en post-proceso.
+#nvidia-open-dkms
+#nvidia-dkms
+#nvidia-utils
+linux-headers
+# power-profiles-daemon ya está en el bloque Plasma (no duplicar).
