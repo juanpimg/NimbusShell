@@ -1,25 +1,38 @@
-# NimbusShell Plasma — paquetes del perfil plasma (F1-T03).
-# Copia de trabajo del brief docs/plans/research/F2-base.md (§1 y §8):
-# versiones medidas en host CachyOS 2026-10-31 (Plasma 6.8.2, krunner 6.31.0,
-# SDDM 0.21.0, Kvantum 1.1.8, PPD 0.30, plasma-meta 6.8-1). Los pins se
-# congelan en F2-T01 tras validar en VM; nada usa `latest` (R-CACHYOS).
+# NimbusShell Plasma — paquetes del perfil plasma (F2-T01, Plasma 6.8).
+# Snapshot medido en host CachyOS 2026-10-31 (Plasma 6.8.2, krunner 6.31.0,
+# Qt 6.12.0, SDDM 0.21.0, Kvantum 1.1.8, PPD 0.30, plasma-meta 6.8-1) y
+# referencia VM live CachyOS (Plasma 6.7.4). Matriz en
+# docs/plans/evidence/F2-T01.md. Nada usa `latest` (R-CACHYOS).
 # Formato: un paquete por línea; "#" comentarios (read_list los ignora).
-# Sin AUR no fijado: klassy queda comentado hasta su pin (F2-T01).
+# Pins de versión en comentarios (informativos; pacman instala lo del
+# snapshot fijado en el repo). Sin duplicados.
 
-# --- base Plasma 6 (extra) ---
+# --- base Plasma 6 (repo extra / cachyos-extra-v3) ---
 plasma-meta  # 6.8-1, meta-paquete canónico (preferido al grupo plasma)
+plasma-workspace  # 6.8.2, provee plasmashell + krunner base (F6)
+plasma-desktop  # 6.8.2, shell de escritorio X11/Wayland
 kwin  # 6.8.2, compositor Wayland
 krunner  # 6.31.0, paquete Frameworks separado (base de Spotlight, F6)
-plasma-login-manager  # 6.8.2, DM nuevo por defecto (evaluar vs sddm en F2-T02)
-sddm  # 0.21.0, alternativa estable documentada
+kdecoration  # 6.8.2, API KDecoration3 (la usa Klassy/Breeze)
+breeze  # 6.8.2, tema + deco de fallback (siempre presente)
+kglobalaccel  # 6.31.0, daemon de atajos globales (F4-T08)
+kpackage  # 6.31.0, empaquetado de applets/temas Plasma
+kio  # 6.31.0, E/S de Dolphin y diálogos
+kservice  # 6.31.0, registro de servicios .desktop
+kdeplasma-addons  # 6.8.2, applets/wallpapers extra (equivale al antiguo kwin-addons; NO existe paquete `kwin-addons`)
+qt6-base  # 6.12.0, Qt6 base
+qt6-declarative  # 6.12.0, QML del shell
+qt6-tools  # 6.12.0, herramientas qdbus/qml (harness nested)
+plasma-login-manager  # 6.8.2, DM nuevo por defecto (spike F2-T02; usar sddm en F2, D1)
+sddm  # 0.21.0, login manager de F2 (Ruling D1)
 sddm-kcm  # 6.8.2, aplica settings Plasma al greeter SDDM
 kde-gtk-config  # 6.8.2, sincroniza KDE->GTK
-kvantum  # 1.1.8, motor de temas Qt (solo Qt6)
+kvantum  # 1.1.8, motor de temas Qt (solo Qt6; kvantum-qt5 fuera)
 layer-shell-qt  # 6.8.2, requerido por el Dock (F5)
 power-profiles-daemon  # 0.30, fijar uno solo (no tuned-cachy-ppd a la vez)
 powerdevil  # 6.8.2, gestión de energía Plasma
 
-# --- apps base (extra) ---
+# --- apps base (repo extra) ---
 konsole
 dolphin
 spectacle
@@ -27,8 +40,11 @@ plasma-nm
 networkmanager
 firewalld  # default CachyOS (una sola opción de firewall, F2-T09)
 
-# --- AUR: pendiente de pin (NO instalar sin fijar; F2-T01) ---
-#klassy  # AUR 6.7.3 (para Plasma >=6.6.1, KDecoration3, Qt6-only)
+# --- AUR: Klassy con pin (NO instalar sin fijar; pacman -S los rechaza) ---
+#klassy  # AUR 6.7.3-1 (para Plasma >=6.6.1, KDecoration3, Qt6-only). Pin F2-T01: titled OK en 6.8.2 (nested); shadow-only pendiente.
+#klassy-git  # AUR, opción si 6.7.3 falla: rama upstream `6.8temp`/master (código no releaseado). provides/conflicts klassy.
+# Fallback sin API C++ (inmune a breaks KDecoration): Aurorae VIENE con kwin
+# (org.kde.kwin.aurorae.v2, verificado en host) + WhiteSur-kde (F2-T04, R-APPLE con -p).
 
 # --- solo ISO netinstall (iso/profile/, F2-T06; no instalar en el desktop) ---
 #calamares
