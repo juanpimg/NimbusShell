@@ -1,0 +1,12 @@
+********* Start testing of TstIndex *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), cachyos unknown
+PASS   : TstIndex::initTestCase()
+QINFO  : TstIndex::perfFuzzy10k() perf-fuzzy-10k: 3ms hits=1
+PASS   : TstIndex::perfFuzzy10k()
+QINFO  : TstIndex::perfSearchLocal() spotlight-local-latency: query=1ms mode=nimbus results=20 tab=apps
+QINFO  : TstIndex::perfSearchLocal() perf-searchLocal: 1ms results=20
+QINFO  : TstIndex::perfSearchLocal() spotlight-local-latency: query=0ms mode=nimbus results=2 tab=actions
+PASS   : TstIndex::perfSearchLocal()
+PASS   : TstIndex::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped, 0 blacklisted, 10ms
+********* Finished testing of TstIndex *********
