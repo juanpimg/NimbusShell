@@ -1,0 +1,71 @@
+home-temporal=/tmp/opencode/nimbus-theme-DMY03d/home
+intento 1/3
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=225292 comm="kate")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.3' (uid=1000 pid=225296 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.3' (uid=1000 pid=225296 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:225296): xdg-desktop-portal-WARNING **: 22:28:08.118: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.3' (uid=1000 pid=225296 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.6' (uid=1000 pid=225324 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.3' (uid=1000 pid=225296 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.2' (uid=1000 pid=225291 comm="plasmashell")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:225296): xdg-desktop-portal-WARNING **: 22:28:08.254: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.3' (uid=1000 pid=225296 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.2' (uid=1000 pid=225291 comm="plasmashell")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.14' (uid=1000 pid=225396 comm="/usr/lib/kf6/kioworker /usr/lib/qt6/plugins/kf6/ki")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=225400 comm="/usr/bin/kded6")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=225400 comm="/usr/bin/kded6")
+dbus-daemon[225177]: [session uid=1000 pid=225177 pidfd=5] Successfully activated service 'org.bluez.obex'
+PLASMA_PID=225291
+PLASMA_PID=225291
+greeters tras arranque: 0
+greeters tras arranque: 0
+Cannot find 'org.freedesktop.ScreenSaver.Inhibit' in object /ScreenSaver at org.freedesktop.ScreenSaver
+=== switch light (en vivo) ===
+=== switch light (en vivo) ===
+backup: /tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+backup: /tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+THEME_OK mode=light scheme=NimbusTahoeLight accent=#007AFF desk=breeze-light wallpaper=sequoia-light.jpg backup=/tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+THEME_OK mode=light scheme=NimbusTahoeLight accent=#007AFF desk=breeze-light wallpaper=sequoia-light.jpg backup=/tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+greeters tras light: 0
+greeters tras light: 0
+ColorScheme tras light: NimbusTahoeLight
+ColorScheme tras light: NimbusTahoeLight
+locked antes shot-light: Service 'org.freedesktop.ScreenSaver' does not exist.
+locked antes shot-light: Service 'org.freedesktop.ScreenSaver' does not exist.
+shot light OK
+shot light OK
+=== switch dark (en vivo, sin reinicio) ===
+=== switch dark (en vivo, sin reinicio) ===
+backup: /tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+backup: /tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+THEME_OK mode=dark scheme=NimbusTahoe accent=#0A84FF desk=breeze-dark wallpaper=sequoia-dark.jpg backup=/tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+THEME_OK mode=dark scheme=NimbusTahoe accent=#0A84FF desk=breeze-dark wallpaper=sequoia-dark.jpg backup=/tmp/opencode/nimbus-theme-DMY03d/home/.config/nimbusshell-backup-20261031-222814
+greeters tras dark: 0
+greeters tras dark: 0
+ColorScheme tras dark: NimbusTahoe
+ColorScheme tras dark: NimbusTahoe
+locked antes shot-dark: Service 'org.freedesktop.ScreenSaver' does not exist.
+locked antes shot-dark: Service 'org.freedesktop.ScreenSaver' does not exist.
+shot dark OK
+shot dark OK
+PLASMA_ALIVE pid=225291 (0 reinicios)
+PLASMA_ALIVE pid=225291 (0 reinicios)
+CS_LIGHT=NimbusTahoeLight CS_DARK=NimbusTahoe
+CS_LIGHT=NimbusTahoeLight CS_DARK=NimbusTahoe
+SWITCH_OK
+SWITCH_OK
+A connection to the bus can't be made
+/home/jp/Escritorio/Proyectos/NimbusShell-f3theme/spikes/nested/f3-theme-live-light.png 94.0
+/home/jp/Escritorio/Proyectos/NimbusShell-f3theme/spikes/nested/f3-theme-live-dark.png 91.2

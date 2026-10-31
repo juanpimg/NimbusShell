@@ -104,7 +104,6 @@ make_backup() {
   if [ -z "$bkp" ]; then
     bkp="$BACKUP_BASE/nimbusshell-backup-$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$bkp"
-    echo "backup: $bkp" >&2
   fi
   for f in kdeglobals kwinrc plasmarc Kvantum/kvantum.kvconfig; do
     if [ -e "$HOME/.config/$f" ] && [ ! -e "$bkp/$f" ]; then
@@ -204,10 +203,12 @@ do_revert() {
 # canal en vivo si el plasmashell en ejecución pertenece a este $HOME.
 session_is_mine() {
   local p sh
-  p="$(pidof plasmashell 2>/dev/null | awk '{print $1}')"
-  [ -n "$p" ] || return 1
-  sh="$(tr '\0' '\n' < "/proc/$p/environ" 2>/dev/null | grep -E '^HOME=' | cut -d= -f2-)"
-  [ -n "$sh" ] && [ "$sh" = "$HOME" ]
+  # Itera TODOS los plasmashell (host + nested conviven); basta uno propio.
+  for p in $(pidof plasmashell 2>/dev/null); do
+    sh="$(tr '\0' '\n' < "/proc/$p/environ" 2>/dev/null | grep -E '^HOME=' | cut -d= -f2-)"
+    if [ -n "$sh" ] && [ "$sh" = "$HOME" ]; then return 0; fi
+  done
+  return 1
 }
 
 if session_is_mine; then LIVE=1; else LIVE=0; fi

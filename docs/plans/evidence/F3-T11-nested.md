@@ -69,7 +69,37 @@ escritorio se autocrea con el fondo por defecto e ignora la inyección
 `bash -n` + `shellcheck -S warning` cero warnings en `scripts/nimbus-theme`
 y `tests/vm/nested-plasma.sh`.
 
-## 4. Cambio en vivo
+## 4. Switch en vivo nested (demo controlada, 0 reinicios)
+
+Harness propio `tests/vm/nested-theme.sh` (no toca el compartido):
+kwin virtual `--no-lockscreen` + plasmashell + kate en HOME temporal bajo
+`dbus-run-session`; con la sesión arriba ejecuta `scripts/nimbus-theme light`
+y luego `dark` (canales en vivo reales, `LIVE=1` vía `session_is_mine`
+corregido para iterar todos los plasmashell). Sin reiniciar nada.
+Comando: `bash tests/vm/nested-theme.sh --out spikes/nested` (reintenta
+hasta 3 veces con puerta de brillo PIL que rechaza capturas casi negras).
+
+- `SWITCH_OK`, `PLASMA_ALIVE` mismo PID (0 reinicios).
+- `kreadconfig6`: `ColorScheme` `NimbusTahoeLight` → `NimbusTahoe`.
+- Capturas `spikes/nested/f3-theme-live-light.png` /
+  `f3-theme-live-dark.png`: el **wallpaper NPS cambia en vivo**
+  (sequoia-light ↔ sequoia-dark, visible en ambas).
+- Medidas PIL (L 0-255): panel (y0-30) `54.8` → `26.9` (cambia en vivo);
+  frame completo `94.0` → `91.2` (fondos distintos, media similar).
+- Gaps medidos: deco KWin sin cambio en vivo (`179` → `176`, requiere
+  reconfigurar KWin); Kate queda en estado mixto (sidebar sigue la variante,
+  menús/tab con retardo ≈ un switch: `82` → `229` invertido), retardo de
+  propagación del platform-theme Qt, no bloqueante.
+- `session_is_mine` no impidió el nested: detecta el plasmashell del mismo
+  `$HOME`; no hizo falta `--force-live` (no se añadió).
+- Lección de harness: kwin virtual arranca bloqueado (`kscreenlocker_greet`
+  es el primer cliente del bus); `SetActive(false)` se deniega sin auth,
+  matar el greeter deja la pantalla "bloqueador dañado". Solución:
+  `kwin_wayland --no-lockscreen` + reintentos con puerta PIL. No tocar
+  `tests/vm/nested-plasma.sh` para esto (quedó intacto salvo el seed `.local`
+  de §2).
+
+## 5. Cambio en vivo (matriz)
 
 Sí para los tres canales dentro de la sesión propia (LIVE=1); en nested
 pre-despliegue es modo fichero (la sesión nested lo lee al arrancar:
@@ -78,7 +108,7 @@ Auto: `--auto enable` despliega unidades + symlink `~/.local/bin` e
 intenta `enable --now` (probado bajo `dbus-run-session`: copia + aviso sin
 bus con manager; en sesión real hace enable).
 
-## 5. Límites e incidentes
+## 6. Límites e incidentes
 
 - Incidente: `plasma-apply-wallpaperimage` con HOME ajeno cambió el fondo
   vivo del host (containments 138/139). Restaurado a `MacTahoe-Dark`
