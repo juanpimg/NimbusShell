@@ -2,7 +2,7 @@
 # Deltas vs Klassy.klpw 6.7.3: XIA izq, IconVerySmall (Ø12), spacing 6
 # (gap filo-a-filo 8 = spacing + 1 de padding por lado), TitleBarLeftMargin=8
 # overrides JSON R/A/V activo + gris #8E8E93 inactivo (el KCM los guarda
-# como JSON; `#hex` se ignora), close sin glifo normal (como macOS).
+# como JSON; `#hex` se ignora), sin glifos en reposo (solo hover, macOS).
 # Resto de claves identicas al preset original (no inventadas).
 [Klassy Window Decoration Preset File]
 version=6.7.3
@@ -132,8 +132,8 @@ ShowCloseOutlineOnHoverActive=true
 ShowCloseOutlineOnHoverInactive=true
 ShowCloseOutlineOnPressActive=true
 ShowCloseOutlineOnPressInactive=true
-ShowIconNormallyActive=true
-ShowIconNormallyInactive=true
+ShowIconNormallyActive=false
+ShowIconNormallyInactive=false
 ShowIconOnHoverActive=true
 ShowIconOnHoverInactive=true
 ShowIconOnPressActive=true

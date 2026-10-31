@@ -14,7 +14,7 @@ Deco `org.kde.klassy` 6.7.3 stock de `/tmp/klassy-prefix` en
   `klassy-settings -w Klassy` (escribe `klassy/klassyrc` por grupos +
   `kwinrc`), y arrancar el nested con ese HOME como seed.
 - Las claves sobreviven al arranque (post-run intactas salvo
-  `[Global] LookAndFeelSet` añadido por Klassy y el pre-seed del harness).
+  `[Global] LookAndFeelSet` añadido por Klassy).
 
 ## 2. Causas raíz de los "NO" anteriores (código, no especulación)
 
@@ -46,8 +46,8 @@ Deco `org.kde.klassy` 6.7.3 stock de `/tmp/klassy-prefix` en
 | minimize | #FEBC2E lleno | (254,188,46) centro | OK |
 | maximize | #28C840 lleno | (40,200,64) centro | OK |
 | inactivo | #8E8E93 | (142,142,147) ×3, sin glifo | OK |
-| glifos normal | ninguno (macOS) | `ShowCloseIconNormally*=false`; resto ya sin glifo | OK |
-| offset | 8–9 | 9 (borde ventana→filo close) | OK |
+| glifos normal | ninguno (macOS) | ninguno en reposo (PIL: 0 px oscuros en los 6 círculos) | OK |
+| offset | 8–9 | 9 (filo close x=19 − borde x=10, método abajo) | OK |
 | titlebar | 26–28 | 26–27 (filas claras + separador 1 px) | OK |
 
 ## 4. Hover `+`: parcheado y verificado con glifos forzados (F4-T01 parcial)
@@ -58,8 +58,14 @@ Deco `org.kde.klassy` 6.7.3 stock de `/tmp/klassy-prefix` en
   `/tmp/klassy-nimbus-prefix` (137 targets, sin errores); `KLASSY_PREFIX`
   del harness ahora admite entorno (ya no hardcodea `/tmp/klassy-prefix`).
 - Captura `spikes/nested/f3-klassy-plus.png` (seed con glifos forzados
-  siempre visibles, sin puntero): `+` 8×9 px en verde, ×/− intactos,
-  Ø12/gap8/colores sin cambios.
+  siempre visibles A PROPÓSITO, sin puntero): `+` 8×9 px en verde, ×/−
+  intactos, Ø12/gap8/colores sin cambios. No confundir con reposo: el
+  preset shippeado oculta todos los glifos hasta hover.
+- Método offset (reproducible): borde = primer píxel claro en la fila del
+  titlebar (y=84 abs); filo = primer píxel saturado del close. Medido en
+  activa e inactiva: borde x=10, filo x=19 → 9. Un borde en 12–13 no es
+  reproducible en estas capturas (posible sombra); `TitleBarLeftMargin=8`
+  se mantiene.
 - Alcance: **F3-T02 (estático) cerrable** — Ø12/gap8/colores/inactivas/
   offset/titlebar medidos @1x. **F4-T01 (hover real con puntero) NO** —
   el nested no inyecta puntero y el `+` solo se verificó con glifos
