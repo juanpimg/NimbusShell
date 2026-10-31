@@ -1,0 +1,57 @@
+# NimbusOS — branding Calamares (F2-T07). Sin activos Apple (R-APPLE):
+# imágenes propias/placeholder generadas en F8; ningún logo, SF, wallpaper
+# ni sonido de Apple. Colores Nimbus (azul noche + acento cielo).
+componentName: nimbus
+version: "2026.11.01"
+shortVersion: "2026.11"
+productName: NimbusOS
+shortProductName: NimbusOS
+versionedName: "NimbusOS Plasma netinstall 2026.11.01"
+shortDescription: "NimbusOS — escritorio Plasma con experiencia macOS-like."
+longDescription: "Instalador gráfico de NimbusOS (netinstall): Plasma 6, SDDM y Calamares."
+productUrl: "https://nimbusos.local"
+supportUrl: "https://nimbusos.local/soporte"
+knownIssuesUrl: "https://nimbusos.local/issues"
+releaseNotesUrl: "https://nimbusos.local/notas"
+bootLoader: grub
+welcomeStyleCalamares: true
+welcomeExpandingLogo: false
+windowWidth: 800
+windowHeight: 520
+windowExpanding: normal
+windowPlacement: center
+sidebarBackground: "#1b2434"
+sidebarText: "#e8edf5"
+sidebarTextSelect: "#7cc4ff"
+sidebarTextHighlight: "#7cc4ff"
+windowBackground: "#f2f4f8"
+windowText: "#1b2434"
+style:
+  sidebarBackground: "#1b2434"
+  sidebarText: "#e8edf5"
+  sidebarTextSelect: "#7cc4ff"
+  sidebarTextHighlight: "#7cc4ff"
+  windowBackground: "#f2f4f8"
+  windowText: "#1b2434"
+images:
+  productLogo: "images/nimbus-logo.png"
+  productIcon: "images/nimbus-icon.png"
+  productWelcome: "images/nimbus-welcome.png"
+slideshow: "slideshow/slideshow.qml"
+strings:
+  es:
+    productName: NimbusOS
+    shortDescription: "NimbusOS — escritorio Plasma con experiencia macOS-like."
+    cancel: Cancelar
+    next: Siguiente
+    back: Atrás
+    quit: Salir
+    done: Hecho
+  en:
+    productName: NimbusOS
+    shortDescription: "NimbusOS — Plasma desktop with a macOS-like experience."
+    cancel: Cancel
+    next: Next
+    back: Back
+    quit: Quit
+    done: Done
