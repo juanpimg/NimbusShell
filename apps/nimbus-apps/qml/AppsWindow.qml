@@ -25,8 +25,7 @@ ApplicationWindow {
     property color searchCol: dark ? "#38383A" : "#E3E3E8"
 
     property int selIndex: 0
-    property var cats: ["Todas", "Suggestions", "Productividad", "Desarrollo",
-        "Gráficos", "Juegos", "Multimedia", "Utilidades", "Internet", "Ajustes"]
+    property var cats: ["Todas", "Suggestions", "Productividad", "Desarrollo", "Gráficos", "Juegos", "Multimedia", "Utilidades", "Internet", "Ajustes"]
 
     Rectangle {
         anchors.fill: parent
@@ -57,8 +56,8 @@ ApplicationWindow {
                         implicitHeight: 32
                     }
                     onTextChanged: {
-                        appModel.filter = text
-                        root.selIndex = 0
+                        appModel.filter = text;
+                        root.selIndex = 0;
                     }
                     Keys.onEscapePressed: Qt.quit()
                     Component.onCompleted: forceActiveFocus()
@@ -100,15 +99,15 @@ ApplicationWindow {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                catList.currentIndex = index
-                                appModel.category = modelData
-                                root.selIndex = 0
+                                catList.currentIndex = index;
+                                appModel.category = modelData;
+                                root.selIndex = 0;
                             }
                         }
                     }
                     onCurrentIndexChanged: {
-                        appModel.category = root.cats[currentIndex]
-                        root.selIndex = 0
+                        appModel.category = root.cats[currentIndex];
+                        root.selIndex = 0;
                     }
                 }
 
@@ -164,8 +163,8 @@ ApplicationWindow {
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    grid.currentIndex = index
-                                    root.selIndex = index
+                                    grid.currentIndex = index;
+                                    root.selIndex = index;
                                 }
                                 onDoubleClicked: appModel.launch(index)
                             }
@@ -218,8 +217,8 @@ ApplicationWindow {
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    list.currentIndex = index
-                                    root.selIndex = index
+                                    list.currentIndex = index;
+                                    root.selIndex = index;
                                 }
                                 onDoubleClicked: appModel.launch(index)
                             }
@@ -247,11 +246,20 @@ ApplicationWindow {
         sequence: "Return"
         onActivated: appModel.launch(root.selIndex)
     }
-    Keys.onPressed: (event) => {
-        var cols = Math.max(1, Math.floor(grid.width / grid.cellWidth))
-        if (event.key === Qt.Key_Right) { root.selIndex = Math.min(appModel.count - 1, root.selIndex + 1); event.accepted = true }
-        else if (event.key === Qt.Key_Left) { root.selIndex = Math.max(0, root.selIndex - 1); event.accepted = true }
-        else if (event.key === Qt.Key_Down) { root.selIndex = Math.min(appModel.count - 1, root.selIndex + (appModel.listMode ? 1 : cols)); event.accepted = true }
-        else if (event.key === Qt.Key_Up) { root.selIndex = Math.max(0, root.selIndex - (appModel.listMode ? 1 : cols)); event.accepted = true }
+    Keys.onPressed: event => {
+        var cols = Math.max(1, Math.floor(grid.width / grid.cellWidth));
+        if (event.key === Qt.Key_Right) {
+            root.selIndex = Math.min(appModel.count - 1, root.selIndex + 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Left) {
+            root.selIndex = Math.max(0, root.selIndex - 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            root.selIndex = Math.min(appModel.count - 1, root.selIndex + (appModel.listMode ? 1 : cols));
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            root.selIndex = Math.max(0, root.selIndex - (appModel.listMode ? 1 : cols));
+            event.accepted = true;
+        }
     }
 }
