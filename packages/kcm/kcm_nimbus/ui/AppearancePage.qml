@@ -1,5 +1,6 @@
-// F8-T01 — Apariencia: primera página funcional (control real).
-// Lee/escribe kcm.darkMode y kcm.accentColor (kdeglobals, vía C++).
+// F8-T02 — Apariencia real: tema, acento, fondo, Dock Krema, barra,
+// animaciones + mini previsualización. Todo sale por kcm (C++) y se aplica
+// con «Aplicar». i18n() extraíble (F11-T05).
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Dialogs
@@ -24,8 +25,8 @@ KCMUtils.SimpleKCM {
                 Accessible.name: i18n("Tema claro")
                 checked: page.kcmRef ? !page.kcmRef.darkMode : false
                 onToggled: {
-                    if (checked && page.kcmRef) {
-                        page.kcmRef.darkMode = false;
+                    if (page.kcmRef) {
+                        page.kcmRef.darkMode = !checked;
                     }
                 }
             }
@@ -34,8 +35,8 @@ KCMUtils.SimpleKCM {
                 Accessible.name: i18n("Tema oscuro")
                 checked: page.kcmRef ? page.kcmRef.darkMode : true
                 onToggled: {
-                    if (checked && page.kcmRef) {
-                        page.kcmRef.darkMode = true;
+                    if (page.kcmRef) {
+                        page.kcmRef.darkMode = checked;
                     }
                 }
             }
@@ -58,12 +59,201 @@ KCMUtils.SimpleKCM {
             }
         }
 
+        RowLayout {
+            Kirigami.FormData.label: i18n("Fondo:")
+            QQC2.Label {
+                Layout.fillWidth: true
+                elide: Text.ElideMiddle
+                color: Kirigami.Theme.disabledTextColor
+                text: page.kcmRef && page.kcmRef.wallpaperPath.length > 0 ? page.kcmRef.wallpaperPath : i18n("Automático según el tema")
+                Accessible.name: i18n("Fondo actual")
+            }
+            QQC2.Button {
+                text: i18n("Elegir…")
+                Accessible.name: i18n("Elegir imagen de fondo")
+                onClicked: wallpaperDialog.open()
+            }
+            QQC2.Button {
+                text: i18n("Automático")
+                Accessible.name: i18n("Volver al fondo automático")
+                enabled: page.kcmRef && page.kcmRef.wallpaperPath.length > 0
+                onClicked: {
+                    if (page.kcmRef) {
+                        page.kcmRef.wallpaperPath = "";
+                    }
+                }
+            }
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Dock")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Tamaño de icono:")
+            QQC2.Slider {
+                Layout.fillWidth: true
+                from: 24
+                to: 96
+                stepSize: 1
+                value: page.kcmRef ? page.kcmRef.dockIconSize : 48
+                Accessible.name: i18n("Tamaño de icono del Dock")
+                onMoved: {
+                    if (page.kcmRef) {
+                        page.kcmRef.dockIconSize = Math.round(value);
+                    }
+                }
+            }
+            QQC2.Label {
+                text: page.kcmRef ? page.kcmRef.dockIconSize + " px" : ""
+                Layout.minimumWidth: Kirigami.Units.gridUnit * 3
+            }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Ampliación al pasar:")
+            QQC2.Slider {
+                Layout.fillWidth: true
+                from: 1.0
+                to: 2.0
+                stepSize: 0.1
+                value: page.kcmRef ? page.kcmRef.dockZoomFactor : 1.6
+                Accessible.name: i18n("Ampliación de iconos al pasar el ratón")
+                onMoved: {
+                    if (page.kcmRef) {
+                        page.kcmRef.dockZoomFactor = value;
+                    }
+                }
+            }
+            QQC2.Label {
+                text: page.kcmRef ? Number(page.kcmRef.dockZoomFactor).toFixed(1) + "×" : ""
+                Layout.minimumWidth: Kirigami.Units.gridUnit * 3
+            }
+        }
+
+        QQC2.Switch {
+            Kirigami.FormData.label: i18n("Ocultar solo:")
+            text: i18n("Ocultar el Dock cuando no se usa")
+            Accessible.name: i18n("Ocultar automáticamente el Dock")
+            checked: page.kcmRef ? page.kcmRef.dockAutohide : false
+            onToggled: {
+                if (page.kcmRef) {
+                    page.kcmRef.dockAutohide = checked;
+                }
+            }
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Barra y animaciones")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Altura de la barra:")
+            QQC2.Slider {
+                Layout.fillWidth: true
+                from: 16
+                to: 64
+                stepSize: 1
+                value: page.kcmRef ? page.kcmRef.barHeight : 24
+                Accessible.name: i18n("Altura de la barra superior")
+                onMoved: {
+                    if (page.kcmRef) {
+                        page.kcmRef.barHeight = Math.round(value);
+                    }
+                }
+            }
+            QQC2.Label {
+                text: page.kcmRef ? page.kcmRef.barHeight + " px" : ""
+                Layout.minimumWidth: Kirigami.Units.gridUnit * 3
+            }
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Velocidad de animación:")
+            QQC2.Slider {
+                Layout.fillWidth: true
+                from: 0
+                to: 3
+                stepSize: 1
+                snapMode: QQC2.Slider.SnapAlways
+                value: page.kcmRef ? page.kcmRef.animationSpeed : 3
+                Accessible.name: i18n("Velocidad de las animaciones")
+                onMoved: {
+                    if (page.kcmRef) {
+                        page.kcmRef.animationSpeed = Math.round(value);
+                    }
+                }
+            }
+            QQC2.Label {
+                text: page.kcmRef ? i18n("%1 de 3", page.kcmRef.animationSpeed) : ""
+                Layout.minimumWidth: Kirigami.Units.gridUnit * 3
+            }
+        }
+
+        // Mini previsualización: barra + Dock con el acento elegido.
+        ColumnLayout {
+            Kirigami.FormData.label: i18n("Vista previa:")
+            spacing: Kirigami.Units.smallSpacing
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: Math.max(16, Math.min(64, page.kcmRef ? page.kcmRef.barHeight : 24))
+                radius: Kirigami.Units.smallSpacing
+                color: Kirigami.Theme.alternateBackgroundColor
+                border.color: Kirigami.Theme.disabledTextColor
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: Kirigami.Units.smallSpacing
+                    QQC2.Label {
+                        text: "Nimbus"
+                        font.bold: true
+                    }
+                    Item {
+                        Layout.fillWidth: true
+                    }
+                    Rectangle {
+                        implicitWidth: Kirigami.Units.iconSizes.smallMedium
+                        implicitHeight: Kirigami.Units.iconSizes.smallMedium
+                        radius: width / 2
+                        color: page.kcmRef ? page.kcmRef.accentColor : "transparent"
+                    }
+                }
+            }
+            Item {
+                Layout.fillWidth: true
+                implicitHeight: Kirigami.Units.largeSpacing
+            }
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: Kirigami.Units.smallSpacing
+                Repeater {
+                    model: 5
+                    delegate: Rectangle {
+                        required property int index
+                        implicitWidth: (page.kcmRef ? page.kcmRef.dockIconSize : 48) * 0.5 * (index === 2 && page.kcmRef ? page.kcmRef.dockZoomFactor : 1.0)
+                        implicitHeight: implicitWidth
+                        radius: Kirigami.Units.smallSpacing
+                        color: index === 2 && page.kcmRef ? page.kcmRef.accentColor : Kirigami.Theme.alternateBackgroundColor
+                        border.color: Kirigami.Theme.disabledTextColor
+                    }
+                }
+            }
+        }
+
         QQC2.Label {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
             color: Kirigami.Theme.disabledTextColor
             // Contratos Tahoe §2.1: #007AFF claro / #0A84FF oscuro [HIG].
-            text: i18n("El tema se aplica al pulsar «Aplicar». El fondo y el Dock llegan en la página completa (F8-T02).")
+            text: i18n("Todo se aplica al pulsar «Aplicar». La barra y el Dock nuevos aplican al reiniciar la sesión; «Predeterminados» recupera los valores Nimbus.")
+        }
+        QQC2.Label {
+            Layout.fillWidth: true
+            visible: page.kcmRef && page.kcmRef.helperStatus.length > 0
+            wrapMode: Text.WordWrap
+            color: Kirigami.Theme.neutralTextColor
+            text: page.kcmRef ? page.kcmRef.helperStatus : ""
         }
     }
 
@@ -74,6 +264,18 @@ KCMUtils.SimpleKCM {
         onAccepted: {
             if (page.kcmRef) {
                 page.kcmRef.accentColor = selectedColor.toString();
+            }
+        }
+    }
+
+    FileDialog {
+        id: wallpaperDialog
+        title: i18n("Elegir fondo")
+        fileMode: FileDialog.OpenFile
+        nameFilters: [i18n("Imágenes (*.jpg *.jpeg *.png *.webp)")]
+        onAccepted: {
+            if (page.kcmRef) {
+                page.kcmRef.wallpaperPath = String(selectedFile).replace(/^file:\/\//, "");
             }
         }
     }

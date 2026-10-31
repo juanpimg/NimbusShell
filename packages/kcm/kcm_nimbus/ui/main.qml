@@ -46,6 +46,12 @@ Item {
         }
     ]
     property string currentPage: "appearance"
+    // Seam de test (F8-T02): NIMBUS_KCM_PAGE vía kcm.initialPage.
+    Component.onCompleted: {
+        if (typeof kcm !== "undefined" && kcm.initialPage) {
+            currentPage = kcm.initialPage;
+        }
+    }
 
     function matchesFilter(title) {
         if (searchField.text.length === 0) {

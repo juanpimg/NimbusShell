@@ -5,25 +5,36 @@
 # NUNCA toca la sesión del host (~/.config intacto), no instala nada.
 #
 # Uso: bash tests/kcm/nested-kcm.sh [--out spikes/nested] [--timeout 60]
-#        [--prefix /tmp/nimbus-kcm-prefix]
+#        [--prefix /tmp/nimbus-kcm-prefix] [--page appearance] [--shot f8-kcm.png]
 set -u
 
 OUT_DIR="spikes/nested"
 TIMEOUT=60
 PREFIX="/tmp/nimbus-kcm-prefix"
+PAGE="appearance"
+SHOT_NAME="f8-kcm.png"
 for ((i=1; i<=$#; i++)); do
   case "${!i}" in
     --out) j=$((i+1)); OUT_DIR="${!j}" ;;
     --timeout) j=$((i+1)); TIMEOUT="${!j}" ;;
     --prefix) j=$((i+1)); PREFIX="${!j}" ;;
+    --page) j=$((i+1)); PAGE="${!j}" ;;
+    --shot) j=$((i+1)); SHOT_NAME="${!j}" ;;
   esac
 done
+case "$PAGE" in
+  appearance|network|shortcuts|accessibility|system|updates) ;;
+  *) echo "ERROR: --page admite: appearance network shortcuts accessibility system updates" >&2; exit 1 ;;
+esac
+if [[ "$SHOT_NAME" =~ [^A-Za-z0-9._-] ]]; then
+  echo "ERROR: --shot solo admite [A-Za-z0-9._-]" >&2; exit 1
+fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OUT_ABS="$REPO_ROOT/$OUT_DIR"
 mkdir -p "$OUT_ABS"
-SHOT="$OUT_ABS/f8-kcm.png"
-LOG="$OUT_ABS/f8-kcm.log"
+SHOT="$OUT_ABS/$SHOT_NAME"
+LOG="$OUT_ABS/${SHOT_NAME%.png}.log"
 : > "$LOG"
 
 if [ ! -f "$PREFIX/usr/lib/qt6/plugins/plasma/kcms/systemsettings/kcm_nimbus.so" ]; then
@@ -56,6 +67,8 @@ SHOT="'"$SHOT"'"
 LOG="'"$LOG"'"
 TIMEOUT="'"$TIMEOUT"'"
 PREFIX="'"$PREFIX"'"
+PAGE="'"$PAGE"'"
+REPO="'"$REPO_ROOT"'"
 export HOME="'"$NESTED_HOME"'"
 export XDG_RUNTIME_DIR="'"$RUNTIME_DIR"'"
 export XDG_CONFIG_HOME="'"$NESTED_HOME"'/.config"
@@ -74,6 +87,7 @@ export XDG_CURRENT_DESKTOP=KDE
 export QT_PLUGIN_PATH="'"$PREFIX"'/usr/lib/qt6/plugins${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
 export XDG_DATA_DIRS="'"$PREFIX"'/usr/share:/usr/share"
 export QML_IMPORT_PATH=/usr/lib/qt6/qml
+export NIMBUS_KCM_PAGE="$PAGE"
 trap '"'"'kill $(jobs -p) 2>/dev/null || true'"'"' EXIT
 
 echo "[kcm] arranque kwin_wayland --virtual ..." | tee -a "$LOG"
@@ -99,6 +113,9 @@ kwriteconfig6 --file kscreenlockerrc --group Daemon --key Autolock false >>"$LOG
 kwriteconfig6 --file kscreenlockerrc --group Daemon --key LockOnResume false >>"$LOG" 2>&1 || true
 # Iconos Breeze (en HOME virgen cae a hicolor y los Kirigami.Icon salen vacíos).
 kwriteconfig6 --file kdeglobals --group Icons --key Theme breeze >>"$LOG" 2>&1 || true
+# Estado canónico Nimbus en el HOME virgen (si no, KWin escribe atajos stock
+# Alt+F4 y el KCM refleja Ctrl; en un sistema Nimbus rige nimbus-keys meta).
+"$REPO/scripts/nimbus-keys" --apply --toggle-cmd meta --home "$HOME" >>"$LOG" 2>&1 || true
 
 echo "[kcm] arranque kcmshell6 kcm_nimbus ..." | tee -a "$LOG"
 kcmshell6 kcm_nimbus >>"$LOG" 2>&1 &

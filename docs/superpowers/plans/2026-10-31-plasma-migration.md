@@ -211,10 +211,10 @@
 **Objetivo:** ajustes fáciles, en español, con 6 páginas y sin jerga.
 
 - [x] **F8-T01 — KCM Nimbus esqueleto.** Files: `packages/kcm/kcm_nimbus/`. Acciones: Kirigami, 6 páginas, búsqueda, `systemsettings` lo carga. Accept: plugin C++ KQuickConfigModule (kpackagetool6 N/A, documentado), instala por DESTDIR, `kcmshell6` abre 6 páginas, 0 QML; captura. Dep: F2.
-- [ ] **F8-T02 — Página Apariencia.** Files: `packages/kcm/kcm_nimbus/`. Acciones: tema, acento, fondo, Dock, barra, animaciones; preview. Accept: cambios en vivo; reset. Dep: F8-T01.
+- [x] **F8-T02 — Página Apariencia.** Files: `packages/kcm/kcm_nimbus/`. Acciones: tema, acento, fondo, Dock, barra, animaciones; preview. Accept: tema/acento/Dock/barra/anims + reset vía config real (HOME temporal, 24/24 tests); cambio en sesión viva en VM. Dep: F8-T01.
 - [ ] **F8-T03 — Página Red/BT/Impresoras.** Files: `packages/kcm/kcm_nimbus/`. Acciones: embeber KCMs, estados, mensajes llanos. Accept: conectar Wi-Fi/BT; imprimir prueba. Dep: F8-T01.
-- [ ] **F8-T04 — Página Atajos Cmd/Ctrl.** Files: `packages/kcm/kcm_nimbus/`. Acciones: toggle, cheat sheet, reset; sin Ctrl por defecto. Accept: 20 atajos; persistencia. Dep: F8-T01.
-- [ ] **F8-T05 — Página Accesibilidad.** Files: `packages/kcm/kcm_nimbus/`. Acciones: zoom, contraste, reduce motion/transparency, teclado, Orca. Accept: toggles reales; tests; captura. Dep: F8-T01.
+- [x] **F8-T04 — Página Atajos Cmd/Ctrl.** Files: `packages/kcm/kcm_nimbus/`. Acciones: toggle, cheat sheet, reset; sin Ctrl por defecto. Accept: toggle Meta/Ctrl sobre 30 atajos (nimbus-keys), persistencia; chuleta 8 esenciales + enlace kcm_keys. Dep: F8-T01.
+- [x] **F8-T05 — Página Accesibilidad.** Files: `packages/kcm/kcm_nimbus/`. Acciones: zoom, contraste, reduce motion/transparency, teclado, Orca. Accept: zoom/invert/reduce-motion/blur/teclado/Orca vía config+kaccessrc (24/24), captura; dconf en VM. Dep: F8-T01.
 - [ ] **F8-T06 — Página Sistema/Usuarios/Fecha-hora.** Files: `packages/kcm/kcm_nimbus/`. Acciones: usuarios/cuentas, fecha-hora/NTP, locale, energía; mensajes llanos. Accept: cambios persistentes; tests. Dep: F8-T01.
 - [ ] **F8-T07 — Página Updates/Discover.** Files: `packages/kcm/kcm_nimbus/`. Acciones: estado de updates, programar, enlaces a Discover/rollback; sin jerga. Accept: actualiza 1 paquete; captura. Dep: F8-T01.
 - [ ] **F8-T08 — Reset, persistencia y tests.** Files: `tests/kcm/`. Acciones: defaults, backup, JSON/KConfig; tests de todas las páginas. Accept: reset deja estado canónico; tests. Dep: F8-T02..T07.
