@@ -1,0 +1,36 @@
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=316074 comm="plasmashell")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=316078 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=316078 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:316078): xdg-desktop-portal-WARNING **: 22:48:36.750: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=316078 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=316101 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=316078 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=316074 comm="plasmashell")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:316078): xdg-desktop-portal-WARNING **: 22:48:37.094: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=316078 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=316074 comm="plasmashell")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.14' (uid=1000 pid=316174 comm="/usr/lib/kf6/kioworker /usr/lib/qt6/plugins/kf6/ki")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=316179 comm="/usr/bin/kded6")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=316179 comm="/usr/bin/kded6")
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Successfully activated service 'org.bluez.obex'
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Connection :1.30 (uid=1000 pid=316533 comm="dbus-monitor --monitor type='method_call',interfac") became a monitor.
+(uint32 2,)
+dbus-daemon[316000]: [session uid=1000 pid=316000 pidfd=5] Monitoring connection :1.30 closed.
+[wire] FIN
+[wire] FIN
+[wire] dbus-run-session exit=0
+A connection to the bus can't be made
+warning: queue 0x5601b7d24fe0 destroyed while proxies still attached:
+  wl_callback#150 still attached

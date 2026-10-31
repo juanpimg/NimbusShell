@@ -31,10 +31,32 @@ temporales, `--no-lockscreen`, cleanup por trap). KWin 6.8.2 virtual
   tachada en panel ✓.
 - `nested-notif.log`: `notif-ready=yes`, `notify rc=0`, `QMLERR=0`.
 
-## Gaps (F2-T08: solo nested, sin VM)
+## Gaps medidos (fix review F3-T09, 2026-10-31)
 
-1. Agrupación: `GroupApplicationsFlat` es el modo del modelo; historial
-   agrupado por app **no verificado visualmente** `[INFERIDO]`.
-2. `PopupTimeout=5000` desplegado pero **no cronometrado** `[INFERIDO]`.
-3. Campana en panel stock diverge de macOS (sin icono) → F3-T12.
-4. Solo variante dark; blur KWin bajo popup no medido aquí.
+Harness nuevo `tests/vm/nested-notif-measure.sh` (+ sonda wire
+`tests/vm/nested-notif-wire.sh`, `spikes/nested/f3-wire.dump`).
+
+1. **Timeout 5s MEDIDO** (sin ajuste): `T0=…050.31 send-rc=0`,
+   `T1=+2.03s` (`f3-timeout-before.png`, banner visible),
+   `T2=+7.42s` (`f3-timeout-after.png`, ausente). `PopupTimeout=5000` OK.
+2. **Acción MEDIDA a nivel protocolo+render**: `GetCapabilities`
+   incluye `actions`/`inhibitions`; `Notify` con `["open","Abrir"]`
+   devuelve `id=4/5`. Sonda wire: `notify-send` añade hints
+   `urgency byte 1` + `sender-pid` (el `gdbus` pelado mandaba `{}`).
+   A/B con hints idénticos: (a) `expire -1` + cliente efímero →
+   **sin botón** (`f3-notify-a.png`); (b) `expire 30000` + emisor
+   vivo (hold) → **botón «Abrir» visible** (`f3-notify-b.png`).
+   El applet solo pinta acciones con el emisor en el bus.
+   Gap exacto restante: el **clic** → `ActionInvoked` no es emitable
+   en nested (sin `wtype`/`ydotool`/`uinput` sin root; KWin scripting
+   sin inyección de entrada; el applet no expone invoke por DBus).
+3. **Agrupación MEDIDA (popups)**: 2 notifs misma app → **pila de 2
+   banners, no fusiona** (`f3-group.png`). Gap exacto: historial
+   agrupado sin verificar (abrirlo exige clic; scripting sin
+   `panels()`/`expanded`; `plasmawindowed` no ve el servidor del
+   panel: «no disponible… proporcionado por KDE Plasma»).
+
+## Gaps previos (siguen)
+
+- Campana en panel stock diverge de macOS → F3-T12.
+- Solo variante dark; blur KWin bajo popup no medido aquí.
