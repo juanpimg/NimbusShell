@@ -228,7 +228,7 @@
 **Objetivo:** que un usuario de Windows/Mac llegue a un escritorio usable sin terminal.
 
 - [ ] **F9-T01 — Calamares pulido.** Files: `iso/calamares/`. Acciones: mismo `settings.conf` que F2-T07; idioma/teclado/zona/cuenta/particiones; textos llanos; marca. Accept: instalación guiada sin terminal; cronómetro. Dep: F2-T07.
-- [ ] **F9-T02 — Wizard de primer arranque (6 pasos).** Files: `apps/nimbus-welcome/`. Acciones: bienvenida, idioma, Wi-Fi, cuenta/avatar, apariencia, apps, tour; i18n: cadenas desde I18n.js, destino ki18n/.ts (F11-T05). Accept: <5 min, skip/reanudar; capturas. Dep: F9-T01.
+- [x] **F9-T02 — Wizard de primer arranque (6 pasos).** Files: `apps/nimbus-welcome/`. Acciones: bienvenida, idioma, Wi-Fi, cuenta/avatar, apariencia, apps, tour; i18n: cadenas desde I18n.js, destino ki18n/.ts (F11-T05). Accept: 6 pasos, skip/reanudar persistido (STEP=4), 4/4 tests, capturas; cronómetro real y autostart en ISO (F2-T08). Dep: F9-T01.
 - [ ] **F9-T03 — Elección de layout Mac/Win/Nimbus.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: presets de panel/atajos/Dock. Accept: cambia layout; reversible. Dep: F9-T02.
 - [ ] **F9-T04 — Apps recomendadas.** Files: `apps/nimbus-welcome/`. Acciones: selección Flatpak/PackageKit; progreso; sin bloquear. Accept: instala 3 apps; tests. Dep: F9-T02.
 - [ ] **F9-T05 — Migrador Windows/Mac.** Files: `apps/nimbus-migrate/`. Acciones: documentos, marcadores, fondo, lista de equivalencias; dry-run. Accept: importa 3 tipos; no sobrescribe; tests. Dep: F9-T02.
