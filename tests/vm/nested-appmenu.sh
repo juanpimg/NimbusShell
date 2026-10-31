@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Harness nested F3-T06: menú global Qt en nimbus-bar.
 # kwin virtual + fake registrar (tests/vm/fake-registrar.py, ver por qué
-# en su cabecera) + kate + dolphin + nautilus (GTK, R-GTK) + nimbus-bar
-# --demo-appmenu --log-appmenu. Capturas + log DBus como evidencia.
+# en su cabecera) + kate + dolphin + nautilus/firefox (GTK, R-GTK) +
+# nimbus-bar --demo-appmenu --log-appmenu (auto-abre el primer top-level
+# para capturar el popup). Capturas + log DBus como evidencia.
 # Seguro: NUNCA --replace, HOME/XDG temporales, sin root, cleanup por trap.
 # Uso: bash tests/vm/nested-appmenu.sh [--out spikes/nested] [--timeout 90] [--bin /ruta/nimbus-bar]
 set -u
@@ -177,6 +178,13 @@ spectacle -b -n -o "$OUT_ABS/f3-appmenu-kate.png" >>"$LOG" 2>&1 \
   && echo "[appmenu] f3-appmenu-kate.png OK" | tee -a "$LOG" \
   || echo "[appmenu] WARN: captura kate fallo" | tee -a "$LOG"
 
+echo "[appmenu] popup demo (Archivo auto-abierto) + captura ..." | tee -a "$LOG"
+grep -a "openSubmenu(" "$LOG" | tail -3 | tee -a "$LOG"
+sleep 2
+spectacle -b -n -o "$OUT_ABS/f3-appmenu-popup.png" >>"$LOG" 2>&1 \
+  && echo "[appmenu] f3-appmenu-popup.png OK" | tee -a "$LOG" \
+  || echo "[appmenu] WARN: captura popup fallo" | tee -a "$LOG"
+
 echo "[appmenu] foco a dolphin + captura ..." | tee -a "$LOG"
 qdbus6 org.kde.KWin /KWin org.kde.KWin.getWindowInfo "" 2>>"$LOG" | head -2 >>"$LOG" || true
 cat > "$OUT_ABS/focus-dolphin.js" <<JSEOF
@@ -218,10 +226,34 @@ spectacle -b -n -o "$OUT_ABS/f3-appmenu-gtk.png" >>"$LOG" 2>&1 \
   && echo "[appmenu] f3-appmenu-gtk.png OK" | tee -a "$LOG" \
   || echo "[appmenu] WARN: captura gtk fallo" | tee -a "$LOG"
 
+echo "[appmenu] firefox (GTK): no debe romper, menu vacio/oculto ..." | tee -a "$LOG"
+firefox --new-window about:blank >>"$LOG" 2>&1 &
+FIREFOX_PID=$!
+sleep 25
+cat > "$OUT_ABS/focus-firefox.js" <<JSEOF
+try {
+    var wl = workspace.windowList();
+    for (var i = 0; i < wl.length; i++) {
+        if (wl[i].resourceClass.toLowerCase().indexOf("firefox") >= 0) { workspace.activeWindow = wl[i]; }
+    }
+} catch (err) {}
+JSEOF
+FID2=$(qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.loadScript "$OUT_ABS/focus-firefox.js" "nimbus-focus-f" 2>>"$LOG") || true
+qdbus6 org.kde.KWin "/Scripting/Script$FID2" org.kde.kwin.Script.run >>"$LOG" 2>&1 || true
+sleep 5
+qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript "nimbus-focus-f" >>"$LOG" 2>&1 || true
+grep -a "activa pid=.*app=Firefox" "$LOG" | tail -1 | tee -a "$LOG"
+grep -a "sin dbusmenu" "$LOG" | tail -1 | tee -a "$LOG"
+if kill -0 $BAR_PID 2>/dev/null; then echo "[appmenu] barra VIVA tras firefox" | tee -a "$LOG";
+else echo "[appmenu] ERROR: barra murio con firefox" | tee -a "$LOG"; fi
+spectacle -b -n -o "$OUT_ABS/f3-appmenu-firefox.png" >>"$LOG" 2>&1 \
+  && echo "[appmenu] f3-appmenu-firefox.png OK" | tee -a "$LOG" \
+  || echo "[appmenu] WARN: captura firefox fallo" | tee -a "$LOG"
+
 echo "[appmenu] lineas appmenu finales ..." | tee -a "$LOG"
 grep -a "appmenu:" "$LOG" | tail -20 | tee -a "$LOG"
 ls -la "$OUT_ABS"/f3-appmenu*.png >>"$LOG" 2>&1
-echo "$KWIN_PID $KATE_PID $DOLPHIN_PID $NAUTILUS_PID" > "$PIDFILE"
+echo "$KWIN_PID $KATE_PID $DOLPHIN_PID $NAUTILUS_PID $FIREFOX_PID" > "$PIDFILE"
 echo "[appmenu] FIN." | tee -a "$LOG"
 ' >>"$LOG" 2>&1
 RC=$?

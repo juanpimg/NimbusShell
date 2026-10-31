@@ -192,6 +192,12 @@ void AppMenuModel::discoverMenu()
 {
     m_hasMenu = false;
     m_topLevel.clear();
+    // Evitar conexiones LayoutUpdated duplicadas de descubrimientos
+    // anteriores (se acumulaban y multiplicaban los refresh).
+    if (!m_service.isEmpty())
+        QDBusConnection::sessionBus().disconnect(
+            m_service, m_menuPath, QString::fromLatin1(kDbusMenu),
+            QStringLiteral("LayoutUpdated"), this, SLOT(refresh()));
     // Cambio de app: cerrar submenú abierto (como macOS); el QML también
     // cierra su popup al ver menusChanged.
     m_submenu.clear();
@@ -394,46 +400,61 @@ void AppMenuModel::openSubmenu(int id)
     QDBusInterface mi = menuIface();
     mi.setTimeout(2000);
     mi.call(QStringLiteral("AboutToShow"), id); // best-effort
-    QDBusMessage rep =
-        mi.call(QStringLiteral("GetLayout"), id, 1, QStringList());
-    QVariantList kids;
-    QString title;
-    if (rep.type() == QDBusMessage::ReplyMessage && rep.arguments().size() >= 2) {
-        MenuNode sub;
-        QDBusArgument arg = rep.arguments().at(1).value<QDBusArgument>();
-        nodeFromList(arg.asVariant().toList(), sub);
-        QString l = sub.props.value(QStringLiteral("label")).toString();
+    // Nodo cacheado del GetLayout raíz (recursivo: ya trae toda la
+    // jerarquía). Es el fallback si el GetLayout en vivo sale vacío
+    // (visto en nested: el parse en vivo de Kate daba título '' y 0 hijos).
+    MenuNode cached;
+    std::function<void(const MenuNode &)> find = [&](const MenuNode &n) {
+        for (const auto &c : n.children) {
+            if (cached.id != 0)
+                return;
+            if (c.id == id)
+                cached = c;
+            else
+                find(c);
+        }
+    };
+    if (id == 0)
+        cached = m_root;
+    else
+        find(m_root);
+    auto labelOf = [](const MenuNode &n) {
+        QString l = n.props.value(QStringLiteral("label")).toString();
         l.remove(QLatin1Char('_'));
         l.remove(QLatin1Char('&'));
-        title = l;
-        for (const auto &c : sub.children) {
-            if (c.props.value(QStringLiteral("visible"), true).toBool())
-                kids.append(nodeToMap(c, true));
-        }
-    } else {
-        // Fallback: subárbol cacheado del GetLayout raíz.
-        std::function<void(const MenuNode &)> find = [&](const MenuNode &n) {
-            for (const auto &c : n.children) {
-                if (c.id == id) {
-                    QString l = c.props.value(QStringLiteral("label")).toString();
-                    l.remove(QLatin1Char('_'));
-                    l.remove(QLatin1Char('&'));
-                    title = l;
-                    for (const auto &k : c.children) {
-                        if (k.props.value(QStringLiteral("visible"), true)
-                                .toBool())
-                            kids.append(nodeToMap(k, true));
-                    }
-                    return;
-                }
-                find(c);
-            }
-        };
-        find(m_root);
-        log(QStringLiteral("openSubmenu(%1) fallback-cache kids=%2").arg(id).arg(kids.size()));
+        return l;
+    };
+    // Intento en vivo (tras AboutToShow la app puede haber actualizado).
+    bool liveOk = false;
+    MenuNode sub;
+    QDBusMessage rep =
+        mi.call(QStringLiteral("GetLayout"), id, 1, QStringList());
+    if (rep.type() == QDBusMessage::ReplyMessage && rep.arguments().size() >= 2) {
+        const QVariant &v = rep.arguments().at(1);
+        if (v.userType() == qMetaTypeId<QDBusArgument>())
+            nodeFromList(v.value<QDBusArgument>().asVariant().toList(), sub);
+        else if (v.userType() == QVariant::List)
+            nodeFromList(v.toList(), sub);
+        liveOk = !sub.children.isEmpty();
+    }
+    if (!liveOk) {
+        sub = cached;
+        log(QStringLiteral("openSubmenu(%1) en-vivo vacio, uso cache kids=%2")
+                .arg(id)
+                .arg(cached.children.size()));
+    }
+    QVariantList kids;
+    for (const auto &c : sub.children) {
+        if (c.props.value(QStringLiteral("visible"), true).toBool())
+            kids.append(nodeToMap(c, true));
     }
     m_submenu = kids;
-    m_submenuTitle = title;
+    m_submenuTitle = labelOf(sub);
+    log(QStringLiteral("openSubmenu(%1) '%2' kids=%3%4")
+            .arg(id)
+            .arg(m_submenuTitle)
+            .arg(kids.size())
+            .arg(liveOk ? QString() : QStringLiteral(" (cache)")));
     emit submenuChanged();
 }
 

@@ -29,20 +29,23 @@ fake registrar + kate + dolphin + nautilus + `nimbus-bar --demo-appmenu
 
 ## Resultado: Kate sí, Dolphin sí, GTK no rompe
 
-- `appmenu: activa pid=245426 app=Kate` → `menu org.kde.kate-245426
+- `appmenu: activa pid=308699 app=Kate` → `menu org.kde.kate-308699
   /MenuBar/2` → `GetLayout /MenuBar/2 tops=11`. Captura
   `f3-appmenu-kate.png`: barra `Kate Archivo Editar Selección Ver Ir
   Proyectos Cliente LSP Sesiones Herramientas Preferencias Ayuda` (11
   tops visibles).
-- `appmenu: activa pid=245505 app=Dolphin` → `menu
-  org.kde.dolphin-245505 /MenuBar/2` → `GetLayout tops=7`. Captura
+- `appmenu: activa pid=311583 app=Dolphin` → `menu
+  org.kde.dolphin-311583 /MenuBar/2` → `GetLayout tops=7`. Captura
   `f3-appmenu-dolphin.png`: barra `Dolphin Archivo Editar Ver Ir
   Herramientas Preferencias Ayuda` (7 tops).
-- `appmenu: activa pid=245713 app=Nautilus` → `pid 245713 sin dbusmenu
-  (GTK/in-window?)`; `nimbus-bar VIVO` + `barra VIVA tras nautilus`.
-  Captura `f3-appmenu-gtk.png`: barra muestra solo `Nautilus` en negrita
-  (sin menú), Nautilus conserva su headerbar in-window. Cero aborts, cero
-  errores QML.
+- `appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox` → `pid
+  317427 sin dbusmenu (GTK/in-window?)`; `barra VIVA tras firefox`.
+  Captura `f3-appmenu-firefox.png`: barra con solo `Firefox` en negrita,
+  ventana con su UI propia. Firefox arranca en ~25 s con HOME temporal
+  (creación de perfil); el harness espera 25 s + 5 s tras enfocar.
+- Nautilus igual: `activa pid=316735 app=Nautilus` → `pid 316735 sin
+  dbusmenu`, `barra VIVA tras nautilus`, captura `f3-appmenu-gtk.png`.
+  Cero aborts, cero errores QML en ambos casos GTK.
 
 ## Fix de compilación/ejecución (cambios C++ mínimos)
 
@@ -59,6 +62,41 @@ fake registrar + kate + dolphin + nautilus + `nimbus-bar --demo-appmenu
   `Bar.qml` muestra `appMenu.appName` (defecto `Nimbus`) cuando no hay
   menú; `GlobalMenu.qml` cierra el popup ante `menusChanged` y en demo
   reabre el primer top-level (para la captura con menú visible).
+
+## Popup abierto (Archivo de Kate, demo auto-open)
+
+- `openSubmenu(1) 'Archivo' kids=20 (cache)`: el `GetLayout(1,1,[])` en
+  vivo tras `AboutToShow` devuelve un nodo vacío en Kate (título `''`,
+  0 hijos; `en-vivo vacio, uso cache` en el log), así que `openSubmenu`
+  usa el subárbol del `GetLayout(0,-1,[])` raíz (verificado en pantalla).
+  Lección: no fiarse del parse en vivo sin validar.
+- Captura `f3-appmenu-popup.png`: dropdown 280×560 bajo la barra con los
+  20 items de Archivo — `Nuevo` (Control+N), `Nueva ventana`
+  (Control+Shift+N), `Abrir…` (Control+O), `Abrir carpeta…` (Control+T),
+  `Guardar todo` (Control+L), `Cerrar` (Control+W), `Cerrar ventana`
+  (Control+Shift+W), `Salir` (Control+Q), separadores y ▶ de drill-in
+  (`Abrir reciente`, `Abrir con`, `Acciones de archivos`). Sin checks en
+  este menú (Kate no marca nada en Archivo; el render ✓/disabled existe
+  en `GlobalMenu.qml` vía `toggle-state`/`enabled`).
+- Geometría: `globalmenu: popup 280x560 at 0,0` — sin anclas, layer-shell
+  ignoraba tamaño/posición y el popup salía a pantalla completa; fix con
+  `AnchorTop|AnchorLeft` (patrón F3-T05). `x: 64` se ignora (sale en
+  x=0); gap menor documentado.
+
+## Build y qmllint (salida literal)
+
+```text
+$ cmake --build /tmp/nimbus-bar-f3menu
+[ 12%] Built target nimbus-bar_qmlimportscan
+[ 12%] Built target nimbus-bar_autogen_timestamp_deps
+[ 25%] Built target nimbus-bar_autogen
+[ 37%] Automatic RCC for bar.qrc
+[ 50%] Building CXX object CMakeFiles/nimbus-bar.dir/nimbus-bar_autogen/EWIEGA46WW/qrc_bar.cpp.o
+[ 62%] Linking CXX executable nimbus-bar
+[100%] Built target nimbus-bar
+$ qmllint packages/shell/nimbus-bar/qml/GlobalMenu.qml packages/shell/nimbus-bar/qml/Bar.qml
+(exit 0, sin avisos)
+```
 
 ## Límites / gaps
 

@@ -1,4 +1,4 @@
-[appmenu] runtime=/tmp/opencode/nimbus-appmenu-8Giose/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/nested-appmenu.log bin=/tmp/nimbus-bar-f3menu-prefix/bin/nimbus-bar
+[appmenu] runtime=/tmp/opencode/nimbus-appmenu-WnbyPR/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/nested-appmenu.log bin=/tmp/nimbus-bar-f3menu-prefix/bin/nimbus-bar
 [appmenu] arranque kwin_wayland --virtual ...
 [appmenu] arranque kwin_wayland --virtual ...
 [appmenu] socket OK
@@ -16,168 +16,208 @@ method void com.canonical.AppMenu.Registrar.RegisterWindow(uint wid, QDBusObject
 method void com.canonical.AppMenu.Registrar.UnregisterWindow(uint wid)
 [appmenu] arranque kate + dolphin (Qt) ...
 [appmenu] arranque kate + dolphin (Qt) ...
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.3' (uid=1000 pid=245426 comm="kate")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.4' (uid=1000 pid=245432 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.4' (uid=1000 pid=245432 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.3' (uid=1000 pid=315712 comm="kate")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.4' (uid=1000 pid=315718 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.4' (uid=1000 pid=315718 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
 
-(/usr/lib/xdg-desktop-portal:245432): xdg-desktop-portal-WARNING **: 22:39:21.661: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.4' (uid=1000 pid=245432 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.7' (uid=1000 pid=245454 comm="/usr/lib/xdg-desktop-portal-gtk")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.4' (uid=1000 pid=245432 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+(/usr/lib/xdg-desktop-portal:315718): xdg-desktop-portal-WARNING **: 22:48:26.446: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.4' (uid=1000 pid=315718 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.7' (uid=1000 pid=315742 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.4' (uid=1000 pid=315718 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
 
-(/usr/lib/xdg-desktop-portal:245432): xdg-desktop-portal-WARNING **: 22:39:21.828: Failed to connect to PipeWire: Couldn't connect to PipeWire
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.4' (uid=1000 pid=245432 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+(/usr/lib/xdg-desktop-portal:315718): xdg-desktop-portal-WARNING **: 22:48:26.601: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.4' (uid=1000 pid=315718 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
 [appmenu] export dbusmenu (esperado: kate+dolphin /MenuBar/N) ...
 [appmenu] export dbusmenu (esperado: kate+dolphin /MenuBar/N) ...
 DBUSMENU org.freedesktop.FileManager1 /MenuBar/2
-PYXML org.kde.dolphin-245505 len=541 nodes=2
-DBUSMENU org.kde.dolphin-245505 /MenuBar/2
-PYXML org.kde.kate-245426 len=541 nodes=2
-DBUSMENU org.kde.kate-245426 /MenuBar/2
+PYXML org.kde.dolphin-315946 len=541 nodes=2
+DBUSMENU org.kde.dolphin-315946 /MenuBar/2
+PYXML org.kde.kate-315712 len=541 nodes=2
+DBUSMENU org.kde.kate-315712 /MenuBar/2
 scan FIN
 [appmenu] arranque nimbus-bar --demo-appmenu --log-appmenu ...
 [appmenu] arranque nimbus-bar --demo-appmenu --log-appmenu ...
 nimbus-bar[4]: appmenu: init own-service=1
 nimbus-bar[4]: nimbus-bar: demoMenu=0 logActions=0
-nimbus-bar[4]: appmenu: activa pid=245505 app=Dolphin cap=Carpeta personal — Dolphin
-nimbus-bar[4]: appmenu: candidato org.kde.dolphin-245505 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.dolphin-245505 /MenuBar/2
+nimbus-bar[4]: appmenu: activa pid=315946 app=Dolphin cap=Carpeta personal — Dolphin
+nimbus-bar[4]: appmenu: candidato org.kde.dolphin-315946 hijos=2
+nimbus-bar[4]: appmenu: menu org.kde.dolphin-315946 /MenuBar/2
 nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
-[appmenu] nimbus-bar VIVO pid=245537
-[appmenu] nimbus-bar VIVO pid=245537
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=20
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[0]: globalmenu: popup 280x560 at 64,26
+[appmenu] nimbus-bar VIVO pid=316359
+[appmenu] nimbus-bar VIVO pid=316359
 [appmenu] lineas appmenu: del log ...
 [appmenu] lineas appmenu: del log ...
 nimbus-bar[4]: appmenu: init own-service=1
-nimbus-bar[4]: appmenu: activa pid=245505 app=Dolphin cap=Carpeta personal — Dolphin
-nimbus-bar[4]: appmenu: candidato org.kde.dolphin-245505 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.dolphin-245505 /MenuBar/2
+nimbus-bar[4]: appmenu: activa pid=315946 app=Dolphin cap=Carpeta personal — Dolphin
+nimbus-bar[4]: appmenu: candidato org.kde.dolphin-315946 hijos=2
+nimbus-bar[4]: appmenu: menu org.kde.dolphin-315946 /MenuBar/2
 nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=20
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
 [appmenu] lineas appmenu: del log ...
 [appmenu] lineas appmenu: del log ...
 nimbus-bar[4]: appmenu: init own-service=1
-nimbus-bar[4]: appmenu: activa pid=245505 app=Dolphin cap=Carpeta personal — Dolphin
-nimbus-bar[4]: appmenu: candidato org.kde.dolphin-245505 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.dolphin-245505 /MenuBar/2
+nimbus-bar[4]: appmenu: activa pid=315946 app=Dolphin cap=Carpeta personal — Dolphin
+nimbus-bar[4]: appmenu: candidato org.kde.dolphin-315946 hijos=2
+nimbus-bar[4]: appmenu: menu org.kde.dolphin-315946 /MenuBar/2
 nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=20
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
 [appmenu] lineas appmenu: del log ...
 [appmenu] lineas appmenu: del log ...
 [appmenu] foco a kate + captura (menu global Kate) ...
 [appmenu] foco a kate + captura (menu global Kate) ...
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: candidato org.kde.kate-245426 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.kate-245426 /MenuBar/2
+nimbus-bar[4]: appmenu: activa pid=315712 app=Kate cap=Bienvenido — Kate
+nimbus-bar[4]: appmenu: candidato org.kde.kate-315712 hijos=2
+nimbus-bar[4]: appmenu: menu org.kde.kate-315712 /MenuBar/2
 nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=21
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=21 (cache)
+nimbus-bar[0]: globalmenu: popup 280x560 at 0,0
 true
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
+nimbus-bar[4]: appmenu: activa pid=315712 app=Kate cap=Bienvenido — Kate
+nimbus-bar[4]: appmenu: activa pid=315712 app=Kate cap=Bienvenido — Kate
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
 [appmenu] f3-appmenu-kate.png OK
 [appmenu] f3-appmenu-kate.png OK
-[appmenu] captura estado tras kate (referencia) ...
-[appmenu] captura estado tras kate (referencia) ...
-[appmenu] f3-appmenu.png OK
-[appmenu] f3-appmenu.png OK
+[appmenu] popup demo (Archivo auto-abierto) + captura ...
+[appmenu] popup demo (Archivo auto-abierto) + captura ...
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=21
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=21 (cache)
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=21
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=21 (cache)
+[appmenu] f3-appmenu-popup.png OK
+[appmenu] f3-appmenu-popup.png OK
 [appmenu] foco a dolphin + captura ...
 [appmenu] foco a dolphin + captura ...
-nimbus-bar[4]: appmenu: activa pid=245505 app=Dolphin cap=Carpeta personal — Dolphin
-nimbus-bar[4]: appmenu: candidato org.kde.dolphin-245505 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.dolphin-245505 /MenuBar/2
+nimbus-bar[4]: appmenu: activa pid=315946 app=Dolphin cap=Carpeta personal — Dolphin
+nimbus-bar[4]: appmenu: candidato org.kde.dolphin-315946 hijos=2
+nimbus-bar[4]: appmenu: menu org.kde.dolphin-315946 /MenuBar/2
 nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=20
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[0]: globalmenu: popup 280x560 at 0,0
 true
 [appmenu] f3-appmenu-dolphin.png OK
 [appmenu] f3-appmenu-dolphin.png OK
 [appmenu] nautilus (GTK): no debe romper, menu vacio/oculto ...
 [appmenu] nautilus (GTK): no debe romper, menu vacio/oculto ...
-** Message: 22:39:53.596: Connecting to org.freedesktop.Tracker3.Miner.Files
+** Message: 22:49:00.440: Connecting to org.freedesktop.Tracker3.Miner.Files
 
-** (org.gnome.Nautilus:245713): WARNING **: 22:39:53.597: Failed to open service channel Wayland connection, portal dialogs may misbehave (No se puede invocar al método; el proxy no tiene dueño para un nombre org.gnome.Mutter.ServiceChannelconocido y el proxy se construyó con la opción G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START).
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.26' (uid=1000 pid=245713 comm="nautilus --new-window")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.a11y.Bus' requested by ':1.26' (uid=1000 pid=245713 comm="nautilus --new-window")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'ca.desrt.dconf'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.a11y.Bus'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.29' (uid=1000 pid=245742 comm="/usr/bin/dbus-broker-launch --config-file=/usr/sha")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.gtk.vfs.UDisks2VolumeMonitor' requested by ':1.26' (uid=1000 pid=245713 comm="nautilus --new-window")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.gtk.vfs.UDisks2VolumeMonitor'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.Tracker3.Miner.Files' requested by ':1.26' (uid=1000 pid=245713 comm="nautilus --new-window")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Successfully activated service 'org.freedesktop.Tracker3.Miner.Files'
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.33' (uid=1000 pid=245774 comm="/usr/lib/localsearch-3")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.29' (uid=1000 pid=245742 comm="/usr/bin/dbus-broker-launch --config-file=/usr/sha")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
+** (org.gnome.Nautilus:316735): WARNING **: 22:49:00.442: Failed to open service channel Wayland connection, portal dialogs may misbehave (No se puede invocar al método; el proxy no tiene dueño para un nombre org.gnome.Mutter.ServiceChannelconocido y el proxy se construyó con la opción G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START).
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.26' (uid=1000 pid=316735 comm="nautilus --new-window")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.a11y.Bus' requested by ':1.26' (uid=1000 pid=316735 comm="nautilus --new-window")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.a11y.Bus'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.29' (uid=1000 pid=316761 comm="/usr/bin/dbus-broker-launch --config-file=/usr/sha")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.gtk.vfs.UDisks2VolumeMonitor' requested by ':1.26' (uid=1000 pid=316735 comm="nautilus --new-window")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.gtk.vfs.UDisks2VolumeMonitor'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.Tracker3.Miner.Files' requested by ':1.26' (uid=1000 pid=316735 comm="nautilus --new-window")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.freedesktop.Tracker3.Miner.Files'
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.33' (uid=1000 pid=316797 comm="/usr/lib/localsearch-3")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.29' (uid=1000 pid=316761 comm="/usr/bin/dbus-broker-launch --config-file=/usr/sha")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
 
-(org.gnome.Nautilus:245713): Gtk-CRITICAL **: 22:39:54.374: Unable to register the application: GDBus.Error:org.freedesktop.DBus.Error.NameHasNoOwner: Could not activate remote peer 'org.a11y.atspi.Registry': unit failed
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.29' (uid=1000 pid=245742 comm="/usr/bin/dbus-broker-launch --config-file=/usr/sha")
-dbus-daemon[245330]: [session uid=1000 pid=245330 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
-
-(org.gnome.Nautilus:245713): Gtk-CRITICAL **: 22:39:54.743: Unable to register the application: GDBus.Error:org.freedesktop.DBus.Error.NameHasNoOwner: Could not activate remote peer 'org.a11y.atspi.Registry': unit failed
-nimbus-bar[4]: appmenu: activa pid=245713 app=Nautilus cap=Carpeta personal
+(org.gnome.Nautilus:316735): Gtk-CRITICAL **: 22:49:01.320: Unable to register the application: GDBus.Error:org.freedesktop.DBus.Error.NameHasNoOwner: Could not activate remote peer 'org.a11y.atspi.Registry': unit failed
+nimbus-bar[4]: appmenu: activa pid=316735 app=Nautilus cap=Carpeta personal
 nimbus-bar[4]: appmenu: candidato org.gnome.Nautilus hijos=
-nimbus-bar[4]: appmenu: pid 245713 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: pid 316735 sin dbusmenu (GTK/in-window?)
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.29' (uid=1000 pid=316761 comm="/usr/bin/dbus-broker-launch --config-file=/usr/sha")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
+
+(org.gnome.Nautilus:316735): Gtk-CRITICAL **: 22:49:01.694: Unable to register the application: GDBus.Error:org.freedesktop.DBus.Error.NameHasNoOwner: Could not activate remote peer 'org.a11y.atspi.Registry': unit failed
 true
 [appmenu] barra VIVA tras nautilus
 [appmenu] barra VIVA tras nautilus
 [appmenu] f3-appmenu-gtk.png OK
 [appmenu] f3-appmenu-gtk.png OK
+[appmenu] firefox (GTK): no debe romper, menu vacio/oculto ...
+[appmenu] firefox (GTK): no debe romper, menu vacio/oculto ...
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.freedesktop.systemd1' requested by ':1.29' (uid=1000 pid=316761 comm="/usr/bin/dbus-broker-launch --config-file=/usr/sha")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activated service 'org.freedesktop.systemd1' failed: Process org.freedesktop.systemd1 exited with status 1
+
+(org.gnome.Nautilus:316735): Gtk-CRITICAL **: 22:49:13.151: Unable to register the application: GDBus.Error:org.freedesktop.DBus.Error.NameHasNoOwner: Could not activate remote peer 'org.a11y.atspi.Registry': unit failed
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Activating service name='org.gtk.vfs.Metadata' requested by ':1.42' (uid=1000 pid=317427 comm="/usr/lib/firefox/firefox --new-window about:blank")
+dbus-daemon[315544]: [session uid=1000 pid=315544 pidfd=5] Successfully activated service 'org.gtk.vfs.Metadata'
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: candidato org.mozilla.firefox.L3RtcC9vcGVuY29kZS9uaW1idXMtYXBwbWVudS1XbmJ5UFIvY29uZmlnL21vemlsbGEvZmlyZWZveC9mNHVvdTZ2OC5kZWZhdWx0LXJlbGVhc2U_ hijos=
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+true
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+[appmenu] barra VIVA tras firefox
+[appmenu] barra VIVA tras firefox
+[appmenu] f3-appmenu-firefox.png OK
+[appmenu] f3-appmenu-firefox.png OK
 [appmenu] lineas appmenu finales ...
 [appmenu] lineas appmenu finales ...
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
-[appmenu] lineas appmenu: del log ...
-[appmenu] lineas appmenu: del log ...
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: candidato org.kde.kate-245426 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.kate-245426 /MenuBar/2
-nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
-nimbus-bar[4]: appmenu: activa pid=245505 app=Dolphin cap=Carpeta personal — Dolphin
-nimbus-bar[4]: appmenu: candidato org.kde.dolphin-245505 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.dolphin-245505 /MenuBar/2
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=21
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=21 (cache)
+nimbus-bar[4]: appmenu: activa pid=315946 app=Dolphin cap=Carpeta personal — Dolphin
+nimbus-bar[4]: appmenu: candidato org.kde.dolphin-315946 hijos=2
+nimbus-bar[4]: appmenu: menu org.kde.dolphin-315946 /MenuBar/2
 nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
-nimbus-bar[4]: appmenu: activa pid=245713 app=Nautilus cap=Carpeta personal
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=20
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[4]: appmenu: activa pid=316735 app=Nautilus cap=Carpeta personal
 nimbus-bar[4]: appmenu: candidato org.gnome.Nautilus hijos=
-nimbus-bar[4]: appmenu: pid 245713 sin dbusmenu (GTK/in-window?)
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
-[appmenu] lineas appmenu: del log ...
-[appmenu] lineas appmenu: del log ...
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: candidato org.kde.kate-245426 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.kate-245426 /MenuBar/2
-nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: activa pid=245426 app=Kate cap=Bienvenido — Kate
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
-nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=11
-nimbus-bar[4]: appmenu: activa pid=245505 app=Dolphin cap=Carpeta personal — Dolphin
-nimbus-bar[4]: appmenu: candidato org.kde.dolphin-245505 hijos=2
-nimbus-bar[4]: appmenu: menu org.kde.dolphin-245505 /MenuBar/2
+nimbus-bar[4]: appmenu: pid 316735 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: candidato org.mozilla.firefox.L3RtcC9vcGVuY29kZS9uaW1idXMtYXBwbWVudS1XbmJ5UFIvY29uZmlnL21vemlsbGEvZmlyZWZveC9mNHVvdTZ2OC5kZWZhdWx0LXJlbGVhc2U_ hijos=
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=21
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=21 (cache)
+nimbus-bar[4]: appmenu: activa pid=315946 app=Dolphin cap=Carpeta personal — Dolphin
+nimbus-bar[4]: appmenu: candidato org.kde.dolphin-315946 hijos=2
+nimbus-bar[4]: appmenu: menu org.kde.dolphin-315946 /MenuBar/2
 nimbus-bar[4]: appmenu: GetLayout reply type=QDBusArgument sig=(ia{sv}av)
 nimbus-bar[4]: appmenu: GetLayout /MenuBar/2 tops=7
-nimbus-bar[4]: appmenu: activa pid=245713 app=Nautilus cap=Carpeta personal
+nimbus-bar[4]: appmenu: openSubmenu(1) en-vivo vacio, uso cache kids=20
+nimbus-bar[4]: appmenu: openSubmenu(1) 'Archivo' kids=20 (cache)
+nimbus-bar[4]: appmenu: activa pid=316735 app=Nautilus cap=Carpeta personal
 nimbus-bar[4]: appmenu: candidato org.gnome.Nautilus hijos=
-nimbus-bar[4]: appmenu: pid 245713 sin dbusmenu (GTK/in-window?)
--rw-r--r-- 1 jp jp 29194 oct 31 22:39 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-dolphin.png
--rw-r--r-- 1 jp jp 37012 oct 31 22:40 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-gtk.png
--rw-r--r-- 1 jp jp 36655 oct 31 22:39 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-kate.png
--rw-r--r-- 1 jp jp 36655 oct 31 22:39 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu.png
+nimbus-bar[4]: appmenu: pid 316735 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: candidato org.mozilla.firefox.L3RtcC9vcGVuY29kZS9uaW1idXMtYXBwbWVudS1XbmJ5UFIvY29uZmlnL21vemlsbGEvZmlyZWZveC9mNHVvdTZ2OC5kZWZhdWx0LXJlbGVhc2U_ hijos=
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: activa pid=317427 app=Firefox cap=Mozilla Firefox
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+nimbus-bar[4]: appmenu: pid 317427 sin dbusmenu (GTK/in-window?)
+-rw-r--r-- 1 jp jp 71166 oct 31 22:49 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-dolphin.png
+-rw-r--r-- 1 jp jp 21748 oct 31 22:49 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-firefox.png
+-rw-r--r-- 1 jp jp 37041 oct 31 22:49 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-gtk.png
+-rw-r--r-- 1 jp jp 85609 oct 31 22:48 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-kate.png
+-rw-r--r-- 1 jp jp 85609 oct 31 22:48 /home/jp/Escritorio/Proyectos/NimbusShell-f3menu/spikes/nested/f3-appmenu-popup.png
 [appmenu] FIN.
 [appmenu] FIN.
 A connection to the bus can't be made
@@ -186,4 +226,11 @@ A connection to the bus can't be made
 A connection to the bus can't be made
 A connection to the bus can't be made
 
-(localsearch-3:245774): GVFS-RemoteVolumeMonitor-WARNING **: 22:40:05.831: Owner of volume monitor org.gtk.vfs.UDisks2VolumeMonitor disconnected from the bus; removing drives/volumes/mounts
+(localsearch-3:316797): GVFS-RemoteVolumeMonitor-WARNING **: 22:49:42.947: Owner of volume monitor org.gtk.vfs.UDisks2VolumeMonitor disconnected from the bus; removing drives/volumes/mounts
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.
+Exiting due to channel error.

@@ -34,6 +34,8 @@ Row {
         }
     }
     onOpenedChanged: {
+        if (opened && demo)
+            console.log("globalmenu: popup " + popup.width + "x" + popup.height + " at " + popup.x + "," + popup.y);
         if (!opened)
             appMenu.closeMenu();
     }
@@ -107,6 +109,9 @@ Row {
         }
     }
 
+    // F3-T06-fix: en layer-shell la geometría explícita (x/y/width) se
+    // ignora sin anclas (el popup salía a pantalla completa); con
+    // Top|Left se respeta el tamaño 280 (patrón de F3-T05).
     Window {
         id: popup
         visible: root.opened
@@ -118,6 +123,7 @@ Row {
         color: "transparent"
         title: "nimbus-globalmenu"
         LayerShellQt.Window.layer: LayerShellQt.Window.LayerTop
+        LayerShellQt.Window.anchors: LayerShellQt.Window.AnchorTop | LayerShellQt.Window.AnchorLeft
         LayerShellQt.Window.exclusionZone: 0
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityNone
         LayerShellQt.Window.scope: "nimbus-globalmenu"
