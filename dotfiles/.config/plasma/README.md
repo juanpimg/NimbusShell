@@ -8,6 +8,7 @@ NimbusOS en una sola dirección (NimbusShell → NimbusOS).
   `kscreenlockerrc`, `kwinrulesrc`, `plasma-org.kde.plasma.desktop-appletsrc`).
 - **Convención:** identificadores `org.nimbus.*` para plasmoids, efectos KWin
   y KCM propios.
-- **Qué va:** solo configs del perfil Plasma. **Qué no:** nada de
-  `hyprland`/`quickshell` (`grep -r hyprland` debe dar vacío, F1-T04);
-  el perfil antiguo vive en `legacy/hyprland/dotfiles/`.
+- **Qué va:** solo configs del perfil Plasma. **Qué no:** nada del
+  compositor/shell anterior (criterio F1-T04: cero menciones al perfil
+  legacy en este árbol); el perfil anterior vive congelado bajo
+  `legacy/` (ver su README).
