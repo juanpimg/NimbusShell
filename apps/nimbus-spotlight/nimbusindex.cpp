@@ -9,11 +9,13 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPointer>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QSet>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QUrl>
@@ -548,8 +550,13 @@ bool NimbusIndex::activateLocal(int index, const QString &action)
     recordUse(id);
     if (act == QLatin1String("copy")) {
         if (QGuiApplication::clipboard()) {
-            QGuiApplication::clipboard()->setText(
-                kind == QLatin1String("calc") ? target : id);
+            // clip/emoji: copiar el texto COMPLETO (localExec), no el
+            // título truncado a 80 (F6-T06: Pegar/Copiar pega todo).
+            if (kind == QLatin1String("calc") || kind == QLatin1String("clip")
+                || kind == QLatin1String("emoji"))
+                QGuiApplication::clipboard()->setText(target);
+            else
+                QGuiApplication::clipboard()->setText(id);
             return true;
         }
         return false;
@@ -594,7 +601,8 @@ QVariantMap NimbusIndex::clipEntry(const QString &text, int i)
     const QString t = text.left(16384);
     QVariantMap o;
     o[QStringLiteral("text")] = t.left(80);
-    o[QStringLiteral("subtext")] = QStringLiteral("Portapapeles");
+    // Tipo visible; fecha no la expone el menú klipper (ver evidencia F6-T06).
+    o[QStringLiteral("subtext")] = QStringLiteral("Portapapeles · texto · %1 caracteres").arg(t.size());
     o[QStringLiteral("category")] = QStringLiteral("clipboard");
     o[QStringLiteral("runner")] = QStringLiteral("Nimbus");
     o[QStringLiteral("relevance")] = 1.0;
@@ -604,25 +612,303 @@ QVariantMap NimbusIndex::clipEntry(const QString &text, int i)
     o[QStringLiteral("localKind")] = QStringLiteral("clip");
     o[QStringLiteral("localId")] = t.left(80);
     o[QStringLiteral("localExec")] = t;
+    o[QStringLiteral("clipType")] = QStringLiteral("texto");
+    o[QStringLiteral("clipDate")] = QString();
     return o;
 }
 
-QVariantList NimbusIndex::clipboardEntries()
+QStringList NimbusIndex::parseKlipperHistoryFile(const QString &data)
 {
-    // Solo klipper vía DBus; texto <16384 sin formato (no passwords).
-    QVariantList out;
+    // history2.lst puede traer NUL (QDataStream) o líneas: se aceptan ambos.
+    QStringList out;
+    QSet<QString> seen;
+    QString tmp = data;
+    tmp.replace(QChar::Null, '\n');
+    for (QString line : tmp.split('\n')) {
+        line = line.trimmed();
+        if (line.isEmpty() || seen.contains(line)) continue;
+        seen.insert(line);
+        out.append(line);
+    }
+    return out;
+}
+
+QVariantList NimbusIndex::clipboardEntries(const QString &filter)
+{
+    QElapsedTimer t;
+    t.start();
+    // Cadena: klipper DBus → history2.lst → wl-paste (último clipboard).
+    // Sin passwords ni Universal Clipboard (R-KRUNNER: fuera de alcance).
+    QStringList texts;
     QDBusInterface klipper(QStringLiteral("org.kde.klipper"),
                            QStringLiteral("/klipper"),
                            QStringLiteral("org.kde.klipper.klipper"),
                            QDBusConnection::sessionBus());
-    if (!klipper.isValid()) return out;
-    QDBusReply<QStringList> r = klipper.call(QStringLiteral("getClipboardHistoryMenu"));
-    if (!r.isValid()) return out;
+    if (klipper.isValid()) {
+        QDBusReply<QStringList> r = klipper.call(QStringLiteral("getClipboardHistoryMenu"));
+        if (r.isValid()) texts = r.value();
+        if (texts.isEmpty()) {
+            // getClipboardHistory si existe (índice → texto); tolerante.
+            QDBusReply<QString> r1 = klipper.call(QStringLiteral("getClipboardHistoryItem"), 0);
+            if (r1.isValid() && !r1.value().isEmpty()) texts << r1.value();
+        }
+    }
+    if (texts.isEmpty()) {
+        QFile f(QDir::homePath() + QStringLiteral("/.local/share/klipper/history2.lst"));
+        if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+            texts = parseKlipperHistoryFile(QString::fromUtf8(f.readAll()));
+    }
+    if (texts.isEmpty()) {
+        QProcess wl;
+        wl.start(QStringLiteral("wl-paste"), {});
+        if (wl.waitForFinished(1500) && wl.exitCode() == 0) {
+            const QString cur = QString::fromUtf8(wl.readAllStandardOutput()).trimmed();
+            if (!cur.isEmpty()) texts << cur;
+        }
+    }
+    QVariantList out;
     int i = 0;
-    for (const QString &e : r.value()) {
+    const QString q = filter.trimmed();
+    for (const QString &e : texts) {
         if (i >= 20) break;
+        if (!q.isEmpty() && fuzzyScore(e.left(512), q) < 0
+            && !e.contains(q, Qt::CaseInsensitive))
+            continue;
         out.append(clipEntry(e, i));
         ++i;
+    }
+    m_latency = t.elapsed(); // sin emit: QML lo lee vía lastClipLatency()
+    return out;
+}
+
+bool NimbusIndex::copyToClipboard(const QString &text)
+{
+    QClipboard *c = QGuiApplication::clipboard();
+    if (!c || text.isEmpty()) return false;
+    c->setText(text);
+    return true;
+}
+
+// Tabla emoji propia (F6-T06): glifo Unicode (fuente del sistema) + nombre
+// ES + keywords ES/EN para búsqueda. Sin assets externos; i18n: los nombres
+// viven aquí listos para traducir (QML los muestra con qsTr en la UI).
+struct EmojiRow { const char *glyph, *name, *kw, *cat; };
+static const EmojiRow kEmojis[] = {
+    {"\xF0\x9F\x98\x80", "sonrisa", "alegre feliz cara smile happy", "caras"},
+    {"\xF0\x9F\x98\x82", "risa", "llorar alegria laugh joy", "caras"},
+    {"\xF0\x9F\x98\x8D", "enamorado", "corazon ojos love heart", "caras"},
+    {"\xF0\x9F\xA4\x94", "pensando", "duda think", "caras"},
+    {"\xF0\x9F\x98\x8E", "genial", "gafas sol cool", "caras"},
+    {"\xF0\x9F\x98\xB4", "dormido", "dormir sleep", "caras"},
+    {"\xF0\x9F\x98\xA2", "triste", "llanto cry sad", "caras"},
+    {"\xF0\x9F\x98\xA1", "enfado", "furioso angry", "caras"},
+    {"\xF0\x9F\xA4\xAF", "alucinado", "mente explotar mind blown", "caras"},
+    {"\xF0\x9F\xA5\xB3", "fiesta", "celebrar party", "caras"},
+    {"\xF0\x9F\x98\x87", "angel", "halo bueno halo", "caras"},
+    {"\xF0\x9F\xA4\x96", "robot", "maquina robot", "caras"},
+    {"\xF0\x9F\x91\x8D", "pulgar arriba", "bien ok like yes", "gestos"},
+    {"\xF0\x9F\x91\x8E", "pulgar abajo", "mal no dislike", "gestos"},
+    {"\xF0\x9F\x91\x8F", "aplauso", "aplaudir bien clap", "gestos"},
+    {"\xF0\x9F\x99\x8F", "gracias", "rezar por favor pray thanks", "gestos"},
+    {"\xF0\x9F\x91\x8B", "hola", "adios mano wave", "gestos"},
+    {"\xE2\x9C\x8C\xEF\xB8\x8F", "victoria", "paz dos peace", "gestos"},
+    {"\xF0\x9F\x92\xAA", "fuerza", "musculo fuerte strong", "gestos"},
+    {"\xF0\x9F\x91\x8C", "perfecto", "ok vale okay", "gestos"},
+    {"\xF0\x9F\x90\xB1", "gato", "cat", "animales"},
+    {"\xF0\x9F\x90\xB6", "perro", "dog", "animales"},
+    {"\xF0\x9F\xA6\x8A", "zorro", "fox", "animales"},
+    {"\xF0\x9F\x90\xBC", "panda", "oso panda", "animales"},
+    {"\xF0\x9F\xA6\x81", "leon", "lion", "animales"},
+    {"\xF0\x9F\x90\xB8", "rana", "frog", "animales"},
+    {"\xF0\x9F\xA6\x84", "unicornio", "magia unicorn", "animales"},
+    {"\xF0\x9F\x90\x9D", "abeja", "miel bee", "animales"},
+    {"\xF0\x9F\x8D\x95", "pizza", "comida italiana pizza", "comida"},
+    {"\xF0\x9F\x8D\x94", "hamburguesa", "burger comida", "comida"},
+    {"\xF0\x9F\x8D\x8E", "manzana", "fruta apple", "comida"},
+    {"\xE2\x98\x95", "cafe", "coffee desayuno", "comida"},
+    {"\xF0\x9F\x8D\xB0", "tarta", "pastel cumpleanos cake", "comida"},
+    {"\xF0\x9F\x8C\xAE", "taco", "mexicana comida", "comida"},
+    {"\xF0\x9F\x8D\x87", "uvas", "fruta vino grape", "comida"},
+    {"\xF0\x9F\x8D\xA9", "donut", "dona dulce", "comida"},
+    {"\xF0\x9F\x8C\x9E", "sol", "soleado sun", "naturaleza"},
+    {"\xF0\x9F\x8C\x99", "luna", "noche moon", "naturaleza"},
+    {"\xE2\xAD\x90", "estrella", "star", "naturaleza"},
+    {"\xF0\x9F\x8C\xA7\xEF\xB8\x8F", "lluvia", "llover rain", "naturaleza"},
+    {"\xF0\x9F\x94\xA5", "fuego", "caliente fire hot", "naturaleza"},
+    {"\xF0\x9F\x8C\xB3", "arbol", "planta tree", "naturaleza"},
+    {"\xF0\x9F\x8C\xB8", "flor", "primavera flower", "naturaleza"},
+    {"\xE2\x9D\x84\xEF\xB8\x8F", "nieve", "frio invierno snow", "naturaleza"},
+    {"\xF0\x9F\x92\xBB", "portatil", "ordenador laptop computer", "objetos"},
+    {"\xF0\x9F\x93\xB1", "movil", "telefono smartphone phone", "objetos"},
+    {"\xE2\x9C\x8F\xEF\xB8\x8F", "lapiz", "escribir pencil", "objetos"},
+    {"\xF0\x9F\x93\x9A", "libros", "leer books", "objetos"},
+    {"\xF0\x9F\x94\x91", "llave", "abrir key", "objetos"},
+    {"\xF0\x9F\x92\xA1", "idea", "bombilla pensar idea", "objetos"},
+    {"\xF0\x9F\x8E\xA7", "auriculares", "musica headphones", "objetos"},
+    {"\xF0\x9F\x93\xB7", "camara", "foto camera photo", "objetos"},
+    {"\xE2\x9C\x85", "visto", "ok correcto check", "simbolos"},
+    {"\xE2\x9D\x8C", "cruz", "error mal cross", "simbolos"},
+    {"\xE2\x9A\xA0\xEF\xB8\x8F", "aviso", "alerta cuidado warning", "simbolos"},
+    {"\xE2\x9D\x93", "pregunta", "duda question", "simbolos"},
+    {"\xE2\x9D\x97", "exclamacion", "atencion exclamation", "simbolos"},
+    {"\xE2\x9E\xA1\xEF\xB8\x8F", "flecha", "derecha arrow", "simbolos"},
+    {"\xE2\x99\xBB\xEF\xB8\x8F", "reciclaje", "verde recycle", "simbolos"},
+    {"\xE2\x84\xB9\xEF\xB8\x8F", "info", "informacion information", "simbolos"},
+    {"\xE2\x9C\x88\xEF\xB8\x8F", "avion", "volar viaje plane", "viajes"},
+    {"\xF0\x9F\x9A\x97", "coche", "auto car", "viajes"},
+    {"\xF0\x9F\x9A\xB2", "bici", "bicicleta bike", "viajes"},
+    {"\xE2\x9B\xB5", "barco", "vela boat", "viajes"},
+    {"\xF0\x9F\x8F\xA0", "casa", "hogar home", "viajes"},
+    {"\xF0\x9F\x97\xBA\xEF\xB8\x8F", "mapa", "viaje map", "viajes"},
+};
+
+QVariantMap NimbusIndex::emojiToMap(const QString &glyph, const QString &name,
+                                    const QString &category, const QString &kw, int i)
+{
+    QVariantMap o;
+    o[QStringLiteral("text")] = glyph + QStringLiteral(" ") + name;
+    o[QStringLiteral("subtext")] = category + QStringLiteral(" · :")
+        + name.split(' ').first() + QStringLiteral(":");
+    o[QStringLiteral("category")] = QStringLiteral("clipboard");
+    o[QStringLiteral("runner")] = QStringLiteral("Nimbus");
+    o[QStringLiteral("relevance")] = 1.0;
+    o[QStringLiteral("icon")] = QString();
+    o[QStringLiteral("quickKey")] = i < kMaxQuickKeys
+        ? QString(QChar::fromLatin1(kQuickKeys[i])) : QString();
+    o[QStringLiteral("localKind")] = QStringLiteral("emoji");
+    o[QStringLiteral("localId")] = glyph;
+    o[QStringLiteral("localExec")] = glyph;
+    return o;
+}
+
+QString NimbusIndex::emojiRecentsPath() const
+{
+    return QStandardPaths::writableLocation(QStandardPaths::GenericStateLocation)
+        + QStringLiteral("/nimbus-spotlight/emoji-recents.json");
+}
+
+void NimbusIndex::loadEmojiRecents()
+{
+    m_emojiLoaded = true;
+    m_emojiRecents.clear();
+    QFile f(emojiRecentsPath());
+    if (!f.open(QIODevice::ReadOnly)) return;
+    const QJsonDocument d = QJsonDocument::fromJson(f.readAll());
+    const QVariantList l = d.isObject() ? d.object().value(QStringLiteral("recents")).toArray().toVariantList()
+                                        : QVariantList();
+    for (const QVariant &v : l) {
+        const QString g = v.toString();
+        if (!g.isEmpty() && !m_emojiRecents.contains(g)) m_emojiRecents.append(g);
+    }
+    m_emojiRecents = m_emojiRecents.mid(0, 12);
+}
+
+void NimbusIndex::saveEmojiRecents()
+{
+    QJsonObject o;
+    QJsonArray a;
+    for (const QString &g : m_emojiRecents) a.append(g);
+    o[QStringLiteral("recents")] = a;
+    QFile f(emojiRecentsPath());
+    QDir().mkpath(QFileInfo(f).absolutePath());
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        f.write(QJsonDocument(o).toJson(QJsonDocument::Compact));
+}
+
+QStringList NimbusIndex::emojiCategories()
+{
+    return {QStringLiteral("caras"), QStringLiteral("gestos"),
+            QStringLiteral("animales"), QStringLiteral("comida"),
+            QStringLiteral("naturaleza"), QStringLiteral("objetos"),
+            QStringLiteral("simbolos"), QStringLiteral("viajes")};
+}
+
+QVariantList NimbusIndex::emojiList(const QString &term, const QString &category)
+{
+    QElapsedTimer t;
+    t.start();
+    if (!m_emojiLoaded) loadEmojiRecents();
+    const QString q = term.trimmed();
+    const QString cat = category.trimmed().toLower();
+    struct Hit { int score; int recent; QVariantMap map; };
+    QList<Hit> hits;
+    auto known = [&](const QString &g) { return m_emojiRecents.indexOf(g); };
+    // Recientes primero con consulta vacía y sin categoría.
+    if (q.isEmpty() && cat.isEmpty()) {
+        int i = 0;
+        for (const QString &g : m_emojiRecents) {
+            for (const EmojiRow &e : kEmojis) {
+                if (QString::fromUtf8(e.glyph) == g) {
+                    hits.append({-100 + i, i,
+                                 emojiToMap(g, QString::fromUtf8(e.name),
+                                            QString::fromUtf8(e.cat),
+                                            QString::fromUtf8(e.kw), 0)});
+                    ++i;
+                    break;
+                }
+            }
+        }
+    }
+    for (const EmojiRow &e : kEmojis) {
+        const QString glyph = QString::fromUtf8(e.glyph);
+        const QString name = QString::fromUtf8(e.name);
+        const QString c = QString::fromUtf8(e.cat);
+        if (!cat.isEmpty() && c != cat) continue;
+        const QString hay = name + QStringLiteral(" ") + QString::fromUtf8(e.kw);
+        if (!q.isEmpty() && fuzzyScore(hay, q) < 0
+            && !hay.contains(q, Qt::CaseInsensitive)
+            && fuzzyScore(name, q) < 0)
+            continue;
+        const int ri = known(glyph);
+        const int s = q.isEmpty() ? 0 : fuzzyScore(hay, q);
+        hits.append({s, ri >= 0 ? ri - 1000 : 0,
+                     emojiToMap(glyph, name, c, QString::fromUtf8(e.kw), 0)});
+    }
+    std::sort(hits.begin(), hits.end(), [](const Hit &a, const Hit &b) {
+        if (a.recent != b.recent) return a.recent < b.recent;
+        return a.score < b.score;
+    });
+    QVariantList out;
+    int qi = 0;
+    QSet<QString> seen;
+    for (auto &h : hits) {
+        const QString g = h.map.value(QStringLiteral("localId")).toString();
+        if (seen.contains(g)) continue;
+        seen.insert(g);
+        if (qi >= 20) break;
+        h.map[QStringLiteral("quickKey")] = qi < kMaxQuickKeys
+            ? QString(QChar::fromLatin1(kQuickKeys[qi])) : QString();
+        out.append(h.map);
+        ++qi;
+    }
+    m_latency = t.elapsed(); // sin emit: QML lo lee vía lastClipLatency()
+    return out;
+}
+
+void NimbusIndex::recordEmoji(const QString &glyph)
+{
+    if (glyph.isEmpty()) return;
+    if (!m_emojiLoaded) loadEmojiRecents();
+    m_emojiRecents.removeAll(glyph);
+    m_emojiRecents.prepend(glyph);
+    m_emojiRecents = m_emojiRecents.mid(0, 12);
+    saveEmojiRecents();
+}
+
+QVariantList NimbusIndex::recentEmojis()
+{
+    if (!m_emojiLoaded) loadEmojiRecents();
+    QVariantList out;
+    int i = 0;
+    for (const QString &g : m_emojiRecents) {
+        for (const EmojiRow &e : kEmojis) {
+            if (QString::fromUtf8(e.glyph) == g) {
+                out.append(emojiToMap(g, QString::fromUtf8(e.name),
+                                      QString::fromUtf8(e.cat),
+                                      QString::fromUtf8(e.kw), i++));
+                break;
+            }
+        }
     }
     return out;
 }

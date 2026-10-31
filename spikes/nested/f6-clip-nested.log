@@ -1,0 +1,19 @@
+[clip] home=/tmp/opencode/nimbus-clip-UsowYG/home log=/home/jp/Escritorio/Proyectos/NimbusShell-f6clip/spikes/nested/f6-clip-nested.log
+[clip] semilla history2.lst: 3 entradas
+Service 'org.kde.klipper' does not exist.
+[clip] GAP: sin klipper en nested (fallback history2.lst)
+[clip] GAP: sin wl-paste (pegado del sistema no verificable aquí)
+SPOT-MAIN-ENTER pid=356435
+nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x5602c5e13620, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x5602c5e13620, name="spotlightWindow") is not a wayland window. Not creating zwlr_layer_surface
+nimbus-spotlight[4]: nimbus-spotlight: demo=0 query=''
+[clip] f6-clipboard.png OK (44698 bytes)
+[clip] shot-history rc=0
+SPOT-MAIN-ENTER pid=357032
+nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x55d1ae88c670, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x55d1ae88c670, name="spotlightWindow") is not a wayland window. Not creating zwlr_layer_surface
+nimbus-spotlight[4]: nimbus-spotlight: demo=0 query='pizza'
+[clip] f6-emoji.png OK (27112 bytes)
+[clip] shot-emoji rc=0
+[clip] latencias clipboard/emoji:
+[clip] 0 errores QML

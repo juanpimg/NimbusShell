@@ -49,7 +49,19 @@ public:
     // El usuario pide KRunner (Tab o botón): QML llama a backend.search().
     Q_INVOKABLE void requestKRunner();
     Q_INVOKABLE void clearKRunnerFallback();
-    Q_INVOKABLE QVariantList clipboardEntries();
+    // Portapapeles (F6-T06): klipper DBus → history2.lst → wl-paste.
+    // `filter` vacío = historial completo (máx 20).
+    Q_INVOKABLE QVariantList clipboardEntries(const QString &filter = QString());
+    // Copia texto al portapapeles (Pegar/Copiar cierra el overlay en QML).
+    Q_INVOKABLE bool copyToClipboard(const QString &text);
+    // Última latencia de clipboardEntries/emojiList (síncronos, sin señal).
+    Q_INVOKABLE qint64 lastClipLatency() const { return m_latency; }
+    // Emoji (F6-T06): datos propios, sin assets externos; i18n vía qsTr en QML.
+    Q_INVOKABLE QVariantList emojiList(const QString &term,
+                                       const QString &category = QString());
+    Q_INVOKABLE QStringList emojiCategories();
+    Q_INVOKABLE void recordEmoji(const QString &glyph);
+    Q_INVOKABLE QVariantList recentEmojis();
 
     // Unit-testeables (sin FS ni DBus).
     static int fuzzyScore(const QString &candidate, const QString &query);
@@ -60,6 +72,12 @@ public:
     static QString webUrl(const QString &term);
     // Entrada de portapapeles (truncado <16k, sin formato): testeable sin DBus.
     static QVariantMap clipEntry(const QString &text, int i);
+    // Parser tolerante de history2.lst de klipper (\n y \0, sin vacíos ni
+    // duplicados): fallback sin DBus. Testeable sin FS.
+    static QStringList parseKlipperHistoryFile(const QString &data);
+    // Entrada de emoji para QML (glyph conocido de la tabla propia).
+    static QVariantMap emojiToMap(const QString &glyph, const QString &name,
+                                  const QString &category, const QString &kw, int i);
     // Escaneo de raíces de ficheros (fixture-testeable; el worker lo usa).
     static QList<LocalFile> scanRoots(const QStringList &roots, int maxFiles = 4000);
 
@@ -73,6 +91,9 @@ private:
     void scanFilesAsync();
     void loadFreq();
     void saveFreq();
+    void loadEmojiRecents();
+    void saveEmojiRecents();
+    QString emojiRecentsPath() const;
     void setReady(bool v);
     void setKRunnerFallback(bool v);
     QVariantMap appToMap(const LocalApp &a, int rank, int qi) const;
@@ -83,6 +104,8 @@ private:
     QVariantList m_matches;
     QHash<QString, int> m_freq;
     QString m_freqPath;
+    QStringList m_emojiRecents; // glifos, más reciente primero (máx 12)
+    bool m_emojiLoaded = false;
     QString m_searchEngine = QStringLiteral("https://duckduckgo.com/?q=%1");
     QString m_lastTab;
     qint64 m_latency = -1;

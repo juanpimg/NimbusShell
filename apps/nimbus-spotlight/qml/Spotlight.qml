@@ -17,6 +17,8 @@ ApplicationWindow {
 
     property int currentIndex: 0
     property string tab: "apps" // apps | files | actions | clipboard
+    property string clipView: "history" // history | emoji (solo tab clipboard)
+    property string emojiCategory: "" // "" = todas
     property var tabNames: ({
             "apps": "Apps",
             "files": "Archivos",
@@ -25,20 +27,22 @@ ApplicationWindow {
         })
     property var filtered: []
     property string lastQuery: ""
+    property int clipLatency: -1 // F6-T06: latencia síncrona clips/emoji
     // F6-T02: locales primero; KRunner solo como fallback (Tab o botón).
     property bool krunnerMode: false
 
     function refreshFilter() {
+        // F6-T06: clipboard/emoji son síncronos (sin señal): se recomputan.
+        if (root.tab === "clipboard") {
+            root.doSearch();
+            return;
+        }
         var all = root.krunnerMode ? backend.matches : nimbus.localMatches;
         var q = searchField.text;
         root.lastQuery = q;
-        if (root.tab === "clipboard") {
-            root.filtered = all;
-        } else {
-            root.filtered = all.filter(function (m) {
-                return m.category === root.tab;
-            });
-        }
+        root.filtered = all.filter(function (m) {
+            return m.category === root.tab;
+        });
         // Si la pestaña queda vacía pero hay resultados, mostrar todos.
         if (root.filtered.length === 0 && all.length > 0 && q !== "")
             root.filtered = all;
@@ -46,9 +50,19 @@ ApplicationWindow {
     }
 
     function doSearch() {
-        if (root.tab === "clipboard")
-            backend.clipboardHistory();
-        else if (root.krunnerMode)
+        // F6-T06: clipboard local (klipper→history2.lst→wl-paste) y emoji
+        // propios; sin KRunner (R-KRUNNER: sin passwords/Universal Clipboard).
+        if (root.tab === "clipboard" && !root.krunnerMode) {
+            root.lastQuery = searchField.text;
+            if (root.clipView === "emoji")
+                root.filtered = nimbus.emojiList(searchField.text, root.emojiCategory);
+            else
+                root.filtered = nimbus.clipboardEntries(searchField.text);
+            root.clipLatency = nimbus.lastClipLatency();
+            root.currentIndex = 0;
+            return;
+        }
+        if (root.krunnerMode)
             backend.search(searchField.text);
         else {
             // Fast-path local (<50ms); si no hay nada, cae a KRunner solo.
@@ -67,6 +81,18 @@ ApplicationWindow {
     function activateCurrent(action) {
         if (root.filtered.length === 0)
             return;
+        // F6-T06: Pegar/Copiar copia el texto completo y cierra el overlay.
+        // (Autopegado en la app destino: no implementado, ver evidencia.)
+        if (root.tab === "clipboard" && !root.krunnerMode) {
+            var item = root.filtered[root.currentIndex];
+            if (item.localKind === "emoji")
+                nimbus.recordEmoji(item.localExec);
+            else
+                nimbus.recordUse(item.localId);
+            if (nimbus.copyToClipboard(item.localExec))
+                root.visible = false;
+            return;
+        }
         if (root.krunnerMode)
             backend.activate(indexOf(root.filtered[root.currentIndex]));
         else
@@ -90,8 +116,16 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
+        // Test nested: pestaña/vista iniciales (--tab/--clipview).
+        if (initialTab === "apps" || initialTab === "files"
+            || initialTab === "actions" || initialTab === "clipboard")
+            root.tab = initialTab;
+        if (initialClipView === "emoji" || initialClipView === "history")
+            root.clipView = initialClipView;
         if (initialQuery !== "")
             searchField.text = initialQuery; // onTextChanged+debounce lanza
+        else
+            root.doSearch(); // clipboard con consulta vacía no dispara debounce
         searchField.forceActiveFocus();
     }
 
@@ -169,7 +203,9 @@ ApplicationWindow {
                         event.accepted = true;
                     } else if (event.key === Qt.Key_Tab) {
                         // Fallback explícito a KRunner (contrato F6-T02).
-                        root.useKRunner();
+                        // F6-T06: en Portapapeles no hay fallback (datos locales).
+                        if (root.tab !== "clipboard")
+                            root.useKRunner();
                         event.accepted = true;
                     } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_4 && (event.modifiers & Qt.MetaModifier)) {
                         var tabs = ["apps", "files", "actions", "clipboard"];
@@ -191,6 +227,63 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
             color: "#38383A"
+        }
+
+        // F6-T06: sub-vistas de Portapapeles (Cmd+4): Historial | Emoji.
+        RowLayout {
+            visible: root.tab === "clipboard"
+            Layout.fillWidth: true
+            Layout.preferredHeight: 30
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            spacing: 8
+            Repeater {
+                model: [["history", qsTr("Historial")], ["emoji", qsTr("Emoji")]]
+                delegate: Rectangle {
+                    width: 90
+                    height: 22
+                    radius: 11
+                    color: root.clipView === modelData[0] ? "#0A84FF" : "transparent"
+                    border.color: "#0A84FF"
+                    border.width: 1
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData[1]
+                        color: root.clipView === modelData[0] ? "#FFFFFF" : "#0A84FF"
+                        font.pixelSize: 11
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            root.clipView = modelData[0];
+                            root.doSearch();
+                        }
+                    }
+                }
+            }
+            // Filtro por categoría emoji (i18n preparada: qsTr).
+            ComboBox {
+                visible: root.clipView === "emoji"
+                Layout.preferredWidth: 140
+                Layout.preferredHeight: 24
+                model: ["", "caras", "gestos", "animales", "comida", "naturaleza", "objetos", "simbolos", "viajes"]
+                displayText: root.emojiCategory === "" ? qsTr("Todas") : root.emojiCategory
+                Accessible.name: qsTr("Categoría de emoji")
+                onActivated: function (index) {
+                    root.emojiCategory = index === 0 ? "" : model[index];
+                    root.doSearch();
+                }
+            }
+            Item {
+                Layout.fillWidth: true
+            }
+            Text {
+                visible: root.clipView === "history"
+                text: qsTr("Enter: copiar y cerrar")
+                color: "#EBEBF5"
+                opacity: 0.4
+                font.pixelSize: 11
+            }
         }
 
         // Resultados + preview lateral.
@@ -303,11 +396,12 @@ ApplicationWindow {
                     Layout.fillHeight: true
                 }
                 // Acciones locales (F6-T02): Abrir / Copiar / Revelar.
+                // F6-T06: en Portapapeles solo Copiar/Pegar (copia y cierra).
                 RowLayout {
                     visible: root.filtered.length > 0 && !root.krunnerMode
                     spacing: 8
                     Repeater {
-                        model: [["open", "Abrir"], ["copy", "Copiar"], ["reveal", "Revelar"]]
+                        model: (root.tab === "clipboard") ? [["copy", qsTr("Copiar")], ["copy", qsTr("Pegar")]] : [["open", "Abrir"], ["copy", "Copiar"], ["reveal", "Revelar"]]
                         delegate: Rectangle {
                             width: 72
                             height: 28
@@ -326,9 +420,9 @@ ApplicationWindow {
                         }
                     }
                 }
-                // Fallback KRunner explícito (Tab o clic).
+                // Fallback KRunner explícito (Tab o clic; no en Portapapeles).
                 Rectangle {
-                    visible: !root.krunnerMode && root.lastQuery !== ""
+                    visible: !root.krunnerMode && root.lastQuery !== "" && root.tab !== "clipboard"
                     Layout.fillWidth: true
                     height: 28
                     radius: 6
@@ -353,7 +447,7 @@ ApplicationWindow {
                     font.pixelSize: 11
                 }
                 Text {
-                    text: root.lastQuery !== "" ? ("Latencia: " + (root.krunnerMode ? backend.lastLatencyMs : nimbus.localLatencyMs) + " ms · " + root.filtered.length + " resultados" + (root.krunnerMode ? " · KRunner" : " · Nimbus")) : ""
+                    text: root.lastQuery !== "" ? ("Latencia: " + (root.tab === "clipboard" ? root.clipLatency : (root.krunnerMode ? backend.lastLatencyMs : nimbus.localLatencyMs)) + " ms · " + root.filtered.length + " resultados" + (root.krunnerMode ? " · KRunner" : " · Nimbus")) : ""
                     color: "#0A84FF"
                     font.pixelSize: 11
                 }
