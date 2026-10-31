@@ -21,7 +21,7 @@ Ambos `set -u`, no root, idempotentes. `--json` (detect) para KCM/Calamares;
 | VM (virtio/QEMU/VirtualBox) | virtio | ninguno (mesa) |
 | Híbrida (Intel/AMD+NVIDIA) | según dGPU + `prime-run` offload | uno de los NVIDIA |
 
-`nimbus-gpu-setup` aplica: `nvidia-drm.modeset=1` en grub,
+`nimbus-gpu-setup` aplica: `nvidia_drm.modeset=1` en grub,
 módulos `nvidia*` en `MODULES` de mkinitcpio, `systemctl enable
 power-profiles-daemon`; la suspensión no se fuerza (la gestiona
 powerdevil). Backups `*.bak-<fecha>`; rollback: restaurar y regenerar

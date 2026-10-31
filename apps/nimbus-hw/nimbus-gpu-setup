@@ -34,7 +34,7 @@ backup() { # $1 fichero
   do_cmd cp -a "$1" "$b"
 }
 
-KERN_PARAM="nvidia-drm.modeset=1"
+KERN_PARAM="nvidia_drm.modeset=1"
 GRUB="/etc/default/grub"
 MKINIT="/etc/mkinitcpio.conf"
 
@@ -44,9 +44,9 @@ if [ "$MODE" = apply ] && [ "$(id -u)" -ne 0 ]; then
 fi
 [ "$MODE" = apply ] && say "Modo APPLY (root OK)." || say "Modo DRY-RUN (sin cambios). Usa --apply como root para aplicar."
 
-# 1. Kernel cmdline: nvidia-drm.modeset=1
+# 1. Kernel cmdline: nvidia_drm.modeset=1
 if [ -f "$GRUB" ]; then
-  if grep -q 'nvidia-drm.modeset=1' "$GRUB"; then
+  if grep -q 'nvidia_drm.modeset=1' "$GRUB"; then
     say "OK grub: $KERN_PARAM ya presente."
   else
     backup "$GRUB"
