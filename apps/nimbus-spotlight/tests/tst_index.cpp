@@ -212,7 +212,7 @@ private Q_SLOTS:
     {
         // Sin klipper (offscreen/CI): fallback declarado + parser unitario.
         NimbusIndex idx;
-        const QVariantList clips = idx.clipboardEntries();
+        const QVariantList clips = idx.clipboardEntries(QString());
         if (clips.isEmpty())
             qInfo("clipboard: klipper ausente, fallback KRunner (clipboardHistory)");
         else
@@ -225,6 +225,99 @@ private Q_SLOTS:
         const QVariantMap big = NimbusIndex::clipEntry(QString(20000, 'x'), 1);
         QCOMPARE(big.value(QStringLiteral("localExec")).toString().size(), 16384);
         QCOMPARE(big.value(QStringLiteral("text")).toString().size(), 80);
+    }
+
+    // F6-T06: parser tolerante de history2.lst (\\n y NUL, sin vacíos/duplicados).
+    void clipHistoryParse()
+    {
+        const QStringList l = NimbusIndex::parseKlipperHistoryFile(
+            QStringLiteral("primera\n\nsegunda\0tercera\nprimera\n  \n"));
+        QCOMPARE(l, QStringList({"primera", "segunda", "tercera"}));
+        QVERIFY(NimbusIndex::parseKlipperHistoryFile(QString()).isEmpty());
+    }
+
+    // F6-T06: filtro sin DBus no rompe (vacío offscreen) y respeta límite.
+    void clipFilterNoCrash()
+    {
+        NimbusIndex idx;
+        QVERIFY(idx.clipboardEntries(QStringLiteral("zzz-sin-match-f6")).isEmpty());
+        QVERIFY(idx.clipboardEntries(QString()).size() <= 20);
+    }
+
+    // F6-T06: copiar al portapapeles y leer de vuelta (round-trip Qt).
+    void copyRoundTrip()
+    {
+        if (!QGuiApplication::clipboard()) QSKIP("sin QClipboard");
+        NimbusIndex idx;
+        QVERIFY(idx.copyToClipboard(QStringLiteral("f6clip-sonda-123")));
+        QCOMPARE(QGuiApplication::clipboard()->text(),
+                 QStringLiteral("f6clip-sonda-123"));
+        QVERIFY(!idx.copyToClipboard(QString())); // vacío: no copia
+        // activateLocal copia el texto COMPLETO de un clip (no el título).
+        idx.searchLocal(QStringLiteral("2+2"), QString());
+        QVERIFY(idx.activateLocal(0, QStringLiteral("copy")));
+    }
+
+    // F6-T06: emoji por nombre, keyword EN y categoría; límite 20.
+    void emojiSearch()
+    {
+        NimbusIndex idx;
+        QVariantList m = idx.emojiList(QStringLiteral("sonrisa"), QString());
+        QVERIFY(!m.isEmpty());
+        QVERIFY(m.first().toMap().value(QStringLiteral("text")).toString()
+                .startsWith(QString::fromUtf8("\xF0\x9F\x98\x80")));
+        m = idx.emojiList(QStringLiteral("pizza"), QString());
+        QVERIFY(!m.isEmpty());
+        QVERIFY(m.first().toMap().value(QStringLiteral("text")).toString()
+                .startsWith(QString::fromUtf8("\xF0\x9F\x8D\x95")));
+        m = idx.emojiList(QString(), QStringLiteral("comida"));
+        QVERIFY(!m.isEmpty());
+        QVERIFY(m.size() <= 20);
+        for (const QVariant &v : m) {
+            QCOMPARE(v.toMap().value(QStringLiteral("localKind")).toString(),
+                     QStringLiteral("emoji"));
+            QVERIFY(v.toMap().value(QStringLiteral("subtext")).toString()
+                    .startsWith(QStringLiteral("comida")));
+        }
+        QVERIFY(idx.emojiList(QStringLiteral("zzz-sin-match"), QString()).isEmpty());
+        QCOMPARE(idx.emojiList(QStringLiteral("cafe"), QStringLiteral("caras")).size(), 0);
+        const QStringList cats = idx.emojiCategories();
+        QVERIFY(cats.contains(QStringLiteral("caras")));
+        QVERIFY(cats.contains(QStringLiteral("comida")));
+        QVERIFY(cats.contains(QStringLiteral("objetos")));
+        QVERIFY(cats.contains(QStringLiteral("simbolos")));
+    }
+
+    // F6-T06: recientes persistidas en HOME temporal (máx 12, primero el último).
+    void emojiRecentsPersist()
+    {
+        const QByteArray oldHome = qgetenv("HOME");
+        QTemporaryDir home;
+        QVERIFY(home.isValid());
+        qputenv("HOME", home.path().toUtf8());
+        {
+            NimbusIndex idx;
+            idx.recordEmoji(QString::fromUtf8("\xF0\x9F\x8D\x95")); // pizza
+            idx.recordEmoji(QString::fromUtf8("\xF0\x9F\x98\x80")); // sonrisa
+            QVariantList r = idx.recentEmojis();
+            QCOMPARE(r.size(), 2);
+            QCOMPARE(r.first().toMap().value(QStringLiteral("localId")).toString(),
+                     QString::fromUtf8("\xF0\x9F\x98\x80"));
+        }
+        {
+            // Nueva instancia, mismo HOME: persiste; vacía lidera el listado.
+            NimbusIndex idx2;
+            QVariantList r = idx2.recentEmojis();
+            QCOMPARE(r.size(), 2);
+            QVariantList all = idx2.emojiList(QString(), QString());
+            QVERIFY(!all.isEmpty());
+            QCOMPARE(all.first().toMap().value(QStringLiteral("localId")).toString(),
+                     QString::fromUtf8("\xF0\x9F\x98\x80"));
+            for (int k = 0; k < 14; ++k)
+                idx2.recordEmoji(QStringLiteral("e%1").arg(k));
+            QVERIFY(idx2.recentEmojis().size() <= 12);
+        }
+        qputenv("HOME", oldHome);
     }
 
     // F6-T03: folding de acentos + mayúsculas (lógica de acción sin abrir apps).

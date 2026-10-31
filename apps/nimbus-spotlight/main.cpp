@@ -89,6 +89,8 @@ int main(int argc, char *argv[])
 
     bool demo = false;
     QString initialQuery, shotPath;
+    QString initialTab = QStringLiteral("apps");
+    QString initialClipView = QStringLiteral("history");
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo"))
@@ -97,6 +99,16 @@ int main(int argc, char *argv[])
             initialQuery = QString::fromLocal8Bit(argv[++i]);
         else if (a == QStringLiteral("--shot") && i + 1 < argc)
             shotPath = QString::fromLocal8Bit(argv[++i]);
+        else if (a == QStringLiteral("--tab") && i + 1 < argc) {
+            const QString t = QString::fromLocal8Bit(argv[++i]);
+            if (t == QLatin1String("apps") || t == QLatin1String("files")
+                || t == QLatin1String("actions") || t == QLatin1String("clipboard"))
+                initialTab = t;
+        } else if (a == QStringLiteral("--clipview") && i + 1 < argc) {
+            const QString v = QString::fromLocal8Bit(argv[++i]);
+            if (v == QLatin1String("history") || v == QLatin1String("emoji"))
+                initialClipView = v;
+        }
     }
 
     KRunnerBackend backend(demo);
@@ -106,6 +118,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("backend"), &backend);
     engine.rootContext()->setContextProperty(QStringLiteral("nimbus"), &nimbus);
     engine.rootContext()->setContextProperty(QStringLiteral("initialQuery"), initialQuery);
+    engine.rootContext()->setContextProperty(QStringLiteral("initialTab"), initialTab);
+    engine.rootContext()->setContextProperty(QStringLiteral("initialClipView"), initialClipView);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
