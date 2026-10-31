@@ -59,14 +59,22 @@ else
         done < <(printf '%s\n' "$qml_files")
         [ "$qfail" = "0" ] && pass "qmllint" || fail "qmllint"
     fi
-    if ! command -v qmlformat >/dev/null 2>&1; then
+    QMLFORMAT="/usr/lib/qt6/bin/qmlformat"
+    [ -x "$QMLFORMAT" ] || QMLFORMAT="$(command -v qmlformat || true)"
+    if [ -z "$QMLFORMAT" ]; then
         fail "hay .qml pero falta qmlformat"
     else
         ffail=0
         while IFS= read -r f; do
-            qmlformat --check "$f" >/dev/null 2>&1 || { echo "  [FAIL] qmlformat ${f#"$REPO_ROOT"/}" >&2; ffail=1; }
+            fmt_tmp="$(mktemp)"
+            if ! "$QMLFORMAT" "$f" >"$fmt_tmp" 2>/dev/null; then
+                echo "  [FAIL] qmlformat ${f#"$REPO_ROOT"/}" >&2; ffail=1
+            elif ! diff -q "$f" "$fmt_tmp" >/dev/null 2>&1; then
+                echo "  [FAIL] qmlformat ${f#"$REPO_ROOT"/} (no formateado)" >&2; ffail=1
+            fi
+            rm -f "$fmt_tmp"
         done < <(printf '%s\n' "$qml_files")
-        [ "$ffail" = "0" ] && pass "qmlformat --check" || fail "qmlformat --check"
+        [ "$ffail" = "0" ] && pass "qmlformat (Qt6, idempotente)" || fail "qmlformat (Qt6, idempotente)"
     fi
 fi
 
