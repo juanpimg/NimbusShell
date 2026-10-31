@@ -108,6 +108,11 @@ Window {
         id: cal
         demo: demoCalendar
     }
+    // F3-T10: OSD volumen/brillo in-situ bajo la barra (contrato §3).
+    OSD {
+        id: osd
+        demo: demoOsd
+    }
     Component.onCompleted: {
         if (demoMenu)
             appleMenu.open();
@@ -115,6 +120,8 @@ Window {
             cc.open();
         if (demoCalendar)
             cal.open();
+        if (demoOsd)
+            osd.show(demoOsdKind, demoOsdValue);
     }
 
     Row {
