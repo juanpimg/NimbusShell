@@ -82,7 +82,7 @@ A11y: contraste 4.5:1 (≤17pt) / 3:1 (grande/bold), objetivo 7:1 pequeño `[HIG
 
 | Tahoe | Plasma | Fiel / aproximado |
 |---|---|---|
-| semáforos/titlebar/radio/sombra | Klassy/KDecoration3 + preset Tahoe + reglas KWin | fiel geometría+color; sombra/borde `[INFERIDO]` medir |
+| semáforos/titlebar/radio/sombra | plugin propio KDecoration3 `nimbus-decoration` (12px/gap8/inactivas/hover); Klassy solo fallback | fiel geometría+color+estados; sombra/borde `[INFERIDO]` medir |
 | topbar/menús/CC/reloj/tray | barra layer-shell custom 24pt (`org.nimbus.bar`, port MacBar) + appmenu Qt, R-GTK in-window; panel stock 38px solo base temporal | fiel layout/altura; blur-live aproximado |
 | Spotlight | KRunner `FreeFloating`+skin RunCommand + runners Nimbus (apps/archivos/ajustes/calc/web/clipboard) | fiel atajos/Cmd1-4/QuickKeys; ranking aproximado |
 | Apps | Dashboard tematizado o layer-shell QtQuick (categorías+search, SIN carpetas) | fiel si respeta §3 |

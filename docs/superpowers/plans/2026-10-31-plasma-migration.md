@@ -119,7 +119,7 @@
 **Objetivo:** el 80% visual de macOS Tahoe: tokens, Klassy, barra layer-shell custom 24pt, menús, control center, reloj, notificaciones y OSD.
 
 - [x] **F3-T01 — Design tokens Nimbus.** Files: `packages/themes/nimbus-tokens/{colors,radii,spacing,typography}.qml`. Acciones: fuente única `docs/design/tahoe-design-contract.md` §2: color semántico light/dark, Inter 11-28 con tracking/lh, spacing 4-32, radios (r-sm 8, r-md 10-12, r-lg 20, ventana 16/26 concéntrico), glass/motion/estados; `tokens.json` + `NimbusTokens.qml`; sin valores mágicos. Accept: tokens consumidos por demo; contraste WCAG A4; qmllint. Dep: F2.
-- [ ] **F3-T02 — Preset Klassy Tahoe.** Files: `packages/themes/klassy-preset/`, `packages/kwin/`. Acciones: botones 12px izquierda, offset 8-9, gap 8, colores #FF5F57/#FEBC2E/#28C840, hover ×/−/+ SVG 7×7 stroke 1.2, gris inactivo, radio/sombra; ruta `~/.config/klassy/klassyrc` (confirmar VM) y export con `klassy-settings`; probar 3 apps. Accept: captura activa/inactiva/hover; diff; sin artefactos. Dep: F3-T01.
+- [ ] **F3-T02 — Decoración custom `nimbus-decoration`.** Files: `packages/kwin/decoration/nimbus-decoration/`, `packages/themes/klassy-preset/` (fallback). Acciones: plugin KDecoration3 C++ propio: botones 12px izquierda, offset 8-9, gap 8, colores #FF5F57/#FEBC2E/#28C840, hover ×/−/+, gris inactivo #8E8E93, titlebar 16/26; Klassy 6.7.3 NO alcanza (Ø20/gap22/inactivas color, medido); probar 3 apps. Accept: captura activa/inactiva/hover; diff; sin artefactos. Dep: F3-T01.
 - [ ] **F3-T03 — Plasm oxide barra superior.** Files: `packages/shell/nimbus-bar/`. Acciones: barra superior custom layer-shell 24pt (QML; port MacBar), NO panel/plasmoide stock; R-TOPBAR-LAYER; layout logo/menús/estado/reloj/CC. Accept: `kpackagetool6 -i` instala; panel lo carga sin errores. Dep: F3-T01.
 - [ ] **F3-T04 — Menú Apple.** Files: `packages/shell/nimbus-bar/qml/` (Menu.qml). Acciones: Acerca de, Ajustes, Dormir, Bloquear, Cerrar sesión, Reiniciar, Apagar; i18n. Accept: cada acción ejecuta y se prueba en VM. Dep: F3-T03.
 - [ ] **F3-T05 — Control Center.** Files: `packages/shell/nimbus-bar/qml/` (ControlCenter.qml). Acciones: Wi-Fi, BT, volumen, brillo, modo oscuro, No molestar, batería; DataEngines. Accept: toggles reflejan estado real; capturas. Dep: F3-T03.
@@ -139,7 +139,7 @@
 
 **Objetivo:** titlebar y controles 1:1, zoom/fullscreen/drag correctos y atajos universales.
 
-- [ ] **F4-T01 — Semáforos exactos.** Files: `packages/themes/klassy-preset/`, `packages/kwin/`. Acciones: 12px, #FF5F57/#FEBC2E/#28C840, offset 8-9, gap 8, hover ×/−/+ 7×7 stroke 1.2, gris inactivo, foco; comparar con golden (A2). Accept: diff por estado; sin SVG de Apple. Dep: F3-T02.
+- [ ] **F4-T01 — Semáforos exactos.** Files: `packages/kwin/decoration/nimbus-decoration/`. Acciones: 12px, #FF5F57/#FEBC2E/#28C840, offset 8-9, gap 8, hover ×/−/+ 7×7 stroke 1.2, gris inactivo, foco; comparar con golden (A2); Klassy solo fallback. Accept: diff por estado; sin SVG de Apple. Dep: F3-T02.
 - [ ] **F4-T02 — Titlebar: altura, radio, sombra, borde.** Files: `packages/kwin/`, `dotfiles/.config/kwinrc`. Acciones: titlebar 16 sin toolbar / 26 con toolbar-sidebar (concéntrico), título a la izquierda, sombra 20-22px, borde 0.5-1px; apps CSD respetan o se excluyen (A3). Accept: capturas activa/inactiva/maximizada; diff. Dep: F4-T01.
 - [ ] **F4-T03 — Zoom (verde) flotante.** Files: `packages/kwin/scripts/nimbus-zoom/` o KCM; `apps/`. Acciones: maximizar al área de trabajo bajo la barra, fs=0, toggle, guardar geometría; drag conserva offset. Accept: zoom/restore; drag; 60fps. Dep: F4-T02.
 - [ ] **F4-T04 — Fullscreen real y salida.** Files: `dotfiles/.config/kglobalshortcutsrc`, `kwin/`. Acciones: Cmd/Ctrl+F o Meta+F; verde sale de fullscreen; barra oculta/muestra. Accept: fullscreen/exit; barra correcta. Dep: F4-T03.
@@ -318,7 +318,8 @@
 - **R-GTK:** menú global solo Qt/KDE; GTK/libadwaita/Electron in-window. No `appmenu-gtk` Wayland.
 - **R-DOCK:** Dock layer-shell (Krema fork/theme); prohibido zoom en panel (KDE bug 495100). La barra superior es la segunda y única otra superficie layer-shell permitida (R-TOPBAR-LAYER); cualquier otra exige Ruling nueva.
 - **R-TOPBAR-LAYER:** el panel stock de Plasma no baja de 38px (medido; pre-seed thickness ignorado). Para A1 (24pt) la barra superior será layer-shell QML custom (F3-T03), no panel/plasmoide.
-- **R-KLASSY:** `klassy-git` pinneado (rama 6.8temp) con matriz Plasma 6.8; si falla titled/shadow-only, fallback Aurorae/WhiteSur o KDecoration custom; CI por snapshot.
+- **R-KLASSY:** Klassy 6.7.3 medido en nested: carga y da círculos/colores, pero NO baja de Ø20, gap 22, inactivas grises ni hover ×/−/+; queda como **fallback**, no como base 1:1. CI/pin si se usa.
+- **R-DECO:** la decoración 1:1 se implementa como plugin propio KDecoration3 `nimbus-decoration` (C++, 12px/gap8/inactivas/hover/titlebar 16/26); sin fork de Klassy; propuesta upstream si el API lo permite.
 - **R-LOGIN:** SDDM 0.21 por defecto; plasma-login-manager solo spike en F8; greetd descartado (kwallet-PAM).
 - **R-SPACES:** escritorios virtuales Plasma globales; per-monitor no es 1:1 y queda documentado; aceptar hasta que KWin lo soporte.
 - **R-I18N:** ki18n/.ts es la única fuente; I18n.js de MacShell solo como origen de cadenas a portar.
