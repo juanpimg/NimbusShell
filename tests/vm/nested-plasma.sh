@@ -7,6 +7,8 @@
 # Uso: bash tests/vm/nested-plasma.sh [--out spikes/nested] [--timeout 60]
 #        [--krunner <query>] [--expose|--overview] [--home <dir>]
 #        [--plasma-src <dir>] (fuente de dotfiles plasma; defecto: repo propio)
+#        [--klassy] [--no-probe] (con --klassy: respeta el klassyrc del seed
+#        --home sin pre-seed ni sonda runtime; KLASSY_PREFIX por entorno)
 set -u
 
 OUT_DIR="spikes/nested"
@@ -16,7 +18,8 @@ DO_EXPOSE=""
 NESTED_HOME_ARG=""
 PLASMA_SRC=""
 KLASSY=""
-KLASSY_PREFIX="/tmp/klassy-prefix"
+NO_PROBE=""
+KLASSY_PREFIX="${KLASSY_PREFIX:-/tmp/klassy-prefix}"
 for ((i=1; i<=$#; i++)); do
   case "${!i}" in
     --out) j=$((i+1)); OUT_DIR="${!j}" ;;
@@ -26,6 +29,7 @@ for ((i=1; i<=$#; i++)); do
     --home) j=$((i+1)); NESTED_HOME_ARG="${!j}" ;;
     --plasma-src) j=$((i+1)); PLASMA_SRC="${!j}" ;;
     --klassy) KLASSY="yes" ;;
+    --no-probe) NO_PROBE="yes" ;;
   esac
 done
 if [ -n "$KRUNNER_QUERY" ] && [[ ! "$KRUNNER_QUERY" =~ ^[A-Za-z0-9._-]+$ ]]; then
@@ -74,6 +78,9 @@ if [ -n "$NESTED_HOME_ARG" ]; then
 fi
 # --klassy: decoracion Klassy compilada en host (solo lectura). Activa la
 # deco en el kwinrc del HOME temporal y expone plugin+lib+dato al nested.
+# --no-probe: no pre-seedea klassyrc ni sonda runtime (el seed --home manda).
+LOG="$OUT_ABS/nested-plasma.log"
+: > "$LOG"
 FOCUS_SCRIPT=""
 LAYOUT_SCRIPT=""
 if [ -n "$KLASSY" ]; then
@@ -83,11 +90,13 @@ if [ -n "$KLASSY" ]; then
     --group org.kde.kdecoration2 --key ButtonsOnLeft XIA
   XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file kwinrc \
     --group org.kde.kdecoration2 --key ButtonsOnRight ""
-  # Semáforos: claves reales de klassy-decoration.kcfg (solo estas).
-  XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file klassy/klassyrc \
-    --group Windeco --key ButtonShape ShapeSmallCircle
-  XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file klassy/klassyrc \
-    --group ButtonSizing --key ButtonSpacingLeft 8
+  if [ -z "$NO_PROBE" ]; then
+    # Semáforos: claves reales de klassy-decoration.kcfg (solo estas).
+    XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file klassy/klassyrc \
+      --group Windeco --key ButtonShape ShapeSmallCircle
+    XDG_CONFIG_HOME="$NESTED_HOME/.config" kwriteconfig6 --file klassy/klassyrc \
+      --group ButtonSizing --key ButtonSpacingLeft 8
+  fi
   FOCUS_SCRIPT="$OUT_ABS/kwin-focus-toggle.js"
   cat > "$FOCUS_SCRIPT" <<'EOF'
 // Foco kate garantizado: minimiza konsole (visible en captura: solo kate).
@@ -120,9 +129,6 @@ EOF
 fi
 export QT_QPA_PLATFORM=wayland
 export WAYLAND_DISPLAY="nimbus-nested"
-LOG="$OUT_ABS/nested-plasma.log"
-: > "$LOG"
-
 PIDFILE="$OUT_ABS/.nested.pids"
 : > "$PIDFILE"
 cleanup() {
@@ -150,6 +156,7 @@ set -u
 OUT_ABS="'"$OUT_ABS"'"
 PIDFILE="'"$PIDFILE"'"
 KLASSY="'"$KLASSY"'"
+NO_PROBE="'"$NO_PROBE"'"
 KLASSY_PREFIX="'"$KLASSY_PREFIX"'"
 FOCUS_SCRIPT="'"$FOCUS_SCRIPT"'"
 LAYOUT_SCRIPT="'"$LAYOUT_SCRIPT"'"
@@ -296,10 +303,13 @@ if [ -n "$KLASSY" ]; then
   qdbus6 org.kde.KWin /KWin supportInformation 2>/dev/null | grep -iE "klassy|decoration" | tee -a "$LOG" || echo "[nested] WARN: sin mencion a Klassy" | tee -a "$LOG"
   # Sonda runtime: reescribe spacing + reconfigure (fire-and-forget con
   # timeout: el metodo es Q_NOREPLY y qdbus esperaria en vano).
-  echo "[nested] klassy runtime reconfigure (spacing 8->20) ..." | tee -a "$LOG"
-  kwriteconfig6 --file klassy/klassyrc --group ButtonSizing --key ButtonSpacingLeft 20 >>"$LOG" 2>&1
-  timeout 8 qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
-  sleep 2
+  # --no-probe la omite (respeta el preset del seed).
+  if [ -z "$NO_PROBE" ]; then
+    echo "[nested] klassy runtime reconfigure (spacing 8->20) ..." | tee -a "$LOG"
+    kwriteconfig6 --file klassy/klassyrc --group ButtonSizing --key ButtonSpacingLeft 20 >>"$LOG" 2>&1
+    timeout 8 qdbus6 org.kde.KWin /KWin reconfigure >>"$LOG" 2>&1 || true
+    sleep 2
+  fi
   echo "[nested] klassy layout (mosaico + foco konsole) ..." | tee -a "$LOG"
   qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.loadScript "$LAYOUT_SCRIPT" nimbus-layout >>"$LOG" 2>&1
   qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.start >>"$LOG" 2>&1

@@ -10,7 +10,8 @@ deltas documentados en su cabecera) aplicado por el canal real
 ## Por qué no hay `klassy-12px.patch`
 
 Auditado el código 6.7.3, ningún cambio C++ es necesario para los estados
-estáticos; cada gap tenía causa configurable:
+estáticos (ver evidencia); cada gap tenía causa configurable. El único
+parche C++ es `klassy-hover-plus.patch` (§ Hover +).
 
 - Ø20→12: `IconSize=IconVerySmall` (base 14 / fondo 12 en
   `kdecoration/breezedecoration.cpp:calculateIconSizes`, sin tocar código).
@@ -27,6 +28,18 @@ estáticos; cada gap tenía causa configurable:
 Límites duros (requieren plugin propio, R-DECO): hover `+` en maximizar
 (ningún `style*` lo dibuja; `stylematerialdynamic.cpp:renderMaximizeIcon`
 pinta □) y hover físico no inyectable en nested. No se inventa parche.
+
+## Hover + (`klassy-hover-plus.patch`)
+
+Parche mínimo (3 ficheros, +48/−1): `renderPlusMaximizeIcon()` nuevo en
+`RenderDecorationButtonIcon18By18` (cruz inscrita en el mismo
+`maximizeRect` y `maximizePenWidth` que ×/−, con su snap par/impar,
+opacidad y rama `m_strokeToFilledPath`) y `renderMaximizeIcon()` de
+MaterialDynamic llamándolo en vez de `renderSquareMaximizeIcon`.
+Verificado en nested con el build de `/tmp/klassy-nimbus-prefix` y glifos
+forzados siempre visibles: `+` de 8×9 px, mismo box/stroke que ×/−
+(`spikes/nested/f3-klassy-plus.png`). El preset shippeado mantiene los
+glifos solo en hover (macOS); el hover físico sigue sin verificador.
 
 ## Aplicar el preset (canal real)
 

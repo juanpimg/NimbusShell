@@ -1,9 +1,11 @@
-# F3-T02/F4-T01 Klassy — preset Tahoe sin parche C++ (evidencia nested)
+# F3-T02/F4-T01 Klassy — preset Tahoe + parche hover `+` (evidencia nested)
 
-Fecha: 2026-10-31. Harness `tests/vm/nested-plasma.sh --klassy --home <seed>`
-+ copia sin sonda en `/tmp` (el harness stock fuerza `ButtonSpacingLeft`
-al arrancar y una sonda runtime a 20; ver §6). Deco `org.kde.klassy`
-6.7.3 stock de `/tmp/klassy-prefix` en `supportInformation`, KWin estable.
+Fecha: 2026-10-31. Harness `tests/vm/nested-plasma.sh --klassy --no-probe
+--home <seed>` (flag nuevo: respeta el klassyrc del seed; antes el
+pre-seed `ButtonSpacingLeft=8` y la sonda runtime a 20 lo pisaban).
+Deco `org.kde.klassy` 6.7.3 stock de `/tmp/klassy-prefix` en
+`supportInformation`, KWin estable; build parcheado en
+`/tmp/klassy-nimbus-prefix` para el `+`.
 
 ## 1. Canal de aplicado real (nuevo)
 
@@ -39,7 +41,7 @@ al arrancar y una sonda runtime a 20; ver §6). Deco `org.kde.klassy`
 |---|---|---|---|
 | orden | XIA izq | XIA izq | OK |
 | Ø círculo | 12 | 12×12 (w=h=12 saturado) | OK |
-| gap filo | 8 | 8 (x 30→39 y 39→59 filo, spacing 6) | OK |
+| gap filo | 8 | 8 (stock `--no-probe`, seed intacto) | OK |
 | close | #FF5F57 lleno | (255,95,87) centro | OK |
 | minimize | #FEBC2E lleno | (254,188,46) centro | OK |
 | maximize | #28C840 lleno | (40,200,64) centro | OK |
@@ -48,28 +50,34 @@ al arrancar y una sonda runtime a 20; ver §6). Deco `org.kde.klassy`
 | offset | 8–9 | 9 (borde ventana→filo close) | OK |
 | titlebar | 26–28 | 26–27 (filas claras + separador 1 px) | OK |
 
-## 4. Límite duro: hover (sin parche, reportado exacto)
+## 4. Hover `+`: parcheado y verificado (ya no es límite)
 
-- Maximizar pinta □ (`RenderStyleMaterialDynamic18By18::renderMaximizeIcon`,
-  `libbreezecommon/stylematerialdynamic.cpp:18`); ningún `style*` dibuja
-  `+` (grep `Plus` vacío). Hover `+` imposible por config.
-- Hover físico no inyectable en nested (sin puntero; KWin scripting solo
-  geometría/foco). Glifos hover ×/−/□ configurados
-  (`Show*OnHover*=true`, `WhiteWhenHoverPress`) pero NO verificados.
-- Propuesta: plugin propio R-DECO (ya decidido en rama); sin parche
-  inventado aquí.
+- Parche `packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.patch`
+  (+48/−1, aplica limpio con `patch -p1` sobre 6.7.3): maximize pinta `+`.
+- Build `-DBUILD_QT5=OFF -DBUILD_QT6=ON` + install a
+  `/tmp/klassy-nimbus-prefix` (137 targets, sin errores); `KLASSY_PREFIX`
+  del harness ahora admite entorno (ya no hardcodea `/tmp/klassy-prefix`).
+- Captura `spikes/nested/f3-klassy-plus.png` (seed con glifos forzados
+  siempre visibles, sin puntero): `+` 8×9 px en verde, ×/− intactos,
+  Ø12/gap8/colores sin cambios. Límite restante: hover FÍSICO (puntero)
+  sigue sin inyector en nested; el preset shippeado deja glifos en hover.
 
 ## 5. Archivos
 
 - `packages/themes/klassy-preset/nimbus-tahoe.klpw` (preset; deltas en cabecera)
 - `packages/kwin/decoration/nimbus-decoration/README.md` (aplicar/construir/pin)
-- Sin `klassy-12px.patch`: no hay cambio C++ que justifique diff.
+- `packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.patch`
+- `spikes/nested/f3-klassy-plus.png` (glifo `+` con build parcheado)
 
-## 6. Trampas del harness (para el dueño de la rama)
+## 6. Harness reproducible (`--no-probe`)
 
-- `tests/vm/nested-plasma.sh:87-90` pre-seed `ButtonShape` +
-  `ButtonSpacingLeft=8` en el HOME dado (pisó seeds 2 y 3: gap 10
-  idéntico con spacing 6 y 4; causó el "spacing ignorado" aparente).
-- Sonda runtime `spacing 8→20` + `/KWin reconfigure` antes de las capturas.
+- Antes: pre-seed `ButtonShape` + `ButtonSpacingLeft=8` y sonda runtime
+  `8→20` + `/KWin reconfigure` pisaban el seed (causó el "spacing
+  ignorado" aparente). Ahora `--no-probe` omite ambos; el seed manda.
+- Gap 8 re-capturado con harness stock (`exit=0`, seed intacto,
+  sin sonda en log). Sin `--no-probe` el comportamiento anterior sigue
+  (compatibilidad con runs previos).
+- `KLASSY_PREFIX` por entorno (defecto `/tmp/klassy-prefix`); fix del
+  crash `LOG: variable sin asignar` con `set -u` en runs `--klassy`.
 - `klassy-settings -w` genera iconos en `XDG_DATA_HOME`: redirigirlo o
   ensucia `~/.local/share/icons` (limpiado tras el test).

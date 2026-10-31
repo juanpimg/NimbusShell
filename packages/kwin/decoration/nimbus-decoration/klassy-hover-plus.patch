@@ -1,0 +1,81 @@
+# NimbusOS Ruling: maximize dibuja "+" estilo macOS (MaterialDynamic).
+# Aplica sobre Klassy 6.7.3 pristine: patch -p1 < klassy-hover-plus.patch
+# No propuesto aguas arriba (comportamiento macOS, solo build Nimbus).
+--- a/libbreezecommon/renderdecorationbuttonicon18by18.h
++++ b/libbreezecommon/renderdecorationbuttonicon18by18.h
+@@ -55,6 +55,7 @@
+ 
+     void renderTinySquareMinimizeIcon(bool showArrows = false);
+     void renderCenteredLineMinimizeIcon(bool smaller = false);
++    void renderPlusMaximizeIcon(); // NimbusOS Ruling: macOS-style "+" (same box/stroke as x/-)
+     void renderDynamicMinimizeIcon(bool dynamicMinimize = true);
+     void renderOnAllDesktopsIcon();
+     void renderKeepBehindIconAsFromKlassyIcons();
+--- a/libbreezecommon/renderdecorationbuttonicon18by18.cpp
++++ b/libbreezecommon/renderdecorationbuttonicon18by18.cpp
+@@ -156,6 +156,53 @@
+     }
+ }
+ 
++void RenderDecorationButtonIcon18By18::renderPlusMaximizeIcon()
++{
++    // NimbusOS Ruling: macOS traffic-light "+" for the maximize button.
++    // Same bounding box (maximizeRect) and stroke as the x/- siblings:
++    // full-width horizontal line (identical to the minimize dash) plus a
++    // full-height vertical line through the centre.
++    auto [maximizeRect, maximizePenWidth] = renderSquareMaximizeIcon(true);
++    QPen pen = m_painter->pen();
++    pen.setWidthF(maximizePenWidth);
++    bool isOddPenWidth(roundedPenWidthIsOdd(pen));
++
++    // make excessively thick pen widths translucent to balance with other buttons
++    qreal opacity = straightLineOpacity();
++    QColor penColor = pen.color();
++    penColor.setAlphaF(penColor.alphaF() * opacity);
++    pen.setColor(penColor);
++
++    m_painter->setPen(pen);
++
++    QPointF h1, h2, v1, v2;
++    if (isOddPenWidth) {
++        h1 = snapToNearestPixel(QPointF(maximizeRect.left(), maximizeRect.center().y()), SnapPixel::ToHalf, SnapPixel::ToHalf);
++        h2 = snapToNearestPixel(QPointF(maximizeRect.right(), maximizeRect.center().y()), SnapPixel::ToHalf, SnapPixel::ToHalf);
++        v1 = snapToNearestPixel(QPointF(maximizeRect.center().x(), maximizeRect.top()), SnapPixel::ToHalf, SnapPixel::ToHalf);
++        v2 = snapToNearestPixel(QPointF(maximizeRect.center().x(), maximizeRect.bottom()), SnapPixel::ToHalf, SnapPixel::ToHalf);
++    } else {
++        h1 = snapToNearestPixel(QPointF(maximizeRect.left(), maximizeRect.center().y()), SnapPixel::ToWhole, SnapPixel::ToWhole);
++        h2 = snapToNearestPixel(QPointF(maximizeRect.right(), maximizeRect.center().y()), SnapPixel::ToWhole, SnapPixel::ToWhole);
++        v1 = snapToNearestPixel(QPointF(maximizeRect.center().x(), maximizeRect.top()), SnapPixel::ToWhole, SnapPixel::ToWhole);
++        v2 = snapToNearestPixel(QPointF(maximizeRect.center().x(), maximizeRect.bottom()), SnapPixel::ToWhole, SnapPixel::ToWhole);
++    }
++
++    if (m_strokeToFilledPath) {
++        QPainterPath path;
++        path.addPolygon(QVector<QPointF>{h1, h2});
++        path.addPolygon(QVector<QPointF>{v1, v2});
++        QPainterPathStroker stroker(m_painter->pen());
++        path = stroker.createStroke(path);
++        m_painter->setBrush(m_painter->pen().color());
++        m_painter->setPen(Qt::NoPen);
++        m_painter->drawPath(path);
++    } else {
++        m_painter->drawPolyline(QVector<QPointF>{h1, h2});
++        m_painter->drawPolyline(QVector<QPointF>{v1, v2});
++    }
++}
++
+ void RenderDecorationButtonIcon18By18::renderDynamicMinimizeIcon(bool dynamicMinimize)
+ {
+     QVector<QPointF> line;
+--- a/libbreezecommon/stylematerialdynamic.cpp
++++ b/libbreezecommon/stylematerialdynamic.cpp
+@@ -17,7 +17,8 @@
+ 
+ void RenderStyleMaterialDynamic18By18::renderMaximizeIcon()
+ {
+-    renderSquareMaximizeIcon(false, 0);
++    // NimbusOS Ruling: macOS-style "+" instead of the square (traffic lights).
++    renderPlusMaximizeIcon();
+ }
+ 
+ void RenderStyleMaterialDynamic18By18::renderFloatIcon()
