@@ -1,0 +1,29 @@
+# kremarc-nimbus — settings Nimbus para Krema 0.12.0 (formato INI KConfig).
+# Grupo y claves exactas de src/config/krema.kcfg (kcfgfile name="kremarc").
+# Destino live: ~/.config/kremarc ; aplicar con: pkill krema (respawnea solo).
+[General]
+# Tile 48px (min 24, max 96) + zoom parabólico macOS 1.6x (min 1.0, max 2.0)
+IconSize=48
+IconSpacing=4
+MaxZoomFactor=1.6
+ZoomStyle=0
+# Abajo, flotante con margen 8, esquinas 12, acrílico Tahoe
+Edge=1
+Floating=true
+FloatingMargin=8
+CornerRadius=12
+BackgroundStyle=3
+BackgroundOpacity=0.6
+# Siempre visible (variante autohide en kremarc-nimbus-autohide)
+VisibilityMode=0
+ReserveScreenSpace=true
+ShowDelay=200
+HideDelay=400
+# Previews activas 200px / 500ms (PipeWire, backend TaskManager)
+PreviewEnabled=true
+PreviewThumbnailSize=200
+PreviewHoverDelay=500
+PreviewHideDelay=200
+# Pins por defecto upstream (IDs verificados en el live F5-T03)
+PinnedLaunchers=applications:org.kde.dolphin.desktop,applications:org.kde.konsole.desktop,applications:org.kde.kate.desktop,applications:systemsettings.desktop
+SeparateLaunchers=false
