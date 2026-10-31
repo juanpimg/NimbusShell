@@ -117,13 +117,13 @@ ApplicationWindow {
 
     Component.onCompleted: {
         // Test nested: pestaña/vista iniciales (--tab/--clipview).
-        if (initialTab === "apps" || initialTab === "files"
-            || initialTab === "actions" || initialTab === "clipboard")
+        if (initialTab === "apps" || initialTab === "files" || initialTab === "actions" || initialTab === "clipboard")
             root.tab = initialTab;
         if (initialClipView === "emoji" || initialClipView === "history")
             root.clipView = initialClipView;
         if (initialQuery !== "")
-            searchField.text = initialQuery; // onTextChanged+debounce lanza
+            searchField.text = initialQuery;
+            // onTextChanged+debounce lanza
         else
             root.doSearch(); // clipboard con consulta vacía no dispara debounce
         searchField.forceActiveFocus();
