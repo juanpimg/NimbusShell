@@ -1,6 +1,9 @@
 [KDE Keyboard Layout Switcher]
 Switch to Next Keyboard Layout=none,none,libera Meta+Espacio para KRunner
 
+[ksmserver]
+Lock Session=Meta+Ctrl+Q,Meta+Ctrl+Q,bloquear sesión (≈Cmd+Ctrl+Q macOS; única excepción Ctrl documentada F10-T04)
+
 [kwin]
 Expose=Meta+E,Meta+E,Exposé del escritorio actual
 Overview=none,none,Mission Control Nimbus (Meta+W via nimbus-mc; stock off, R-MC-STOCK)
@@ -26,8 +29,7 @@ Window Quick Tile Right=Meta+Right,Meta+Right,media ventana a la derecha
 Window Quick Tile Top=Meta+Up,Meta+Up,ventana arriba (borde sup.=maximizar)
 
 [plasmashell]
-activate task manager entry 1=none,none,reservado Apps/Spotlight F6-T04 (Cmd+1)
-activate task manager entry 2=none,none,reservado Apps/Spotlight F6-T04 (Cmd+2)
+activate task manager entry 1=none,none,reservado Apps/Spotlight F6-T04 (Cmd+1)activate task manager entry 2=none,none,reservado Apps/Spotlight F6-T04 (Cmd+2)
 activate task manager entry 3=none,none,reservado Apps/Spotlight F6-T04 (Cmd+3)
 activate task manager entry 4=none,none,reservado Apps/Spotlight F6-T04 (Cmd+4)
 
