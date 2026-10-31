@@ -24,6 +24,7 @@ done
 
 sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
     for f in "$REPO_ROOT/install.sh" "$REPO_ROOT"/lib/*.sh "$REPO_ROOT"/scripts/*.sh \
+             "$REPO_ROOT/scripts/install-klassy-nimbus" \
              "$REPO_ROOT/legacy/hyprland/install.sh"; do
         [ -f "$f" ] && printf '%s\n' "$f"
     done
@@ -131,6 +132,26 @@ rc=$?
 if [ "$rc" = "0" ] || [ "$rc" = "1" ]; then
     pass "install.sh --check exit $rc (0 verde, 1 drift esperado en host)"
 else fail "install.sh --check exit $rc (se esperaba 0 o 1)"; fi
+
+echo "== ci: packaging (PKGBUILD, sin instalar nada) =="
+pkgbuilds="$(find "$REPO_ROOT/packaging" -maxdepth 2 -name 'PKGBUILD' 2>/dev/null || true)"
+if [ -z "$pkgbuilds" ]; then
+    pass "sin packaging/*/PKGBUILD (skip limpio)"
+else
+    while IFS= read -r f; do
+        if bash -n "$f" 2>/tmp/opencode/ci-err.txt; then pass "bash -n ${f#"$REPO_ROOT"/}";
+        else fail "bash -n ${f#"$REPO_ROOT"/} ($(cat /tmp/opencode/ci-err.txt))"; fi
+    done < <(printf '%s\n' "$pkgbuilds")
+    if ! command -v makepkg >/dev/null 2>&1; then
+        pass "makepkg ausente (skip limpio: sin --printsrcinfo)"
+    else
+        while IFS= read -r f; do
+            if (cd "$(dirname "$f")" && makepkg --printsrcinfo >/dev/null 2>/tmp/opencode/ci-err.txt); then
+                pass "makepkg --printsrcinfo ${f#"$REPO_ROOT"/}"
+            else fail "makepkg --printsrcinfo ${f#"$REPO_ROOT"/} ($(head -3 /tmp/opencode/ci-err.txt | tr '\n' '|'))"; fi
+        done < <(printf '%s\n' "$pkgbuilds")
+    fi
+fi
 
 if [ "$SELF_TEST" = "1" ]; then
     echo "== ci: --self-test (el lint debe fallar con un fichero roto) =="

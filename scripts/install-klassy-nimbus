@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# install-klassy-nimbus (F4-T09): construye e instala klassy-nimbus 6.7.3
+# pinneado desde packaging/klassy con makepkg en /tmp. Idempotente, sin root
+# salvo el `pacman -U` final explícito. NO ejecutar contra el host salvo
+# orden explícita (la instalación real va en la VM, F2-T08).
+#
+# Uso: scripts/install-klassy-nimbus [--check] [--no-install] [--help]
+#   --check:      solo verifica (PKGBUILD, patch, preset, makepkg presente).
+#   --no-install: construye el paquete pero no lo instala (no pide sudo).
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PKG_DIR="$REPO_ROOT/packaging/klassy"
+BUILD_DIR="/tmp/klassy-nimbus-pkg"
+CHECK=""
+NO_INSTALL=""
+
+for arg in "$@"; do
+    case "$arg" in
+        --check) CHECK=1 ;;
+        --no-install) NO_INSTALL=1 ;;
+        -h|--help)
+            echo "Uso: scripts/install-klassy-nimbus [--check] [--no-install]"
+            echo "Construye packaging/klassy (klassy-nimbus 6.7.3) con makepkg en /tmp."
+            exit 0 ;;
+        *) echo "ERROR: argumento desconocido: $arg (ver --help)" >&2; exit 2 ;;
+    esac
+done
+
+[ -f "$PKG_DIR/PKGBUILD" ] || { echo "ERROR: falta $PKG_DIR/PKGBUILD" >&2; exit 1; }
+[ -f "$PKG_DIR/klassy-hover-plus.patch" ] || { echo "ERROR: falta el parche klassy-hover-plus.patch" >&2; exit 1; }
+[ -f "$PKG_DIR/nimbus-tahoe.klpw" ] || { echo "ERROR: falta el preset nimbus-tahoe.klpw" >&2; exit 1; }
+command -v makepkg >/dev/null 2>&1 || { echo "ERROR: falta makepkg (base-devel). Sin él no se puede construir." >&2; exit 1; }
+if [ "$(id -u)" = "0" ]; then
+    echo "ERROR: no ejecutar como root (makepkg lo prohíbe). Corre como usuario." >&2
+    exit 1
+fi
+bash -n "$PKG_DIR/PKGBUILD" || { echo "ERROR: $PKG_DIR/PKGBUILD con error de sintaxis" >&2; exit 1; }
+
+if [ -n "$CHECK" ]; then
+    echo "[OK] check: PKGBUILD + parche + preset presentes, makepkg disponible."
+    exit 0
+fi
+
+mkdir -p "$BUILD_DIR"
+cp -a "$PKG_DIR/PKGBUILD" "$PKG_DIR/klassy-hover-plus.patch" \
+    "$PKG_DIR/nimbus-tahoe.klpw" "$BUILD_DIR/"
+echo "Construyendo klassy-nimbus en $BUILD_DIR (re-ejecutable: makepkg -f)..."
+(cd "$BUILD_DIR" && PKGDEST="$BUILD_DIR" makepkg -f --noconfirm) || {
+    echo "ERROR: falló makepkg en $BUILD_DIR. Revisa dependencias (ver packaging/klassy/README.md)." >&2
+    exit 1
+}
+pkgfile="$(ls -t "$BUILD_DIR"/klassy-nimbus-*.pkg.tar.zst 2>/dev/null | head -1 || true)"
+[ -n "$pkgfile" ] || { echo "ERROR: makepkg terminó sin generar .pkg.tar.zst en $BUILD_DIR" >&2; exit 1; }
+echo "[OK] paquete: $pkgfile"
+
+if [ -n "$NO_INSTALL" ]; then
+    echo "[OK] --no-install: paquete listo, no instalado."
+    exit 0
+fi
+
+echo "Instalando $pkgfile (pedirá sudo para pacman -U)..."
+sudo pacman -U --noconfirm "$pkgfile" || {
+    echo "ERROR: falló pacman -U. Reintenta a mano: sudo pacman -U $pkgfile" >&2
+    exit 1
+}
+echo "[OK] klassy-nimbus instalado. Reinicia KWin para aplicarlo:"
+echo "  qdbus6 org.kde.KWin /KWin reconfigure   (o cierra sesión y entra)"
+echo "  klassy-settings -i /usr/share/klassy-nimbus/nimbus-tahoe.klpw && klassy-settings -w Klassy"
