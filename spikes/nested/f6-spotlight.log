@@ -1,0 +1,41 @@
+[spot] runtime=/tmp/opencode/nimbus-spot-L7aKkY/runtime home=/tmp/opencode/nimbus-spot-L7aKkY/home log=/home/jp/Escritorio/Proyectos/NimbusShell-f6krunner/spikes/nested/f6-spotlight.log
+[spot] kwin-script desplegado en DATA_HOME temporal
+[spot] arranque kwin_wayland --virtual ...
+[spot] arranque nimbus-spotlight --query kate ...
+SPOT-MAIN-ENTER pid=244745
+nimbus-spotlight[1]: Spotlight_QMLTYPE_71(0x555b2d7a8530, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[4]: nimbus-spotlight: demo=0 query='kate'
+nimbus-spotlight[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "search term" msgid_plural: "" msgctxt: ""
+nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "Configure plugin" msgid_plural: "" msgctxt: ""
+nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "help" msgid_plural: "" msgctxt: "this is a runner keyword"
+nimbus-spotlight[1]: No default firefox profile found
+nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "Finds system settings modules whose names or descriptions match :q:" msgid_plural: "" msgctxt: ""
+nimbus-spotlight[1]: Connecting to deprecated signal QDBusConnectionInterface::serviceOwnerChanged(QString,QString,QString)
+nimbus-spotlight[4]: spotlight-search: term='kate'
+nimbus-spotlight[1]: Error requesting config; calling "org.kde.runners.activities"  : "org.freedesktop.DBus.Error.ServiceUnknown" "The name org.kde.runners.activities was not provided by any .service files"
+nimbus-spotlight[1]: Error requesting matches; calling "org.kde.runners.activities"  : "org.freedesktop.DBus.Error.ServiceUnknown" "The name org.kde.runners.activities was not provided by any .service files"
+nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140202093835968_readonly" "/tmp/opencode/nimbus-spot-L7aKkY/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
+nimbus-spotlight[1]: QSqlDatabasePrivate::database: unable to open database: "unable to open database file Error al abrir la base de datos"
+nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140202093835968_readonly" "/tmp/opencode/nimbus-spot-L7aKkY/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
+nimbus-spotlight[1]: Plasma Activities ERROR: There is no database. This probably means that you do not have the Activity Manager running, or that something else is broken on your system. Recent documents and alike will not work!
+nimbus-spotlight[4]: spotlight-matches: n=6
+nimbus-spotlight[4]: spotlight-latency: query=271ms mode=krunner-progressive results=6
+nimbus-spotlight[4]: spotlight-latency: query=273ms mode=krunner results=6
+nimbus-spotlight[4]: currency conversion table data obtained via network
+[spot] spotlight VIVO (pid 244745)
+[spot] DBus org.nimbus.Spotlight:
+[spot] toggle OK (oculta)
+[spot] toggle OK (muestra)
+[spot] kwin-script nimbus-spotlight:
+true
+Nimbus Spotlight
+[spot] shortcut Nimbus Spotlight registrado
+[spot] invokeShortcut Nimbus Spotlight rc=0 (overlay alternado)
+[spot] stock krunner inactivo: solo overlay Nimbus
+[spot] toggle OK (restaura visible)
+[spot] f6-spotlight.png OK
+[spot] latencias:
+nimbus-spotlight[4]: spotlight-latency: query=271ms mode=krunner-progressive results=6
+nimbus-spotlight[4]: spotlight-latency: query=273ms mode=krunner results=6
+[spot] 0 errores QML

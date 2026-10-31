@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Spotlight de Nimbus
+Comment=Búsqueda Spotlight sobre KRunner (Cmd+Espacio)
+Exec=nimbus-spotlight
+Icon=system-search
+Categories=Utility;
+X-Nimbus-AppId=org.nimbus.spotlight

@@ -1,0 +1,18 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "nimbus@nimbus.local",
+                "Name": "NimbusShell"
+            }
+        ],
+        "Description": "Cmd+Espacio alterna el overlay Nimbus Spotlight (org.nimbus.Spotlight)",
+        "Icon": "system-search",
+        "Id": "nimbus-spotlight",
+        "License": "GPL-2.0-or-later",
+        "Name": "Nimbus Spotlight"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}
