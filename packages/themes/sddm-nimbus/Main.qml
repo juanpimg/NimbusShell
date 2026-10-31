@@ -118,6 +118,13 @@ Rectangle {
                 font.pixelSize: NimbusTokens.type.t15.size
                 focus: true
                 onAccepted: loginButton.clicked()
+                // macOS: Esc limpia el campo y devuelve el foco a la tarjeta
+                // (al botón de login); no interfiere con Enter (onAccepted).
+                Keys.onEscapePressed: {
+                    pwField.text = "";
+                    failLabel.text = "";
+                    loginButton.forceActiveFocus();
+                }
                 background: Rectangle {
                     radius: NimbusTokens.radii.rMd
                     color: "#1C1C1E"
