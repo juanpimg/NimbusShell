@@ -1,6 +1,8 @@
 # NimbusShell Tahoe: semaforos macOS sobre preset Klassy stock.
-# Deltas vs Klassy.klpw 6.7.3: XIA izq, circulos, spacing 8,
-# override R/A/V activo + gris inactivo, fondo siempre visible.
+# Deltas vs Klassy.klpw 6.7.3: XIA izq, IconVerySmall (Ø12), spacing 6
+# (gap filo-a-filo 8 = spacing + 1 de padding por lado), TitleBarLeftMargin=8
+# overrides JSON R/A/V activo + gris #8E8E93 inactivo (el KCM los guarda
+# como JSON; `#hex` se ignora), close sin glifo normal (como macOS).
 # Resto de claves identicas al preset original (no inventadas).
 [Klassy Window Decoration Preset File]
 version=6.7.3
@@ -27,32 +29,32 @@ ButtonIconOpacityActive=100
 ButtonIconOpacityInactive=100
 ButtonIconStyle=StyleMaterialDynamic
 ButtonOverrideColorsActiveApplicationMenu=
-ButtonOverrideColorsActiveClose=#FF5F57
+ButtonOverrideColorsActiveClose={"BackgroundNormal":[255,95,87],"BackgroundHover":[255,95,87],"BackgroundPress":[255,95,87]}
 ButtonOverrideColorsActiveContextHelp=
 ButtonOverrideColorsActiveExcludeFromCapture=
 ButtonOverrideColorsActiveKeepAbove=
 ButtonOverrideColorsActiveKeepBelow=
-ButtonOverrideColorsActiveMaximize=#28C840
+ButtonOverrideColorsActiveMaximize={"BackgroundNormal":[40,200,64],"BackgroundHover":[40,200,64],"BackgroundPress":[40,200,64]}
 ButtonOverrideColorsActiveMenu=
-ButtonOverrideColorsActiveMinimize=#FEBC2E
+ButtonOverrideColorsActiveMinimize={"BackgroundNormal":[254,188,46],"BackgroundHover":[254,188,46],"BackgroundPress":[254,188,46]}
 ButtonOverrideColorsActiveOnAllDesktops=
 ButtonOverrideColorsActiveShade=
 ButtonOverrideColorsInactiveApplicationMenu=
-ButtonOverrideColorsInactiveClose=#8E8E93
+ButtonOverrideColorsInactiveClose={"BackgroundNormal":[142,142,147],"BackgroundHover":[142,142,147],"BackgroundPress":[142,142,147]}
 ButtonOverrideColorsInactiveContextHelp=
 ButtonOverrideColorsInactiveExcludeFromCapture=
 ButtonOverrideColorsInactiveKeepAbove=
 ButtonOverrideColorsInactiveKeepBelow=
-ButtonOverrideColorsInactiveMaximize=#8E8E93
+ButtonOverrideColorsInactiveMaximize={"BackgroundNormal":[142,142,147],"BackgroundHover":[142,142,147],"BackgroundPress":[142,142,147]}
 ButtonOverrideColorsInactiveMenu=
-ButtonOverrideColorsInactiveMinimize=#8E8E93
+ButtonOverrideColorsInactiveMinimize={"BackgroundNormal":[142,142,147],"BackgroundHover":[142,142,147],"BackgroundPress":[142,142,147]}
 ButtonOverrideColorsInactiveOnAllDesktops=
 ButtonOverrideColorsInactiveShade=
 ButtonOverrideColorsLockStatesActive=
 ButtonOverrideColorsLockStatesInactive=
 ButtonShape=ShapeSmallCircle
-ButtonSpacingLeft=8
-ButtonSpacingRight=8
+ButtonSpacingLeft=6
+ButtonSpacingRight=6
 ButtonStateCheckedActive=Press
 ButtonStateCheckedInactive=Press
 CloseButtonIconColorActive=WhiteWhenHoverPress
@@ -67,7 +69,7 @@ FullHeightButtonSpacingLeft=2
 FullHeightButtonSpacingRight=3
 FullHeightButtonWidthMarginLeft=12
 FullHeightButtonWidthMarginRight=18
-IconSize=IconLargeMedium
+IconSize=IconVerySmall
 IntegratedRoundedRectangleBottomPadding=1.5
 KlassyDarkIconThemeInherits=breeze-dark
 KlassyIconThemeInherits=breeze
@@ -118,8 +120,8 @@ ShowCloseBackgroundOnHoverActive=true
 ShowCloseBackgroundOnHoverInactive=true
 ShowCloseBackgroundOnPressActive=true
 ShowCloseBackgroundOnPressInactive=true
-ShowCloseIconNormallyActive=true
-ShowCloseIconNormallyInactive=true
+ShowCloseIconNormallyActive=false
+ShowCloseIconNormallyInactive=false
 ShowCloseIconOnHoverActive=true
 ShowCloseIconOnHoverInactive=true
 ShowCloseIconOnPressActive=true
@@ -146,7 +148,7 @@ SpacerButtonWidthRelative=50
 SystemIconSize=SystemIcon16
 TitleAlignment=AlignCenterFullWidth
 TitleBarBottomMargin=3.6
-TitleBarLeftMargin=0
+TitleBarLeftMargin=8
 TitleBarOpacityActive=100
 TitleBarOpacityInactive=100
 TitleBarRightMargin=0
