@@ -131,7 +131,7 @@
 - [ ] **F3-T11 — Fondo, claro/oscuro y acento.** Files: `packages/themes/`, `scripts/apply-theme`. Acciones: wallpaper NPS, switch claro/oscuro automático, acento; ventanas y panel siguen. Accept: cambio en vivo sin reiniciar; capturas. Estado: autoría+preview y wallpaper en vivo OK; panel renderiza un switch por detrás (R-F3T11-LIVE, evidencia); pendiente aislar reload o validar en VM. Dep: F3-T02.
 - [ ] **F3-T12 — Aceptación de barra superior.** Files: `tests/vm/topbar.sh`, `docs/plans/evidence/F3-T12.md`. Acciones: diff vs golden, clics en cada menú, teclado, multi-monitor. Accept: A1/A2 (<15% diff, 24pt, semáforos), 0 errores, evidencia. Dep: F3-T04..T11.
 
-- [ ] **F3-T13 — Presets Colorizer + Window Buttons6.** Files: `packages/plasma/`, `dotfiles/.config/`. Acciones: versionar presets de topbar/botones, `kpackagetool6`, pin de versiones. Accept: instala en VM limpia; captura; pin documentado. Dep: F3-T05.
+- [ ] **F3-T13 — Presets y pin de la barra Nimbus.** Files: `packages/shell/nimbus-bar/`, `dotfiles/.config/`. Acciones: versionar presets de la barra (tokens, glass, tamaños, orden de iconos), `pin` de versiones de Qt/LayerShellQt/Krema; Colorizer/WindowButtons6 NO aplican (R-TOPBAR-LAYER, barra custom). Accept: instala en VM limpia; captura; pin documentado. Dep: F3-T05.
 
 ---
 
@@ -334,6 +334,7 @@
 - **R-TAHOE-TOKENS:** `docs/design/tahoe-design-contract.md` §2 es la fuente única; prohibido hex/tamaño mágico; F3-T01 se reescribe con §2.
 - **R-MENUBAR:** altura 24pt; F2-T05 28px era panel Plasma, no spec Apple.
 - **R-TITLEBAR:** 16 sin toolbar / 26 con toolbar-sidebar, concéntrico; título izquierda.
+- **R-BAR-PRESETS:** Colorizer/Window Buttons6 quedan fuera (no hay panel Plasma); los presets de la barra se versionan en `packages/shell/nimbus-bar/` y se fijan Qt/LayerShellQt/Krema.
 - **R-APPSVIEW:** replicar Apps Tahoe (categorías, sin carpetas/páginas/reorden); Launchpad no existe; carpetas custom exigen Ruling nueva.
 - **R-CONFIDENCE:** `[INFERIDO]` no cierra tarea; medir en VM y promover a `[MEDIDO]`.
 - **R-F0-GATE:** F0-T03/T04 con GO funcional en live Plasma 6.7.4 + nested 6.8.2 (Krema 0.12 zoom, KRunner, Overview). Los umbrales de rendimiento (55/60fps, render <50/<300ms) se validan en F5-T11/A5 y F7-T09/A7; F0-T03/T04 siguen abiertas hasta esa medición. F2 puede avanzar.
