@@ -1,0 +1,52 @@
+# NimbusOS netinstall — packages.x86_64 (F2-T06).
+# Fuente: docs/plans/research/F2-base.md §1, §4a y §8; coherente con
+# packages/plasma.list (F1-T03). Un paquete por línea; "#" comentarios.
+# Sin AUR no fijado: klassy/klassy-bin quedan FUERA hasta su pin en F2-T01
+# (se documentan aparte, R-KLASSY). NVIDIA fuera del netinstall: se instala
+# post-detección (F2-T10); solo en la ISO Full F12.
+
+# --- base archiso (obligatorios) ---
+base
+mkinitcpio
+mkinitcpio-archiso
+archiso
+linux
+linux-firmware
+
+# --- Plasma 6 + sesión (extra; pins propuestos F2-base §8) ---
+plasma-meta
+kwin
+krunner
+sddm
+sddm-kcm
+kde-gtk-config
+kvantum
+layer-shell-qt
+power-profiles-daemon
+powerdevil
+
+# --- instalador y red ---
+calamares
+networkmanager
+plasma-nm
+firewalld
+os-prober
+
+# --- almacenamiento / snapshots ---
+btrfs-progs
+snapper
+grub-btrfs
+
+# --- apps base live ---
+konsole
+dolphin
+spectacle
+mesa
+vulkan-radeon
+vulkan-intel
+
+# --- herramientas live ---
+git
+nano
+sudo
+which
