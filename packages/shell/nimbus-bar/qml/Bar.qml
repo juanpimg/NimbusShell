@@ -73,12 +73,22 @@ Window {
             }
         }
         Text {
+            visible: !appMenu.hasMenu
             anchors.verticalCenter: parent.verticalCenter
-            text: "Nimbus"
+            // F3-T06: sin menú global (GTK/in-window, R-GTK) se muestra el
+            // nombre de la app activa en negrita ("Nimbus" si no hay ninguna).
+            text: appMenu.appName
             font.family: NimbusTokens.fontFamily
             font.pixelSize: NimbusTokens.type.t13b.size
             font.weight: NimbusTokens.type.t13b.weight
             color: NimbusTokens.colors(NimbusTokens.dark).label
+        }
+        // F3-T06: menú global Qt de la app activa (nombre bold + items).
+        GlobalMenu {
+            id: globalMenu
+            visible: appMenu.hasMenu
+            anchors.verticalCenter: parent.verticalCenter
+            demo: demoAppmenu
         }
     }
 

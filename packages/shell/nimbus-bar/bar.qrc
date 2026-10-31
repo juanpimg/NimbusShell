@@ -2,6 +2,7 @@
   <qresource prefix="/">
     <file alias="Bar.qml">qml/Bar.qml</file>
     <file alias="Menu.qml">qml/Menu.qml</file>
+    <file alias="GlobalMenu.qml">qml/GlobalMenu.qml</file>
     <file alias="ControlCenter.qml">qml/ControlCenter.qml</file>
     <file alias="Calendar.qml">qml/Calendar.qml</file>
     <file alias="NimbusTokens.qml">qml/NimbusTokens.qml</file>

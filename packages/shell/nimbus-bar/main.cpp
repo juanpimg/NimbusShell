@@ -11,6 +11,7 @@
 #include <LayerShellQt/Shell>
 #include <LayerShellQt/Window>
 #include "commandrunner.h"
+#include "appmenumodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("nimbus-bar"));
     app.setOrganizationName(QStringLiteral("nimbus"));
 
-    bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false, demoCalendar = false;
+    bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false, demoCalendar = false, demoAppmenu = false, logAppmenu = false;
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo-menu"))
@@ -42,16 +43,23 @@ int main(int argc, char *argv[])
             logActions = true;
         else if (a == QStringLiteral("--demo-calendar"))
             demoCalendar = true;
+        else if (a == QStringLiteral("--demo-appmenu"))
+            demoAppmenu = true;
+        else if (a == QStringLiteral("--log-appmenu"))
+            logAppmenu = true;
     }
 
     CommandRunner runner;
     runner.setLogQuery(logQuery || demoCC);
     // F3-T05-fix: el qDebug por defecto no sale en este Qt (verificado con
     // binario mínimo); con --log-query se instala handler propio a stderr.
-    if (logQuery || demoCC)
+    // F3-T06: idem para --log-appmenu/--demo-appmenu (AppMenuModel usa qInfo).
+    // El handler va ANTES de construir AppMenuModel: su log de init usa qInfo.
+    if (logQuery || demoCC || logAppmenu || demoAppmenu)
         qInstallMessageHandler([](QtMsgType t, const QMessageLogContext &, const QString &m) {
             fprintf(stderr, "nimbus-bar[%d]: %s\n", static_cast<int>(t), m.toUtf8().constData());
         });
+    AppMenuModel appMenu(logAppmenu || demoAppmenu);
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("runner"), &runner);
     engine.rootContext()->setContextProperty(QStringLiteral("demoMenu"), demoMenu);
@@ -59,6 +67,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("openCC"), openCC);
     engine.rootContext()->setContextProperty(QStringLiteral("logActions"), logActions);
     engine.rootContext()->setContextProperty(QStringLiteral("demoCalendar"), demoCalendar);
+    engine.rootContext()->setContextProperty(QStringLiteral("appMenu"), &appMenu);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoAppmenu"), demoAppmenu);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
