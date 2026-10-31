@@ -115,3 +115,8 @@ QEMU/KVM con Arch vanilla: arranque, login, sesión Hyprland, capturas
 - **Nativo:** 3 botones hyprbars (rojo `hl.dsp.window.close()`, amarillo `qs ipc window minimize` con genie, verde `hl.dsp.window.fullscreen({mode="maximized"})`), título Inter 12 centrado, `inactive_button_color 0x598E8E93`, `icon_on_hover`.
 - **Verificado en VM:** activa a color / inactiva gris (muestreo RGB), glifos al hover, rojo cierra la ventana inactiva correcta, verde des-maximiza, amarillo minimiza; `qs log` limpio; md5 guest==host.
 - **Limitaciones:** botones solo en sesión Lua (el fallback `.conf` no tiene semáforos, el keyword INI no existe en main); ventanas maximizadas (`fs=1`) dejan la barra parcialmente bajo el MacBar (pendiente de geometría).
+
+## R20 — Arrastre desde la barra (2026-10-31)
+- **Síntoma:** al agarrar la barra, la ventana se centraba en el cursor en vez de conservar el offset.
+- **Causa:** Hyprland 0.56.2 hardcodea `setPositionGlobal(mouse - size/2)` al arrastrar una ventana que sale de fullscreen/maximized (`DragController.cpp:107`); no hay opción de config (`binds:drag_center_window` es 0.57+, en 0.56 da "unknown key" y **aborta los binds posteriores**). Las ventanas nacían fs=1 porque `remember_window_size` de kitty restauraba el estado maximizado.
+- **Fix:** `remember_window_size no` en kitty.conf + `kitty --start-as=normal` en SUPER+T → nacen fs=0; en fs=0 el hotspot se conserva (`m_dragHotspot = begin - position`). Limitación: arrastrar una ventana maximizada a mano (botón verde) sigue centrando por diseño de 0.56.

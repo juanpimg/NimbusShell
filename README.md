@@ -65,3 +65,4 @@ Respeto y colaboración con los proyectos que nos sostienen: **no reinventamos**
 ## Licencia
 
 Código propio (install.sh, listas, docs) bajo **GPL-3.0-or-later** (ver `LICENSE`). Dotfiles vendorean [MacShell](https://github.com/0-ss/MacShell) (MIT) con los parches NimbusOS; fondo Sequoia: dominio público (foto US National Park Service vía Wikimedia Commons). Componentes instalados conservan sus licencias.
+R20 — kitty.conf `remember_window_size no` + SUPER+T `--start-as=normal`: las ventanas nuevas nacen fs=0 (sin heredar el maximizado recordado); con fs=0 Hyprland conserva el punto de agarre al arrastrar la barra. Hyprland 0.56.2 hardcodea el centrado al salir de fs=1 y `binds:drag_center_window` solo existe en 0.57+ (key inválida abortaba los binds posteriores); documentado y propuesto aguas arriba.
