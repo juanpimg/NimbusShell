@@ -25,9 +25,11 @@ ApplicationWindow {
         })
     property var filtered: []
     property string lastQuery: ""
+    // F6-T02: locales primero; KRunner solo como fallback (Tab o botón).
+    property bool krunnerMode: false
 
     function refreshFilter() {
-        var all = backend.matches;
+        var all = root.krunnerMode ? backend.matches : nimbus.localMatches;
         var q = searchField.text;
         root.lastQuery = q;
         if (root.tab === "clipboard") {
@@ -46,14 +48,44 @@ ApplicationWindow {
     function doSearch() {
         if (root.tab === "clipboard")
             backend.clipboardHistory();
-        else
+        else if (root.krunnerMode)
             backend.search(searchField.text);
+        else {
+            // Fast-path local (<50ms); si no hay nada, cae a KRunner solo.
+            nimbus.searchLocal(searchField.text, root.tab);
+            if (nimbus.localMatches.length === 0 && searchField.text.trim() !== "")
+                backend.search(searchField.text);
+        }
+    }
+
+    function useKRunner() {
+        root.krunnerMode = true;
+        nimbus.requestKRunner();
+        backend.search(searchField.text);
+    }
+
+    function activateCurrent(action) {
+        if (root.filtered.length === 0)
+            return;
+        if (root.krunnerMode)
+            backend.activate(indexOf(root.filtered[root.currentIndex]));
+        else
+            nimbus.activateLocal(root.currentIndex, action === undefined ? "open" : action);
     }
 
     Connections {
         target: backend
         function onMatchesChanged() {
-            root.refreshFilter();
+            if (root.krunnerMode)
+                root.refreshFilter();
+        }
+    }
+
+    Connections {
+        target: nimbus
+        function onLocalMatchesChanged() {
+            if (!root.krunnerMode)
+                root.refreshFilter();
         }
     }
 
@@ -105,11 +137,11 @@ ApplicationWindow {
                 color: "#FFFFFF" // label dark [HIG]
                 background: null
                 Accessible.name: "Campo de búsqueda Spotlight"
-                onTextChanged: searchDebounce.restart()
-                onAccepted: {
-                    if (root.filtered.length > 0)
-                        backend.activate(indexOf(root.filtered[root.currentIndex]));
+                onTextChanged: {
+                    root.krunnerMode = false; // cada tecla vuelve al fast-path
+                    searchDebounce.restart();
                 }
+                onAccepted: root.activateCurrent("open")
                 // Debounce 200ms: evita relanzar KRunner por cada tecla
                 // (doble launchQuery deja a RunnerManager sin queryFinished).
                 Timer {
@@ -119,7 +151,7 @@ ApplicationWindow {
                     onTriggered: root.doSearch()
                 }
                 function indexOf(item) {
-                    var all = backend.matches;
+                    var all = root.krunnerMode ? backend.matches : nimbus.localMatches;
                     for (var i = 0; i < all.length; i++)
                         if (all[i].text === item.text && all[i].subtext === item.subtext)
                             return i;
@@ -134,6 +166,10 @@ ApplicationWindow {
                         event.accepted = true;
                     } else if (event.key === Qt.Key_Escape) {
                         root.visible = false;
+                        event.accepted = true;
+                    } else if (event.key === Qt.Key_Tab) {
+                        // Fallback explícito a KRunner (contrato F6-T02).
+                        root.useKRunner();
                         event.accepted = true;
                     } else if (event.key >= Qt.Key_1 && event.key <= Qt.Key_4 && (event.modifiers & Qt.MetaModifier)) {
                         var tabs = ["apps", "files", "actions", "clipboard"];
@@ -222,7 +258,7 @@ ApplicationWindow {
                         anchors.fill: parent
                         onClicked: {
                             root.currentIndex = index;
-                            backend.activate(index);
+                            root.activateCurrent("open");
                         }
                     }
                 }
@@ -266,8 +302,58 @@ ApplicationWindow {
                 Item {
                     Layout.fillHeight: true
                 }
+                // Acciones locales (F6-T02): Abrir / Copiar / Revelar.
+                RowLayout {
+                    visible: root.filtered.length > 0 && !root.krunnerMode
+                    spacing: 8
+                    Repeater {
+                        model: [["open", "Abrir"], ["copy", "Copiar"], ["reveal", "Revelar"]]
+                        delegate: Rectangle {
+                            width: 72
+                            height: 28
+                            radius: 6
+                            color: "#0A84FF"
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData[1]
+                                color: "#FFFFFF"
+                                font.pixelSize: 12
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: root.activateCurrent(modelData[0])
+                            }
+                        }
+                    }
+                }
+                // Fallback KRunner explícito (Tab o clic).
+                Rectangle {
+                    visible: !root.krunnerMode && root.lastQuery !== ""
+                    Layout.fillWidth: true
+                    height: 28
+                    radius: 6
+                    color: "transparent"
+                    border.color: "#0A84FF"
+                    border.width: 1
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Buscar en KRunner (Tab)"
+                        color: "#0A84FF"
+                        font.pixelSize: 12
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.useKRunner()
+                    }
+                }
                 Text {
-                    text: root.lastQuery !== "" ? ("Latencia: " + backend.lastLatencyMs + " ms · " + root.filtered.length + " resultados") : ""
+                    visible: root.krunnerMode
+                    text: "Motor: KRunner (fallback)"
+                    color: "#0A84FF"
+                    font.pixelSize: 11
+                }
+                Text {
+                    text: root.lastQuery !== "" ? ("Latencia: " + (root.krunnerMode ? backend.lastLatencyMs : nimbus.localLatencyMs) + " ms · " + root.filtered.length + " resultados" + (root.krunnerMode ? " · KRunner" : " · Nimbus")) : ""
                     color: "#0A84FF"
                     font.pixelSize: 11
                 }
@@ -307,7 +393,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
             Text {
-                text: "Quick Keys A–L · Esc cierra"
+                text: "Quick Keys A–L · Tab=KRunner · Esc cierra"
                 color: "#EBEBF5"
                 opacity: 0.3
                 font.pixelSize: 11

@@ -50,7 +50,17 @@ DBus no aplica: in-process vía libKF6Runner; se mide query→render).
 ## Ficheros
 
 - `main.cpp`, `krunnerbackend.{h,cpp}` — app + backend RunnerManager.
+- `nimbusindex.{h,cpp}` (F6-T02) — fast-path local Qt Core: apps .desktop
+  (parser propio), archivos (`~/Desktop|Documents|Downloads` + `~`,
+  profundidad ≤3, caché, worker `std::thread`), ajustes (KCMs conocidos),
+  calculadora (shunting-yard seguro, sin eval), web (`?` → DuckDuckGo,
+  sin red), portapapeles (solo klipper DBus, <16k). Frecuencia en
+  `$XDG_STATE_HOME/nimbus-spotlight/frecuencia.json`. Locales primero;
+  KRunner (backend intacto) solo como fallback con Tab o botón.
 - `qml/Spotlight.qml`, `spotlight.qrc` — overlay QML (tokens hardcodeados
   dark §2.1; `NimbusTokens` como import opcional si está instalado).
+  Preview con acciones Abrir/Copiar/Revelar (`nimbus.activateLocal`).
+- `tests/tst_index.cpp` + `tests/spotlight/test_index.py` — fuzzy,
+  calculadora, .desktop, 10k sintéticos <50ms.
 - `org.nimbus.spotlight.desktop` — lanzador.
 - KWin script: `packages/kwin/scripts/nimbus-spotlight/`.
