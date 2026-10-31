@@ -23,7 +23,7 @@ kdeplasma-addons  # 6.8.2, applets/wallpapers extra (equivale al antiguo kwin-ad
 qt6-base  # 6.12.0, Qt6 base
 qt6-declarative  # 6.12.0, QML del shell
 qt6-tools  # 6.12.0, herramientas qdbus/qml (harness nested)
-plasma-login-manager  # 6.8.2, DM nuevo por defecto (spike F2-T02; usar sddm en F2, D1)
+#plasma-login-manager  # spike F8; F2 usa SDDM (R-LOGIN, D1)
 sddm  # 0.21.0, login manager de F2 (Ruling D1)
 sddm-kcm  # 6.8.2, aplica settings Plasma al greeter SDDM
 kde-gtk-config  # 6.8.2, sincroniza KDE->GTK
