@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("nimbus-bar"));
     app.setOrganizationName(QStringLiteral("nimbus"));
 
-    bool demoMenu = false, demoCC = false, openCC = false, logQuery = false;
+    bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, demoCalendar = false;
     for (int i = 1; i < argc; ++i) {
         if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-menu"))
             demoMenu = true;
@@ -37,6 +37,8 @@ int main(int argc, char *argv[])
             openCC = true;
         if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--log-query"))
             logQuery = true;
+        if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--demo-calendar"))
+            demoCalendar = true;
     }
 
     CommandRunner runner;
@@ -52,6 +54,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("demoMenu"), demoMenu);
     engine.rootContext()->setContextProperty(QStringLiteral("demoCC"), demoCC);
     engine.rootContext()->setContextProperty(QStringLiteral("openCC"), openCC);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoCalendar"), demoCalendar);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
