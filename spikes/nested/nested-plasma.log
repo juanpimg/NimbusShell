@@ -1,52 +1,52 @@
-[nested] runtime=/tmp/opencode/nimbus-nested-XGT74j/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-migration/spikes/nested/nested-plasma.log
-[nested] home-temporal=/tmp/opencode/f3home3 (8 ficheros plasma desplegados desde /home/jp/Escritorio/Proyectos/NimbusShell-migration/dotfiles/.config/plasma)
+[nested] runtime=/tmp/opencode/nimbus-nested-U9odJx/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-migration/spikes/nested/nested-plasma.log
+[nested] home-temporal=/tmp/opencode/f4home (8 ficheros plasma desplegados desde /home/jp/Escritorio/Proyectos/NimbusShell-migration/dotfiles/.config/plasma)
 [nested] arranque kwin_wayland --virtual ...
 [nested] arranque kwin_wayland --virtual ...
-[nested] socket OK: /tmp/opencode/nimbus-nested-XGT74j/runtime/nimbus-nested
-[nested] socket OK: /tmp/opencode/nimbus-nested-XGT74j/runtime/nimbus-nested
+[nested] socket OK: /tmp/opencode/nimbus-nested-U9odJx/runtime/nimbus-nested
+[nested] socket OK: /tmp/opencode/nimbus-nested-U9odJx/runtime/nimbus-nested
 [nested] arranque plasmashell (sin flags: plasmashell-6 no acepta --no-startup-id) ...
 [nested] arranque plasmashell (sin flags: plasmashell-6 no acepta --no-startup-id) ...
 [nested] arranque krunner ...
 [nested] arranque krunner ...
 [nested] arranque kate ...
 [nested] arranque kate ...
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=116147 comm="krunner")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.4' (uid=1000 pid=116154 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.4' (uid=1000 pid=116154 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=124687 comm="krunner")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.4' (uid=1000 pid=124694 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.4' (uid=1000 pid=124694 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
 
-(/usr/lib/xdg-desktop-portal:116154): xdg-desktop-portal-WARNING **: 20:50:40.841: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.4' (uid=1000 pid=116154 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.7' (uid=1000 pid=116180 comm="/usr/lib/xdg-desktop-portal-gtk")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.3' (uid=1000 pid=116144 comm="plasmashell")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.4' (uid=1000 pid=116154 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+(/usr/lib/xdg-desktop-portal:124694): xdg-desktop-portal-WARNING **: 20:56:52.749: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.4' (uid=1000 pid=124694 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.7' (uid=1000 pid=124727 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.2' (uid=1000 pid=124684 comm="plasmashell")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.4' (uid=1000 pid=124694 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
 
-(/usr/lib/xdg-desktop-portal:116154): xdg-desktop-portal-WARNING **: 20:50:41.001: Failed to connect to PipeWire: Couldn't connect to PipeWire
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.4' (uid=1000 pid=116154 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.3' (uid=1000 pid=116144 comm="plasmashell")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.16' (uid=1000 pid=116303 comm="/usr/lib/kf6/kioworker /usr/lib/qt6/plugins/kf6/ki")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.kde.kded6'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.18' (uid=1000 pid=116307 comm="/usr/bin/kded6")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'ca.desrt.dconf'
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.17' (uid=1000 pid=116307 comm="/usr/bin/kded6")
-dbus-daemon[115943]: [session uid=1000 pid=115943 pidfd=5] Successfully activated service 'org.bluez.obex'
+(/usr/lib/xdg-desktop-portal:124694): xdg-desktop-portal-WARNING **: 20:56:52.909: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.4' (uid=1000 pid=124694 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.2' (uid=1000 pid=124684 comm="plasmashell")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.15' (uid=1000 pid=124939 comm="/usr/lib/kf6/kioworker /usr/lib/qt6/plugins/kf6/ki")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.18' (uid=1000 pid=124945 comm="/usr/bin/kded6")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.17' (uid=1000 pid=124945 comm="/usr/bin/kded6")
+dbus-daemon[124513]: [session uid=1000 pid=124513 pidfd=5] Successfully activated service 'org.bluez.obex'
 [nested] procesos:
 [nested] procesos:
-  pid 115947 VIVO (kwin_wayland)
-  pid 115947 VIVO (kwin_wayland)
-  pid 116144 VIVO (plasmashell)
-  pid 116144 VIVO (plasmashell)
-  pid 116147 VIVO (krunner)
-  pid 116147 VIVO (krunner)
-  pid 116150 VIVO (kate)
-  pid 116150 VIVO (kate)
+  pid 124517 VIVO (kwin_wayland)
+  pid 124517 VIVO (kwin_wayland)
+  pid 124684 VIVO (plasmashell)
+  pid 124684 VIVO (plasmashell)
+  pid 124687 VIVO (krunner)
+  pid 124687 VIVO (krunner)
+  pid 124690 VIVO (kate)
+  pid 124690 VIVO (kate)
 [nested] supportInformation KWin:
 [nested] supportInformation KWin:
 Información sobre KWin:
@@ -328,7 +328,7 @@ activeView:
 delegate: 
 animationDuration: 300
 ignoreMinimized: false
-mode: ModeCurrentDesktop
+mode: 
 partialActivationFactor: 0
 gestureInProgress: false
 searchText: 
@@ -404,25 +404,25 @@ screenshot
 [nested] captura spectacle ...
 [nested] spectacle OK
 [nested] spectacle OK
-total 3228
-drwxr-xr-x 1 jp jp    424 oct 31 20:50 .
+total 3280
+drwxr-xr-x 1 jp jp    424 oct 31 20:57 .
 drwxr-xr-x 1 jp jp     34 oct 31 20:25 ..
 -rw-r--r-- 1 jp jp 452033 oct 31 20:16 f0-expose.png
 -rw-r--r-- 1 jp jp 516548 oct 31 20:16 f0-krunner.png
 -rw-r--r-- 1 jp jp 306652 oct 31 20:17 f0-overview.png
 -rw-r--r-- 1 jp jp 444550 oct 31 20:30 f2-panel-base.png
--rw-r--r-- 1 jp jp 440050 oct 31 20:49 f2-panel.png
--rw-r--r-- 1 jp jp 329619 oct 31 20:49 f3-klassy-active.png
--rw-r--r-- 1 jp jp 329959 oct 31 20:49 f3-klassy-inactive.png
--rw-r--r-- 1 jp jp    395 oct 31 20:50 kwin-focus-toggle.js
--rw-r--r-- 1 jp jp    607 oct 31 20:50 kwin-layout.js
--rw-r--r-- 1 jp jp      7 oct 31 20:50 .kwin.pid
--rw-r--r-- 1 jp jp      0 oct 31 20:50 .nested.pids
--rw-r--r-- 1 jp jp  11868 oct 31 20:50 nested-plasma.log
--rw-r--r-- 1 jp jp 440095 oct 31 20:50 nested-plasma.png
--rw-r--r-- 1 jp jp     69 oct 31 20:49 result.env
-[nested] F2-T03 kreadconfig6 (HOME=/tmp/opencode/f3home3):
-[nested] F2-T03 kreadconfig6 (HOME=/tmp/opencode/f3home3):
+-rw-r--r-- 1 jp jp 463785 oct 31 20:56 f2-panel.png
+-rw-r--r-- 1 jp jp 331811 oct 31 20:56 f3-klassy-active.png
+-rw-r--r-- 1 jp jp 331351 oct 31 20:56 f3-klassy-inactive.png
+-rw-r--r-- 1 jp jp    306 oct 31 20:56 kwin-focus-toggle.js
+-rw-r--r-- 1 jp jp    607 oct 31 20:56 kwin-layout.js
+-rw-r--r-- 1 jp jp      7 oct 31 20:56 .kwin.pid
+-rw-r--r-- 1 jp jp      0 oct 31 20:56 .nested.pids
+-rw-r--r-- 1 jp jp  11849 oct 31 20:57 nested-plasma.log
+-rw-r--r-- 1 jp jp 463660 oct 31 20:57 nested-plasma.png
+-rw-r--r-- 1 jp jp     69 oct 31 20:56 result.env
+[nested] F2-T03 kreadconfig6 (HOME=/tmp/opencode/f4home):
+[nested] F2-T03 kreadconfig6 (HOME=/tmp/opencode/f4home):
   SingleClick=false
   SingleClick=false
   ButtonsOnLeft=XIA
@@ -447,8 +447,8 @@ drwxr-xr-x 1 jp jp     34 oct 31 20:25 ..
       1 location=0
       1 location=3
       1 thickness=24
-  CtrlBindings=16
-  CtrlBindings=16
+  CtrlBindings=19
+  CtrlBindings=19
 [nested] f2-panel.png OK
 [nested] f2-panel.png OK
 [nested] klassy: reposiciona kate+konsole ...

@@ -90,13 +90,12 @@ if [ -n "$KLASSY" ]; then
     --group ButtonSizing --key ButtonSpacingLeft 8
   FOCUS_SCRIPT="$OUT_ABS/kwin-focus-toggle.js"
   cat > "$FOCUS_SCRIPT" <<'EOF'
-// Flip de foco para el harness: activa la primera ventana normal que no
-// sea la actualmente activa. Sin ydotool en el host; solo sesion anidada.
+// Foco kate garantizado: minimiza konsole (visible en captura: solo kate).
 var wins = workspace.windowList();
-var cur = workspace.activeWindow;
 for (var i = 0; i < wins.length; i++) {
-    if (wins[i] !== cur && wins[i].normalWindow && !wins[i].minimized) {
-        workspace.activeWindow = wins[i];
+    var c = wins[i].caption || "";
+    if (wins[i].normalWindow && c.indexOf("Konsole") !== -1) {
+        wins[i].minimized = true;
         break;
     }
 }
