@@ -1,0 +1,55 @@
+#!/bin/bash
+# F2-T09 — Política Flatpak por app (autoría; este script NO instala nada).
+# Principio: ninguna app recibe --filesystem=host salvo excepción
+# documentada abajo. Solo aplica `flatpak override --user` (denegar
+# host/home) a apps de POLICY ya instaladas; nunca toca el sistema (--user),
+# nunca instala runtimes/apps. Idempotente. Sin sudo, sin red.
+#
+# POLICY (app-id | motivo del override):
+#   org.mozilla.firefox       | navegador: basta xdg-download, sin host
+#   org.kde.kate              | editor: sin host (usa portals para abrir)
+#   org.kde.dolphin           | se prefiere el Dolphin nativo; si existe en
+#                             | flatpak, sin host
+#   org.videolan.VLC          | media: xdg-videos vía portals, sin host
+#   org.gimp.GIMP             | imagen: xdg-pictures vía portals, sin host
+#   org.libreoffice.LibreOffice | ofimática: xdg-documents vía portals
+# Excepción documentada: ninguna por ahora (toda app que necesite host
+#   amplio debe justificarse aquí antes de añadirse).
+#
+# Uso: scripts/nimbus-flatpak-perms [--check] [--help]
+set -u
+
+CHECK=0
+for arg in "$@"; do
+    case "$arg" in
+        --check) CHECK=1 ;;
+        --help|-h) echo "Uso: $0 [--check] [--help]"; exit 0 ;;
+        *) echo "ERROR: argumento desconocido '$arg' (usa --help)" >&2; exit 1 ;;
+    esac
+done
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: no ejecutes como root (los overrides son --user, del usuario actual)" >&2
+    exit 1
+fi
+command -v flatpak >/dev/null 2>&1 || { echo "AVISO: flatpak no instalado: nada que auditar (salida 0)"; exit 0; }
+
+POLICY="org.mozilla.firefox org.kde.kate org.kde.dolphin org.videolan.VLC org.gimp.GIMP org.libreoffice.LibreOffice"
+fail=0
+
+for app in $POLICY; do
+    flatpak info "$app" >/dev/null 2>&1 || { echo "·· $app no instalado: salto"; continue; }
+    if [ "$CHECK" -eq 1 ]; then
+        echo "HARÍA: flatpak override --user --nofilesystem=host --nofilesystem=home $app"
+        continue
+    fi
+    flatpak override --user --nofilesystem=host --nofilesystem=home "$app" \
+        || { echo "ERROR: override fallido para $app" >&2; fail=1; continue; }
+    if flatpak override --user --show "$app" 2>/dev/null | grep -q '!host'; then
+        echo "OK: $app sin filesystem=host (!host verificado)"
+    else
+        echo "ERROR: $app no muestra !host tras el override" >&2
+        fail=1
+    fi
+done
+exit "$fail"

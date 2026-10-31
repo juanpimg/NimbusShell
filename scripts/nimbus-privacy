@@ -1,0 +1,83 @@
+#!/bin/bash
+# F2-T09 — Privacidad KDE: telemetría off y purga de datos de uso.
+# Canal real en Plasma 6.8 (verificado en host con Plasma 6.8.2):
+#   - kcm_feedback -> ~/.config/PlasmaUserFeedback [Global] FeedbackLevel=0
+#     (fuente: /usr/share/config.kcfg/feedbacksettings.kcfg; 0 = NoTelemetry
+#     según kuserfeedback/provider.h; kate/dolphin/plasmashell enlazan
+#     KUserFeedback — verificado con ldd).
+#   - Datos por app en ~/.local/state/UserFeedback.<productId> (verificado
+#     ejecutando kate/dolphin con HOME temporal): se purgan.
+# Uso: scripts/nimbus-privacy [--check] [--help]
+# Solo toca el HOME del usuario actual. Idempotente. Sin sudo, sin red.
+set -u
+
+CHECK=0
+
+usage() {
+    echo "Uso: $0 [--check] [--help]"
+    echo "  --check  muestra lo que haría sin escribir nada"
+}
+
+for arg in "$@"; do
+    case "$arg" in
+        --check) CHECK=1 ;;
+        --help|-h) usage; exit 0 ;;
+        *) echo "ERROR: argumento desconocido '$arg' (usa --help)" >&2; exit 1 ;;
+    esac
+done
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: no ejecutes como root (este script configura el HOME del usuario actual: $HOME)" >&2
+    exit 1
+fi
+for bin in kwriteconfig6 kreadconfig6; do
+    command -v "$bin" >/dev/null 2>&1 || { echo "ERROR: falta '$bin' (instala kconfig; Plasma lo trae)" >&2; exit 1; }
+done
+
+STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+fail=0
+
+# 1. Nivel global de telemetría -> 0 (NoTelemetry).
+current="$(kreadconfig6 --file PlasmaUserFeedback --group Global --key FeedbackLevel --default unset 2>/dev/null || echo unset)"
+if [ "$current" = "0" ]; then
+    echo "OK: PlasmaUserFeedback [Global] FeedbackLevel=0 (ya estaba)"
+else
+    if [ "$CHECK" -eq 1 ]; then
+        echo "HARÍA: kwriteconfig6 --file PlasmaUserFeedback --group Global --key FeedbackLevel 0 (actual: $current)"
+    else
+        kwriteconfig6 --file PlasmaUserFeedback --group Global --key FeedbackLevel 0 \
+            || { echo "ERROR: no se pudo escribir PlasmaUserFeedback" >&2; exit 1; }
+        echo "OK: PlasmaUserFeedback [Global] FeedbackLevel=0 (antes: $current)"
+    fi
+fi
+
+# 2. Purga de datos de uso recogidos por app (se regeneran vacíos al usarlas).
+purged=0
+if [ -d "$STATE_HOME" ]; then
+    while IFS= read -r f; do
+        [ -e "$f" ] || continue
+        if [ "$CHECK" -eq 1 ]; then
+            echo "HARÍA: rm $f"
+        else
+            rm -f "$f" || { echo "ERROR: no se pudo borrar $f" >&2; fail=1; }
+            purged=$((purged + 1))
+        fi
+    done < <(find "$STATE_HOME" -maxdepth 1 -name 'UserFeedback.*' -print 2>/dev/null)
+fi
+[ "$CHECK" -eq 1 ] || echo "OK: purga UserFeedback.* en $STATE_HOME ($purged fichero(s))"
+
+# 3. Verificación (también en --check: informa sin exigir).
+if [ "$CHECK" -eq 0 ]; then
+    got="$(kreadconfig6 --file PlasmaUserFeedback --group Global --key FeedbackLevel --default unset)"
+    if [ "$got" != "0" ]; then
+        echo "ERROR: verificación fallida (FeedbackLevel=$got, se esperaba 0)" >&2
+        exit 1
+    fi
+    left="$(find "$STATE_HOME" -maxdepth 1 -name 'UserFeedback.*' -print 2>/dev/null | wc -l)"
+    if [ "$left" -ne 0 ]; then
+        echo "ERROR: quedan $left fichero(s) UserFeedback.* en $STATE_HOME" >&2
+        exit 1
+    fi
+    echo "OK: verificación telemetría off (FeedbackLevel=0, sin restos en $STATE_HOME)"
+fi
+exit "$fail"
