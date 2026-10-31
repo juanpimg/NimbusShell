@@ -7,6 +7,7 @@
 #   --check       solo lectura (sin sudo, sin red, sin escribir); exit 0 si OK.
 #   --stage-only  estagia en DIR y verifica el árbol; no llama a mkarchiso.
 #   --out DIR     destino del staging (defecto: /tmp/nimbus-stage) o de la ISO.
+#   --work DIR    directorio de trabajo de mkarchiso (defecto: /tmp/nimbus-work).
 #   --skip-apps   no compila nimbus-bar/apps/spotlight (documentar el SKIP).
 # Idempotente: re-ejecutar limpia y regenera el staging sin duplicar.
 set -u
@@ -15,6 +16,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROFILE="$REPO_ROOT/iso/profile"
 CALAMARES="$REPO_ROOT/iso/calamares"
 OUT="/tmp/nimbus-stage"
+WORK="/tmp/nimbus-work"
 CHECK=0
 STAGE_ONLY=0
 SKIP_APPS=0
@@ -24,11 +26,14 @@ while [ $# -gt 0 ]; do
     --check) CHECK=1; shift ;;
     --stage-only) STAGE_ONLY=1; shift ;;
     --skip-apps) SKIP_APPS=1; shift ;;
+    --work=*) WORK="${1#--work=}"; [ -n "$WORK" ] || { echo "ERROR: --work requiere DIR" >&2; exit 1; }; shift ;;
+    --work) [ $# -ge 2 ] || { echo "ERROR: --work requiere un directorio" >&2; exit 1; }; WORK="$2"; shift 2 ;;
     --out=*) OUT="${1#--out=}"; [ -n "$OUT" ] || { echo "ERROR: --out requiere DIR" >&2; exit 1; }; shift ;;
     --out) [ $# -ge 2 ] || { echo "ERROR: --out requiere un directorio (usa --out DIR)" >&2; exit 1; }; OUT="$2"; shift 2 ;;
     -h|--help)
       echo "Uso: $0 [--check] [--stage-only] [--out DIR] [--skip-apps]"
       echo "  --check: solo lectura. --stage-only: solo estagia en DIR (defecto /tmp/nimbus-stage)."
+      echo "  --work DIR: directorio de trabajo de mkarchiso (defecto /tmp/nimbus-work)."
       exit 0 ;;
     *) echo "ERROR: flag desconocido: $1 (ver --help)" >&2; exit 1 ;;
   esac
@@ -174,6 +179,7 @@ fi
 command -v mkarchiso >/dev/null 2>&1 || { echo "ERROR: falta mkarchiso (paquete archiso)" >&2; exit 1; }
 ISO_OUT="${OUT}/out"
 mkdir -p "$ISO_OUT"
-mkarchiso -v -w /tmp/nimbus-work -o "$ISO_OUT" "$OUT" || { echo "ERROR: mkarchiso falló" >&2; exit 1; }
+mkdir -p "$WORK"
+mkarchiso -v -w "$WORK" -o "$ISO_OUT" "$OUT" || { echo "ERROR: mkarchiso falló" >&2; exit 1; }
 sha256sum "$ISO_OUT"/*.iso | tee "$ISO_OUT/SHA256SUMS"
 echo "== ISO lista en $ISO_OUT =="
