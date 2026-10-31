@@ -10,14 +10,19 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick DBus)
 find_package(LayerShellQt REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(DBUS1 REQUIRED IMPORTED_TARGET dbus-1)
 
-qt_add_executable(nimbus-bar main.cpp commandrunner.h appmenumodel.h appmenumodel.cpp bar.qrc)
+qt_add_executable(nimbus-bar main.cpp commandrunner.h
+    appmenumodel.h appmenumodel.cpp
+    statusnotifiermodel.h statusnotifiermodel.cpp bar.qrc)
 
 target_link_libraries(nimbus-bar PRIVATE
   Qt6::Gui
   Qt6::Qml
   Qt6::Quick
   Qt6::DBus
+  PkgConfig::DBUS1
   LayerShellQt::Interface
 )
 

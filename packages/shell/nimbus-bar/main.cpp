@@ -2,9 +2,12 @@
 // F3-T04: CommandRunner (QProcess, run(QString)) como `runner` + flag
 // --demo-menu (abre el menú al arrancar, acciones destructivas inhibidas).
 #include <QGuiApplication>
+#include <QImage>
+#include <QQuickImageProvider>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlError>
+#include <QTimer>
 #include <QWindow>
 #include <QDebug>
 #include <cstdio>
@@ -12,6 +15,25 @@
 #include <LayerShellQt/Window>
 #include "commandrunner.h"
 #include "appmenumodel.h"
+#include "statusnotifiermodel.h"
+
+// F3-T07: provider image://sni/<uid> (pixmap SNI, icono de tema o badge).
+class SniProvider : public QQuickImageProvider {
+public:
+    explicit SniProvider(StatusNotifierModel *m)
+        : QQuickImageProvider(QQuickImageProvider::Image), m_model(m) {}
+    QImage requestImage(const QString &id, QSize *size,
+                        const QSize &requestedSize) override
+    {
+        const QSize s = requestedSize.isValid() ? requestedSize : QSize(16, 16);
+        QImage img = m_model ? m_model->imageFor(id, s) : QImage();
+        if (size)
+            *size = img.size();
+        return img;
+    }
+private:
+    StatusNotifierModel *m_model;
+};
 
 int main(int argc, char *argv[])
 {
@@ -28,7 +50,9 @@ int main(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("nimbus-bar"));
     app.setOrganizationName(QStringLiteral("nimbus"));
 
-    bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false, demoCalendar = false, demoAppmenu = false, logAppmenu = false;
+    bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false,
+         demoCalendar = false, demoAppmenu = false, logAppmenu = false, demoTray = false;
+    int trayOpenMenu = -1;
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo-menu"))
@@ -47,6 +71,10 @@ int main(int argc, char *argv[])
             demoAppmenu = true;
         else if (a == QStringLiteral("--log-appmenu"))
             logAppmenu = true;
+        else if (a == QStringLiteral("--demo-tray"))
+            demoTray = true;
+        else if (a == QStringLiteral("--tray-open-menu"))
+            trayOpenMenu = 0;
     }
 
     CommandRunner runner;
@@ -69,6 +97,11 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("demoCalendar"), demoCalendar);
     engine.rootContext()->setContextProperty(QStringLiteral("appMenu"), &appMenu);
     engine.rootContext()->setContextProperty(QStringLiteral("demoAppmenu"), demoAppmenu);
+    // F3-T07: modelo SNI + provider image://sni.
+    StatusNotifierModel trayModel;
+    engine.rootContext()->setContextProperty(QStringLiteral("trayModel"), &trayModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("trayOpenMenu"), trayOpenMenu);
+    engine.addImageProvider(QStringLiteral("sni"), new SniProvider(&trayModel));
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
@@ -108,6 +141,15 @@ int main(int argc, char *argv[])
             ls->setScope(QStringLiteral("nimbus-bar"));
             ls->setActivateOnShow(false);
         }
+    }
+
+    // F3-T07: --demo-tray siembra 2 items si el watcher sigue vacío
+    // (fallback determinista; con items reales no hace nada).
+    if (demoTray) {
+        QTimer::singleShot(2500, &trayModel, [&trayModel]() {
+            if (trayModel.rowCount() == 0)
+                trayModel.seedDemoItems();
+        });
     }
 
     return app.exec();
