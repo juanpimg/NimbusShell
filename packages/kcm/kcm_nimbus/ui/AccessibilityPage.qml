@@ -5,6 +5,9 @@ NimbusPlaceholder {
     heading: i18n("Accesibilidad")
     explanation: i18n("Aquí podrás activar el zoom de pantalla, el contraste alto y reducir animaciones y transparencias. De momento, este botón abre los ajustes originales.")
     jumpButtons: [
-        { "label": i18n("Abrir accesibilidad"), "target": "kcm_access" }
+        {
+            "label": i18n("Abrir accesibilidad"),
+            "target": "kcm_access"
+        }
     ]
 }

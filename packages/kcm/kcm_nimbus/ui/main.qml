@@ -14,12 +14,36 @@ Item {
 
     // Tabla central de páginas: título + icono + id. Sin títulos dispersos.
     property var pageDefs: [
-        { id: "appearance", title: i18n("Apariencia"), icon: "preferences-desktop-theme" },
-        { id: "network", title: i18n("Red"), icon: "network-wireless" },
-        { id: "shortcuts", title: i18n("Atajos"), icon: "preferences-desktop-keyboard" },
-        { id: "accessibility", title: i18n("Accesibilidad"), icon: "preferences-desktop-accessibility" },
-        { id: "system", title: i18n("Sistema"), icon: "preferences-system" },
-        { id: "updates", title: i18n("Actualizaciones"), icon: "system-software-update" }
+        {
+            id: "appearance",
+            title: i18n("Apariencia"),
+            icon: "preferences-desktop-theme"
+        },
+        {
+            id: "network",
+            title: i18n("Red"),
+            icon: "network-wireless"
+        },
+        {
+            id: "shortcuts",
+            title: i18n("Atajos"),
+            icon: "preferences-desktop-keyboard"
+        },
+        {
+            id: "accessibility",
+            title: i18n("Accesibilidad"),
+            icon: "preferences-desktop-accessibility"
+        },
+        {
+            id: "system",
+            title: i18n("Sistema"),
+            icon: "preferences-system"
+        },
+        {
+            id: "updates",
+            title: i18n("Actualizaciones"),
+            icon: "system-software-update"
+        }
     ]
     property string currentPage: "appearance"
 
@@ -123,18 +147,12 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 currentIndex: root.pageIndex(root.currentPage)
-                AppearancePage {
-                }
-                NetworkPage {
-                }
-                ShortcutsPage {
-                }
-                AccessibilityPage {
-                }
-                SystemPage {
-                }
-                UpdatesPage {
-                }
+                AppearancePage {}
+                NetworkPage {}
+                ShortcutsPage {}
+                AccessibilityPage {}
+                SystemPage {}
+                UpdatesPage {}
             }
         }
     }
