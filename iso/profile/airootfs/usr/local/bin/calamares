@@ -1,0 +1,8 @@
+#!/bin/sh
+# NimbusOS: superpone la configuración propia de Calamares (paquete
+# cachyos-calamares instala /etc/calamares) y lanza el instalador real.
+set -u
+if [ -d /usr/share/nimbus/calamares ]; then
+    cp -a /usr/share/nimbus/calamares/. /etc/calamares/ 2>/dev/null || true
+fi
+exec /usr/bin/calamares "$@"

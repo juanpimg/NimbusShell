@@ -86,11 +86,13 @@ rm -rf "$OUT"
 mkdir -p "$OUT" || { echo "ERROR: no se puede crear $OUT" >&2; exit 1; }
 cp -a "$PROFILE/." "$OUT/" || { echo "ERROR: no se pudo copiar el perfil a $OUT" >&2; exit 1; }
 
-# 1. Calamares -> airootfs/etc/calamares/ (settings, modules, branding, groups; README no).
-mkdir -p "$OUT/airootfs/etc/calamares/modules"
-cp -a "$CALAMARES/settings.conf" "$CALAMARES/branding.desc" "$CALAMARES/groups-nimbus.json" "$OUT/airootfs/etc/calamares/" || exit 1
-cp -a "$CALAMARES"/modules/*.conf "$OUT/airootfs/etc/calamares/modules/" || exit 1
-echo "OK: calamares estagiado ($(ls "$OUT/airootfs/etc/calamares/modules" | wc -l) módulos)"
+# 1. Calamares -> airootfs/usr/share/nimbus/calamares/ (el paquete
+# cachyos-calamares instala /etc/calamares; el wrapper lo superpone al
+# lanzar el instalador, evitando conflictos de pacstrap).
+mkdir -p "$OUT/airootfs/usr/share/nimbus/calamares/modules"
+cp -a "$CALAMARES/settings.conf" "$CALAMARES/branding.desc" "$CALAMARES/groups-nimbus.json" "$OUT/airootfs/usr/share/nimbus/calamares/" || exit 1
+cp -a "$CALAMARES"/modules/*.conf "$OUT/airootfs/usr/share/nimbus/calamares/modules/" || exit 1
+echo "OK: calamares estagiado ($(ls "$OUT/airootfs/usr/share/nimbus/calamares/modules" | wc -l) módulos)"
 
 # 2. dotfiles/ -> airootfs/etc/skel/ (solo .config y .icons; excluye legacy/hyprland).
 mkdir -p "$OUT/airootfs/etc/skel"
@@ -153,8 +155,8 @@ fi
 # 6. Verificación del staging antes de mkarchiso.
 for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" \
-  "$OUT/airootfs/etc/calamares/settings.conf" \
-  "$OUT/airootfs/etc/calamares/groups-nimbus.json" \
+  "$OUT/airootfs/usr/share/nimbus/calamares/settings.conf" \
+  "$OUT/airootfs/usr/share/nimbus/calamares/groups-nimbus.json" \
   "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
   "$OUT/airootfs/usr/share/sddm/themes/nimbus/Main.qml" \
