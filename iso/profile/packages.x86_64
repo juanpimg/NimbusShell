@@ -79,3 +79,4 @@ xorg-server
 linux-headers
 # power-profiles-daemon ya está en el bloque Plasma (no duplicar).
 xcb-util-cursor
+xorg-xinit

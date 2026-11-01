@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Nimbus Bar
+Comment=Barra superior Nimbus 24pt
+Exec=/usr/local/bin/nimbus-bar
+OnlyShowIn=KDE;
+X-GNOME-Autostart-enabled=true
