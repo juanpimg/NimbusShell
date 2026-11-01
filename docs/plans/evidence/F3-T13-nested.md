@@ -22,7 +22,7 @@ pendiente (aceptación F3-T12).
 - `tests/bar/test_presets.sh` (esquema, script, pin, qmllint, build cmake +
   binding por preset y fallbacks, todo con HOME temporal).
 
-## Test (`tests/bar/test_presets.sh`): PRESETS VERDE, 22 OK / 0 FAIL
+## Test (`tests/bar/test_presets.sh`): PRESETS VERDE, 20 OK / 0 FAIL
 
 Esquema (3 existen), script (`--list`, apply, idempotencia, check verde,
 rechazo de esquema roto y de preset inexistente, reset restaura backup,
@@ -64,6 +64,7 @@ Bar+OSD OK, build cmake OK, binding por preset + fallbacks OK.
 
 ## Pendiente (no cierra F3-T12)
 
-Captura nested/VM con cada preset + clics (reloj, CC, OSD) y
-`diff -rq` dotfiles si se despliega el preset por defecto (no se tocó
+Captura nested/VM con cada preset + clics (reloj, CC, OSD),
+INSTALACIÓN EN VM LIMPIA pendiente (el criterio de aceptación original),
+y `diff -rq` dotfiles si se despliega el preset por defecto (no se tocó
 `install.sh`/`dotfiles`: la barra funciona sin preset vía fallbacks).
