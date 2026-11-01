@@ -185,7 +185,7 @@
 - [ ] **F6-T06 — Portapapeles y emoji.** Files: `apps/`, `packages/plasma/`. Acciones: port MacBar clipboard/emoji; atajos. Accept: pega en apps; captura. Estado: clipboard klipper→archivo→wl-paste, copia+cierra y emoji 66/8 cat. verificados; autopaste en app destino pendiente VM (sin inyector). Dep: F6-T01.
 - [ ] **F6-T07 — Teclado y accesibilidad.** Files: `apps/*`. Acciones: navegación completa, lector, foco visible. Accept: navegación/foco/Accesible 35+30 checks y capturas; Orca no instalado → pendiente VM/AT-SPI. Dep: F6-T02.
 - [x] **F6-T08 — Rendimiento.** Files: `tests/vm/spotlight.sh`. Acciones: latencia, RAM, 10k archivos. Accept: query frío 1-3ms / caliente 15ms, toggle med 8ms, 10k, 0 QML, sin freeze; RSS 231-252MB informativo. Dep: F6-T03.
-- [ ] **F6-T09 — Aceptación Spotlight/Apps.** Files: `tests/vm/spotlight-acceptance.sh`. Acciones: 20 consultas + 10 apps + teclado + Cmd1-4 + QuickKeys. Accept: A6 y todo verde; evidence. Dep: F6-T01..T08.
+- [x] **F6-T09 — Aceptación Spotlight/Apps.** Files: `tests/vm/spotlight-acceptance.sh`. Acciones: 20 consultas + 10 apps + teclado + Cmd1-4 + QuickKeys. Accept: 20/20 consultas, 10 apps, teclado 9/9+11/11, Cmd1-4/QuickKeys, local ≤2ms, EXIT=0 y 0 TypeErrors (PreviewGuard); KRunner no medible en nested. Dep: F6-T01..T08.
 
 ---
 
