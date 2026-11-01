@@ -39,19 +39,13 @@ images:
   productIcon: "images/nimbus-icon.png"
   productWelcome: "images/nimbus-welcome.png"
 strings:
-  es:
-    productName: NimbusOS
-    shortDescription: "NimbusOS — escritorio Plasma con experiencia macOS-like."
-    cancel: Cancelar
-    next: Siguiente
-    back: Atrás
-    quit: Salir
-    done: Hecho
-  en:
-    productName: NimbusOS
-    shortDescription: "NimbusOS — Plasma desktop with a macOS-like experience."
-    cancel: Cancel
-    next: Next
-    back: Back
-    quit: Quit
-    done: Done
+  # Calamares 3.4 lee productName/shortProductName/version* de aquí (plano);
+  # las traducciones de los botones las aporta Calamares, no el branding.
+  productName: NimbusOS
+  shortProductName: NimbusOS
+  version: "2026.11.01"
+  shortVersion: "2026.11"
+  versionedName: "NimbusOS Plasma netinstall 2026.11.01"
+  shortVersionedName: "NimbusOS 2026.11"
+  shortDescription: "NimbusOS — escritorio Plasma con experiencia macOS-like."
+  longDescription: "Instalador gráfico de NimbusOS (netinstall): Plasma 6, SDDM y Calamares."
