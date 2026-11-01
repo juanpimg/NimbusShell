@@ -2,7 +2,13 @@
 // F3-T04: CommandRunner (QProcess, run(QString)) como `runner` + flag
 // --demo-menu (abre el menú al arrancar, acciones destructivas inhibidas).
 #include <QGuiApplication>
+#include <QDir>
+#include <QFile>
 #include <QImage>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QQuickItem>
+#include <QStringList>
 #include <QQuickImageProvider>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -36,6 +42,31 @@ public:
 private:
     StatusNotifierModel *m_model;
 };
+
+// F3-T13: lee ~/.config/nimbus-bar/preset.json (XDG_CONFIG_HOME primero).
+// Devuelve el JSON compacto, o "{}" si ausente/inválido (QML aplica
+// fallbacks; sin valores mágicos nuevos en C++ salvo el "sin preset").
+static QString loadBarPresetJson()
+{
+    const QString cfg = qEnvironmentVariable(
+        "XDG_CONFIG_HOME", QDir::homePath() + QStringLiteral("/.config"));
+    QFile f(cfg + QStringLiteral("/nimbus-bar/preset.json"));
+    if (!f.open(QIODevice::ReadOnly))
+        return QStringLiteral("{}");
+    QJsonDocument d = QJsonDocument::fromJson(f.readAll());
+    if (!d.isObject())
+        return QStringLiteral("{}");
+    return QString::fromUtf8(d.toJson(QJsonDocument::Compact));
+}
+
+// F3-T13: altura de la barra desde el preset (clamp 16..32; 24 sin preset).
+static int barPresetHeight(const QString &presetJson)
+{
+    QJsonDocument d = QJsonDocument::fromJson(presetJson.toUtf8());
+    const int h = d.object().value(QStringLiteral("bar")).toObject()
+                      .value(QStringLiteral("height")).toInt(24);
+    return qBound(16, h, 32);
+}
 
 int main(int argc, char *argv[])
 {
@@ -131,6 +162,10 @@ int main(int argc, char *argv[])
     StatusNotifierModel trayModel;
     engine.rootContext()->setContextProperty(QStringLiteral("trayModel"), &trayModel);
     engine.rootContext()->setContextProperty(QStringLiteral("trayOpenMenu"), trayOpenMenu);
+    // F3-T13: preset de la barra (~/.config/nimbus-bar/preset.json).
+    const QString barPresetJson = loadBarPresetJson();
+    engine.rootContext()->setContextProperty(QStringLiteral("barPresetJson"), barPresetJson);
+    const int barHeight = barPresetHeight(barPresetJson);
     engine.addImageProvider(QStringLiteral("sni"), new SniProvider(&trayModel));
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
@@ -142,9 +177,10 @@ int main(int argc, char *argv[])
         qWarning("nimbus-bar: fallo al cargar qrc:/Bar.qml");
         return 1;
     }
-    qInfo().noquote() << QStringLiteral("nimbus-bar: demoMenu=%1 logActions=%2")
+    qInfo().noquote() << QStringLiteral("nimbus-bar: demoMenu=%1 logActions=%2 barHeight=%3")
                              .arg(demoMenu)
-                             .arg(logActions);
+                             .arg(logActions)
+                             .arg(barHeight);
     // --log-actions: invoca Menu.logAllActions desde C++ (recorre el
     // modelo QML real; runner.run inhibido en demo → solo log).
     if (demoMenu && logActions) {
@@ -158,13 +194,14 @@ int main(int argc, char *argv[])
     }
 
     // Refuerzo en C++ de los mismos valores declarados en Bar.qml
-    // (anclas/arriba, exclusiveZone 24, capa Top, sin teclado, scope).
+    // (anclas/arriba, exclusiveZone = altura del preset, capa Top,
+    // sin teclado, scope). F3-T13: barHeight sale del preset (24 sin preset).
     if (auto *win = qobject_cast<QWindow *>(engine.rootObjects().first())) {
         if (auto *ls = LayerShellQt::Window::get(win)) {
             ls->setAnchors({LayerShellQt::Window::AnchorTop,
                             LayerShellQt::Window::AnchorLeft,
                             LayerShellQt::Window::AnchorRight});
-            ls->setExclusiveZone(24);
+            ls->setExclusiveZone(barHeight);
             ls->setLayer(LayerShellQt::Window::LayerTop);
             ls->setKeyboardInteractivity(
                 LayerShellQt::Window::KeyboardInteractivityNone);
@@ -173,6 +210,66 @@ int main(int argc, char *argv[])
         }
     }
 
+    bool dumpPreset = false;
+    for (int i = 1; i < argc; ++i) {
+        if (QString::fromLocal8Bit(argv[i]) == QStringLiteral("--dump-preset"))
+            dumpPreset = true;
+    }
+
+    // F3-T13: --dump-preset vuelca los valores EFECTIVOS del binding QML
+    // (altura, formato de reloj, orden/visibilidad de iconos, OSD) por
+    // stderr con fprintf (visible aunque el Qt suprima qInfo, ver
+    // F3-T05-fix) y sale. Solo verificación (nested/offscreen/CI).
+    if (dumpPreset) {
+        QTimer::singleShot(1500, &app, [&engine]() {
+            QObject *rootObj = engine.rootObjects().first();
+            if (!rootObj) {
+                fprintf(stderr, "preset-dump: sin root\n");
+                QCoreApplication::exit(1);
+                return;
+            }
+            const QString pname =
+                rootObj->property("preset").toMap().value(QStringLiteral("name")).toString();
+            fprintf(stderr, "preset-dump: name=%s height=%d clockFormat=%s\n",
+                    qUtf8Printable(pname),
+                    rootObj->property("height").toInt(),
+                    qUtf8Printable(rootObj->property("clockFormat").toString()));
+            if (QObject *rb = rootObj->findChild<QObject *>(QStringLiteral("rightBox"))) {
+                QStringList parts;
+                // childItems(): orden visual que usa Row (QObject::children
+                // no lo refleja tras reparentar).
+                QList<QQuickItem *> items;
+                if (auto *ritem = qobject_cast<QQuickItem *>(rb))
+                    items = ritem->childItems();
+                for (QQuickItem *c : items) {
+                    if (c->objectName().isEmpty())
+                        continue;
+                    parts << QStringLiteral("%1:%2").arg(
+                        c->objectName(), c->property("visible").toBool() ? QStringLiteral("1") : QStringLiteral("0"));
+                }
+                fprintf(stderr, "preset-dump: rightBox=%s\n",
+                        qUtf8Printable(parts.join(QStringLiteral(","))));
+            } else {
+                fprintf(stderr, "preset-dump: rightBox NO ENCONTRADO\n");
+            }
+            if (QObject *osd = rootObj->findChild<QObject *>(QStringLiteral("osdRoot"))) {
+                fprintf(stderr, "preset-dump: osd=%dx%d timeout=%d\n",
+                        osd->property("popupWidth").toInt(),
+                        osd->property("popupHeight").toInt(),
+                        osd->property("timeoutMs").toInt());
+            } else {
+                fprintf(stderr, "preset-dump: osdRoot NO ENCONTRADO\n");
+            }
+            if (QObject *clk = rootObj->findChild<QObject *>(QStringLiteral("clock"))) {
+                fprintf(stderr, "preset-dump: clock='%s'\n",
+                        qUtf8Printable(clk->property("text").toString()));
+            }
+            fprintf(stderr, "preset-dump: orderApplied=%s orderError=%s\n",
+                    qUtf8Printable(rootObj->property("presetOrderApplied").toString()),
+                    qUtf8Printable(rootObj->property("presetOrderError").toString()));
+            QCoreApplication::quit();
+        });
+    }
     // F3-T07: --demo-tray siembra 2 items si el watcher sigue vacío
     // (fallback determinista; con items reales no hace nada).
     if (demoTray) {
