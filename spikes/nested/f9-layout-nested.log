@@ -1,0 +1,102 @@
+[f9t03] base=/tmp/opencode/f9t03-nested-CojApg out=/home/jp/Escritorio/Proyectos/NimbusShell-f9layouts/spikes/nested
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=459998 comm="/usr/lib/kscreenlocker_greet --immediateLock --gra")
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=460001 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=460001 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:460001): xdg-desktop-portal-WARNING **: 01:57:21.165: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=460001 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=460026 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=460001 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:460001): xdg-desktop-portal-WARNING **: 01:57:21.341: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=460001 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[459918]: [session uid=1000 pid=459918 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+[f9t03] shot mac ...
+[f9t03] shot mac ...
+nimbus-welcome: STEP=5 completed=0 demo=1
+nimbus-welcome: SHOT_OK /home/jp/Escritorio/Proyectos/NimbusShell-f9layouts/spikes/nested/f9-layout-mac.png
+[f9t03] shot windows ...
+[f9t03] shot windows ...
+nimbus-welcome: STEP=5 completed=0 demo=1
+nimbus-welcome: SHOT_OK /home/jp/Escritorio/Proyectos/NimbusShell-f9layouts/spikes/nested/f9-layout-win.png
+[f9t03] QML_WARN/ERROR: 0
+[f9t03] QML_WARN/ERROR: 0
+[f9t03] inis:
+[f9t03] inis:
+[apps]
+selected=@Invalid()
+
+[layout]
+name=windows
+
+[look]
+accent=#0A84FF
+appearance=dark
+
+[user]
+avatar=
+language=es
+name=
+
+[wifi]
+lastStatus=
+
+[wizard]
+completed=false
+step=5
+[apps]
+selected=@Invalid()
+
+[layout]
+name=windows
+
+[look]
+accent=#0A84FF
+appearance=dark
+
+[user]
+avatar=
+language=es
+name=
+
+[wifi]
+lastStatus=
+
+[wizard]
+completed=false
+step=5
+[Layout]
+name=windows
+[Layout]
+name=windows
+A connection to the bus can't be made
+[f9t03] dbus exit=0
+[f9t03] apply mac --check:
+APPLY OK: /tmp/opencode/f9t03-nested-CojApg/home/.config/kglobalshortcutsrc (modo meta). Requiere RELOGIN (kglobalacceld lee al iniciar).
+APPLY OK: layout mac en /tmp/opencode/f9t03-nested-CojApg/home/.config (backup en /tmp/opencode/f9t03-nested-CojApg/home/.config/nimbusshell-backup-layout). Requiere RELOGIN (kglobalacceld lee al iniciar).
+CHECK OK: kwinrc [org.kde.kdecoration2] ButtonsOnLeft=XIA
+CHECK OK: kwinrc [org.kde.kdecoration2] ButtonsOnRight=
+CHECK OK: kwinrc [Windows] TitlebarDoubleClickCommand=Maximize
+CHECK OK: kremarc [General] IconSize=48
+CHECK OK: kremarc [General] Edge=1
+CHECK OK: plasmashellrc [PlasmaViews][Panel] thickness=24
+CHECK OK: kglobalshortcutsrc Window Close contiene Meta+Q
+CHECK OK: layout mac aplicado.
+[f9t03] botones=XIA dock=48 close=Meta+Q,Meta+Q,cerrar ventana (Cmd+Q)
+APPLY OK: /tmp/opencode/f9t03-nested-CojApg/home/.config/kglobalshortcutsrc (modo ctrl). Requiere RELOGIN (kglobalacceld lee al iniciar).
+APPLY OK: layout windows en /tmp/opencode/f9t03-nested-CojApg/home/.config (backup en /tmp/opencode/f9t03-nested-CojApg/home/.config/nimbusshell-backup-layout). Requiere RELOGIN (kglobalacceld lee al iniciar).
+[f9t03] win: botones-L=[] botones-R=IAX close=Ctrl+Q,Ctrl+Q,cerrar ventana (Cmd+Q)
+APPLY OK: /tmp/opencode/f9t03-nested-CojApg/home/.config/kglobalshortcutsrc (modo meta). Requiere RELOGIN (kglobalacceld lee al iniciar).
+APPLY OK: layout nimbus en /tmp/opencode/f9t03-nested-CojApg/home/.config (backup en /tmp/opencode/f9t03-nested-CojApg/home/.config/nimbusshell-backup-layout). Requiere RELOGIN (kglobalacceld lee al iniciar).
+/tmp/opencode/f9t03-nested-CojApg/home/.config/nimbus-layout.ini:[Layout]
+/tmp/opencode/f9t03-nested-CojApg/home/.config/nimbus-layout.ini:name=nimbus
+REVERT OK: restaurado desde /tmp/opencode/f9t03-nested-CojApg/home/.config/nimbusshell-backup-layout.
+[f9t03] tras revert: kwinrc=PRESENTE (backup inicial vacio: sin ficheros previos)
+-rw-r--r-- 1 jp jp 31920 nov  1 01:57 /home/jp/Escritorio/Proyectos/NimbusShell-f9layouts/spikes/nested/f9-layout-mac.png
+-rw-r--r-- 1 jp jp 32587 nov  1 01:57 /home/jp/Escritorio/Proyectos/NimbusShell-f9layouts/spikes/nested/f9-layout-win.png

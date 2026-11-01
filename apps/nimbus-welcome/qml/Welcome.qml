@@ -1,5 +1,5 @@
-// Welcome.qml — wizard F9-T02 (6 pasos: bienvenida, idioma, wifi,
-// cuenta, apariencia, apps+tour). Tokens Tahoe inline (contrato §2 [HIG]):
+// Welcome.qml — wizard F9-T02/T03 (7 pasos: bienvenida, idioma, wifi,
+// cuenta, apariencia, diseño, apps+tour). Tokens Tahoe inline (contrato §2 [HIG]):
 // label #000000/#FFFFFF, accent #007AFF/#0A84FF, bg #FFFFFF/#000000,
 // bgElevated #FFFFFF/#2C2C2E, bg2 #F2F2F7/#1C1C1E, radios r-md 10-12,
 // ventana 760x540, Inter, spacing escala 4/8/12/16/20/24/32.
@@ -42,7 +42,7 @@ ApplicationWindow {
             "separator": "#38383A"
         })
     property var c: isDark ? darkPal : lightPal
-    property var stepNames: ["Bienvenida", "Idioma", "Wi-Fi", "Tu cuenta", "Apariencia", "Apps recomendadas"]
+    property var stepNames: ["Bienvenida", "Idioma", "Wi-Fi", "Tu cuenta", "Apariencia", "Diseño", "Apps recomendadas"]
     property string selSsid: ""
     property string langStamp: "" // zero-width: reevalúa tr() al cambiar idioma
     function t(s) {
@@ -76,7 +76,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 spacing: 8
                 Repeater {
-                    model: 6
+                    model: 7
                     Rectangle {
                         width: 10
                         height: 10
@@ -89,7 +89,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                 }
                 Text {
-                    text: (backend.step + 1) + " " + root.t("de") + " 6 · " + root.t(root.stepNames[backend.step])
+                    text: (backend.step + 1) + " " + root.t("de") + " 7 · " + root.t(root.stepNames[backend.step])
                     font.family: "Inter"
                     font.pixelSize: 12
                     color: c.label2
@@ -101,7 +101,7 @@ ApplicationWindow {
                 radius: 2
                 color: c.separator
                 Rectangle {
-                    width: parent.width * (backend.step + 1) / 6
+                    width: parent.width * (backend.step + 1) / 7
                     height: parent.height
                     radius: 2
                     color: c.accent
@@ -435,7 +435,155 @@ ApplicationWindow {
                     }
                 }
 
-                // 5 Apps recomendadas + tour final.
+                // 5 Diseño (F9-T03): Mac / Windows / Nimbus.
+                Item {
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        width: Math.min(parent.width - 80, 560)
+                        spacing: 8
+                        Text {
+                            text: root.t("Diseño")
+                            font.family: "Inter"
+                            font.pixelSize: 22
+                            font.weight: 600
+                            color: c.label
+                        }
+                        Text {
+                            text: root.t("Elige cómo se comporta tu escritorio. Mac es el predeterminado.")
+                            font.family: "Inter"
+                            font.pixelSize: 13
+                            color: c.label2
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            // Tarjeta reutilizable: id, título, descripción, semáforos a la izq/der.
+                            Repeater {
+                                model: [
+                                    {
+                                        "id": "mac",
+                                        "title": "Mac",
+                                        "desc": "Cmd con Meta, semáforos a la izquierda, Dock abajo.",
+                                        "left": true
+                                    },
+                                    {
+                                        "id": "windows",
+                                        "title": "Windows",
+                                        "desc": "Ctrl y Alt clásicos, botones a la derecha.",
+                                        "left": false
+                                    },
+                                    {
+                                        "id": "nimbus",
+                                        "title": "Nimbus",
+                                        "desc": "Mezcla: Meta para apps, Ctrl para Spaces.",
+                                        "left": true
+                                    }
+                                ]
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 132
+                                    radius: 10
+                                    color: backend.layout === modelData.id ? c.bgElevated : c.bg2
+                                    border.color: backend.layout === modelData.id ? c.accent : c.separator
+                                    border.width: backend.layout === modelData.id ? 2 : 1
+                                    Accessible.name: modelData.title
+                                    ColumnLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: 8
+                                        spacing: 4
+                                        // Mini-preview: barra + ventana con semáforos + dock.
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: 56
+                                            radius: 6
+                                            color: c.bg
+                                            border.color: c.separator
+                                            border.width: 1
+                                            Rectangle {
+                                                anchors.top: parent.top
+                                                anchors.left: parent.left
+                                                anchors.right: parent.right
+                                                height: 12
+                                                radius: 3
+                                                color: c.bg2
+                                            }
+                                            Row {
+                                                anchors.top: parent.top
+                                                anchors.topMargin: 16
+                                                anchors.left: parent.left
+                                                anchors.leftMargin: modelData.left ? 4 : 0
+                                                anchors.right: parent.right
+                                                anchors.rightMargin: modelData.left ? 0 : 4
+                                                spacing: 2
+                                                layoutDirection: modelData.left ? Qt.LeftToRight : Qt.RightToLeft
+                                                Repeater {
+                                                    model: 3
+                                                    Rectangle {
+                                                        width: 6
+                                                        height: 6
+                                                        radius: 3
+                                                        color: ["#FF5F57", "#FEBC2E", "#28C840"][index]
+                                                    }
+                                                }
+                                            }
+                                            Rectangle {
+                                                anchors.bottom: parent.bottom
+                                                anchors.bottomMargin: 4
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                                width: 44
+                                                height: 8
+                                                radius: 4
+                                                color: c.accent
+                                            }
+                                        }
+                                        Text {
+                                            text: (backend.layout === modelData.id ? "● " : "○ ") + modelData.title
+                                            font.family: "Inter"
+                                            font.pixelSize: 13
+                                            font.bold: true
+                                            color: c.label
+                                        }
+                                        Text {
+                                            text: root.t(modelData.desc)
+                                            font.family: "Inter"
+                                            font.pixelSize: 11
+                                            color: c.label2
+                                            wrapMode: Text.WordWrap
+                                            Layout.fillWidth: true
+                                        }
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            backend.setLayout(modelData.id);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        RowLayout {
+                            spacing: 8
+                            Button {
+                                text: root.t("Aplicar diseño")
+                                highlighted: true
+                                Accessible.name: root.t("Aplicar diseño")
+                                onClicked: {
+                                    backend.applyLayout();
+                                }
+                            }
+                            Text {
+                                text: root.t("Elegido:") + " " + backend.layout
+                                font.family: "Inter"
+                                font.pixelSize: 12
+                                color: c.label2
+                            }
+                        }
+                    }
+                }
+
+                // 6 Apps recomendadas + tour final.
                 Item {
                     ColumnLayout {
                         anchors.centerIn: parent
@@ -523,15 +671,15 @@ ApplicationWindow {
                 }
                 Button {
                     text: root.t("Omitir")
-                    visible: backend.step < 5
+                    visible: backend.step < 6
                     onClicked: {
                         backend.skip();
                     }
                 }
                 Button {
-                    text: backend.step === 5 ? root.t("Terminar") : root.t("Siguiente")
+                    text: backend.step === 6 ? root.t("Terminar") : root.t("Siguiente")
                     highlighted: true
-                    Accessible.name: backend.step === 5 ? root.t("Terminar") : root.t("Siguiente")
+                    Accessible.name: backend.step === 6 ? root.t("Terminar") : root.t("Siguiente")
                     onClicked: {
                         backend.next();
                     }

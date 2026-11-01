@@ -15,6 +15,7 @@ class WelcomeBackend : public QObject {
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
     Q_PROPERTY(QString appearance READ appearance WRITE setAppearance NOTIFY appearanceChanged)
     Q_PROPERTY(QString accent READ accent WRITE setAccent NOTIFY accentChanged)
+    Q_PROPERTY(QString layout READ layout WRITE setLayout NOTIFY layoutChanged)
     Q_PROPERTY(QStringList wifiNetworks READ wifiNetworks NOTIFY wifiNetworksChanged)
     Q_PROPERTY(QString wifiStatus READ wifiStatus NOTIFY wifiStatusChanged)
     Q_PROPERTY(QStringList selectedApps READ selectedApps NOTIFY selectedAppsChanged)
@@ -29,11 +30,12 @@ public:
     QString language() const { return m_language; }
     QString appearance() const { return m_appearance; }
     QString accent() const { return m_accent; }
+    QString layout() const { return m_layout; }
     QStringList wifiNetworks() const { return m_wifi; }
     QString wifiStatus() const { return m_wifiStatus; }
     QStringList selectedApps() const { return m_apps; }
     bool simMode() const { return m_sim; }
-    Q_INVOKABLE int stepCount() const { return 6; }
+    Q_INVOKABLE int stepCount() const { return 7; }
     Q_INVOKABLE int stepIndexFor(const QString &name) const;
 
 public Q_SLOTS:
@@ -43,6 +45,7 @@ public Q_SLOTS:
     void setLanguage(const QString &v);
     void setAppearance(const QString &v);
     void setAccent(const QString &v);
+    void setLayout(const QString &v);
     void next();
     void back();
     void skip();   // omite: marca completado y pide cierre
@@ -52,6 +55,7 @@ public Q_SLOTS:
     void connectWifi(const QString &ssid, const QString &password);
     void toggleApp(const QString &id);
     void applyAppearance(); // scripts/nimbus-theme si existe, si no config; sim en test
+    void applyLayout();     // scripts/nimbus-layout <layout> --apply; sim: solo inis
 
 Q_SIGNALS:
     void stepChanged();
@@ -61,6 +65,7 @@ Q_SIGNALS:
     void languageChanged();
     void appearanceChanged();
     void accentChanged();
+    void layoutChanged();
     void wifiNetworksChanged();
     void wifiStatusChanged();
     void selectedAppsChanged();
@@ -79,6 +84,7 @@ private:
     QString m_language = QStringLiteral("es");
     QString m_appearance = QStringLiteral("dark");
     QString m_accent = QStringLiteral("#0A84FF");
+    QString m_layout = QStringLiteral("mac"); // Mac por defecto (F9-T03)
     QStringList m_wifi;
     QString m_wifiStatus;
     QStringList m_apps;
