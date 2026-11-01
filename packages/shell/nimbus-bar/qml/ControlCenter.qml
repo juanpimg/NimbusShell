@@ -148,130 +148,130 @@ Item {
                     id: media
                 }
                 Grid {
-                columns: 2
-                spacing: 8
-                Repeater {
-                    model: [
-                        {
-                            label: "Wi-Fi",
-                            sub: root.wifi,
-                            on: root.wifiOn,
-                            kind: "wifi",
-                            glyph: "W"
-                        },
-                        {
-                            label: "BT",
-                            sub: root.bt,
-                            on: root.btOn,
-                            kind: "bt",
-                            glyph: "B"
-                        },
-                        {
-                            label: "No molestar",
-                            sub: root.dnd,
-                            on: root.dndOn,
-                            kind: "dnd",
-                            glyph: "D"
-                        },
-                        {
-                            label: "Oscuro",
-                            sub: root.theme,
-                            on: root.darkOn,
-                            kind: "theme",
-                            glyph: "O"
-                        }
-                    ]
-                    delegate: Rectangle {
-                        width: (300 - 28) / 2
-                        height: 64
-                        radius: 10
-                        // F11-T03: on = accent configurable (selected),
-                        // hover/pressed = iluminación, foco = anillo [HIG §2.5].
-                        property bool tileOn: modelData.on
-                        color: tileArea.pressed || (tileArea.containsMouse && !tileOn) ? NimbusTokens.pressedFill(NimbusTokens.dark) : tileOn ? NimbusTokens.selectedFill(NimbusTokens.dark) : NimbusTokens.hoverFill(NimbusTokens.dark)
-                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
-                        border.width: tileArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
-                        objectName: "ccTile:" + modelData.label
-                        Column {
-                            anchors.fill: parent
-                            anchors.margins: 8
-                            spacing: 2
-                            Text {
-                                text: modelData.glyph
-                                font.pixelSize: 14
-                                font.weight: 700
-                                color: parent.parent.tileOn ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
+                    columns: 2
+                    spacing: 8
+                    Repeater {
+                        model: [
+                            {
+                                label: "Wi-Fi",
+                                sub: root.wifi,
+                                on: root.wifiOn,
+                                kind: "wifi",
+                                glyph: "W"
+                            },
+                            {
+                                label: "BT",
+                                sub: root.bt,
+                                on: root.btOn,
+                                kind: "bt",
+                                glyph: "B"
+                            },
+                            {
+                                label: "No molestar",
+                                sub: root.dnd,
+                                on: root.dndOn,
+                                kind: "dnd",
+                                glyph: "D"
+                            },
+                            {
+                                label: "Oscuro",
+                                sub: root.theme,
+                                on: root.darkOn,
+                                kind: "theme",
+                                glyph: "O"
                             }
-                            Text {
-                                text: modelData.label
-                                font.pixelSize: 12
-                                color: parent.parent.tileOn ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
+                        ]
+                        delegate: Rectangle {
+                            width: (300 - 28) / 2
+                            height: 64
+                            radius: 10
+                            // F11-T03: on = accent configurable (selected),
+                            // hover/pressed = iluminación, foco = anillo [HIG §2.5].
+                            property bool tileOn: modelData.on
+                            color: tileArea.pressed || (tileArea.containsMouse && !tileOn) ? NimbusTokens.pressedFill(NimbusTokens.dark) : tileOn ? NimbusTokens.selectedFill(NimbusTokens.dark) : NimbusTokens.hoverFill(NimbusTokens.dark)
+                            border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                            border.width: tileArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                            objectName: "ccTile:" + modelData.label
+                            Column {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                spacing: 2
+                                Text {
+                                    text: modelData.glyph
+                                    font.pixelSize: 14
+                                    font.weight: 700
+                                    color: parent.parent.tileOn ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
+                                }
+                                Text {
+                                    text: modelData.label
+                                    font.pixelSize: 12
+                                    color: parent.parent.tileOn ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
+                                }
+                                Text {
+                                    text: modelData.sub
+                                    font.pixelSize: 11
+                                    color: parent.parent.tileOn ? Qt.rgba(1, 1, 1, 0.7) : NimbusTokens.subText(NimbusTokens.dark)
+                                    elide: Text.ElideRight
+                                    width: parent.width
+                                }
                             }
-                            Text {
-                                text: modelData.sub
-                                font.pixelSize: 11
-                                color: parent.parent.tileOn ? Qt.rgba(1, 1, 1, 0.7) : NimbusTokens.subText(NimbusTokens.dark)
-                                elide: Text.ElideRight
-                                width: parent.width
+                            MouseArea {
+                                id: tileArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                activeFocusOnTab: true
+                                onClicked: root.flip(modelData.kind)
+                                Keys.onReturnPressed: root.flip(modelData.kind)
                             }
-                        }
-                        MouseArea {
-                            id: tileArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            activeFocusOnTab: true
-                            onClicked: root.flip(modelData.kind)
-                            Keys.onReturnPressed: root.flip(modelData.kind)
                         }
                     }
                 }
-            }
-            Text {
-                id: battLine
-                text: "Batería " + root.batt
-                font.pixelSize: 12
-                color: NimbusTokens.colors(NimbusTokens.dark).label
-                objectName: "ccBatt"
-            }
-            Rectangle {
-                width: 284
-                height: 28
-                radius: 6
-                color: "transparent"
-                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
-                border.width: volSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
-                Slider {
-                    id: volSlider
-                    anchors.fill: parent
-                    anchors.margins: 2
-                    from: 0
-                    to: 1
-                    value: root.vol < 0 ? 0.5 : root.vol
-                    enabled: !root.demo && root.vol >= 0
-                    objectName: "ccVol"
-                    onMoved: runner.run("wpctl set-volume @DEFAULT_AUDIO_SINK@ " + value.toFixed(2))
+                Text {
+                    id: battLine
+                    text: "Batería " + root.batt
+                    font.pixelSize: 12
+                    color: NimbusTokens.colors(NimbusTokens.dark).label
+                    objectName: "ccBatt"
+                }
+                Rectangle {
+                    width: 284
+                    height: 28
+                    radius: 6
+                    color: "transparent"
+                    border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                    border.width: volSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                    Slider {
+                        id: volSlider
+                        anchors.fill: parent
+                        anchors.margins: 2
+                        from: 0
+                        to: 1
+                        value: root.vol < 0 ? 0.5 : root.vol
+                        enabled: !root.demo && root.vol >= 0
+                        objectName: "ccVol"
+                        onMoved: runner.run("wpctl set-volume @DEFAULT_AUDIO_SINK@ " + value.toFixed(2))
+                    }
+                }
+                Rectangle {
+                    width: 284
+                    height: 28
+                    radius: 6
+                    color: "transparent"
+                    border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                    border.width: briSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                    Slider {
+                        id: briSlider
+                        anchors.fill: parent
+                        anchors.margins: 2
+                        from: 0
+                        to: 1
+                        value: root.bri < 0 ? 0.5 : root.bri
+                        enabled: !root.demo && root.bri >= 0
+                        objectName: "ccBri"
+                        onMoved: runner.run("brightnessctl set " + Math.round(value * 100) + "%")
+                    }
                 }
             }
-            Rectangle {
-                width: 284
-                height: 28
-                radius: 6
-                color: "transparent"
-                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
-                border.width: briSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
-                Slider {
-                    id: briSlider
-                    anchors.fill: parent
-                    anchors.margins: 2
-                    from: 0
-                    to: 1
-                    value: root.bri < 0 ? 0.5 : root.bri
-                    enabled: !root.demo && root.bri >= 0
-                    objectName: "ccBri"
-                    onMoved: runner.run("brightnessctl set " + Math.round(value * 100) + "%")
-                }
-            }
-        }
         }
     }
 }

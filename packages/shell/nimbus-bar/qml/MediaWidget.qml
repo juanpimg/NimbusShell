@@ -65,9 +65,21 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             Repeater {
                 model: [
-                    { label: "⏮", fn: "prev", name: "ccPrev" },
-                    { label: "⏯", fn: "play", name: "ccPlay" },
-                    { label: "⏭", fn: "next", name: "ccNext" }
+                    {
+                        label: "⏮",
+                        fn: "prev",
+                        name: "ccPrev"
+                    },
+                    {
+                        label: "⏯",
+                        fn: "play",
+                        name: "ccPlay"
+                    },
+                    {
+                        label: "⏭",
+                        fn: "next",
+                        name: "ccNext"
+                    }
                 ]
                 delegate: Rectangle {
                     width: 30
@@ -89,14 +101,20 @@ Rectangle {
                         hoverEnabled: true
                         activeFocusOnTab: true
                         onClicked: {
-                            if (modelData.fn === "play") mpris.playPause();
-                            else if (modelData.fn === "next") mpris.next();
-                            else mpris.previous();
+                            if (modelData.fn === "play")
+                                mpris.playPause();
+                            else if (modelData.fn === "next")
+                                mpris.next();
+                            else
+                                mpris.previous();
                         }
                         Keys.onReturnPressed: {
-                            if (modelData.fn === "play") mpris.playPause();
-                            else if (modelData.fn === "next") mpris.next();
-                            else mpris.previous();
+                            if (modelData.fn === "play")
+                                mpris.playPause();
+                            else if (modelData.fn === "next")
+                                mpris.next();
+                            else
+                                mpris.previous();
                         }
                     }
                 }
