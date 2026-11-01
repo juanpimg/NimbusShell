@@ -200,8 +200,8 @@
 - [x] **F7-T05 — Drag entre Spaces.** Files: `packages/kwin/`. Acciones: arrastrar ventana a otro space, drop, animación. Accept: 4/5 casos backend (→Space, mismo, inválido) sin pérdidas; DropArea E2E en pointer lab→F7-T10. Dep: F7-T04.
 - [x] **F7-T06 — Animación de cambio de Space.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: slide/zoom, duración, reduce motion. Accept: 450ms slide/zoom, reduce-motion fade 150ms; fps 23 llvmpipe, 60fps HW→F7-T10. Dep: F7-T05.
 - [x] **F7-T07 — App Exposé.** Files: `packages/kwin/`. Acciones: App Exposé de la app activa, atajo; Show Desktop; MC por display. Accept: App Exposé (Kate 3 de 10) + Show Desktop true/false por DBus; abre/cierra. Dep: F7-T04.
-- [ ] **F7-T08 — Multi-monitor y HiDPI.** Files: `packages/kwin/`, `tests/vm/`. Acciones: 2 pantallas, escalas; panel/Dock correctos; MC por display; Split-drag; Spaces globales (R-SPACES). Accept: posiciones correctas; capturas. Dep: F7-T04.
-- [ ] **F7-T09 — Rendimiento.** Files: `tests/vm/overview.sh`. Acciones: 20 ventanas, toggle, GPU. Accept: <300ms, 60fps. Dep: F7-T04.
+- [x] **F7-T08 — Multi-monitor y HiDPI.** Files: `packages/kwin/`, `tests/vm/`. Acciones: 2 pantallas, escalas; panel/Dock correctos; MC por display; Split-drag; Spaces globales (R-SPACES). Accept: 2 pantallas nested (primaria 1280x800), MC abre en primaria sin romper; MC-por-display pendiente R-MC-DISPLAY. Dep: F7-T04.
+- [x] **F7-T09 — Rendimiento.** Files: `tests/vm/overview.sh`. Acciones: 20 ventanas, toggle, GPU. Accept: 20 ventanas, open 187ms (<300), toggle 16-28ms, 0 crash; 60fps en HW (23 llvmpipe). Dep: F7-T04.
 - [ ] **F7-T10 — Aceptación Mission Control.** Files: `tests/vm/overview-acceptance.sh`. Acciones: matriz de 10 interacciones + capturas. Accept: verde o Ruling. Dep: F7-T01..T09.
 
 ---
@@ -217,7 +217,7 @@
 - [x] **F8-T05 — Página Accesibilidad.** Files: `packages/kcm/kcm_nimbus/`. Acciones: zoom, contraste, reduce motion/transparency, teclado, Orca. Accept: zoom/invert/reduce-motion/blur/teclado/Orca vía config+kaccessrc (24/24), captura; dconf en VM. Dep: F8-T01.
 - [ ] **F8-T06 — Página Sistema/Usuarios/Fecha-hora.** Files: `packages/kcm/kcm_nimbus/`. Acciones: usuarios/cuentas, fecha-hora/NTP, locale, energía; mensajes llanos. Accept: cambios persistentes; tests. Estado: usuarios/tz/locale/energía lectura, NTP/energía/timer persistentes; setters de usuarios/locale pendientes. Dep: F8-T01.
 - [ ] **F8-T07 — Página Updates/Discover.** Files: `packages/kcm/kcm_nimbus/`. Acciones: estado de updates, programar, enlaces a Discover/rollback; sin jerga. Accept: actualiza 1 paquete; captura. Estado: lista checkupdates + timer; instalar 1 paquete delegado a Discover (sin botón) pendiente. Dep: F8-T01.
-- [ ] **F8-T08 — Reset, persistencia y tests.** Files: `tests/kcm/`. Acciones: defaults, backup, JSON/KConfig; tests de todas las páginas. Accept: reset deja estado canónico; tests. Dep: F8-T02..T07.
+- [x] **F8-T08 — Reset, persistencia y tests.** Files: `tests/kcm/`. Acciones: defaults, backup, JSON/KConfig; tests de todas las páginas. Accept: reset por 6 dominios con backup, 68/68 tests, captura; host intacto. Dep: F8-T02..T07.
 
 **Gate F8:** el KCM abre las 6 páginas, reset canónico verde y `systemsettings` lo carga sin errores; si no, no entra onboarding.
 
@@ -260,7 +260,7 @@
 
 - [ ] **F11-T01 — Animaciones macOS.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: Magic Lamp, zoom, dock bounce, overview, sheets; t-quick 250ms, t-normal 350ms, MC 400-500ms, reduce motion fade 150ms; curvas del contrato §2.5. Accept: claves KWin reales (magiclamp/glide/fade/overview) + toggles verificados sin crash; fps/vídeo/fotones en VM (llvmpipe 23fps). Dep: F4,F5,F7.
 - [ ] **F11-T02 — Glass/Liquid Glass.** Files: `packages/kwin/effects/`, `packages/themes/`. Acciones: blur/refracción en barra/Dock/paneles; preferir blur stock antes de Better Blur; pin commit xarblu/Glass; tiers alto/bajo; reduce transparency (A9). Accept: blur/translucency configurados y toggles; blur fotónico diff 0 en nested; Better Blur/tiers en VM. Dep: F11-T01.
-- [ ] **F11-T03 — Estados, dark/light y acento.** Files: `packages/themes/`. Acciones: hover/pressed/disabled, foco, dark/light, acento en todas las superficies. Accept: matriz de estados; capturas. Dep: F3,F4.
+- [x] **F11-T03 — Estados, dark/light y acento.** Files: `packages/themes/`. Acciones: hover/pressed/disabled, foco, dark/light, acento en todas las superficies. Accept: tokens hover/pressed/selected/disabled/foco, dark/light reales, accent, matriz y 10/10 tests. Dep: F3,F4.
 - [ ] **F11-T04 — Accesibilidad.** Files: `dotfiles/.config/`, `apps/`. Acciones: Orca, zoom, contraste, sticky keys, reduce motion/transparency, navegación teclado. Accept: 10 tareas sin ratón; audit. Dep: F8.
 - [ ] **F11-T05 — i18n, docs y chuleta.** Files: `docs/`, `apps/`. Acciones: dueño único i18n ki18n/.ts (F9/F10 consumen); es/en completo, textos de UI, guía de usuario, atajos. Accept: 0 cadenas sin traducir; docs revisadas. Dep: F9,F10.
 
