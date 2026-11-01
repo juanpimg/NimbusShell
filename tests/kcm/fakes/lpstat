@@ -1,0 +1,6 @@
+#!/bin/bash
+# Fake lpstat para tests: una impresora enlatada.
+set -u
+[ -n "${FAKE_LOG:-}" ] && echo "lpstat $*" >>"$FAKE_LOG/lpstat.log"
+echo "printer NimbusTest idle. enabled since vie 31 oct 2026"
+exit 0

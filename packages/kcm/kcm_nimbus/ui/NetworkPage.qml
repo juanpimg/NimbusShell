@@ -154,7 +154,11 @@ KCMUtils.SimpleKCM {
                 delegate: RowLayout {
                     required property string modelData
                     Layout.fillWidth: true
+                    // Modelo "nombre|mac|conectado|vinculado".
                     property var parts: modelData.split("|")
+                    property string devMac: parts.length > 1 ? parts[1] : ""
+                    property bool devConnected: parts.length > 2 && parts[2] === "1"
+                    property bool devPaired: parts.length <= 3 || parts[3] === "1"
                     Kirigami.Icon {
                         source: "preferences-system-bluetooth"
                         implicitWidth: Kirigami.Units.iconSizes.smallMedium
@@ -164,19 +168,56 @@ KCMUtils.SimpleKCM {
                         Layout.fillWidth: true
                         text: parts.length > 0 ? parts[0] : ""
                         elide: Text.ElideRight
-                        color: parts.length > 2 && parts[2] === "1" ? Kirigami.Theme.textColor : Kirigami.Theme.disabledTextColor
+                        color: devConnected ? Kirigami.Theme.textColor : Kirigami.Theme.disabledTextColor
                     }
-                    QQC2.Label {
-                        visible: parts.length > 2 && parts[2] === "1"
-                        text: i18n("Conectado")
-                        color: Kirigami.Theme.positiveTextColor
+                    QQC2.Button {
+                        visible: !devPaired
+                        text: i18n("Vincular")
+                        Accessible.name: parts.length > 0 ? i18n("Vincular %1", parts[0]) : ""
+                        onClicked: {
+                            if (page.kcmRef) {
+                                page.kcmRef.pairBluetooth(devMac);
+                            }
+                        }
+                    }
+                    QQC2.Button {
+                        visible: devPaired && !devConnected
+                        text: i18n("Conectar")
+                        Accessible.name: parts.length > 0 ? i18n("Conectar %1", parts[0]) : ""
+                        onClicked: {
+                            if (page.kcmRef) {
+                                page.kcmRef.connectBluetooth(devMac);
+                            }
+                        }
+                    }
+                    QQC2.Button {
+                        visible: devConnected
+                        text: i18n("Desconectar")
+                        Accessible.name: parts.length > 0 ? i18n("Desconectar %1", parts[0]) : ""
+                        onClicked: {
+                            if (page.kcmRef) {
+                                page.kcmRef.disconnectBluetooth(devMac);
+                            }
+                        }
                     }
                 }
             }
             QQC2.Label {
-                visible: page.kcmRef ? page.kcmRef.bluetoothDevices.length === 0 : false
+                visible: page.kcmRef ? page.kcmRef.bluetoothDevices.length === 0 && !page.kcmRef.bluetoothScanning : false
                 color: Kirigami.Theme.disabledTextColor
-                text: i18n("Sin aparatos vinculados.")
+                text: i18n("Sin aparatos a la vista. Pulsa «Buscar aparatos».")
+            }
+            RowLayout {
+                QQC2.Button {
+                    text: page.kcmRef && page.kcmRef.bluetoothScanning ? i18n("Buscando…") : i18n("Buscar aparatos")
+                    Accessible.name: i18n("Buscar aparatos Bluetooth cercanos")
+                    enabled: page.kcmRef ? page.kcmRef.bluetoothPowered && !page.kcmRef.bluetoothScanning : false
+                    onClicked: {
+                        if (page.kcmRef) {
+                            page.kcmRef.scanBluetooth();
+                        }
+                    }
+                }
             }
         }
 
@@ -190,6 +231,32 @@ KCMUtils.SimpleKCM {
             wrapMode: Text.WordWrap
             color: Kirigami.Theme.disabledTextColor
             text: page.kcmRef && !page.kcmRef.printingAvailable ? i18n("Sin soporte de impresión en este equipo (falta CUPS).") : (page.kcmRef && page.kcmRef.printerInfo.length > 0 ? page.kcmRef.printerInfo : i18n("Sin impresoras configuradas."))
+        }
+        ColumnLayout {
+            Kirigami.FormData.label: i18n("Probar:")
+            visible: page.kcmRef ? page.kcmRef.printingAvailable && page.kcmRef.printerNames.length > 0 : false
+            spacing: 0
+            Repeater {
+                model: page.kcmRef ? page.kcmRef.printerNames : []
+                delegate: RowLayout {
+                    required property string modelData
+                    Layout.fillWidth: true
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        text: modelData
+                        elide: Text.ElideRight
+                    }
+                    QQC2.Button {
+                        text: i18n("Página de prueba")
+                        Accessible.name: i18n("Imprimir página de prueba en %1", modelData)
+                        onClicked: {
+                            if (page.kcmRef) {
+                                page.kcmRef.printTestPage(modelData);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         RowLayout {

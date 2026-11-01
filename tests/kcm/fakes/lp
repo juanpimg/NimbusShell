@@ -1,0 +1,5 @@
+#!/bin/bash
+# Fake lp para tests: registra y sale 0 (o $FAKE_LP_RC).
+set -u
+[ -n "${FAKE_LOG:-}" ] && echo "lp $*" >>"$FAKE_LOG/lp.log"
+exit "${FAKE_LP_RC:-0}"

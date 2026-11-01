@@ -178,6 +178,48 @@ int main(int argc, char **argv)
         m.resetSection(QStringLiteral("updates"));
     } else if (scenario == QStringLiteral("reset-network")) {
         m.resetSection(QStringLiteral("network"));
+    } else if (scenario == QStringLiteral("bt-ok")) {
+        const QString mac = QStringLiteral("AA:BB:CC:DD:EE:FF");
+        QTextStream out(stdout);
+        out << "pair=" << (m.pairBluetooth(mac) ? "true" : "false") << "\n";
+        out << "connect=" << (m.connectBluetooth(mac) ? "true" : "false") << "\n";
+        out << "disconnect=" << (m.disconnectBluetooth(mac) ? "true" : "false") << "\n";
+        out << "btDevices=" << m.bluetoothDevices().size() << "\n";
+    } else if (scenario == QStringLiteral("bt-fail")) {
+        QTextStream(stdout) << "pairFail="
+                            << (m.pairBluetooth(QStringLiteral("AA:BB:CC:DD:EE:FF")) ? "true"
+                                                                                    : "false")
+                            << "\n";
+    } else if (scenario == QStringLiteral("print-ok")) {
+        QTextStream(stdout) << "print="
+                            << (m.printTestPage(QStringLiteral("NimbusTest")) ? "true" : "false")
+                            << "\n";
+    } else if (scenario == QStringLiteral("print-nocups")) {
+        QTextStream(stdout) << "printNoCups="
+                            << (m.printTestPage(QStringLiteral("NimbusTest")) ? "true" : "false")
+                            << "\n";
+    } else if (scenario == QStringLiteral("install-ok")) {
+        QEventLoop loop;
+        QObject::connect(&m, &NimbusModule::installFinished, &loop, &QEventLoop::quit);
+        QTimer::singleShot(60000, &loop, &QEventLoop::quit);
+        m.installUpdate(QStringLiteral("nimbus-test-pkg"));
+        loop.exec();
+        QTextStream out(stdout);
+        out << "installing=" << (m.installingUpdate() ? "true" : "false") << "\n";
+        out << "installPkg=" << m.installingPackage() << "\n";
+        out << "installOut=" << m.installOutput().replace("\n", " / ") << "\n";
+    } else if (scenario == QStringLiteral("hostname-locale")) {
+        const QString hostBefore = m.hostName();
+        const QString locBefore = m.systemLocale();
+        QTextStream out(stdout);
+        out << "setHost=" << (m.trySetHostName(QStringLiteral("nuevo-equipo")) ? "true" : "false")
+            << "\n";
+        out << "setHostBad=" << (m.trySetHostName(QStringLiteral("mal nombre!")) ? "true" : "false")
+            << "\n";
+        out << "setLoc=" << (m.trySetLocale(QStringLiteral("fr_FR.UTF-8")) ? "true" : "false")
+            << "\n";
+        out << "hostUnchanged=" << (m.hostName() == hostBefore ? "true" : "false") << "\n";
+        out << "locUnchanged=" << (m.systemLocale() == locBefore ? "true" : "false") << "\n";
     }
     dump(m);
     return 0;

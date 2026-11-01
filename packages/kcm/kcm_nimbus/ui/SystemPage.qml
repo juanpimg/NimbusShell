@@ -63,6 +63,11 @@ KCMUtils.SimpleKCM {
                 elide: Text.ElideRight
                 Accessible.name: i18n("Nombre del equipo")
             }
+            QQC2.Button {
+                text: i18n("Cambiar…")
+                Accessible.name: i18n("Cambiar el nombre del equipo (pide permiso)")
+                onClicked: hostnameDialog.open()
+            }
         }
         QQC2.Label {
             Layout.fillWidth: true
@@ -110,6 +115,11 @@ KCMUtils.SimpleKCM {
                 text: page.kcmRef ? page.kcmRef.systemLocale : ""
                 elide: Text.ElideRight
                 Accessible.name: i18n("Idioma del sistema")
+            }
+            QQC2.Button {
+                text: i18n("Cambiar…")
+                Accessible.name: i18n("Cambiar el idioma del sistema (pide permiso)")
+                onClicked: localeDialog.open()
             }
         }
 
@@ -168,6 +178,45 @@ KCMUtils.SimpleKCM {
             wrapMode: Text.WordWrap
             color: Kirigami.Theme.neutralTextColor
             text: page.kcmRef ? page.kcmRef.helperStatus : ""
+        }
+    }
+
+    QQC2.Dialog {
+        id: hostnameDialog
+        title: i18n("Nombre del equipo")
+        standardButtons: QQC2.Dialog.Ok | QQC2.Dialog.Cancel
+        modal: true
+        anchors.centerIn: Overlay.overlay
+        contentItem: QQC2.TextField {
+            id: hostnameField
+            placeholderText: i18n("p. ej. mi-portatil")
+            Accessible.name: i18n("Nuevo nombre del equipo")
+            Component.onCompleted: {
+                hostnameField.text = page.kcmRef ? page.kcmRef.hostName : "";
+            }
+        }
+        onAccepted: {
+            if (page.kcmRef) {
+                page.kcmRef.trySetHostName(hostnameField.text);
+            }
+        }
+    }
+
+    QQC2.Dialog {
+        id: localeDialog
+        title: i18n("Idioma del sistema")
+        standardButtons: QQC2.Dialog.Ok | QQC2.Dialog.Cancel
+        modal: true
+        anchors.centerIn: Overlay.overlay
+        contentItem: QQC2.TextField {
+            id: localeField
+            placeholderText: i18n("p. ej. es_ES.UTF-8")
+            Accessible.name: i18n("Nuevo idioma del sistema")
+        }
+        onAccepted: {
+            if (page.kcmRef) {
+                page.kcmRef.trySetLocale(localeField.text);
+            }
         }
     }
 }

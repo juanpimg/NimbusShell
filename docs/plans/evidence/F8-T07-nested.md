@@ -19,3 +19,15 @@ Escenario `updates`: `updatesAvailable=true`, `updatesCount=17`,
 ## Captura
 `spikes/nested/f8-kcm-updates.png`: KCM en Actualizaciones con las 17
 pendientes reales («…y 2 más»); `QML_ERRORS=0` (espera 90 s al scan).
+
+## Review: instalar con confirmación (NO ejecutar en host)
+- `installUpdate(pkg)` Q_INVOKABLE async: valida nombre
+  (`^[A-Za-z0-9@._+-]+$`), cadena `pkexec pacman -S --noconfirm`,
+  sin pkexec → `pamac install --no-confirm`, sin ninguno → aviso a
+  Discover. Expone `installingUpdate/installingPackage/installOutput`
+  + `installFinished`; al acabar refresca la lista.
+- UI: botón «Instalar» por paquete + diálogo de confirmación («pedirá
+  permiso») + estado «Instalando…» + salida visible.
+- Tests con fake `pkexec` en PATH (0 cambios reales): termina, paquete
+  limpio, args exactos `pacman -S --noconfirm nimbus-test-pkg`,
+  salida del fake visible en `installOutput`.
