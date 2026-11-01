@@ -18,6 +18,10 @@ Item {
     property string kind: "volume" // "volume" | "brightness"
     property real value: -1 // 0..1; -1 = sin canal real ni valor demo
     property bool muted: false
+    // F3-T13: del preset (Bar.qml); fallbacks = valores previos del fichero.
+    property int popupWidth: 280
+    property int popupHeight: 56
+    property int timeoutMs: 1500
     function show(k, v) {
         if (k === "volume" || k === "brightness")
             kind = k;
@@ -88,7 +92,7 @@ Item {
     }
     Timer {
         id: hideTimer
-        interval: 1500
+        interval: root.timeoutMs
         repeat: false
         onTriggered: root.hide()
     }
@@ -120,8 +124,8 @@ Item {
     Window {
         id: popup
         visible: root.opened
-        width: 280
-        height: 56
+        width: root.popupWidth
+        height: root.popupHeight
         x: Math.round(Screen.width * 0.62)
         y: 28
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint

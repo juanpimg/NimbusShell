@@ -1,0 +1,30 @@
+{
+  "schema": "nimbus-bar-preset/1",
+  "name": "compact",
+  "description": "Barra 24pt con márgenes y espaciado reducidos; oculta Bluetooth.",
+  "bar": {
+    "height": 24,
+    "marginLeft": 8,
+    "marginRight": 8,
+    "spacingLeft": 6,
+    "spacingRight": 8,
+    "bgAlpha": 0.55,
+    "hairlineAlpha": 0.6
+  },
+  "clock": {
+    "format": "HH:mm"
+  },
+  "icons": {
+    "order": ["wifi", "bluetooth", "controlcenter", "battery", "tray", "clock"],
+    "hidden": ["bluetooth"]
+  },
+  "osd": {
+    "width": 280,
+    "height": 56,
+    "timeoutMs": 1500
+  },
+  "glass": {
+    "tint": "dark",
+    "blurPxEq": [15, 25]
+  }
+}

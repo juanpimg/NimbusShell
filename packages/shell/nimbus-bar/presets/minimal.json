@@ -1,0 +1,30 @@
+{
+  "schema": "nimbus-bar-preset/1",
+  "name": "minimal",
+  "description": "Barra 20pt mínima: solo batería, bandeja y reloj; OSD reducido.",
+  "bar": {
+    "height": 20,
+    "marginLeft": 8,
+    "marginRight": 8,
+    "spacingLeft": 6,
+    "spacingRight": 8,
+    "bgAlpha": 0.45,
+    "hairlineAlpha": 0.6
+  },
+  "clock": {
+    "format": "HH:mm"
+  },
+  "icons": {
+    "order": ["wifi", "bluetooth", "controlcenter", "battery", "tray", "clock"],
+    "hidden": ["wifi", "bluetooth", "controlcenter"]
+  },
+  "osd": {
+    "width": 240,
+    "height": 48,
+    "timeoutMs": 1200
+  },
+  "glass": {
+    "tint": "dark",
+    "blurPxEq": [15, 25]
+  }
+}
