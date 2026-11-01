@@ -1,0 +1,24 @@
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=355364 comm="/usr/lib/kscreenlocker_greet --immediateLock --gra")
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=355367 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=355367 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:355367): xdg-desktop-portal-WARNING **: 23:04:27.675: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=355367 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=355391 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=355367 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:355367): xdg-desktop-portal-WARNING **: 23:04:27.804: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=355367 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[355281]: [session uid=1000 pid=355281 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+nimbus-welcome: STEP=0 completed=0 demo=1
+nimbus-welcome: SHOT_OK /home/jp/Escritorio/Proyectos/NimbusShell-f9welcome/spikes/nested/f9-welcome-1.png
+nimbus-welcome: STEP=4 completed=0 demo=1
+nimbus-welcome: SHOT_OK /home/jp/Escritorio/Proyectos/NimbusShell-f9welcome/spikes/nested/f9-welcome-appearance.png
+[f9] FIN
+A connection to the bus can't be made

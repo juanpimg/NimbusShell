@@ -1,0 +1,376 @@
+[perf] bin=/tmp/opencode/spot-f6perf/nimbus-spotlight query=kate files=10000 rounds=10 log=/home/jp/Escritorio/Proyectos/NimbusShell-f6perf/spikes/nested/f6-perf.log
+[perf] sintéticos: 10001 ficheros
+[perf] P0 offscreen frío: /tmp/opencode/spot-f6perf/tst_index
+QINFO  : TstIndex::perfFuzzy10k() perf-fuzzy-10k: 3ms hits=1
+QINFO  : TstIndex::perfSearchLocal() perf-searchLocal: 1ms results=20
+[perf] arranque kwin_wayland --virtual ...
+SPOT-MAIN-ENTER pid=361691
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.2' (uid=1000 pid=361691 comm="/tmp/opencode/spot-f6perf/nimbus-spotlight --query")
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.3' (uid=1000 pid=361699 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.3' (uid=1000 pid=361699 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:361699): xdg-desktop-portal-WARNING **: 23:05:52.428: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.3' (uid=1000 pid=361699 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.6' (uid=1000 pid=361722 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.3' (uid=1000 pid=361699 comm="/usr/lib/xdg-desktop-portal")
+nimbus-spotlight[1]: Spotlight_QMLTYPE_71(0x562eaccdc520, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[4]: nimbus-spotlight: demo=0 query='kate'
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:361699): xdg-desktop-portal-WARNING **: 23:05:52.554: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.3' (uid=1000 pid=361699 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+[perf] arranque-frío spawn→DBus: 216.1ms (primer frame: ventana creada y registrada)
+[perf] RSS arranque: 236896 kB
+dbus-daemon[361605]: [session uid=1000 pid=361605 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+nimbus-spotlight[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=apps
+[perf] query-fría inicial: nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=apps
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+[perf] query-caliente round-trip: 10 muestras min=14.82 med=15.35 max=16.08 avg=15.38 ms
+[perf] toggle round-trip: 10 muestras min=7.07 med=8.10 max=179.42 avg=25.09 ms
+[perf] RSS post-query: 257816 kB
+[perf] CPU reposo (3s): 0.3% (100% = 1 núcleo)
+nimbus-spotlight[4]: spotlight-local-latency: query=10ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=9ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=9ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=9ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=10ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=9ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+[perf] CPU durante query (2s, ráfaga 300): 49.6% (100% = 1 núcleo)
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=9ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=9ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=7ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=6ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=8ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+nimbus-spotlight[4]: spotlight-local-latency: query=5ms mode=nimbus results=20 tab=
+[perf] 0 errores QML
+[perf] f6-perf.png OK
+[perf] sin freeze (todas las sondas respondieron)
+A connection to the bus can't be made
+[perf] dbus-run-session exit=0
+# F6-T08 spotlight — tabla
+# (med = mediana round-trip DBus; in-process = spotlight-local-latency del log)
+QINFO  : TstIndex::perfFuzzy10k() perf-fuzzy-10k: 3ms hits=1
+QINFO  : TstIndex::perfSearchLocal() perf-searchLocal: 1ms results=20
+[perf] arranque-frío spawn→DBus: 216.1ms (primer frame: ventana creada y registrada)
+[perf] RSS arranque: 236896 kB
+[perf] query-fría inicial: nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=apps
+[perf] query-caliente round-trip: 10 muestras min=14.82 med=15.35 max=16.08 avg=15.38 ms
+[perf] toggle round-trip: 10 muestras min=7.07 med=8.10 max=179.42 avg=25.09 ms
+[perf] RSS post-query: 257816 kB
+[perf] CPU reposo (3s): 0.3% (100% = 1 núcleo)
+[perf] CPU durante query (2s, ráfaga 300): 49.6% (100% = 1 núcleo)
+[perf] 0 errores QML
+[perf] sin freeze (todas las sondas respondieron)

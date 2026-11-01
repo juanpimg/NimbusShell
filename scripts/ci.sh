@@ -24,6 +24,7 @@ done
 
 sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
     for f in "$REPO_ROOT/install.sh" "$REPO_ROOT"/lib/*.sh "$REPO_ROOT"/scripts/*.sh \
+             "$REPO_ROOT/scripts/install-klassy-nimbus" \
              "$REPO_ROOT/legacy/hyprland/install.sh"; do
         [ -f "$f" ] && printf '%s\n' "$f"
     done
@@ -125,12 +126,44 @@ if prog_out="$("$REPO_ROOT/scripts/nimbus-progress" 2>&1)"; then
     else fail "nimbus-progress sin línea Total: X/112 parseable"; fi
 else fail "scripts/nimbus-progress exit distinto de 0"; fi
 
+echo "== ci: i18n (nimbus-i18n --check, solo lectura) =="
+if [ -x "$REPO_ROOT/scripts/nimbus-i18n" ]; then
+    if "$REPO_ROOT/scripts/nimbus-i18n" --check >/tmp/opencode/ci-i18n.txt 2>&1; then
+        pass "nimbus-i18n --check ($(cat /tmp/opencode/ci-i18n.txt))"
+    else fail "nimbus-i18n --check (ver /tmp/opencode/ci-i18n.txt)"; fi
+    if [ -x "$REPO_ROOT/tests/i18n/test_i18n.sh" ]; then
+        if "$REPO_ROOT/tests/i18n/test_i18n.sh" >/tmp/opencode/ci-i18n-test.txt 2>&1; then
+            pass "tests/i18n/test_i18n.sh"
+        else fail "tests/i18n/test_i18n.sh (ver /tmp/opencode/ci-i18n-test.txt)"; fi
+    else fail "tests/i18n/test_i18n.sh ausente o sin +x"; fi
+else fail "scripts/nimbus-i18n ausente o sin +x"; fi
+
 echo "== ci: install.sh --check (solo lectura) =="
 "$REPO_ROOT/install.sh" --check >/tmp/opencode/ci-check.txt 2>&1
 rc=$?
 if [ "$rc" = "0" ] || [ "$rc" = "1" ]; then
     pass "install.sh --check exit $rc (0 verde, 1 drift esperado en host)"
 else fail "install.sh --check exit $rc (se esperaba 0 o 1)"; fi
+
+echo "== ci: packaging (PKGBUILD, sin instalar nada) =="
+pkgbuilds="$(find "$REPO_ROOT/packaging" -maxdepth 2 -name 'PKGBUILD' 2>/dev/null || true)"
+if [ -z "$pkgbuilds" ]; then
+    pass "sin packaging/*/PKGBUILD (skip limpio)"
+else
+    while IFS= read -r f; do
+        if bash -n "$f" 2>/tmp/opencode/ci-err.txt; then pass "bash -n ${f#"$REPO_ROOT"/}";
+        else fail "bash -n ${f#"$REPO_ROOT"/} ($(cat /tmp/opencode/ci-err.txt))"; fi
+    done < <(printf '%s\n' "$pkgbuilds")
+    if ! command -v makepkg >/dev/null 2>&1; then
+        pass "makepkg ausente (skip limpio: sin --printsrcinfo)"
+    else
+        while IFS= read -r f; do
+            if (cd "$(dirname "$f")" && makepkg --printsrcinfo >/dev/null 2>/tmp/opencode/ci-err.txt); then
+                pass "makepkg --printsrcinfo ${f#"$REPO_ROOT"/}"
+            else fail "makepkg --printsrcinfo ${f#"$REPO_ROOT"/} ($(head -3 /tmp/opencode/ci-err.txt | tr '\n' '|'))"; fi
+        done < <(printf '%s\n' "$pkgbuilds")
+    fi
+fi
 
 if [ "$SELF_TEST" = "1" ]; then
     echo "== ci: --self-test (el lint debe fallar con un fichero roto) =="

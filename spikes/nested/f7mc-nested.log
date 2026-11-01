@@ -1,0 +1,155 @@
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=538477 comm="plasmashell")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=538488 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=538488 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:538488): xdg-desktop-portal-WARNING **: 02:47:25.355: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=538488 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=538513 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=538477 comm="plasmashell")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=538488 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:538488): xdg-desktop-portal-WARNING **: 02:47:25.560: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=538488 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.kde.kdeconnect' requested by ':1.1' (uid=1000 pid=538477 comm="plasmashell")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.kde.kdeconnect'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.freedesktop.Notifications' requested by ':1.13' (uid=1000 pid=538583 comm="/usr/bin/kdeconnectd")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.freedesktop.Notifications'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.1' (uid=1000 pid=538477 comm="plasmashell")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=538595 comm="/usr/bin/kded6")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=538595 comm="/usr/bin/kded6")
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Successfully activated service 'org.bluez.obex'
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=538477 comm="plasmashell")
+[f7] 10 ventanas pedidas
+[f7] 10 ventanas pedidas
+MC-MAIN-ENTER pid=539427
+nimbus-mc[4]: nimbus-mc: open_ms=110 demo=0 rm=0
+[f7] mc VIVO pid=539427
+[f7] mc VIVO pid=539427
+[f7] windowCount=10
+[f7] windowCount=10
+[f7] desktopCount=4
+[f7] desktopCount=4
+[f7] openLatencyMs=0
+[f7] openLatencyMs=0
+true
+[f7] spaces_rc=0 shot=OK
+[f7] spaces_rc=0 shot=OK
+[f7] thumbLog:
+[f7] thumbLog:
+dir=/tmp/mc-thumbs-539427
+workspace PNG 1280x800 stride=5120
+workspace OK (thumb activo)
+win 0 ({53b3987e-a9a2-4534-84cd-b39adcebbd69}) PNG 646x513 stride=2584
+win 0 ({53b3987e-a9a2-4534-84cd-b39adcebbd69}) OK
+win 1 ({b41ff25e-86eb-41db-be8e-d235d8ae786a}) PNG 908x493 stride=3632
+win 1 ({b41ff25e-86eb-41db-be8e-d235d8ae786a}) OK
+win 2 ({9644a76f-ad3e-4e88-9b47-8b8981be6c40}) PNG 908x493 stride=3632
+win 2 ({9644a76f-ad3e-4e88-9b47-8b8981be6c40}) OK
+win 3 ({a7f69e86-3b86-45cc-bb7c-3109b2cfeb67}) PNG 908x493 stride=3632
+win 3 ({a7f69e86-3b86-45cc-bb7c-3109b2cfeb67}) OK
+win 4 ({c3417e5c-9091-46f0-9635-5b3bc8804f55}) PNG 766x566 stride=3064
+win 4 ({c3417e5c-9091-46f0-9635-5b3bc8804f55}) OK
+win 5 ({bf879aed-ff73-4f14-8cc9-1d29910f184e}) PNG 646x513 stride=2584
+win 5 ({bf879aed-ff73-4f14-8cc9-1d29910f184e}) OK
+win 6 ({c4684ffb-2ae7-4ab0-9f4b-77a2c9ad8a61}) PNG 766x566 stride=3064
+win 6 ({c4684ffb-2ae7-4ab0-9f4b-77a2c9ad8a61}) OK
+win 7 ({ef9899a6-505f-4b46-988a-f666e3b8a5f0}) PNG 646x513 stride=2584
+win 7 ({ef9899a6-505f-4b46-988a-f666e3b8a5f0}) OK
+win 8 ({0b255cb1-58de-46cf-b8bb-d2bf8e66bf6b}) PNG 646x513 stride=2584
+win 8 ({0b255cb1-58de-46cf-b8bb-d2bf8e66bf6b}) OK
+win 9 ({eed2d7f5-9268-46eb-bc34-fb855909cc01}) PNG 646x513 stride=2584
+win 9 ({eed2d7f5-9268-46eb-bc34-fb855909cc01}) OK
+fin: 10 ventanas con thumb
+dir=/tmp/mc-thumbs-539427
+workspace PNG 1280x800 stride=5120
+workspace OK (thumb activo)
+win 0 ({53b3987e-a9a2-4534-84cd-b39adcebbd69}) PNG 646x513 stride=2584
+win 0 ({53b3987e-a9a2-4534-84cd-b39adcebbd69}) OK
+win 1 ({b41ff25e-86eb-41db-be8e-d235d8ae786a}) PNG 908x493 stride=3632
+win 1 ({b41ff25e-86eb-41db-be8e-d235d8ae786a}) OK
+win 2 ({9644a76f-ad3e-4e88-9b47-8b8981be6c40}) PNG 908x493 stride=3632
+win 2 ({9644a76f-ad3e-4e88-9b47-8b8981be6c40}) OK
+win 3 ({a7f69e86-3b86-45cc-bb7c-3109b2cfeb67}) PNG 908x493 stride=3632
+win 3 ({a7f69e86-3b86-45cc-bb7c-3109b2cfeb67}) OK
+win 4 ({c3417e5c-9091-46f0-9635-5b3bc8804f55}) PNG 766x566 stride=3064
+win 4 ({c3417e5c-9091-46f0-9635-5b3bc8804f55}) OK
+win 5 ({bf879aed-ff73-4f14-8cc9-1d29910f184e}) PNG 646x513 stride=2584
+win 5 ({bf879aed-ff73-4f14-8cc9-1d29910f184e}) OK
+win 6 ({c4684ffb-2ae7-4ab0-9f4b-77a2c9ad8a61}) PNG 766x566 stride=3064
+win 6 ({c4684ffb-2ae7-4ab0-9f4b-77a2c9ad8a61}) OK
+win 7 ({ef9899a6-505f-4b46-988a-f666e3b8a5f0}) PNG 646x513 stride=2584
+win 7 ({ef9899a6-505f-4b46-988a-f666e3b8a5f0}) OK
+win 8 ({0b255cb1-58de-46cf-b8bb-d2bf8e66bf6b}) PNG 646x513 stride=2584
+win 8 ({0b255cb1-58de-46cf-b8bb-d2bf8e66bf6b}) OK
+win 9 ({eed2d7f5-9268-46eb-bc34-fb855909cc01}) PNG 646x513 stride=2584
+win 9 ({eed2d7f5-9268-46eb-bc34-fb855909cc01}) OK
+fin: 10 ventanas con thumb
+true
+[f7] thumbs_rc=0 shot=OK
+[f7] thumbs_rc=0 shot=OK
+[f7] total_antes=10
+[f7] total_antes=10
+[f7] drag1=KCalc -> Escritorio 4
+[f7] drag1=KCalc -> Escritorio 4
+[f7] total_tras1=10
+[f7] total_tras1=10
+[f7] drag2=KCalc -> Escritorio 1
+[f7] drag2=KCalc -> Escritorio 1
+dbus-daemon[538363]: [session uid=1000 pid=538363 pidfd=5] Activated service 'org.kde.KSplash' failed: Process org.kde.KSplash exited with status 1
+[f7] total_tras2=10
+[f7] total_tras2=10
+[f7] drag_same=KCalc -> Escritorio 1
+[f7] drag_same=KCalc -> Escritorio 1
+[f7] drag_invalid= rc=0
+[f7] drag_invalid= rc=0
+[f7] showingDesktop=true
+[f7] showingDesktop=true
+[f7] showingDesktop=false
+[f7] showingDesktop=false
+[f7] meta_ctrl_left_rc=0 currentDesktop=1
+[f7] meta_ctrl_left_rc=0 currentDesktop=1
+[f7] fps_intro=25
+[f7] fps_intro=25
+true
+[f7] rm_rc=0 shot=OK
+[f7] rm_rc=0 shot=OK
+[f7t10] st0=visible=true sel=0 expose=true rm=false wins=3
+[f7t10] st0=visible=true sel=0 expose=true rm=false wins=3
+[f7t10] 1-abrir=true
+[f7t10] 1-abrir=true
+[f7t10] key-Esc=ok:Escape vis=false
+[f7t10] key-Esc=ok:Escape vis=false
+[f7t10] 3-switch=currentDesktop=2
+[f7t10] 3-switch=currentDesktop=2
+[f7t10] 4-activar=KCalc
+[f7t10] 4-activar=KCalc
+[f7t10] 6-expose=ok:Tab st=visible=true sel=0 expose=false rm=false wins=10
+[f7t10] 6-expose=ok:Tab st=visible=true sel=0 expose=false rm=false wins=10
+[f7t10] key-Left=ok:Left st=visible=true sel=9 expose=false rm=false wins=10
+[f7t10] key-Left=ok:Left st=visible=true sel=9 expose=false rm=false wins=10
+[f7t10] key-Right=ok:Right st=visible=true sel=0 expose=false rm=false wins=10
+[f7t10] key-Right=ok:Right st=visible=true sel=0 expose=false rm=false wins=10
+[f7t10] key-Enter=ok:Enter vis=false
+[f7t10] key-Enter=ok:Enter vis=false
+[f7t10] 10-rm=visible=true sel=0 expose=false rm=false wins=10
+[f7t10] 10-rm=visible=true sel=0 expose=false rm=false wins=10
+-rw-r--r-- 1 jp jp 53194 nov  1 02:43 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-dual-grab.png
+-rw-r--r-- 1 jp jp 53194 nov  1 02:43 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-dual.png
+-rw-r--r-- 1 jp jp 64572 nov  1 02:47 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-grab.png
+-rw-r--r-- 1 jp jp 64329 nov  1 02:45 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-perf-grab.png
+-rw-r--r-- 1 jp jp 64528 nov  1 02:45 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-perf.png
+-rw-r--r-- 1 jp jp 64572 nov  1 02:48 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc.png
+-rw-r--r-- 1 jp jp 61647 nov  1 02:48 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-rm.png
+-rw-r--r-- 1 jp jp 64572 nov  1 02:47 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-spaces.png
+-rw-r--r-- 1 jp jp 62535 nov  1 02:48 /home/jp/Escritorio/Proyectos/NimbusShell-f7mc/spikes/nested/f7-mc-thumbs.png
+A connection to the bus can't be made

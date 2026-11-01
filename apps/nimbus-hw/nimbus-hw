@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# nimbus-hw — detección de hardware (Wi-Fi, impresora, audio, Bluetooth,
+# batería + GPU). Solo lectura, no root, no instala drivers.
+# Uso: nimbus-hw [--json] [--check]
+#   --json: salida JSON para KCM/Calamares. --check: alias solo lectura.
+set -u
+
+JSON=0
+for a in "$@"; do
+  case "$a" in
+    --json) JSON=1 ;;
+    --check|--help|-h) : ;;
+    *) echo "Uso: $0 [--json] [--check]" >&2; exit 1 ;;
+  esac
+done
+if [ "$(id -u)" -eq 0 ]; then
+  echo "ERROR: no ejecutar como root (solo lectura como usuario)" >&2; exit 1
+fi
+
+HERE="$(dirname "$0")"
+esc() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+
+# --- GPU: delega en nimbus-gpu-detect si existe ---
+GPU_VENDOR=unknown; GPU_DEVICE=""; GPU_DRIVER=none; GPU_RECOMMEND=mesa
+if [ -x "$HERE/nimbus-gpu-detect" ]; then
+  GJ="$("$HERE/nimbus-gpu-detect" --json 2>/dev/null || true)"
+  GPU_VENDOR="$(printf '%s' "$GJ" | sed -n 's/.*"vendor":"\([^"]*\)".*/\1/p')"
+  GPU_DEVICE="$(printf '%s' "$GJ" | sed -n 's/.*"device":"\([^"]*\)".*/\1/p')"
+  GPU_DRIVER="$(printf '%s' "$GJ" | sed -n 's/.*"driver":"\([^"]*\)".*/\1/p')"
+  GPU_RECOMMEND="$(printf '%s' "$GJ" | sed -n 's/.*"recommend":"\([^"]*\)".*/\1/p')"
+  [ -z "$GPU_VENDOR" ] && GPU_VENDOR=unknown
+else
+  GPU_DEVICE="$(lspci -nn 2>/dev/null | grep -iE 'vga|3d|display' | head -1 || true)"
+fi
+
+# --- Wi-Fi ---
+WIFI_DEV="-"; WIFI_STATE=ausente; WIFI_CHIP=""
+if command -v nmcli >/dev/null 2>&1; then
+  WL="$(nmcli -t -f DEVICE,TYPE,STATE dev 2>/dev/null | grep ':wifi' | head -1 || true)"
+  if [ -n "$WL" ]; then
+    WIFI_DEV="${WL%%:*}"
+    WIFI_STATE="$(printf '%s' "$WL" | awk -F: '{print $NF}')"
+  fi
+fi
+WCAND="$(lspci -nn 2>/dev/null | grep -iE 'network|wireless' | head -1 || true)"
+[ -n "$WCAND" ] && WIFI_CHIP="$WCAND"
+if [ "$WIFI_STATE" = ausente ] && [ -n "$WIFI_CHIP" ]; then WIFI_STATE="presente (sin nmcli activo)"; fi
+
+# --- Impresora ---
+PRINTERS=""; PR_DEFAULT="ninguna"
+if command -v lpstat >/dev/null 2>&1; then
+  PRINTERS="$(lpstat -e 2>/dev/null | tr '\n' ',' | sed 's/,$//' || true)"
+  PR_DEFAULT="$(lpstat -d 2>/dev/null | sed 's/.*: //' || true)"
+  [ -z "$PR_DEFAULT" ] && PR_DEFAULT="ninguna"
+  [ -z "$PRINTERS" ] && PRINTERS="ninguna detectada"
+else
+  PRINTERS="lpstat ausente (sin CUPS)"
+fi
+
+# --- Audio ---
+AUDIO_SINK="desconocido"; AUDIO_SERVER="ninguno"
+if command -v pactl >/dev/null 2>&1; then
+  AUDIO_SERVER="pulse/pipewire-pactl"
+  AUDIO_SINK="$(pactl get-default-sink 2>/dev/null || pactl list short sinks 2>/dev/null | head -1 || true)"
+elif [ -f /proc/asound/cards ]; then
+  AUDIO_SERVER="alsa"
+  AUDIO_SINK="$(grep -E '^[ 0-9]+ \[' /proc/asound/cards 2>/dev/null | head -1 || true)"
+fi
+[ -z "$AUDIO_SINK" ] && AUDIO_SINK="sin salida"
+
+# --- Bluetooth ---
+BT_STATE="ausente"; BT_DEV=""
+if command -v bluetoothctl >/dev/null 2>&1; then
+  if bluetoothctl show 2>/dev/null | grep -q 'Powered: yes'; then BT_STATE="activo";
+  elif bluetoothctl list 2>/dev/null | grep -q 'default'; then BT_STATE="presente (apagado)";
+  elif [ -n "$(lsusb 2>/dev/null | grep -i bluetooth || true)" ]; then BT_STATE="presente (sin agente)"; fi
+  BT_DEV="$(bluetoothctl list 2>/dev/null | head -1 || true)"
+elif [ -n "$(lsusb 2>/dev/null | grep -i bluetooth || true)" ]; then
+  BT_STATE="presente (sin bluetoothctl)"; BT_DEV="$(lsusb 2>/dev/null | grep -i bluetooth | head -1)"
+fi
+
+# --- Batería ---
+BAT_STATE="sin batería (sobremesa/VM)"; BAT_LEVEL=""
+for b in /sys/class/power_supply/BAT*; do
+  [ -d "$b" ] || continue
+  CAP="$(cat "$b/capacity" 2>/dev/null || echo "?")"
+  ST="$(cat "$b/status" 2>/dev/null || echo "?")"
+  BAT_LEVEL="$CAP%"; BAT_STATE="$ST"; break
+done
+
+if [ "$JSON" -eq 1 ]; then
+  printf '{"gpu":{"vendor":"%s","device":"%s","driver":"%s","recommend":"%s"},' \
+    "$(esc "$GPU_VENDOR")" "$(esc "$GPU_DEVICE")" "$(esc "$GPU_DRIVER")" "$(esc "$GPU_RECOMMEND")"
+  printf '"wifi":{"device":"%s","state":"%s","chip":"%s"},' \
+    "$(esc "$WIFI_DEV")" "$(esc "$WIFI_STATE")" "$(esc "$WIFI_CHIP")"
+  printf '"printers":"%s","printer_default":"%s",' \
+    "$(esc "$PRINTERS")" "$(esc "$PR_DEFAULT")"
+  printf '"audio":{"server":"%s","sink":"%s"},' \
+    "$(esc "$AUDIO_SERVER")" "$(esc "$AUDIO_SINK")"
+  printf '"bluetooth":{"state":"%s","device":"%s"},' \
+    "$(esc "$BT_STATE")" "$(esc "$BT_DEV")"
+  printf '"battery":{"state":"%s","level":"%s"}}\n' \
+    "$(esc "$BAT_STATE")" "$(esc "$BAT_LEVEL")"
+else
+  printf 'gpu:       %s | %s (driver %s → %s)\n' "$GPU_VENDOR" "$GPU_DEVICE" "$GPU_DRIVER" "$GPU_RECOMMEND"
+  printf 'wifi:      %s [%s] %s\n' "$WIFI_DEV" "$WIFI_STATE" "$WIFI_CHIP"
+  printf 'impresora: %s (defecto: %s)\n' "$PRINTERS" "$PR_DEFAULT"
+  printf 'audio:     %s | %s\n' "$AUDIO_SERVER" "$AUDIO_SINK"
+  printf 'bluetooth: %s %s\n' "$BT_STATE" "$BT_DEV"
+  printf 'batería:   %s %s\n' "$BAT_STATE" "$BAT_LEVEL"
+  printf 'nota:      solo detección; no instala drivers (ver nimbus-gpu-setup).\n'
+fi

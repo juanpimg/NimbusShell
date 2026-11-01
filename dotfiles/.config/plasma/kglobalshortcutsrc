@@ -1,9 +1,12 @@
 [KDE Keyboard Layout Switcher]
 Switch to Next Keyboard Layout=none,none,libera Meta+Espacio para KRunner
 
+[ksmserver]
+Lock Session=Meta+Ctrl+Q,Meta+Ctrl+Q,bloquear sesión (≈Cmd+Ctrl+Q macOS; única excepción Ctrl documentada F10-T04)
+
 [kwin]
 Expose=Meta+E,Meta+E,Exposé del escritorio actual
-Overview=Meta+W,Meta+W,Mission Control (Vista Overview)
+Overview=none,none,Mission Control Nimbus (Meta+W via nimbus-mc; stock off, R-MC-STOCK)
 Show Desktop=Meta+D,Meta+D,mostrar escritorio
 Switch One Desktop Down=Meta+Ctrl+Down,Meta+Ctrl+Down,Space inferior (Ctrl permitido)
 Switch One Desktop Up=Meta+Ctrl+Up,Meta+Ctrl+Up,Space superior (Ctrl permitido)

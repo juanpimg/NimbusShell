@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Bienvenida de Nimbus
+Comment=Asistente de primer arranque (6 pasos)
+Exec=nimbus-welcome
+Icon=system-help
+Categories=Utility;Settings;
+X-Nimbus-AppId=org.nimbus.welcome

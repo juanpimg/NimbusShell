@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Música
+Exec=nimbus-musica %U
+Icon=multimedia-audio-player
+Categories=AudioVideo;Audio;Player;
+Keywords=musica;canciones;

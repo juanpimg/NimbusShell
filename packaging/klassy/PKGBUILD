@@ -1,0 +1,51 @@
+# Maintainer: NimbusShell <https://github.com/nimbusshell>
+# Klassy Nimbus: decoración KWin estilo macOS Tahoe (Klassy 6.7.3 pinneado
+# + parche "+" de maximizar + preset nimbus-tahoe). Sin activos Apple.
+pkgname=klassy-nimbus
+pkgver=6.7.3
+pkgrel=1
+pkgdesc="Klassy 6.7.3 pinneado con parche macOS '+' y preset Nimbus Tahoe (KWin decoration)"
+arch=('x86_64')
+url="https://github.com/paulmcauley/klassy"
+license=('GPL-2.0-or-later')
+# No usar el AUR stock (klassy-bin/klassy-git): van a latest/master sin pin
+# y sin el parche Nimbus (el "+" de maximizar) ni el preset. Ver README.md.
+conflicts=('klassy' 'klassy-bin' 'klassy-git')
+provides=("klassy=${pkgver}")
+source=("klassy-${pkgver}.tar.gz::https://github.com/paulmcauley/klassy/archive/refs/tags/v${pkgver}.tar.gz"
+        "klassy-hover-plus.patch"
+        "nimbus-tahoe.klpw")
+sha256sums=('a3e9b96723cda1b3c46d6f456d495e5e34d051940e6f71aa9a345e8fb850e1fb'
+            'SKIP'
+            'SKIP')
+makedepends=('cmake' 'ninja' 'extra-cmake-modules')
+depends=('gcc-libs' 'glibc'
+         'qt6-base' 'qt6-svg' 'qt6-declarative'
+         'kcolorscheme' 'kcompletion' 'kconfig' 'kconfigwidgets'
+         'kcoreaddons' 'kcmutils' 'frameworkintegration'
+         'kguiaddons' 'ki18n' 'kiconthemes' 'kwindowsystem'
+         'kdecoration')
+
+prepare() {
+  cd "klassy-${pkgver}"
+  # NimbusOS Ruling: "+" estilo macOS en maximizar (ver
+  # packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.patch).
+  patch -p1 < "${srcdir}/klassy-hover-plus.patch"
+}
+
+build() {
+  cmake -S "klassy-${pkgver}" -B build -G Ninja \
+    -DBUILD_QT5=OFF \
+    -DBUILD_QT6=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
+}
+
+package() {
+  DESTDIR="${pkgdir}" cmake --install build
+  # Preset Tahoe: se instala junto al paquete para aplicar con
+  # `klassy-settings -i /usr/share/klassy-nimbus/nimbus-tahoe.klpw`.
+  install -Dm644 nimbus-tahoe.klpw \
+    "${pkgdir}/usr/share/klassy-nimbus/nimbus-tahoe.klpw"
+}

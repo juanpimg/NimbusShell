@@ -1,0 +1,525 @@
+#!/usr/bin/env bash
+# nimbus-i18n — dueño único de i18n (F11-T05): extrae, verifica y publica.
+# Sin root, sin red, solo lectura salvo --extract/--cheatsheet (escriben
+# i18n/*.ts y docs/user-guide/shortcuts.md dentro del repo).
+# Uso: scripts/nimbus-i18n [--extract|--check|--stats|--cheatsheet|--help]
+set -u
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CMD="${1:- --help}"
+
+case "$CMD" in
+    --extract|--check|--stats|--cheatsheet) ;;
+    -h|--help)
+        echo "Uso: scripts/nimbus-i18n [--extract|--check|--stats|--cheatsheet]"
+        echo "  --extract    regenera i18n/nimbus_es.ts y nimbus_en.ts desde QML/JS"
+        echo "  --check      falla si hay TS desincronizado o cadenas sin traducir"
+        echo "  --stats      cobertura es/en por contexto (solo lectura)"
+        echo "  --cheatsheet regenera docs/user-guide/shortcuts.md desde kglobalshortcutsrc"
+        exit 0 ;;
+    *) echo "ERROR: argumento desconocido: $CMD (ver --help)" >&2; exit 2 ;;
+esac
+
+exec python3 - "$CMD" "$ROOT" <<'PYEOF'
+import configparser
+import re
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+CMD, ROOT = sys.argv[1], Path(sys.argv[2])
+I18N = ROOT / "i18n"
+GUIDE = ROOT / "docs" / "user-guide"
+SHORTCUTS_SRC = ROOT / "dotfiles" / ".config" / "plasma" / "kglobalshortcutsrc"
+
+SOURCES = [
+    ("Welcome", "apps/nimbus-welcome/qml/Welcome.qml"),
+    ("WelcomeI18n", "apps/nimbus-welcome/qml/I18n.js"),
+    ("Spotlight", "apps/nimbus-spotlight/qml/Spotlight.qml"),
+    ("AppsWindow", "apps/nimbus-apps/qml/AppsWindow.qml"),
+    ("BarMenu", "packages/shell/nimbus-bar/qml/Menu.qml"),
+    ("BarControlCenter", "packages/shell/nimbus-bar/qml/ControlCenter.qml"),
+    ("BarCalendar", "packages/shell/nimbus-bar/qml/Calendar.qml"),
+    ("BarGlobalMenu", "packages/shell/nimbus-bar/qml/GlobalMenu.qml"),
+    ("BarStatusArea", "packages/shell/nimbus-bar/qml/StatusArea.qml"),
+    ("BarOSD", "packages/shell/nimbus-bar/qml/OSD.qml"),
+    ("Bar", "packages/shell/nimbus-bar/qml/Bar.qml"),
+    ("KcmAccessibility", "packages/kcm/kcm_nimbus/ui/AccessibilityPage.qml"),
+    ("KcmAppearance", "packages/kcm/kcm_nimbus/ui/AppearancePage.qml"),
+    ("KcmMain", "packages/kcm/kcm_nimbus/ui/main.qml"),
+    ("KcmNetwork", "packages/kcm/kcm_nimbus/ui/NetworkPage.qml"),
+    ("KcmShortcuts", "packages/kcm/kcm_nimbus/ui/ShortcutsPage.qml"),
+    ("KcmSystem", "packages/kcm/kcm_nimbus/ui/SystemPage.qml"),
+    ("KcmUpdates", "packages/kcm/kcm_nimbus/ui/UpdatesPage.qml"),
+]
+
+STR = r'"((?:[^"\\]|\\.)*)"'
+PATS = [
+    re.compile(r'qsTrn?\(\s*' + STR),
+    re.compile(r'\bi18n\(\s*' + STR),
+    re.compile(r'\broot\.t\(\s*' + STR),
+    re.compile(r'\bI18n\.tr\(\s*' + STR),
+    re.compile(r'(?:^|[\s:{,])(?:text|placeholderText|label|title|Accessible\.name|Accessible\.description)\s*:\s*' + STR),
+]
+
+# Cadenas visibles compuestas en JS (ternarios/concatenaciones) que el
+# regex de propiedades no caza; dueño: este fichero (F11-T05).
+MANUAL = {
+    "Welcome": ["Bienvenida", "Mac", "Windows",
+                "Cmd con Meta, sem\u00e1foros a la izquierda, Dock abajo.",
+                "Ctrl y Alt cl\u00e1sicos, botones a la derecha.",
+                "Mezcla: Meta para apps, Ctrl para Spaces."],
+    "Spotlight": ["Archivos", "Portapapeles", "Abrir", "Revelar",
+                  "caras", "gestos", "animales", "comida", "naturaleza",
+                  "objetos", "simbolos", "viajes",
+                  "Escribe para buscar con KRunner",
+                  "Latencia: ", " ms \u00b7 ", " resultados", " \u00b7 Nimbus",
+                  " \u00b7 KRunner", "Motor: ", "Motor ", " de ", " y cerrar",
+                  "Sin resultados"],
+    "AppsWindow": ["Todas", "Suggestions", "Productividad", "Desarrollo",
+                   "Gr\u00e1ficos", "Juegos", "Multimedia", "Utilidades",
+                   "Internet", "Ajustes", "\u2630 Lista", "\u25a6 Iconos",
+                   " apps"],
+    "BarCalendar": ["enero", "febrero", "marzo", "abril", "mayo", "junio",
+                    "julio", "agosto", "septiembre", "octubre", "noviembre",
+                    "diciembre", "L", "M", "X", "J", "V", "S", "D"],
+    "BarOSD": ["Volumen \u2014", "Brillo \u2014", "Volumen ", "Brillo "],
+}
+
+EN = {
+    "%1 (%2)": "%1 (%2)", "%1 de 3": "%1 of 3", "%1 ms": "%1 ms",
+    "%1/s": "%1/s", "\u2026y %1 m\u00e1s.": "\u2026and %1 more.",
+    "Abrir": "Open", "Abrir Discover": "Open Discover",
+    "Abrir el editor avanzado de atajos": "Open the advanced shortcuts editor",
+    "Abrir la tienda Discover para instalar": "Open the Discover store to install",
+    "Abrir los ajustes de Bluetooth originales": "Open the original Bluetooth settings",
+    "Abrir los ajustes de red originales": "Open the original network settings",
+    "Abrir los ajustes originales de idioma": "Open the original language settings",
+    "Abrir los ajustes originales de usuarios y fecha": "Open the original users and date settings",
+    "Accesibilidad": "Accessibility", "Acciones": "Actions",
+    "Acerca de Nimbus": "About Nimbus",
+    "Activa la lupa con Meta + \u00ab+\u00bb y Meta + \u00ab\u2212\u00bb.": "Zoom with Meta + \u201c+\u201d and Meta + \u201c\u2212\u201d.",
+    "Activar el lector de pantalla Orca": "Turn on the Orca screen reader",
+    "Activar o apagar el Bluetooth": "Turn Bluetooth on or off",
+    "Activar o apagar el wifi": "Turn Wi-Fi on or off",
+    "Actualizaciones": "Updates", "Ahorro": "Power saver",
+    "Ajustes": "Settings", "Ajustes Nimbus": "Nimbus Settings",
+    "Ajustes de Bluetooth avanzados": "Advanced Bluetooth settings",
+    "Ajustes de red avanzados": "Advanced network settings",
+    "Ajustes del sistema en lenguaje claro": "System settings in plain language",
+    "Ajustes del sistema\u2026": "System Settings\u2026",
+    "Alterna entre vista de iconos y de lista. Pulsa Espacio para cambiar.": "Switch between icon and list view. Press Space to change.",
+    "Altura de la barra superior": "Top bar height",
+    "Altura de la barra:": "Bar height:",
+    "Ampliaci\u00f3n al pasar:": "Hover magnification:",
+    "Ampliaci\u00f3n de iconos al pasar el rat\u00f3n": "Icon magnification on hover",
+    "Ampliar la pantalla con el teclado": "Zoom the screen with the keyboard",
+    "Ampliar la pantalla con la lupa de KWin": "Zoom the screen with the KWin magnifier",
+    "Apagar\u2026": "Shut Down\u2026", "Aparatos:": "Devices:",
+    "Apariencia": "Appearance", "Apariencia:": "Look:",
+    "Aplicar": "Apply", "Aplicar dise\u00f1o": "Apply layout",
+    "Apps": "Apps", "Apps recomendadas": "Recommended apps",
+    "Apps, vista iconos": "Apps, icon view", "Apps, vista lista": "Apps, list view",
+    "Archivos": "Files", "Atajos": "Shortcuts", "Atr\u00e1s": "Back",
+    "Autom\u00e1tica:": "Automatic:", "Autom\u00e1tico": "Automatic",
+    "Autom\u00e1tico seg\u00fan el tema": "Automatic for the theme",
+    "Avisar cada d\u00eda si hay pendientes": "Notify daily if updates are pending",
+    "Aviso diario:": "Daily notice:", "A\u00fan sin comprobar.": "Not checked yet.",
+    "A\u2013L elige \u00b7 Tab navega \u00b7 Ctrl+Tab=KRunner \u00b7 Esc cierra": "A\u2013L picks \u00b7 Tab moves \u00b7 Ctrl+Tab=KRunner \u00b7 Esc closes",
+    "BT": "BT", "Barra y animaciones": "Bar and animations",
+    "Bater\u00eda ": "Battery ", "Bater\u00eda (placeholder)": "Battery (placeholder)",
+    "Bienvenida": "Welcome", "Bloquear": "Lock", "Bluetooth": "Bluetooth",
+    "Bluetooth (placeholder)": "Bluetooth (placeholder)", "Bluetooth:": "Bluetooth:",
+    "Brillo ": "Brightness ", "Brillo \u2014": "Brightness \u2014",
+    "Buscando\u2026": "Searching\u2026", "Buscar": "Search",
+    "Buscar ajustes": "Search settings", "Buscar ajustes\u2026": "Search settings\u2026",
+    "Buscar apps": "Search apps", "Buscar en KRunner": "Search in KRunner",
+    "Buscar en KRunner (Ctrl+Tab)": "Search in KRunner (Ctrl+Tab)",
+    "Buscar en Spotlight": "Search in Spotlight",
+    "Buscar redes": "Scan networks", "Buscar redes wifi": "Scan for Wi-Fi networks",
+    "Cambiar de aplicaci\u00f3n": "Switch application",
+    "Cambiar el nombre o a\u00f1adir personas necesita permiso de administrador.": "Renaming or adding people needs an administrator password.",
+    "Cambiar vista": "Change view", "Campo de b\u00fasqueda Spotlight": "Spotlight search field",
+    "Captura de pantalla": "Screenshot", "Categor\u00eda de emoji": "Emoji category",
+    "Categor\u00edas": "Categories", "Centro de control": "Control Center",
+    "Cerrar sesi\u00f3n": "Log Out", "Cerrar ventana": "Close window",
+    "Chuleta": "Cheat sheet", "Claro": "Light",
+    "Claro u oscuro y tu color de acento. Se aplica con nimbus-theme.": "Light or dark and your accent color. Applied with nimbus-theme.",
+    "Color de acento": "Accent color", "Color de acento:": "Accent color:",
+    "Colores:": "Colors:", "Comprobando\u2026": "Checking\u2026",
+    "Comprobar actualizaciones ahora": "Check for updates now",
+    "Comprobar ahora": "Check now", "Conectado": "Connected",
+    "Conectado a %1": "Connected to %1", "Conectar": "Connect",
+    "Conectar a %1": "Connect to %1", "Contrase\u00f1a": "Password",
+    "Contrase\u00f1a de %1": "Password for %1", "Contrase\u00f1a del wifi": "Wi-Fi password",
+    "Contrase\u00f1a del wifi (no se guarda)": "Wi-Fi password (not saved)",
+    "Con\u00e9ctate para terminar de configurar el sistema. Puedes omitir este paso.": "Connect to finish setting up the system. You may skip this step.",
+    "Copiar": "Copy",
+    "Crea un temporizador de usuario (sin root). Se guarda con \u00abAplicar\u00bb.": "Creates a user timer (no root). Saved with \u201cApply\u201d.",
+    "Ctrl": "Ctrl", "Ctrl y Alt cl\u00e1sicos, botones a la derecha.": "Classic Ctrl and Alt, buttons on the right.",
+    "Cmd con Meta, sem\u00e1foros a la izquierda, Dock abajo.": "Cmd with Meta, traffic lights on the left, Dock at the bottom.",
+    "Desarrollo": "Development", "Dise\u00f1o": "Layout", "Dock": "Dock",
+    "Dormir": "Sleep",
+    "Discover no est\u00e1 instalado; actualiza con pacman en un terminal.": "Discover is not installed; update with pacman in a terminal.",
+    "Editor avanzado": "Advanced editor",
+    "El modo Cmd no crea atajos Ctrl nuevos. El modo Ctrl es voluntario. Se aplica con \u00abAplicar\u00bb y rige tras reiniciar la sesi\u00f3n.": "Cmd mode creates no new Ctrl shortcuts. Ctrl mode is opt-in. Applied with \u201cApply\u201d, takes effect after re-login.",
+    "Elegido:": "Selected:", "Elegir color de acento": "Pick accent color",
+    "Elegir fondo": "Choose background", "Elegir foto\u2026": "Choose photo\u2026",
+    "Elegir imagen de fondo": "Choose background image", "Elegir\u2026": "Choose\u2026",
+    "Elige c\u00f3mo se comporta tu escritorio. Mac es el predeterminado.": "Choose how your desktop behaves. Mac is the default.",
+    "Elige tu idioma. Se aplicar\u00e1 a todo el sistema.": "Choose your language. It will apply to the whole system.",
+    "Emoji": "Emoji", "Energ\u00eda:": "Power:",
+    "Enter: copiar y cerrar": "Enter: copy and close",
+    "Equilibrado": "Balanced", "Equipo:": "Computer:", "Eres t\u00fa": "That\u2019s you",
+    "Escribe para buscar con KRunner": "Type to search with KRunner",
+    "Escribe para buscar. Flechas arriba y abajo cambian la selecci\u00f3n. Tab recorre los controles. Control Tab usa KRunner. Escape cierra.": "Type to search. Up and down arrows change the selection. Tab moves through controls. Control Tab uses KRunner. Escape closes.",
+    "Espa\u00f1ol": "Spanish", "Estado de las actualizaciones": "Update status",
+    "Estado:": "Status:",
+    "Este equipo guarda copias (snapper): si algo se rompe al actualizar, puedes volver atr\u00e1s.": "This computer keeps copies (snapper): if an update breaks something, you can go back.",
+    "Este equipo no guarda copias autom\u00e1ticas.": "This computer keeps no automatic copies.",
+    "Este equipo no tiene Bluetooth.": "This computer has no Bluetooth.",
+    "Este equipo no tiene wifi.": "This computer has no Wi-Fi.",
+    "Este equipo no usa paquetes de Arch.": "This computer does not use Arch packages.",
+    "Expos\u00e9 del escritorio": "Desktop Expos\u00e9",
+    "Fecha y hora": "Date and time",
+    "Filtra los emoji por categor\u00eda": "Filter emoji by category",
+    "Filtra por nombre. Tab pasa al selector de vista. Escape oculta la ventana.": "Filter by name. Tab moves to the view switcher. Escape hides the window.",
+    "Firefox \u2014 navegador": "Firefox \u2014 browser",
+    "Flechas arriba y abajo para cambiar de categor\u00eda. Enter pasa a las apps.": "Up and down arrows change category. Enter moves to the apps.",
+    "Flechas arriba y abajo para elegir app. Enter lanza. Tab vuelve al buscador.": "Up and down arrows pick an app. Enter launches. Tab goes back to search.",
+    "Flechas arriba y abajo para elegir. Teclas A a L saltan al resultado. Enter abre. Tab sigue a las acciones.": "Up and down arrows pick. Keys A to L jump to results. Enter opens. Tab moves to actions.",
+    "Flechas para elegir app. Enter lanza. Tab vuelve al buscador.": "Arrows pick an app. Enter launches. Tab goes back to search.",
+    "Fondo actual": "Current background", "Fondo:": "Background:",
+    "GIMP \u2014 imagen": "GIMP \u2014 image", "Gr\u00e1ficos": "Graphics",
+    "Historial": "History", "Idioma": "Language",
+    "Idioma avanzado": "Advanced language", "Idioma del sistema": "System language",
+    "Idioma y energ\u00eda": "Language and power", "Idioma:": "Language:",
+    "Impresoras": "Printers",
+    "Im\u00e1genes (*.jpg *.jpeg *.png *.webp)": "Images (*.jpg *.jpeg *.png *.webp)",
+    "Ingl\u00e9s": "English",
+    "Instalar y actualizar se hace en Discover.": "Installing and updating happens in Discover.",
+    "Instalar y volver atr\u00e1s": "Install and roll back",
+    "Internet": "Internet", "Invertir los colores de la pantalla": "Invert screen colors",
+    "Juegos": "Games", "Lector de pantalla": "Screen reader",
+    "Leer en voz alta lo que hay en pantalla": "Read aloud what is on screen",
+    "LibreOffice \u2014 oficina": "LibreOffice \u2014 office",
+    "Listo para despegar": "Ready to go",
+    "Los cambios de energ\u00eda aplican al momento. Lo dem\u00e1s lo guarda su propio ajuste (puede pedir tu contrase\u00f1a).": "Power changes apply at once. The rest is saved by its own settings (may ask for your password).",
+    "Mac": "Mac",
+    "Marca las que quieras descubrir. No se instala nada ahora: las ver\u00e1s en Descubrir.": "Tick the ones you want to explore. Nothing is installed now: you will find them in Discover.",
+    "Mezcla: Meta para apps, Ctrl para Spaces.": "Mix: Meta for apps, Ctrl for Spaces.",
+    "Milisegundos antes de repetir": "Milliseconds before repeating",
+    "Minimizar ventana": "Minimize window",
+    "Mission Control (Overview)": "Mission Control (Overview)",
+    "Mostrar escritorio": "Show desktop", "Motor ": "Engine ",
+    "Motor: ": "Engine: ", "Motor: KRunner (fallback)": "Engine: KRunner (fallback)",
+    "Movimiento:": "Motion:", "Multimedia": "Multimedia", "M\u00e1ximo": "Performance",
+    "Nimbus": "Nimbus", "No": "No",
+    "No disponible en este sistema.": "Not available on this system.",
+    "No molestar": "Do Not Disturb", "Nombre del equipo": "Computer name",
+    "Ocultar autom\u00e1ticamente el Dock": "Automatically hide the Dock",
+    "Ocultar el Dock cuando no se usa": "Hide the Dock when not in use",
+    "Ocultar solo:": "Auto-hide:", "Omitir": "Skip",
+    "Orca no est\u00e1 instalado: el interruptor se guardar\u00e1, pero no habr\u00e1 voz hasta instalarlo.": "Orca is not installed: the switch will be saved, but there will be no voice until you install it.",
+    "Orca:": "Orca:", "Oscuro": "Dark", "Pegar": "Paste",
+    "Pendientes:": "Pending:", "Perfil de energ\u00eda %1": "Power profile %1",
+    "Personas:": "People:", "Pesta\u00f1as de b\u00fasqueda": "Search tabs",
+    "Poner la hora por internet": "Set time from the internet",
+    "Portapapeles": "Clipboard", "Productividad": "Productivity",
+    "Programar comprobaci\u00f3n diaria": "Schedule daily check",
+    "Pulsa Enter para ": "Press Enter to ",
+    "Pulsa Enter para mostrar esta pesta\u00f1a": "Press Enter to show this tab",
+    "Pulsa Enter para mostrar esta vista del portapapeles": "Press Enter to show this clipboard view",
+    "Pulsa Enter para repetir la b\u00fasqueda con el motor KRunner. Atajo Control Tab.": "Press Enter to repeat the search with the KRunner engine. Control Tab shortcut.",
+    "Quitar transparencias y desenfoques": "Remove transparencies and blur",
+    "Red": "Network", "Red protegida": "Secured network", "Redes:": "Networks:",
+    "Reducir las animaciones": "Reduce animations", "Reiniciar\u2026": "Restart\u2026",
+    "Reloj": "Clock", "Repeticiones por segundo": "Repeats per second",
+    "Repetici\u00f3n:": "Repeat:",
+    "Repetir la tecla al mantenerla pulsada": "Repeat key while held down",
+    "Restablecer esta secci\u00f3n": "Reset this section",
+    "Restablecer esta secci\u00f3n a valores Nimbus": "Reset this section to Nimbus values",
+    "Resultados": "Results", "Retardo:": "Delay:", "Revelar": "Reveal",
+    "Secciones de ajustes": "Settings sections", "Siguiente": "Next",
+    "Sin aparatos vinculados.": "No paired devices.",
+    "Sin impresoras configuradas.": "No printers configured.",
+    "Sin perfiles de energ\u00eda en este equipo.": "No power profiles on this computer.",
+    "Sin redes a la vista. Pulsa \u00abBuscar redes\u00bb.": "No networks in sight. Press \u201cScan networks\u201d.",
+    "Sin resultados": "No results",
+    "Sin soporte de impresi\u00f3n en este equipo (falta CUPS).": "No printing support on this computer (CUPS missing).",
+    "Sincronizar la hora por internet": "Sync time from the internet",
+    "Sistema": "System", "Spotlight": "Spotlight",
+    "Spotlight (KRunner)": "Spotlight (KRunner)", "Suggestions": "Suggestions",
+    "S\u00ed": "Yes", "Tama\u00f1o de icono del Dock": "Dock icon size",
+    "Tama\u00f1o de icono:": "Icon size:",
+    "Te damos la bienvenida a Nimbus": "Welcome to Nimbus",
+    "Tecla de comando:": "Command key:", "Teclado": "Keyboard",
+    "Tema claro": "Light theme", "Tema oscuro": "Dark theme",
+    "Terminar": "Finish",
+    "Tienes %1 actualizaciones pendientes.": "You have %1 pending updates.",
+    "Todas": "All", "Todo al d\u00eda. Buen trabajo.": "All up to date. Nice work.",
+    "Todo se aplica al pulsar \u00abAplicar\u00bb. KWin relee su configuraci\u00f3n solo; el resto aplica al reiniciar la sesi\u00f3n.": "Everything applies when you press \u201cApply\u201d. KWin re-reads its own configuration; the rest applies after re-login.",
+    "Todo se aplica al pulsar \u00abAplicar\u00bb. La barra y el Dock nuevos aplican al reiniciar la sesi\u00f3n; \u00abPredeterminados\u00bb recupera los valores Nimbus.": "Everything applies when you press \u201cApply\u201d. The new bar and Dock apply after re-login; \u201cDefaults\u201d restores Nimbus values.",
+    "Transparencia:": "Transparency:", "Tu cuenta": "Your account",
+    "Tu nombre": "Your name",
+    "Un escritorio familiar, r\u00e1pido y tuyo. Este asistente te deja todo listo en menos de 5 minutos.": "A familiar, fast desktop of your own. This assistant gets everything ready in under 5 minutes.",
+    "Usar Control como tecla de comando": "Use Control as command key",
+    "Usar Meta como tecla de comando": "Use Meta as command key",
+    "Usuarios y fecha avanzados": "Advanced users and date",
+    "Utilidades": "Utilities", "VLC \u2014 v\u00eddeo": "VLC \u2014 video",
+    "Velocidad de animaci\u00f3n:": "Animation speed:",
+    "Velocidad de las animaciones": "Animation speed", "Velocidad:": "Speed:",
+    "Ver:": "See:", "Vista Emoji": "Emoji view",
+    "Vista Historial": "History view", "Vista previa:": "Preview:",
+    "Vistas del portapapeles": "Clipboard views", "Volumen ": "Volume ",
+    "Volumen \u2014": "Volume \u2014", "Volver al fondo autom\u00e1tico": "Back to automatic background",
+    "Wi-Fi": "Wi-Fi", "Wi-Fi (placeholder)": "Wi-Fi (placeholder)",
+    "Wifi": "Wi-Fi", "Wifi:": "Wi-Fi:", "Windows": "Windows",
+    "Ya est\u00e1 todo. Este es tu escritorio Nimbus: men\u00fa arriba, Dock abajo, Spotlight con Cmd+Espacio.": "All set. This is your Nimbus desktop: menu on top, Dock at the bottom, Spotlight with Cmd+Space.",
+    "Zona horaria": "Time zone", "Zona:": "Zone:", "de": "of", " de ": " of ",
+    " ms \u00b7 ": " ms \u00b7 ", " resultados": " results",
+    " \u00b7 Nimbus": " \u00b7 Nimbus", " \u00b7 KRunner": " \u00b7 KRunner",
+    " y cerrar": " and close",
+    " apps": " apps",
+    "\u2630 Lista": "\u2630 List", "\u25a6 Iconos": "\u25a6 Icons",
+    "\u2318 Cmd (Meta)": "\u2318 Cmd (Meta)", "\u2318Q": "\u2318Q",
+    "enero": "January", "febrero": "February", "marzo": "March",
+    "abril": "April", "mayo": "May", "junio": "June", "julio": "July",
+    "agosto": "August", "septiembre": "September", "octubre": "October",
+    "noviembre": "November", "diciembre": "December",
+    "L": "M", "M": "T", "X": "W", "J": "T", "V": "F", "S": "S", "D": "S",
+    "caras": "faces", "gestos": "gestures", "animales": "animals",
+    "comida": "food", "naturaleza": "nature", "objetos": "objects",
+    "simbolos": "symbols", "viajes": "travel",
+    "Latencia: ": "Latency: ",
+    # Identidad: s\u00edmbolos e IDs internos de ventana (no traducibles).
+    "N": "N", "nimbus-bar": "nimbus-bar", "nimbus-cal": "nimbus-cal",
+    "nimbus-cal-scrim": "nimbus-cal-scrim", "nimbus-cc": "nimbus-cc",
+    "nimbus-cc-scrim": "nimbus-cc-scrim",
+    "nimbus-globalmenu": "nimbus-globalmenu",
+    "nimbus-globalmenu-scrim": "nimbus-globalmenu-scrim",
+    "nimbus-menu": "nimbus-menu", "nimbus-menu-scrim": "nimbus-menu-scrim",
+    "nimbus-osd": "nimbus-osd", "nimbus-osd-scrim": "nimbus-osd-scrim",
+    "nimbus-tray-menu": "nimbus-tray-menu",
+    "nimbus-tray-scrim": "nimbus-tray-scrim",
+    "\U0001f50d": "\U0001f50d", "\u2026": "\u2026", "\u2039": "\u2039",
+    "\u203a": "\u203a", "\u2713": "\u2713", "\U0001f512": "\U0001f512",
+    "\u00bf": "\u00bf", "?": "?",
+    "\u00bfC\u00f3mo te llamas? Tu nombre aparece en el men\u00fa y la pantalla de bloqueo.": "What is your name? It shows in the menu and the lock screen.",
+}
+
+MAC = {
+    "Switch to Next Keyboard Layout": "\u2014 (liberada para KRunner)",
+    "Lock Session": "Cmd+Ctrl+Q",
+    "Expose": "F11 (Expos\u00e9)",
+    "Overview": "F3 / Ctrl+\u2191 (Mission Control)",
+    "Show Desktop": "F11",
+    "Switch One Desktop Down": "Ctrl+\u2193",
+    "Switch One Desktop Up": "Ctrl+\u2191",
+    "Switch One Desktop to the Left": "Ctrl+\u2190",
+    "Switch One Desktop to the Right": "Ctrl+\u2192",
+    "Walk Through Windows": "Cmd+Tab",
+    "Walk Through Windows (Reverse)": "Cmd+May\u00fas+Tab",
+    "Walk Through Windows of Current Application": "Cmd+`",
+    "Window Close": "Cmd+Q",
+    "Window Fullscreen": "bot\u00f3n verde / Fn+F",
+    "Window Maximize": "Opt+clic verde",
+    "Window Minimize": "Cmd+M",
+    "Window One Desktop Down": "arrastrar + Ctrl+n",
+    "Window One Desktop Up": "arrastrar + Ctrl+n",
+    "Window One Desktop to the Left": "arrastrar + Ctrl+n",
+    "Window One Desktop to the Right": "arrastrar + Ctrl+n",
+    "Window Quick Tile Bottom": "arrastrar al borde",
+    "Window Quick Tile Left": "arrastrar al borde",
+    "Window Quick Tile Right": "arrastrar al borde",
+    "Window Quick Tile Top": "arrastrar al borde",
+    "activate task manager entry 1": "Cmd+1 (reservado)",
+    "activate task manager entry 2": "Cmd+2 (reservado)",
+    "activate task manager entry 3": "Cmd+3 (reservado)",
+    "activate task manager entry 4": "Cmd+4 (reservado)",
+    "RunClipboard": "Opt+Cmd+Espacio",
+    "_launch": "Cmd+Espacio",
+    "ActiveWindowScreenShot": "Cmd+May\u00fas+5 (ventana)",
+    "FullScreenScreenShot": "Cmd+May\u00fas+3",
+    "RectangularRegionScreenShot": "Cmd+May\u00fas+4",
+}
+
+
+def extract():
+    found = {}
+    for ctx, rel in SOURCES:
+        p = ROOT / rel
+        if not p.exists():
+            print(f"ERROR: falta fuente {rel}", file=sys.stderr)
+            sys.exit(1)
+        lines = p.read_text(encoding="utf-8").splitlines()
+        hits = {}
+        for i, line in enumerate(lines, 1):
+            for pat in PATS:
+                for m in pat.finditer(line):
+                    s = m.group(1)
+                    if s == "":
+                        continue
+                    hits.setdefault(s, i)
+            if rel.endswith("I18n.js"):
+                # Claves del dict es->en ("fuente": "traducci\u00f3n",): la
+                # clave es la cadena visible; el valor va tras la coma.
+                for m in re.finditer(r'^\s*"' + r'((?:[^"\\]|\\.)*)"\s*:', line):
+                    if m.group(1) != "en":
+                        hits.setdefault(m.group(1), i)
+        for s in MANUAL.get(ctx, []):
+            hits.setdefault(s, 0)
+        for s, ln in hits.items():
+            found.setdefault(s, []).append((ctx, rel, ln))
+    return found
+
+
+def ts_write(lang, found):
+    I18N.mkdir(exist_ok=True)
+    by_ctx = {}
+    for s, locs in found.items():
+        for ctx, rel, ln in locs:
+            by_ctx.setdefault(ctx, {}).setdefault(s, []).append((rel, ln))
+    root = ET.Element("TS", version="2.1", language=lang)
+    for ctx in sorted(by_ctx):
+        ce = ET.SubElement(root, "context")
+        ET.SubElement(ce, "name").text = ctx
+        for s in sorted(by_ctx[ctx]):
+            me = ET.SubElement(ce, "message")
+            for rel, ln in sorted(set(by_ctx[ctx][s])):
+                ET.SubElement(me, "location", filename=rel, line=str(ln))
+            ET.SubElement(me, "source").text = s
+            tr = s if lang == "es" else EN.get(s)
+            if tr is None:
+                print(f"ERROR: sin traducci\u00f3n en para {s!r} (contexto {ctx})", file=sys.stderr)
+                sys.exit(1)
+            ET.SubElement(me, "translation").text = tr
+    tree = ET.ElementTree(root)
+    ET.indent(tree, space="    ")
+    out = I18N / f"nimbus_{lang}.ts"
+    tree.write(out, encoding="utf-8", xml_declaration=True)
+    # DOCTYPE que espera Linguist (ElementTree no lo escribe).
+    txt = out.read_text(encoding="utf-8").replace(
+        "<?xml version='1.0' encoding='utf-8'?>",
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!DOCTYPE TS>", 1)
+    out.write_text(txt + "\n", encoding="utf-8")
+    return out
+
+
+def ts_read(path):
+    tree = ET.parse(str(path))
+    srcs, unfinished = {}, 0
+    for ctx in tree.getroot().iter("context"):
+        name = ctx.findtext("name")
+        for m in ctx.iter("message"):
+            s = m.findtext("source")
+            t = m.find("translation")
+            if t is None or (t.text or "") == "" or t.get("type") == "unfinished":
+                unfinished += 1
+            srcs.setdefault(s, set()).add(name)
+    return srcs, unfinished
+
+
+if CMD == "--extract":
+    found = extract()
+    missing = [s for s in found if s not in EN]
+    if missing:
+        print("ERROR: sin traducci\u00f3n en para "
+              + ", ".join(repr(s) for s in sorted(missing)[:10]), file=sys.stderr)
+        sys.exit(1)
+    es = ts_write("es", found)
+    en = ts_write("en", found)
+    print(f"EXTRACT_OK: {len(found)} cadenas -> {es.name}, {en.name}")
+
+elif CMD == "--check":
+    fails = 0
+    for lang in ("es", "en"):
+        p = I18N / f"nimbus_{lang}.ts"
+        if not p.exists():
+            print(f"FAIL: falta {p.relative_to(ROOT)} (ejecuta --extract)", file=sys.stderr)
+            sys.exit(1)
+        try:
+            srcs, unfinished = ts_read(p)
+        except ET.ParseError as e:
+            print(f"FAIL: XML inv\u00e1lido en {p.name}: {e}", file=sys.stderr)
+            sys.exit(1)
+        if unfinished:
+            print(f"FAIL: {p.name} tiene {unfinished} traducciones vac\u00edas/sin terminar", file=sys.stderr)
+            fails += 1
+    found = extract()
+    for lang in ("es", "en"):
+        srcs, _ = ts_read(I18N / f"nimbus_{lang}.ts")
+        falta = sorted(set(found) - set(srcs))
+        sobra = sorted(set(srcs) - set(found))
+        if falta:
+            print(f"FAIL: nimbus_{lang}.ts sin {len(falta)} cadenas (p. ej. {falta[0]!r}); ejecuta --extract", file=sys.stderr)
+            fails += 1
+        if sobra:
+            print(f"FAIL: nimbus_{lang}.ts con {len(sobra)} cadenas obsoletas (p. ej. {sobra[0]!r}); ejecuta --extract", file=sys.stderr)
+            fails += 1
+    es_srcs, _ = ts_read(I18N / "nimbus_es.ts")
+    en_srcs, _ = ts_read(I18N / "nimbus_en.ts")
+    if set(es_srcs) != set(en_srcs):
+        print("FAIL: cobertura es/en distinta", file=sys.stderr)
+        fails += 1
+    missing_en = [s for s in found if s not in EN]
+    if missing_en:
+        print("FAIL: sin traducci\u00f3n en para "
+              + ", ".join(repr(s) for s in sorted(missing_en)[:10]), file=sys.stderr)
+        fails += 1
+    if fails:
+        sys.exit(1)
+    print(f"CHECK_OK: {len(found)} cadenas es/en, 0 unfinished, TS sincronizados")
+
+elif CMD == "--stats":
+    found = extract()
+    by_ctx = {}
+    for s, locs in found.items():
+        for ctx, _, _ in locs:
+            by_ctx.setdefault(ctx, set()).add(s)
+    total = 0
+    for ctx in sorted(by_ctx):
+        n = len(by_ctx[ctx])
+        total += n
+        print(f"{ctx}: {n} es + {n} en")
+    print(f"Total: {total} pares cadena/contexto, {len(found)} cadenas \u00fanicas")
+
+elif CMD == "--cheatsheet":
+    if not SHORTCUTS_SRC.exists():
+        print(f"ERROR: falta {SHORTCUTS_SRC}", file=sys.stderr)
+        sys.exit(1)
+    cfg = configparser.ConfigParser(strict=False)
+    cfg.optionxform = str
+    cfg.read(SHORTCUTS_SRC, encoding="utf-8")
+    rows = []
+    for section in cfg.sections():
+        for name, val in cfg.items(section):
+            parts = [p.strip() for p in val.split(",", 2)]
+            custom = parts[1] if len(parts) > 1 else ""
+            comment = parts[2] if len(parts) > 2 else ""
+            rows.append((section, name, custom, comment))
+    GUIDE.mkdir(parents=True, exist_ok=True)
+    out = GUIDE / "shortcuts.md"
+    L = []
+    L.append("# Chuleta de atajos Nimbus")
+    L.append("")
+    L.append("> Autogenerado por `scripts/nimbus-i18n --cheatsheet` desde")
+    L.append("> `dotfiles/.config/plasma/kglobalshortcutsrc`. No editar a mano.")
+    L.append(">")
+    L.append("> `Meta` equivale a `Cmd` (\u2318). Por defecto no se crean")
+    L.append("> atajos `Ctrl` nuevos (R-CTRL); los `Meta+Ctrl` listados son")
+    L.append("> excepciones documentadas (Spaces y bloqueo, como en macOS).")
+    L.append("")
+    L.append("| macOS | Nimbus (Plasma) | Acci\u00f3n |")
+    L.append("| --- | --- | --- |")
+    for section, name, custom, comment in rows:
+        mac = MAC.get(name, "\u2014")
+        bind = custom if custom and custom != "none" else "\u2014"
+        if custom == "none":
+            bind = "\u2014 (" + (comment or "reservado") + ")"
+        what = comment or name
+        L.append(f"| {mac} | `{bind}` | {what} `{section}/{name}` |")
+    out.write_text("\n".join(L) + "\n", encoding="utf-8")
+    n = len(rows)
+    print(f"CHEATSHEET_OK: {n} atajos -> docs/user-guide/shortcuts.md")
+PYEOF

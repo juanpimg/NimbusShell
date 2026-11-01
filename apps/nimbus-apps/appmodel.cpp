@@ -121,8 +121,9 @@ bool AppModel::parseDesktopFile(const QString &path, NimbusApp &out)
 
 AppModel::AppModel(QObject *parent) : QAbstractListModel(parent)
 {
-    m_usagePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
-        + QStringLiteral("/nimbus-apps-usage.ini");
+    // F6-T05: frecuencia propia en ~/.local/state/nimbus-apps/ (no xbel).
+    m_usagePath = QStandardPaths::writableLocation(QStandardPaths::GenericStateLocation)
+        + QStringLiteral("/nimbus-apps/usage.ini");
     loadUsage();
     rescan();
 }

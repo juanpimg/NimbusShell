@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# nimbus-layout (F9-T03): presets de layout Mac/Windows/Nimbus para Plasma.
+# Aplica botones de ventana, atajos (via nimbus-keys), Dock Krema (tile 48
+# abajo) y barra 24 con kwriteconfig6. Seguro: sin root, sin red,
+# idempotente, backup en ~/.config/nimbusshell-backup-layout, --revert.
+# Respeta HOME temporal (harness anidado): todo sale de $HOME/.config.
+#
+# Uso:
+#   nimbus-layout [mac|windows|nimbus] [--apply] [--check] [--revert] [--home DIR]
+# Sin accion: --apply. Sin layout: usa nimbus-layout.ini ([Layout] name).
+#
+# Presets (verificado contra dotfiles canonicos del repo):
+#   mac     Meta=Cmd (nimbus-keys meta), botones XIA izquierda, Dock Krema
+#           abajo tile 48, barra 24, doble-clic = maximizar (≈zoom macOS:
+#           KWin no tiene zoom de ventana; Maximize es el equivalente).
+#   windows Ctrl/Alt clasicos (nimbus-keys ctrl, OPT-IN por eleccion del
+#           layout: reescribe Meta+<tecla simple> a Ctrl+<tecla>; NO toca
+#           binds Ctrl del usuario fuera de kglobalshortcutsrc y es
+#           revertible con --revert), botones IAX derecha, Dock abajo,
+#           doble-clic = maximizar, atajos estilo Win (Meta se reserva
+#           para el menu/lanzador: KRunner queda en Alt+F2).
+#   nimbus  Mezcla: Meta para apps (modo meta), Ctrl+flechas para Spaces
+#           (los conserva el modo meta de nimbus-keys), botones XIA
+#           izquierda, Dock 48, barra 24. A nivel KWin coincide con mac;
+#           difiere en el marcador nimbus-layout.ini ([Layout] name).
+set -u
+
+LAYOUT=""
+ACTION="apply"
+HOME_DIR="${HOME:-}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    mac|windows|nimbus) LAYOUT="$1" ;;
+    --apply) ACTION="apply" ;;
+    --check) ACTION="check" ;;
+    --revert) ACTION="revert" ;;
+    --home)
+      HOME_DIR="${2:-}"
+      if [ -z "$HOME_DIR" ]; then echo "ERROR: --home necesita un directorio." >&2; exit 1; fi
+      shift ;;
+    -h|--help) sed -n '2,22p' "${BASH_SOURCE[0]}" | cut -c3-; exit 0 ;;
+    *) echo "ERROR: flag desconocido '$1' (ver --help)." >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [ "$(id -u)" = "0" ]; then
+  echo "ERROR: no ejecutar como root (el layout es por usuario)." >&2; exit 1
+fi
+command -v kwriteconfig6 >/dev/null 2>&1 || {
+  echo "ERROR: falta kwriteconfig6. Instala plasma-desktop y reintenta." >&2; exit 1
+}
+command -v kreadconfig6 >/dev/null 2>&1 || {
+  echo "ERROR: falta kreadconfig6. Instala plasma-desktop y reintenta." >&2; exit 1
+}
+if [ -z "$HOME_DIR" ]; then echo "ERROR: sin HOME (exporta HOME o usa --home)." >&2; exit 1; fi
+
+CFG="$HOME_DIR/.config"
+export XDG_CONFIG_HOME="$CFG"
+BACKUP="$CFG/nimbusshell-backup-layout"
+FILES="kwinrc kglobalshortcutsrc kremarc plasmashellrc nimbus-layout.ini"
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+KEYS="$REPO_ROOT/scripts/nimbus-keys"
+if [ ! -x "$KEYS" ]; then KEYS="$(command -v nimbus-keys || true)"; fi
+
+[ -z "$LAYOUT" ] && [ "$ACTION" != "revert" ] && \
+  LAYOUT="$(kreadconfig6 --file nimbus-layout.ini --group Layout --key name 2>/dev/null || true)"
+if [ -z "$LAYOUT" ]; then LAYOUT="mac"; fi
+case "$LAYOUT" in mac|windows|nimbus) ;; *)
+  echo "ERROR: layout desconocido '$LAYOUT' (mac|windows|nimbus)." >&2; exit 1 ;; esac
+
+if [ "$ACTION" = "revert" ]; then
+  if [ ! -d "$BACKUP" ]; then echo "ERROR: sin backup en $BACKUP (nada que revertir)." >&2; exit 1; fi
+  for f in $FILES; do
+    [ -f "$BACKUP/$f" ] && cp -f "$BACKUP/$f" "$CFG/$f" || rm -f "$CFG/$f"
+  done
+  echo "REVERT OK: restaurado desde $BACKUP."
+  exit 0
+fi
+
+backup_once() {
+  mkdir -p "$BACKUP" || { echo "ERROR: no se pudo crear $BACKUP." >&2; exit 1; }
+  for f in $FILES; do
+    if [ -f "$CFG/$f" ] && [ ! -f "$BACKUP/$f" ]; then cp -f "$CFG/$f" "$BACKUP/$f"; fi
+  done
+}
+
+# Parametros por layout: botones | modo-keys | dock Edge | IconSize | panel.
+case "$LAYOUT" in
+  mac)     LEFT="XIA"; RIGHT="";    KEYMODE="meta"; EDGE=1; ICONS=48; PANEL=24 ;;
+  windows) LEFT="";    RIGHT="IAX"; KEYMODE="ctrl"; EDGE=1; ICONS=48; PANEL=24 ;;
+  nimbus)  LEFT="XIA"; RIGHT="";    KEYMODE="meta"; EDGE=1; ICONS=48; PANEL=24 ;;
+esac
+
+if [ "$ACTION" = "check" ]; then
+  fails=0
+  chk() {
+    got="$(kreadconfig6 --file "$1" --group "$2" --key "$3" 2>/dev/null || true)"
+    if [ "$got" = "$4" ]; then echo "CHECK OK: $1 [$2] $3=$got";
+    else echo "CHECK FAIL: $1 [$2] $3='$got' (esperado '$4')" >&2; fails=$((fails+1)); fi
+  }
+  chk2() { # grupo anidado PlasmaViews][Panel
+    got="$(kreadconfig6 --file plasmashellrc --group PlasmaViews --group Panel --key thickness 2>/dev/null || true)"
+    if [ "$got" = "$PANEL" ]; then echo "CHECK OK: plasmashellrc [PlasmaViews][Panel] thickness=$got";
+    else echo "CHECK FAIL: plasmashellrc thickness='$got' (esperado '$PANEL')" >&2; fails=$((fails+1)); fi
+  }
+  chk kwinrc org.kde.kdecoration2 ButtonsOnLeft "$LEFT"
+  chk kwinrc org.kde.kdecoration2 ButtonsOnRight "$RIGHT"
+  chk kwinrc Windows TitlebarDoubleClickCommand Maximize
+  chk kremarc General IconSize "$ICONS"
+  chk kremarc General Edge "$EDGE"
+  chk2
+  close="$(kreadconfig6 --file kglobalshortcutsrc --group kwin --key "Window Close" 2>/dev/null || true)"
+  want="Meta+Q"; [ "$KEYMODE" = "ctrl" ] && want="Ctrl+Q"
+  case "$close" in *"$want"*) echo "CHECK OK: kglobalshortcutsrc Window Close contiene $want" ;; *)
+    echo "CHECK FAIL: Window Close='$close' (esperaba *$want*)" >&2; fails=$((fails+1)) ;; esac
+  [ "$fails" -eq 0 ] && echo "CHECK OK: layout $LAYOUT aplicado." && exit 0
+  echo "CHECK: $fails diferencias (layout $LAYOUT). Aplica con: nimbus-layout $LAYOUT --apply" >&2
+  exit 1
+fi
+
+# --apply (idempotente: kwriteconfig6 sobrescribe las mismas claves).
+mkdir -p "$CFG" || { echo "ERROR: no se pudo crear $CFG." >&2; exit 1; }
+backup_once
+kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft "$LEFT" || exit 1
+kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight "$RIGHT" || exit 1
+kwriteconfig6 --file kwinrc --group Windows --key TitlebarDoubleClickCommand Maximize || exit 1
+kwriteconfig6 --file kremarc --group General --key IconSize "$ICONS" || exit 1
+kwriteconfig6 --file kremarc --group General --key Edge "$EDGE" || exit 1
+kwriteconfig6 --file plasmashellrc --group PlasmaViews --group Panel --key thickness "$PANEL" || exit 1
+kwriteconfig6 --file nimbus-layout.ini --group Layout --key name "$LAYOUT" || exit 1
+if [ -n "$KEYS" ] && [ -x "$KEYS" ]; then
+  "$KEYS" --apply --toggle-cmd "$KEYMODE" --home "$HOME_DIR" || {
+    echo "ERROR: nimbus-keys fallo (modo $KEYMODE). Revisa su mensaje y reintenta." >&2; exit 1; }
+else
+  echo "AVISO: nimbus-keys no encontrado; atajos sin aplicar (solo botones/dock/barra)." >&2
+fi
+echo "APPLY OK: layout $LAYOUT en $CFG (backup en $BACKUP). Requiere RELOGIN (kglobalacceld lee al iniciar)."
+exit 0

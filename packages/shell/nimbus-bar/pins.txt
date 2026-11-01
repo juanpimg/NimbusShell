@@ -1,0 +1,6 @@
+# F3-T13 pin de versiones (R-BAR-PRESETS). Formato: "<componente> <version>".
+# Lo lee `scripts/nimbus-bar-preset --pin-check` (sin instalar nada).
+qt 6.12
+layershellqt 6.8.2
+krema 0.12.0
+klassy 6.7.3

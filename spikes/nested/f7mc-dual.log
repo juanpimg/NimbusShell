@@ -1,0 +1,51 @@
+[f7dual] outer listo
+[f7dual] outer listo
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=509058 comm="plasmashell")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=509062 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=509062 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:509062): xdg-desktop-portal-WARNING **: 02:42:48.007: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=509062 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=509085 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=509058 comm="plasmashell")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=509062 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:509062): xdg-desktop-portal-WARNING **: 02:42:48.143: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=509062 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.kde.kdeconnect' requested by ':1.1' (uid=1000 pid=509058 comm="plasmashell")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.kde.kdeconnect'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.freedesktop.Notifications' requested by ':1.13' (uid=1000 pid=509186 comm="/usr/bin/kdeconnectd")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.freedesktop.Notifications'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.1' (uid=1000 pid=509058 comm="plasmashell")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=509198 comm="/usr/bin/kded6")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=509198 comm="/usr/bin/kded6")
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Successfully activated service 'org.bluez.obex'
+dbus-daemon[508965]: [session uid=1000 pid=508965 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=509058 comm="plasmashell")
+[f7dual] apps pedidas
+[f7dual] apps pedidas
+MC-MAIN-ENTER pid=509541
+nimbus-mc[4]: nimbus-mc: open_ms=107 demo=0 rm=0
+[f7dual] mc VIVO pid=509541
+[f7dual] mc VIVO pid=509541
+[f7dual] screenInfo=count=2 [WL-0:1280x800(prim) WL-1:1280x800] mc=1280x800@0,0
+[f7dual] screenInfo=count=2 [WL-0:1280x800(prim) WL-1:1280x800] mc=1280x800@0,0
+[f7dual] windowCount=3
+[f7dual] windowCount=3
+[f7dual] desktopCount=4
+[f7dual] desktopCount=4
+true
+[f7dual] dual_rc=0 shot=OK
+[f7dual] dual_rc=0 shot=OK
+[f7dual] inner rc=0
+[f7dual] inner rc=0
+A connection to the bus can't be made

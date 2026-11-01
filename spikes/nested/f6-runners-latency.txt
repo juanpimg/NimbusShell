@@ -1,0 +1,1 @@
+nimbus-spotlight[4]: spotlight-local-latency: query=0ms mode=nimbus results=20 tab=apps

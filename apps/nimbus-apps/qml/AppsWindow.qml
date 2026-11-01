@@ -6,6 +6,20 @@ import QtQuick.Layouts
 // fijas + Suggestions, vistas Icons/List, buscador, teclado completo.
 // Tokens del contrato §2: bg #FFFFFF/#2C2C2E, label, accent #007AFF/#0A84FF,
 // radio ventana 16, radios md 10-12, t12/t13, spacing 4/8/12/16/20.
+//
+// F6-T07 — TECLADO Y ACCESIBILIDAD (todos sin ratón, documentados aquí):
+//   Tab / Shift+Tab .... Buscador → Vista → Categorías → Rejilla/Lista →
+//                        Buscador (sin trampas; KeyNavigation)
+//   ← → ↑ ↓ ............ mueve selección (rejilla: cols reales; lista: ±1)
+//   Home / End ......... primera / última app (categorías y rejilla/lista)
+//   RePág / AvPág ...... ±10 apps (rejilla/lista)
+//   Enter .............. lanza la app seleccionada / entra en la rejilla
+//   Esc ................ oculta la ventana (NO cierra el proceso)
+//   Espacio ............ activa el botón enfocado (vista, categoría)
+// Foco visible: anillo accent 2px sobre el control enfocado (≥3:1
+// non-text en ambos temas). Contraste texto ≥4.5:1 en ambos temas.
+// Hit targets: filas categorías 36px, filas lista 40px, celdas 110x104,
+// buscador 32px. Announce de vista/categoría/selección a lectores.
 ApplicationWindow {
     id: root
     width: 1000
@@ -26,6 +40,16 @@ ApplicationWindow {
 
     property int selIndex: 0
     property var cats: ["Todas", "Suggestions", "Productividad", "Desarrollo", "Gráficos", "Juegos", "Multimedia", "Utilidades", "Internet", "Ajustes"]
+    // F6-T07: token de foco visible (anillo accent 2px).
+    property int focusW: 2
+
+    // F6-T07: anuncia cambios a lectores (Orca/AT-SPI vía QAccessible).
+    function announce(msg) {
+        Accessible.announce(root, msg);
+    }
+    function announceSel() {
+        root.announce("App " + (root.selIndex + 1) + " de " + appModel.count);
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -50,23 +74,41 @@ ApplicationWindow {
                     font.pixelSize: 13
                     color: root.labelCol
                     placeholderTextColor: root.label2Col
+                    Accessible.name: "Buscar apps"
+                    Accessible.description: "Filtra por nombre. Tab pasa al selector de vista. Escape oculta la ventana."
+                    Accessible.role: Accessible.EditableText
+                    // F6-T07: Tab/Shift+Tab navegan (sin trampas).
+                    KeyNavigation.tab: viewBtn
+                    KeyNavigation.backtab: appModel.listMode ? list : grid
                     background: Rectangle {
                         radius: 10
                         color: root.searchCol
                         implicitHeight: 32
+                        border.color: search.activeFocus ? root.accentCol : "transparent"
+                        border.width: root.focusW
                     }
                     onTextChanged: {
                         appModel.filter = text;
                         root.selIndex = 0;
                     }
-                    Keys.onEscapePressed: Qt.quit()
+                    // F6-T07: Esc oculta (antes Qt.quit() mataba el proceso,
+                    // inconsistente con Shortcut Escape→hide de abajo).
+                    Keys.onEscapePressed: root.hide()
                     Component.onCompleted: forceActiveFocus()
                 }
                 Button {
+                    id: viewBtn
                     text: appModel.listMode ? "☰ Lista" : "▦ Iconos"
                     font.pixelSize: 12
-                    onClicked: appModel.listMode = !appModel.listMode
+                    onClicked: {
+                        appModel.listMode = !appModel.listMode;
+                        root.announce(appModel.listMode ? "Vista lista" : "Vista iconos");
+                    }
                     Accessible.name: "Cambiar vista"
+                    Accessible.description: "Alterna entre vista de iconos y de lista. Pulsa Espacio para cambiar."
+                    // F6-T07: tramo Tab del ciclo.
+                    KeyNavigation.tab: catList
+                    KeyNavigation.backtab: search
                 }
             }
 
@@ -82,12 +124,48 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     model: root.cats
                     spacing: 4
-                    currentIndex: 0
+                    // Refleja la categoría inicial del modelo (--category, F6-T05).
+                    currentIndex: Math.max(0, root.cats.indexOf(appModel.category))
+                    // F6-T07: parada Tab + teclado completo + rol accesible.
+                    activeFocusOnTab: true
+                    KeyNavigation.tab: appModel.listMode ? list : grid
+                    KeyNavigation.backtab: viewBtn
+                    Accessible.role: Accessible.List
+                    Accessible.name: "Categorías"
+                    Accessible.description: "Flechas arriba y abajo para cambiar de categoría. Enter pasa a las apps."
+                    Keys.onPressed: function (event) {
+                        if (event.key === Qt.Key_Down) {
+                            catList.currentIndex = Math.min(catList.currentIndex + 1, catList.count - 1);
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Up) {
+                            catList.currentIndex = Math.max(catList.currentIndex - 1, 0);
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Home) {
+                            catList.currentIndex = 0;
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_End) {
+                            catList.currentIndex = catList.count - 1;
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Right) {
+                            (appModel.listMode ? list : grid).forceActiveFocus();
+                            root.announceSel();
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Escape) {
+                            root.hide();
+                            event.accepted = true;
+                        }
+                    // Tab/Shift+Tab: los mueve KeyNavigation.
+                    }
                     delegate: Rectangle {
                         width: catList.width
-                        height: 28
+                        height: 36 // F6-T07: hit target 36px (antes 28)
                         radius: 8
                         color: ListView.isCurrentItem ? root.accentCol : "transparent"
+                        // F6-T07: anillo de foco visible.
+                        border.color: (catList.activeFocus && ListView.isCurrentItem) ? root.labelCol : "transparent"
+                        border.width: (catList.activeFocus && ListView.isCurrentItem) ? root.focusW : 0
+                        Accessible.role: Accessible.ListItem
+                        Accessible.name: modelData
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
@@ -108,6 +186,8 @@ ApplicationWindow {
                     onCurrentIndexChanged: {
                         appModel.category = root.cats[currentIndex];
                         root.selIndex = 0;
+                        if (catList.activeFocus)
+                            root.announce(root.cats[currentIndex]);
                     }
                 }
 
@@ -126,9 +206,60 @@ ApplicationWindow {
                         highlightFollowsCurrentItem: true
                         currentIndex: root.selIndex
                         onCurrentIndexChanged: root.selIndex = currentIndex
+                        // F6-T07: parada Tab (cierra el ciclo hacia el buscador).
+                        activeFocusOnTab: true
+                        KeyNavigation.tab: search
+                        KeyNavigation.backtab: catList
+                        Accessible.role: Accessible.Grid
+                        Accessible.name: "Apps, vista iconos"
+                        Accessible.description: "Flechas para elegir app. Enter lanza. Tab vuelve al buscador."
+                        Keys.onPressed: function (event) {
+                            var cols = Math.max(1, Math.floor(grid.width / grid.cellWidth));
+                            if (event.key === Qt.Key_Right) {
+                                root.selIndex = Math.min(appModel.count - 1, root.selIndex + 1);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Left) {
+                                root.selIndex = Math.max(0, root.selIndex - 1);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Down) {
+                                root.selIndex = Math.min(appModel.count - 1, root.selIndex + cols);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Up) {
+                                root.selIndex = Math.max(0, root.selIndex - cols);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Home) {
+                                root.selIndex = 0;
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_End) {
+                                root.selIndex = Math.max(0, appModel.count - 1);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_PageDown) {
+                                root.selIndex = Math.min(appModel.count - 1, root.selIndex + 10);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_PageUp) {
+                                root.selIndex = Math.max(0, root.selIndex - 10);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                appModel.launch(root.selIndex);
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Escape) {
+                                root.hide();
+                                event.accepted = true;
+                            }
+                        }
                         delegate: Item {
                             width: 110
                             height: 104
+                            Accessible.role: Accessible.ListItem
+                            Accessible.name: appName
                             Column {
                                 anchors.centerIn: parent
                                 spacing: 4
@@ -138,8 +269,11 @@ ApplicationWindow {
                                     height: 64
                                     radius: 12
                                     color: GridView.isCurrentItem ? root.accentCol + "33" : root.cardCol
-                                    border.color: GridView.isCurrentItem ? root.accentCol : "transparent"
-                                    border.width: 2
+                                    // F6-T07: selección = anillo accent; con foco
+                                    // de teclado el anillo pasa a label (visible
+                                    // en ambos temas, ≥3:1 non-text).
+                                    border.color: GridView.isCurrentItem ? (grid.activeFocus ? root.labelCol : root.accentCol) : "transparent"
+                                    border.width: GridView.isCurrentItem ? root.focusW : 0
                                     Image {
                                         anchors.fill: parent
                                         anchors.margins: 6
@@ -178,11 +312,57 @@ ApplicationWindow {
                         spacing: 2
                         currentIndex: root.selIndex
                         onCurrentIndexChanged: root.selIndex = currentIndex
+                        // F6-T07: parada Tab (cierra el ciclo hacia el buscador).
+                        activeFocusOnTab: true
+                        KeyNavigation.tab: search
+                        KeyNavigation.backtab: catList
+                        Accessible.role: Accessible.List
+                        Accessible.name: "Apps, vista lista"
+                        Accessible.description: "Flechas arriba y abajo para elegir app. Enter lanza. Tab vuelve al buscador."
+                        Keys.onPressed: function (event) {
+                            if (event.key === Qt.Key_Down || event.key === Qt.Key_Right) {
+                                root.selIndex = Math.min(appModel.count - 1, root.selIndex + 1);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Up || event.key === Qt.Key_Left) {
+                                root.selIndex = Math.max(0, root.selIndex - 1);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Home) {
+                                root.selIndex = 0;
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_End) {
+                                root.selIndex = Math.max(0, appModel.count - 1);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_PageDown) {
+                                root.selIndex = Math.min(appModel.count - 1, root.selIndex + 10);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_PageUp) {
+                                root.selIndex = Math.max(0, root.selIndex - 10);
+                                root.announceSel();
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                                appModel.launch(root.selIndex);
+                                event.accepted = true;
+                            } else if (event.key === Qt.Key_Escape) {
+                                root.hide();
+                                event.accepted = true;
+                            }
+                        }
                         delegate: Rectangle {
                             width: list.width
-                            height: 36
+                            height: 40 // F6-T07: hit target 40px (antes 36)
                             radius: 8
                             color: ListView.isCurrentItem ? root.accentCol + "33" : "transparent"
+                            // F6-T07: selección = tinte accent; con foco de
+                            // teclado el borde pasa a label (visible, ≥3:1).
+                            border.color: ListView.isCurrentItem ? (list.activeFocus ? root.labelCol : root.accentCol) : "transparent"
+                            border.width: ListView.isCurrentItem ? root.focusW : 0
+                            Accessible.role: Accessible.ListItem
+                            Accessible.name: appName + ", " + appCategory
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.leftMargin: 12
@@ -230,14 +410,17 @@ ApplicationWindow {
             Text {
                 Layout.fillWidth: true
                 text: appModel.count + " apps"
-                font.pixelSize: 11
+                font.pixelSize: 12 // F6-T07: ≥12px (antes 11)
                 color: root.label2Col
                 horizontalAlignment: Text.AlignRight
+                Accessible.name: appModel.count + " aplicaciones"
             }
         }
     }
 
-    // Teclado completo: flechas / Enter / Esc
+    // Teclado completo: flechas / Home-End / RePág-AvPág / Enter / Esc.
+    // (Fallback raíz: con foco en buscador/botón; las vistas aceptan sus
+    // propias teclas y anuncian. Sin trampas: Tab lo mueve KeyNavigation.)
     Shortcut {
         sequence: "Escape"
         onActivated: root.hide()
@@ -259,6 +442,18 @@ ApplicationWindow {
             event.accepted = true;
         } else if (event.key === Qt.Key_Up) {
             root.selIndex = Math.max(0, root.selIndex - (appModel.listMode ? 1 : cols));
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Home) {
+            root.selIndex = 0;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_End) {
+            root.selIndex = Math.max(0, appModel.count - 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_PageDown) {
+            root.selIndex = Math.min(appModel.count - 1, root.selIndex + 10);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_PageUp) {
+            root.selIndex = Math.max(0, root.selIndex - 10);
             event.accepted = true;
         }
     }

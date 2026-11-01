@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# nimbus-backup — port de Konsave: guarda/restaura configs KDE + dotfiles
+# Nimbus + lista de paquetes en un tarball restaurable.
+# Uso: nimbus-backup save|restore|list [--check|--dry-run] [--dest DIR] [--file F]
+# Sin root, idempotente (re-ejecutar no duplica ni borra backups ajenos).
+set -u
+
+CMD="${1:-}"; [ $# -gt 0 ] && shift
+DRY=0; DEST="${NIMBUS_BACKUP_DIR:-$HOME/.local/share/nimbus-backup}"; FILE=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --check|--dry-run) DRY=1; shift ;;
+    --dest) DEST="${2:-}"; shift 2 ;;
+    --file) FILE="${2:-}"; shift 2 ;;
+    --help|-h) echo "Uso: $0 save|restore|list [--dry-run] [--dest DIR] [--file F]"; exit 0 ;;
+    *) echo "Uso: $0 save|restore|list [--dry-run] [--dest DIR] [--file F]" >&2; exit 1 ;;
+  esac
+done
+case "$CMD" in save|restore|list) : ;; *) echo "Uso: $0 save|restore|list ..." >&2; exit 1 ;; esac
+if [ "$(id -u)" -eq 0 ]; then echo "ERROR: no ejecutar como root" >&2; exit 1; fi
+
+HOME_DIR="${NIMBUS_TEST_HOME:-$HOME}"
+CFG="$HOME_DIR/.config"
+# KDE + dotfiles Nimbus (solo ficheros existentes; nunca falla si faltan).
+CANDIDATES="kdeglobals kwinrc plasmashellrc plasmarc krunnerrc kglobalshortcutsrc dolphinrc konsolerc spectaclerc powerdevilrc"
+say() { printf '%s\n' "$*"; }
+run() { if [ "$DRY" -eq 1 ]; then say "DRY-RUN: $*"; else "$@"; fi; }
+
+if [ "$CMD" = list ]; then
+  [ -d "$DEST" ] || { say "(sin copias en $DEST)"; exit 0; }
+  ls -1 "$DEST"/nimbus-backup-*.tar.gz 2>/dev/null || say "(sin copias en $DEST)"
+  exit 0
+fi
+
+if [ "$CMD" = save ]; then
+  [ "$DRY" -eq 0 ] && run mkdir -p "$DEST"
+  STAMP="$(date +%Y%m%d-%H%M%S)"
+  OUT="${FILE:-$DEST/nimbus-backup-$STAMP.tar.gz}"
+  n=2; while [ -z "${FILE:-}" ] && [ -e "$OUT" ]; do OUT="$DEST/nimbus-backup-$STAMP-$n.tar.gz"; n=$((n+1)); done
+  [ "$DRY" -eq 1 ] && say "DRY-RUN: guardar en $OUT" || say "Guardando en $OUT ..."
+  TMP="$(mktemp -d /tmp/opencode/nimbus-backup-XXXXXX)"; trap 'rm -rf "$TMP"' EXIT
+  : > "$TMP/manifest.txt"
+  for f in $CANDIDATES; do
+    if [ -f "$CFG/$f" ]; then cp -a "$CFG/$f" "$TMP/"; echo "config/$f" >> "$TMP/manifest.txt"
+    else echo "OMITIDO (ausente): $f" >> "$TMP/manifest.txt"; fi
+  done
+  # Lista de paquetes (mejor esfuerzo, nunca falla).
+  if command -v pacman >/dev/null 2>&1; then pacman -Qqe 2>/dev/null > "$TMP/packages-pacman.txt" || true
+  else echo "(sin pacman)" > "$TMP/packages-pacman.txt"; fi
+  if command -v flatpak >/dev/null 2>&1; then flatpak list --app --columns=application 2>/dev/null > "$TMP/packages-flatpak.txt" || true; fi
+  ( cd "$TMP" && run tar -czf "$OUT" ./* )
+  [ "$DRY" -eq 0 ] && say "HECHO: $OUT" || say "DRY-RUN: $OUT (sin cambios)"
+  trap - EXIT; rm -rf "$TMP"; exit 0
+fi
+
+# restore
+if [ -z "$FILE" ]; then FILE="$(ls -1t "$DEST"/nimbus-backup-*.tar.gz 2>/dev/null | head -1 || true)"; fi
+[ -n "$FILE" ] && [ -f "$FILE" ] || { echo "ERROR: sin copia (usa --file F o save primero)" >&2; exit 1; }
+BK="$HOME_DIR/.config/nimbusshell-backup-$(date +%Y%m%d-%H%M%S)"
+[ "$DRY" -eq 0 ] && run mkdir -p "$BK"
+say "Restaurando $FILE (respaldo de lo sobrescrito en $BK) ..."
+TMP="$(mktemp -d /tmp/opencode/nimbus-restore-XXXXXX)"; trap 'rm -rf "$TMP"' EXIT
+tar -xzf "$FILE" -C "$TMP"
+for f in "$TMP"/rc "$TMP"/*rc "$TMP"/kdeglobals; do
+  [ -f "$f" ] || continue
+  base="$(basename "$f")"
+  [ -f "$CFG/$base" ] && run cp -a "$CFG/$base" "$BK/"
+  run cp -a "$f" "$CFG/$base"
+  say "OK: $base"
+done
+trap - EXIT; rm -rf "$TMP"
+say "HECHO (restore). Rollback: copia $BK/* a ~/.config/."

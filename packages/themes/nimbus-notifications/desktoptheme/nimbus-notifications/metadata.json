@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "nimbus@nimbus.local",
+                "Name": "NimbusShell"
+            }
+        ],
+        "Category": "",
+        "Description": "Nimbus macOS-style glass for Plasma notification banners (9-slice dialog background, original artwork)",
+        "Description[es]": "Vidrio estilo macOS de Nimbus para banners de notificación de Plasma (fondo de diálogo 9-slice, arte original)",
+        "EnabledByDefault": false,
+        "Id": "nimbus-notifications",
+        "License": "CC0-1.0",
+        "Name": "Nimbus Notifications",
+        "Version": "1.0.0"
+    },
+    "X-Plasma-API": "5.0"
+}

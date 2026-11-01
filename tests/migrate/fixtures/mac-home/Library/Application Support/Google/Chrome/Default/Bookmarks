@@ -1,0 +1,12 @@
+{
+   "checksum": "11111111111111111111111111111111",
+   "roots": {
+      "bookmark_bar": {"children": [
+         {"name": "KDE", "type": "url", "url": "https://kde.org/es/"},
+         {"name": "Flathub", "type": "url", "url": "https://flathub.org/"}
+      ], "name": "Marcadores", "type": "folder"},
+      "other": {"children": [], "name": "Otros marcadores", "type": "folder"},
+      "synced": {"children": [], "name": "Dispositivo movil", "type": "folder"}
+   },
+   "version": 1
+}

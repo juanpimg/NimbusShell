@@ -1,0 +1,60 @@
+[notif] tema=nimbus-notifications
+[notif] holder escrito
+[notif] home-temporal=/tmp/opencode/nimbus-notif-oEvN9F/home (9 ficheros plasma)
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=203486 comm="plasmashell")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=203490 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=203490 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:203490): xdg-desktop-portal-WARNING **: 22:18:17.814: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=203490 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=203515 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=203486 comm="plasmashell")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=203490 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:203490): xdg-desktop-portal-WARNING **: 22:18:17.934: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=203490 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=203486 comm="plasmashell")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.14' (uid=1000 pid=203586 comm="/usr/lib/kf6/kioworker /usr/lib/qt6/plugins/kf6/ki")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=203591 comm="/usr/bin/kded6")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=203591 comm="/usr/bin/kded6")
+dbus-daemon[203355]: [session uid=1000 pid=203355 pidfd=5] Successfully activated service 'org.bluez.obex'
+[notif] espera org.freedesktop.Notifications (máx 90s)...
+[notif] espera org.freedesktop.Notifications (máx 90s)...
+[notif] notif-ready=yes plasmashell-vivo=si
+[notif] notif-ready=yes plasmashell-vivo=si
+[notif] plasmanotifyrc efectivo:
+[notif] plasmanotifyrc efectivo:
+TopRight
+TopRight
+5000
+5000
+[notif] notify básico rc=0
+[notif] notify básico rc=0
+[notif] f3-notif.png OK
+[notif] f3-notif.png OK
+[notif] f3-notif-actions.png OK
+[notif] f3-notif-actions.png OK
+[notif] Inhibit cookie=1 holder=204685
+[notif] Inhibit cookie=1 holder=204685
+b true
+b true
+[notif] f3-notif-dnd.png OK (esperado: sin banner)
+[notif] f3-notif-dnd.png OK (esperado: sin banner)
+b false
+b false
+[notif] QMLERR=0
+[notif] QMLERR=0
+[notif] FIN
+[notif] FIN
+[notif] dbus-run-session exit=0
+A connection to the bus can't be made

@@ -6,12 +6,12 @@ Calamares para la ISO netinstall (`iso/profile/`). Orden unificado F2/F9
 ## Orden (`settings.conf`)
 
 - **show:** welcome → locale → keyboard → partition → users →
-  netinstall@nimbus → summary → finished.
+  netinstall@nimbus → summary → exec → finished (segundo show).
 - **exec:** partition → mount → unpackfs → machineid → fstab → locale →
   keyboard → localecfg → users → displaymanager → networkcfg → hwclock →
   grub → packages → netinstall@nimbus → services → shellprocess@nimbus →
   umount.
-- `finished` va en **show** (canónico upstream), no en exec.
+- `finished` va en un **segundo show** DESPUÉS de exec; si va en el primero, Calamares omite todos los jobs (causa raíz 2026-11-01).
 - `removeuser` comentado: **solo OEM** (`dont-chroot`); no descomentar
   en netinstall.
 

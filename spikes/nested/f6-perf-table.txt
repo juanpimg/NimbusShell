@@ -1,0 +1,14 @@
+# F6-T08 spotlight — tabla
+# (med = mediana round-trip DBus; in-process = spotlight-local-latency del log)
+QINFO  : TstIndex::perfFuzzy10k() perf-fuzzy-10k: 3ms hits=1
+QINFO  : TstIndex::perfSearchLocal() perf-searchLocal: 1ms results=20
+[perf] arranque-frío spawn→DBus: 216.1ms (primer frame: ventana creada y registrada)
+[perf] RSS arranque: 236896 kB
+[perf] query-fría inicial: nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=apps
+[perf] query-caliente round-trip: 10 muestras min=14.82 med=15.35 max=16.08 avg=15.38 ms
+[perf] toggle round-trip: 10 muestras min=7.07 med=8.10 max=179.42 avg=25.09 ms
+[perf] RSS post-query: 257816 kB
+[perf] CPU reposo (3s): 0.3% (100% = 1 núcleo)
+[perf] CPU durante query (2s, ráfaga 300): 49.6% (100% = 1 núcleo)
+[perf] 0 errores QML
+[perf] sin freeze (todas las sondas respondieron)

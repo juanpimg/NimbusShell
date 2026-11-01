@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Ajustes Nimbus
+Exec=settings-nimbus
+Icon=preferences-system
+Categories=Settings;DesktopSettings;

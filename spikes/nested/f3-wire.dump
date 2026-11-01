@@ -1,0 +1,38 @@
+signal time=1793483324.715900 sender=org.freedesktop.DBus -> destination=:1.30 serial=2 path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameAcquired
+   string ":1.30"
+signal time=1793483324.715916 sender=org.freedesktop.DBus -> destination=:1.30 serial=4 path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameLost
+   string ":1.30"
+method call time=1793483325.722271 sender=:1.31 -> destination=:1.1 serial=10 path=/org/freedesktop/Notifications; interface=org.freedesktop.Notifications; member=Notify
+   string "Nimbus"
+   uint32 0
+   string ""
+   string "Wire1"
+   string "via notify-send"
+   array [
+      string "open"
+      string "Abrir"
+   ]
+   array [
+      dict entry(
+         string "urgency"
+         variant             byte 1
+      )
+      dict entry(
+         string "sender-pid"
+         variant             int64 316542
+      )
+   ]
+   int32 -1
+method call time=1793483327.721830 sender=:1.32 -> destination=org.freedesktop.Notifications serial=3 path=/org/freedesktop/Notifications; interface=org.freedesktop.Notifications; member=Notify
+   string "Nimbus"
+   uint32 0
+   string ""
+   string "Wire2"
+   string "via gdbus"
+   array [
+      string "open"
+      string "Abrir"
+   ]
+   array [
+   ]
+   int32 30000

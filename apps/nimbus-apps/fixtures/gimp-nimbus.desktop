@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Gimp Nimbus
+Exec=gimp-nimbus %U
+Icon=gimp
+Categories=Graphics;2DGraphics;RasterGraphics;

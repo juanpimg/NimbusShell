@@ -1,0 +1,8 @@
+Representation of com.apple.desktop.plist (text export for fixtures):
+{
+    Background = {
+        Default = {
+            ImageFilePath = "/Users/maria/Pictures/fondo-andes.jpg";
+        };
+    };
+}

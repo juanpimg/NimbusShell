@@ -1,0 +1,21 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "nimbus@nimbus.local",
+                "Name": "NimbusShell"
+            }
+        ],
+        "Category": "",
+        "Description": "Nimbus look-and-feel: lockscreen Tahoe (arte propio, sin activos Apple)",
+        "Description[es]": "Look-and-feel Nimbus: pantalla de bloqueo estilo Tahoe (arte propio, sin activos Apple)",
+        "EnabledByDefault": true,
+        "Id": "org.nimbus.desktop",
+        "License": "GPL-2.0-or-later",
+        "Name": "Nimbus",
+        "Name[es]": "Nimbus",
+        "Version": "0.1"
+    },
+    "X-KPackage-Dependencies": []
+}

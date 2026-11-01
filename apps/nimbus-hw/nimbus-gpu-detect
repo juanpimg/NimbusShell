@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# nimbus-gpu-detect — detecta GPU y recomienda driver (solo lectura, no root).
+# Uso: nimbus-gpu-detect [--json] [--check]
+#   --json: salida JSON para KCM/Calamares. --check: alias de solo lectura.
+set -u
+
+JSON=0
+for a in "$@"; do
+  case "$a" in
+    --json) JSON=1 ;;
+    --check|--help|-h) : ;;
+    *) echo "Uso: $0 [--json] [--check]" >&2; exit 1 ;;
+  esac
+done
+
+pci_vga() { lspci -nn 2>/dev/null | grep -iE 'vga|3d|display' || true; }
+driver_of() { # $1 = slot "0000:01:00.0"
+  lspci -k -s "$1" 2>/dev/null | sed -n 's/.*Kernel driver in use: //p' | head -1
+}
+in_wayland() {
+  if [ "${XDG_SESSION_TYPE:-}" = "wayland" ]; then echo yes;
+  elif [ -n "${WAYLAND_DISPLAY:-}" ]; then echo yes; else echo no; fi
+}
+
+VGA="$(pci_vga)"
+VENDOR=unknown; DEVICE=""; SLOT=""; DRIVER=none; RECOMMEND=""; REASON=""
+
+if echo "$VGA" | grep -qi '10de'; then
+  VENDOR=nvidia
+  LINE="$(echo "$VGA" | grep -i '10de' | head -1)"
+  SLOT="$(echo "$LINE" | awk '{print $1}')"
+  DEVICE="$(echo "$LINE" | sed 's/^[^ ]* //')"
+  DRIVER="$(driver_of "$SLOT")"; [ -z "$DRIVER" ] && DRIVER=none
+  # PCI ID -> generación: IDs 1xxx (Pascal-) usan proprietary; 2xxx+ (Turing+)
+  # usan nvidia-open-dkms. Heurística: buscar serie GeForce/Quadro/Tesla.
+  if echo "$LINE" | grep -qiE 'GTX ?(10|9|7)|Quadro (K|M|P[0-4])|Tesla K|GeForce (GT|GTS) [0-9]'; then
+    RECOMMEND="nvidia-dkms"; REASON="GPU NVIDIA anterior a Turing: driver propietario"
+  else
+    RECOMMEND="nvidia-open-dkms"; REASON="GPU NVIDIA Turing o posterior: módulo abierto"
+  fi
+elif echo "$VGA" | grep -qiE '1002|1022.*(vga|display)'; then
+  VENDOR=amd
+  LINE="$(echo "$VGA" | grep -i '1002' | head -1)"
+  SLOT="$(echo "$LINE" | awk '{print $1}')"
+  DEVICE="$(echo "$LINE" | sed 's/^[^ ]* //')"
+  DRIVER="$(driver_of "$SLOT")"; [ -z "$DRIVER" ] && DRIVER=none
+  RECOMMEND="mesa"; REASON="AMD: stack abierto mesa/amdgpu"
+elif echo "$VGA" | grep -qi '8086'; then
+  VENDOR=intel
+  LINE="$(echo "$VGA" | grep -i '8086' | head -1)"
+  SLOT="$(echo "$LINE" | awk '{print $1}')"
+  DEVICE="$(echo "$LINE" | sed 's/^[^ ]* //')"
+  DRIVER="$(driver_of "$SLOT")"; [ -z "$DRIVER" ] && DRIVER=none
+  RECOMMEND="mesa"; REASON="Intel: stack abierto mesa/i915-xe"
+elif echo "$VGA" | grep -qiE '1af4|1234:1111|80ee:beef'; then
+  VENDOR=vm
+  LINE="$(echo "$VGA" | head -1)"
+  DEVICE="$(echo "$LINE" | sed 's/^[^ ]* //')"
+  RECOMMEND="virtio"; REASON="VM: virtio-gpu, sin driver propietario"
+else
+  [ -n "$VGA" ] && DEVICE="$(echo "$VGA" | head -1)"
+  RECOMMEND="mesa"; REASON="GPU no identificada: mesa por defecto"
+fi
+# Híbrida: si hay NVIDIA + Intel/AMD, anotarlo.
+if [ "$VENDOR" = nvidia ] && echo "$VGA" | grep -qi '8086\|1002'; then
+  REASON="$REASON (sistema híbrido: render offload con prime-run)"
+fi
+WAYLAND="$(in_wayland)"
+
+esc() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+if [ "$JSON" -eq 1 ]; then
+  printf '{"vendor":"%s","device":"%s","slot":"%s","driver":"%s","recommend":"%s","reason":"%s","wayland":"%s"}\n' \
+    "$(esc "$VENDOR")" "$(esc "$DEVICE")" "$(esc "$SLOT")" \
+    "$(esc "$DRIVER")" "$(esc "$RECOMMEND")" "$(esc "$REASON")" "$WAYLAND"
+else
+  printf 'vendor:    %s\ndevice:    %s\nslot:      %s\ndriver:    %s\nrecommend: %s\nreason:    %s\nwayland:   %s\n' \
+    "$VENDOR" "$DEVICE" "$SLOT" "$DRIVER" "$RECOMMEND" "$REASON" "$WAYLAND"
+fi

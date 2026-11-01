@@ -71,10 +71,10 @@ export QT_QPA_PLATFORM=wayland
 export WAYLAND_DISPLAY
 export XDG_SESSION_TYPE=wayland
 export XDG_CURRENT_DESKTOP=KDE
-trap '"'"'kill $(jobs -p) 2>/dev/null || true'"'"' EXIT
+trap "kill \$(jobs -p) 2>/dev/null || true" EXIT
 
 echo "[bar] arranque kwin_wayland --virtual ..." | tee -a "$LOG"
-kwin_wayland --virtual --width 1280 --height 800 --socket "$WAYLAND_DISPLAY" --xwayland >>"$LOG" 2>&1 &
+kwin_wayland --virtual --width 1280 --height 800 --no-lockscreen --socket "$WAYLAND_DISPLAY" --xwayland >>"$LOG" 2>&1 &
 KWIN_PID=$!
 
 for ((i=0; i<TIMEOUT*2; i++)); do

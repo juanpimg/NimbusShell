@@ -20,6 +20,7 @@
 #include <LayerShellQt/Window>
 
 #include "krunnerbackend.h"
+#include "nimbusindex.h"
 
 class IconProvider : public QQuickImageProvider {
 public:
@@ -39,8 +40,8 @@ class Toggle : public QObject {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.nimbus.Spotlight")
 public:
-    explicit Toggle(QWindow *w, QObject *parent = nullptr)
-        : QObject(parent), m_win(w) {}
+    explicit Toggle(QWindow *w, NimbusIndex *idx, QObject *parent = nullptr)
+        : QObject(parent), m_win(w), m_index(idx) {}
 public Q_SLOTS:
     void toggle()
     {
@@ -48,8 +49,16 @@ public Q_SLOTS:
         if (m_win->isVisible())
             m_win->requestActivate();
     }
+    // F6-T08: gancho de benchmark (solo reexpone searchLocal síncrono;
+    // permite cronometrar query local en caliente vía qdbus).
+    void query(const QString &term)
+    {
+        if (m_index)
+            m_index->searchLocal(term, QString());
+    }
 private:
     QWindow *m_win = nullptr;
+    NimbusIndex *m_index = nullptr;
 };
 
 static void centerOnScreen(QWindow *win, int w, int h)
@@ -88,6 +97,8 @@ int main(int argc, char *argv[])
 
     bool demo = false;
     QString initialQuery, shotPath;
+    QString initialTab = QStringLiteral("apps");
+    QString initialClipView = QStringLiteral("history");
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo"))
@@ -96,13 +107,27 @@ int main(int argc, char *argv[])
             initialQuery = QString::fromLocal8Bit(argv[++i]);
         else if (a == QStringLiteral("--shot") && i + 1 < argc)
             shotPath = QString::fromLocal8Bit(argv[++i]);
+        else if (a == QStringLiteral("--tab") && i + 1 < argc) {
+            const QString t = QString::fromLocal8Bit(argv[++i]);
+            if (t == QLatin1String("apps") || t == QLatin1String("files")
+                || t == QLatin1String("actions") || t == QLatin1String("clipboard"))
+                initialTab = t;
+        } else if (a == QStringLiteral("--clipview") && i + 1 < argc) {
+            const QString v = QString::fromLocal8Bit(argv[++i]);
+            if (v == QLatin1String("history") || v == QLatin1String("emoji"))
+                initialClipView = v;
+        }
     }
 
     KRunnerBackend backend(demo);
+    NimbusIndex nimbus; // fast-path local F6-T02 (KRunner = fallback)
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("nimbusicon"), new IconProvider);
     engine.rootContext()->setContextProperty(QStringLiteral("backend"), &backend);
+    engine.rootContext()->setContextProperty(QStringLiteral("nimbus"), &nimbus);
     engine.rootContext()->setContextProperty(QStringLiteral("initialQuery"), initialQuery);
+    engine.rootContext()->setContextProperty(QStringLiteral("initialTab"), initialTab);
+    engine.rootContext()->setContextProperty(QStringLiteral("initialClipView"), initialClipView);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {
                          for (const auto &e : w)
@@ -140,7 +165,7 @@ int main(int argc, char *argv[])
         }
     });
 
-    Toggle toggler(win);
+    Toggle toggler(win, &nimbus);
     QDBusConnection bus = QDBusConnection::sessionBus();
     if (!bus.registerService(QStringLiteral("org.nimbus.Spotlight")))
         qWarning("nimbus-spotlight: sin servicio DBus (otra instancia?)");

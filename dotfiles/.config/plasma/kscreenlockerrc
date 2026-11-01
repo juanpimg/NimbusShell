@@ -1,8 +1,8 @@
 [Daemon]
-Autolock=false
-LockOnResume=false
+Autolock=true
+LockOnResume=true
 LockOnStart=false
-Timeout=10
+Timeout=300
 
 [Greeter]
-Theme=breeze
+Theme=org.nimbus.desktop

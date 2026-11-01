@@ -1,0 +1,23 @@
+modo=local-seco (sin root, HOME temporal, fakes en PATH)
+PASS: bash -n nimbus-hw
+PASS: bash -n nimbus-backup
+PASS: --json válido
+PASS: texto llano (wifi/audio/bt/batería)
+PASS: fake wifi
+PASS: fake impresora
+PASS: fake bluetooth
+Guardando en /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz ...
+HECHO: /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz
+PASS: backup save
+PASS: tarball /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz
+Restaurando /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz (respaldo de lo sobrescrito en /tmp/opencode/nimbus-home-WK0M43/.config/nimbusshell-backup-20261101-023520) ...
+OK: kwinrc
+OK: kdeglobals
+HECHO (restore). Rollback: copia /tmp/opencode/nimbus-home-WK0M43/.config/nimbusshell-backup-20261101-023520/* a ~/.config/.
+PASS: backup restore
+PASS: restore recupera valor
+PASS: dry-run sin cambios
+Guardando en /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023521.tar.gz ...
+HECHO: /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023521.tar.gz
+PASS: idempotente (no borra previas: 2)
+== 13 PASS, 0 FAIL (log /home/jp/Escritorio/Proyectos/NimbusShell-f10hw/spikes/nested/nimbus-hw-check.log) ==

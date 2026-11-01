@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+# nimbus-bar-preset (F3-T13): presets de la barra Nimbus (R-BAR-PRESETS).
+# Versiona tokens/glass/tamaños/orden de iconos/reloj/OSD en
+# packages/shell/nimbus-bar/presets/*.json y los aplica a
+# ~/.config/nimbus-bar/preset.json, que la barra lee al arrancar
+# (barPresetJson en main.cpp + binding en Bar.qml).
+# Seguro: sin root, sin red, idempotente, backup en
+# ~/.config/nimbusshell-backup-barpreset, respeta --home (harness anidado).
+#
+# Uso:
+#   nimbus-bar-preset --list [--home DIR]
+#   nimbus-bar-preset [--apply] [--preset NOMBRE] [--home DIR]
+#   nimbus-bar-preset --check [--preset NOMBRE] [--home DIR]
+#   nimbus-bar-preset --reset [--home DIR]
+#   nimbus-bar-preset --pin-check
+set -u
+
+PRESET="default"
+ACTION="apply"
+HOME_DIR="${HOME:-}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --list) ACTION="list" ;;
+    --apply) ACTION="apply" ;;
+    --check) ACTION="check" ;;
+    --reset) ACTION="reset" ;;
+    --pin-check) ACTION="pin-check" ;;
+    --preset)
+      PRESET="${2:-}"
+      if [ -z "$PRESET" ]; then echo "ERROR: --preset necesita un nombre." >&2; exit 1; fi
+      shift ;;
+    --home)
+      HOME_DIR="${2:-}"
+      if [ -z "$HOME_DIR" ]; then echo "ERROR: --home necesita un directorio." >&2; exit 1; fi
+      shift ;;
+    -h|--help) sed -n '2,13p' "${BASH_SOURCE[0]}" | cut -c3-; exit 0 ;;
+    *) echo "ERROR: flag desconocido '$1' (ver --help)." >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [ "$(id -u)" = "0" ]; then
+  echo "ERROR: no ejecutar como root (el preset es por usuario)." >&2; exit 1
+fi
+command -v python3 >/dev/null 2>&1 || {
+  echo "ERROR: falta python3 (validación JSON). Instala python y reintenta." >&2; exit 1
+}
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PRESET_DIR="$REPO_ROOT/packages/shell/nimbus-bar/presets"
+PINS_FILE="$REPO_ROOT/packages/shell/nimbus-bar/pins.txt"
+
+# Valida un preset contra el esquema nimbus-bar-preset/1 (ver presets/README.md).
+validate() {
+  python3 - "$1" <<'EOF'
+import json, sys
+p = sys.argv[1]
+try:
+    d = json.load(open(p))
+except Exception as e:
+    print(f"ERROR: JSON inválido en {p}: {e}")
+    sys.exit(1)
+errs = []
+def req(obj, key, typ, where):
+    if key not in obj:
+        errs.append(f"{where}: falta '{key}'")
+        return None
+    if not isinstance(obj[key], typ):
+        errs.append(f"{where}.{key}: tipo {type(obj[key]).__name__}, esperado {typ}")
+        return None
+    return obj[key]
+def ranged(obj, key, lo, hi, where, integer=False):
+    v = req(obj, key, int if integer else (int, float), where)
+    if v is None:
+        return
+    if integer and isinstance(v, bool):
+        errs.append(f"{where}.{key}: bool no es int")
+        return
+    if not (lo <= v <= hi):
+        errs.append(f"{where}.{key}={v} fuera de [{lo},{hi}]")
+if d.get("schema") != "nimbus-bar-preset/1":
+    errs.append(f"schema='{d.get('schema')}' (esperado 'nimbus-bar-preset/1')")
+if not d.get("name") or not isinstance(d.get("name"), str):
+    errs.append("name: vacío o no string")
+if not d.get("description") or not isinstance(d.get("description"), str):
+    errs.append("description: vacía o no string")
+bar = req(d, "bar", dict, "preset")
+if bar is not None:
+    ranged(bar, "height", 16, 32, "bar", integer=True)
+    ranged(bar, "marginLeft", 0, 32, "bar", integer=True)
+    ranged(bar, "marginRight", 0, 32, "bar", integer=True)
+    ranged(bar, "spacingLeft", 0, 32, "bar", integer=True)
+    ranged(bar, "spacingRight", 0, 32, "bar", integer=True)
+    ranged(bar, "bgAlpha", 0, 1, "bar")
+    ranged(bar, "hairlineAlpha", 0, 1, "bar")
+clock = req(d, "clock", dict, "preset")
+if clock is not None and (not clock.get("format") or not isinstance(clock.get("format"), str)):
+    errs.append("clock.format: vacío o no string")
+icons = req(d, "icons", dict, "preset")
+known = {"wifi", "bluetooth", "controlcenter", "battery", "tray", "clock"}
+if icons is not None:
+    order = req(icons, "order", list, "icons")
+    hidden = req(icons, "hidden", list, "icons")
+    if order is not None:
+        if len(set(order)) != len(order):
+            errs.append("icons.order: duplicados")
+        for i in order:
+            if i not in known:
+                errs.append(f"icons.order: id desconocido '{i}'")
+    if order is not None and hidden is not None:
+        for i in hidden:
+            if i not in order:
+                errs.append(f"icons.hidden: '{i}' no está en order")
+osd = req(d, "osd", dict, "preset")
+if osd is not None:
+    ranged(osd, "width", 100, 600, "osd", integer=True)
+    ranged(osd, "height", 24, 200, "osd", integer=True)
+    v = req(osd, "timeoutMs", int, "osd")
+    if v is not None and (isinstance(v, bool) or v <= 0):
+        errs.append(f"osd.timeoutMs={v} debe ser int > 0")
+glass = req(d, "glass", dict, "preset")
+if glass is not None:
+    if glass.get("tint") not in ("dark", "light"):
+        errs.append(f"glass.tint='{glass.get('tint')}' (dark|light)")
+    blur = req(glass, "blurPxEq", list, "glass")
+    if blur is not None and (len(blur) != 2 or any(not isinstance(x, int) or x < 0 for x in blur)):
+        errs.append(f"glass.blurPxEq={blur} debe ser [int>=0, int>=0]")
+if errs:
+    print(f"ERROR: esquema inválido en {p}:")
+    for e in errs:
+        print(f"  - {e}")
+    sys.exit(1)
+print(f"SCHEMA OK: {p}")
+EOF
+}
+
+if [ "$ACTION" = "list" ]; then
+  for f in "$PRESET_DIR"/*.json; do
+    [ -f "$f" ] || { echo "ERROR: sin presets en $PRESET_DIR." >&2; exit 1; }
+    basename "$f" .json
+  done
+  exit 0
+fi
+
+if [ "$ACTION" = "pin-check" ]; then
+  [ -f "$PINS_FILE" ] || { echo "ERROR: falta $PINS_FILE." >&2; exit 1; }
+  fails=0
+  pin() { # $1 componente, $2 versión esperada, $3 evidencia
+    got="$(grep -E "^$1 " "$PINS_FILE" | awk '{print $2}' || true)"
+    if [ "$got" = "$2" ] && [ -n "$3" ]; then echo "PIN OK: $1 $got ($3)";
+    elif [ "$got" != "$2" ]; then echo "PIN FAIL: $1='$got' (esperado '$2' en $PINS_FILE)" >&2; fails=$((fails+1));
+    else echo "PIN FAIL: $1 $got sin evidencia ($3 ausente)" >&2; fails=$((fails+1)); fi
+  }
+  qt_evidence=""
+  if command -v qmake6 >/dev/null 2>&1; then
+    qt_evidence="$(qmake6 --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+  fi
+  [ -z "$qt_evidence" ] && [ -x /usr/lib/qt6/bin/qmake6 ] && \
+    qt_evidence="$(/usr/lib/qt6/bin/qmake6 --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+  cfg_ver="$(grep -m1 'set(PACKAGE_VERSION' /usr/lib/cmake/LayerShellQt/LayerShellQtConfigVersion.cmake 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)"
+  krema_evidence="$(grep -rl 'Krema 0.12.0' "$REPO_ROOT/docs" 2>/dev/null | head -1 || true)"
+  klassy_evidence="$(grep -rl 'libklassycommon6.so.6.7.3' "$REPO_ROOT/docs" 2>/dev/null | head -1 || true)"
+  pin krema 0.12.0 "$krema_evidence"
+  pin klassy 6.7.3 "$klassy_evidence"
+  # Qt/LayerShellQt comparan major.minor contra lo instalado (parche libre).
+  qt_pin="$(grep -E '^qt ' "$PINS_FILE" | awk '{print $2}')"
+  case "$qt_evidence" in "$qt_pin"*) echo "PIN OK: qt instalado $qt_evidence casa con pin $qt_pin" ;;
+    "") echo "PIN SKIP: Qt no instalado (pin $qt_pin solo documentado, sin instalar)" ;;
+    *) echo "PIN FAIL: Qt instalado $qt_evidence no casa con pin $qt_pin" >&2; fails=$((fails+1)) ;; esac
+  ls_pin="$(grep -E '^layershellqt ' "$PINS_FILE" | awk '{print $2}')"
+  case "$cfg_ver" in "$ls_pin") echo "PIN OK: layershellqt instalado $cfg_ver == pin" ;;
+    "") echo "PIN SKIP: LayerShellQt no instalado (pin $ls_pin solo documentado, sin instalar)" ;;
+    *) echo "PIN FAIL: LayerShellQt instalado $cfg_ver != pin $ls_pin" >&2; fails=$((fails+1)) ;; esac
+  pin krema 0.12.0 "$krema_evidence"
+  pin klassy 6.7.3 "$klassy_evidence"
+  [ "$fails" -eq 0 ] && echo "PINCHECK OK." && exit 0
+  echo "PINCHECK: $fails divergencias." >&2; exit 1
+fi
+
+if [ -z "$HOME_DIR" ]; then echo "ERROR: sin HOME (exporta HOME o usa --home)." >&2; exit 1; fi
+CFG="$HOME_DIR/.config"
+BAR_CFG="$CFG/nimbus-bar"
+BACKUP="$CFG/nimbusshell-backup-barpreset"
+TARGET="$BAR_CFG/preset.json"
+
+SRC="$PRESET_DIR/$PRESET.json"
+if [ "$ACTION" != "reset" ] && [ ! -f "$SRC" ]; then
+  echo "ERROR: preset desconocido '$PRESET' (ver --list)." >&2; exit 1
+fi
+
+if [ "$ACTION" = "reset" ]; then
+  if [ -f "$BACKUP/preset.json" ]; then
+    mkdir -p "$BAR_CFG" || { echo "ERROR: no se pudo crear $BAR_CFG." >&2; exit 1; }
+    cp -f "$BACKUP/preset.json" "$TARGET"
+    echo "RESET OK: restaurado backup en $TARGET."
+  else
+    rm -f "$TARGET"
+    echo "RESET OK: $TARGET eliminado (sin backup, la barra usa sus fallbacks)."
+  fi
+  exit 0
+fi
+
+if [ "$ACTION" = "check" ]; then
+  fails=0
+  for f in "$PRESET_DIR"/*.json; do
+    validate "$f" || fails=$((fails+1))
+  done
+  if [ -f "$TARGET" ]; then
+    validate "$TARGET" || fails=$((fails+1))
+    match=""
+    for f in "$PRESET_DIR"/*.json; do
+      if cmp -s "$f" "$TARGET"; then match="$(basename "$f" .json)"; break; fi
+    done
+    if [ -n "$match" ]; then echo "CHECK OK: preset aplicado '$match' ($TARGET).";
+    else echo "CHECK FAIL: $TARGET no coincide con ningún preset (custom o divergente)." >&2; fails=$((fails+1)); fi
+  else
+    echo "CHECK: sin preset aplicado en $TARGET (la barra usa sus fallbacks)."
+  fi
+  [ "$fails" -eq 0 ] && echo "CHECK OK." && exit 0
+  echo "CHECK: $fails problema(s)." >&2; exit 1
+fi
+
+# --apply (idempotente: si el contenido ya coincide, no toca nada).
+validate "$SRC" || exit 1
+mkdir -p "$BAR_CFG" || { echo "ERROR: no se pudo crear $BAR_CFG." >&2; exit 1; }
+mkdir -p "$BACKUP" || { echo "ERROR: no se pudo crear $BACKUP." >&2; exit 1; }
+if [ -f "$TARGET" ] && [ ! -f "$BACKUP/preset.json" ]; then cp -f "$TARGET" "$BACKUP/preset.json"; fi
+if [ -f "$TARGET" ] && cmp -s "$SRC" "$TARGET"; then
+  echo "APPLY OK: preset '$PRESET' ya aplicado (sin cambios)."
+  exit 0
+fi
+cp -f "$SRC" "$TARGET" || { echo "ERROR: no se pudo escribir $TARGET." >&2; exit 1; }
+echo "APPLY OK: preset '$PRESET' en $TARGET (backup en $BACKUP). Reinicia nimbus-bar."
+exit 0
