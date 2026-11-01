@@ -130,6 +130,9 @@ else
 fi
 
 # 2. SDDM: Current=nimbus.
+# Tema del greeter: Breeze hasta que el tema Nimbus quede validado en VM
+# (el tema Nimbus daba pantalla negra en SDDM Wayland; bug abierto F2-T02).
+SDDM_THEME="breeze"
 SDDM_CONF="/etc/sddm.conf.d/10-nimbus.conf"
 if [ -f "$SDDM_CONF" ] && grep -q '^\s*Current=nimbus' "$SDDM_CONF" 2>/dev/null; then
   log "OK: SDDM Current=nimbus (ya estaba)"
@@ -140,14 +143,14 @@ else
     mkdir -p "$(dirname "$SDDM_CONF")"
     if [ -f "$SDDM_CONF" ]; then
       if grep -q '^\s*Current=' "$SDDM_CONF"; then
-        sed -i 's|^\s*Current=.*|Current=nimbus|' "$SDDM_CONF" || fail=1
+        sed -i "s|^\s*Current=.*|Current=$SDDM_THEME|" "$SDDM_CONF" || fail=1
       else
-        printf '\n[Theme]\nCurrent=nimbus\n' >>"$SDDM_CONF" || fail=1
+        printf '\n[Theme]\nCurrent=%s\n' "$SDDM_THEME" >>"$SDDM_CONF" || fail=1
       fi
     else
-      printf '[Theme]\nCurrent=nimbus\n' >"$SDDM_CONF" || fail=1
+      printf '[Theme]\nCurrent=%s\n' "$SDDM_THEME" >"$SDDM_CONF" || fail=1
     fi
-    log "OK: SDDM Current=nimbus"
+    log "OK: SDDM Current=$SDDM_THEME"
   fi
 fi
 

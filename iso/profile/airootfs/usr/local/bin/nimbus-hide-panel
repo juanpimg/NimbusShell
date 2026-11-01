@@ -5,7 +5,7 @@ for _ in $(seq 1 40); do
     if qdbus6 org.kde.plasmashell /PlasmaShell >/dev/null 2>&1; then
         qdbus6 org.kde.plasmashell /PlasmaShell \
             org.kde.PlasmaShell.evaluateScript \
-            'panels().forEach(function(p){ p.visible = false; });' \
+            'panels().forEach(function(p){ p.visibilityMode = 1; p.visible = false; });' \
             >/dev/null 2>&1 && exit 0
     fi
     sleep 0.5
