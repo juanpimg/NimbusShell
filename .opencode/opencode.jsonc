@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // Orquestación NimbusShell: agentes especializados + skill de fan-out.
+  // El modelo de todos los subagentes está fijado por la política del repo
+  // (opencode-go/deepseek-v4.1-flash): no cambiar por rol ni por complejidad.
+  "agents": {
+    "nimbus-orchestrator": {
+      "description": "Coordina NimbusShell: divide, lanza en paralelo, integra y verifica. No implementa.",
+      "mode": "primary",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "steps": 40
+    }
+  }
+}
