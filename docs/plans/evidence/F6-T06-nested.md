@@ -33,3 +33,19 @@
 - `tst_index` offscreen: 21 passed, 0 failed (nuevos: `clipHistoryParse`,
   `clipFilterNoCrash`, `copyRoundTrip`, `emojiSearch`, `emojiRecentsPersist`).
 - `qmllint Spotlight.qml` limpio; build CMake OK, sin warnings nuevos.
+
+## Autopegado (2026-11-01)
+
+- `NimbusIndex::pasteFromClipboard()`: busca `ydotool` en PATH; si falta,
+  devuelve false y la UI mantiene copiar+cerrar. Si existe, tras ocultar el
+  overlay espera 260 ms (devolver foco a la app destino) y ejecuta
+  `ydotool key 29:1 47:1 47:0 29:0` (Ctrl+V vía uinput, sin root por sesión).
+- UI: el botón «Pegar» ahora pasa `paste` (antes era otro `copy`); el overlay
+  se oculta y el texto/emoji se pega en la app con foco.
+- Instalación: `ydotool` en el target, `usermod -aG input` y unidad de usuario
+  `ydotoold` habilitada por `nimbus-installed-setup` (sin daemon root).
+- Test unitario nuevo `pasteInvokesYdotool`: fake `ydotool` en PATH recibe
+  `key 29:1 47:1 47:0 29:0`; sin ydotool devuelve false. `tst_index`
+  **23 passed / 0 failed**.
+- Pendiente VM: pegado real en Kate/Dolphin (se valida en la aceptación del
+  sistema instalado).

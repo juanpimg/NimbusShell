@@ -293,6 +293,40 @@ private Q_SLOTS:
         QVERIFY(idx.activateLocal(0, QStringLiteral("copy")));
     }
 
+    // F6-T06: "Pegar" invoca ydotool con Ctrl+V (fake en PATH, sin root).
+    void pasteInvokesYdotool()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const QString exe = dir.path() + QStringLiteral("/ydotool");
+        QFile f(exe);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("#!/bin/sh\nprintf '%s' \"$*\" > \"$0.args\"\n");
+        f.close();
+        QVERIFY(f.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner
+                                 | QFileDevice::ExeOwner));
+        const QByteArray oldPath = qgetenv("PATH");
+        qputenv("PATH", dir.path().toLocal8Bit() + ':' + oldPath);
+        NimbusIndex idx;
+        QVERIFY(idx.copyToClipboard(QStringLiteral("f6paste-123")));
+        QVERIFY(idx.pasteFromClipboard());
+        const QString argsFile = exe + QStringLiteral(".args");
+        QTRY_VERIFY_WITH_TIMEOUT(QFile::exists(argsFile), 3000);
+        QFile args(argsFile);
+        QVERIFY(args.open(QIODevice::ReadOnly));
+        const QString text = QString::fromLatin1(args.readAll());
+        QVERIFY2(text.contains(QStringLiteral("key")), qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("29:1")), qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("47:1")), qPrintable(text));
+        // Sin ydotool en PATH: solo copia (no rompe).
+        QTemporaryDir empty;
+        QVERIFY(empty.isValid());
+        qputenv("PATH", empty.path().toLocal8Bit());
+        NimbusIndex idx2;
+        QVERIFY(!idx2.pasteFromClipboard());
+        qputenv("PATH", oldPath);
+    }
+
     // F6-T06: emoji por nombre, keyword EN y categoría; límite 20.
     void emojiSearch()
     {
