@@ -1,10 +1,149 @@
-// F8-T01 — Actualizaciones (pendiente F8-T07): salta a Discover si existe.
+// F8-T07 — Actualizaciones reales: cuenta pendientes con checkupdates
+// (sin root; fallback pacman -Qu), programar aviso diario con un timer de
+// usuario y enlaces a Discover/copias. Lenguaje llano. i18n() (F11-T05).
 import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls as QQC2
+import org.kde.kirigami as Kirigami
+import org.kde.kcmutils as KCMUtils
 
-NimbusPlaceholder {
-    heading: i18n("Actualizaciones")
-    explanation: i18n("Aquí verás si tu sistema está al día y podrás programar las actualizaciones. De momento, este botón abre la tienda de aplicaciones.")
-    jumpButtons: [
-        { "label": i18n("Abrir Discover"), "target": "app:plasma-discover" }
-    ]
+KCMUtils.SimpleKCM {
+    id: page
+
+    property var kcmRef: (typeof kcm !== "undefined") ? kcm : null
+
+    // Seam de test: el harness pide la comprobación al abrir la página.
+    Component.onCompleted: {
+        if (page.kcmRef && page.kcmRef.autoCheckUpdates) {
+            page.kcmRef.refreshUpdates();
+        }
+    }
+
+    Kirigami.FormLayout {
+        QQC2.Label {
+            Layout.fillWidth: true
+            visible: page.kcmRef ? !page.kcmRef.updatesAvailable : false
+            wrapMode: Text.WordWrap
+            color: Kirigami.Theme.neutralTextColor
+            text: i18n("Este equipo no usa paquetes de Arch.")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Estado:")
+            visible: page.kcmRef ? page.kcmRef.updatesAvailable : true
+            QQC2.Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                color: page.kcmRef && page.kcmRef.updatesCount > 0
+                    ? Kirigami.Theme.neutralTextColor : Kirigami.Theme.positiveTextColor
+                text: {
+                    if (!page.kcmRef) {
+                        return "";
+                    }
+                    if (page.kcmRef.updatesChecking) {
+                        return i18n("Comprobando…");
+                    }
+                    if (page.kcmRef.updatesCount < 0) {
+                        return i18n("Aún sin comprobar.");
+                    }
+                    if (page.kcmRef.updatesCount === 0) {
+                        return i18n("Todo al día. Buen trabajo.");
+                    }
+                    return i18n("Tienes %1 actualizaciones pendientes.", page.kcmRef.updatesCount);
+                }
+                Accessible.name: i18n("Estado de las actualizaciones")
+            }
+            QQC2.Button {
+                text: i18n("Comprobar ahora")
+                Accessible.name: i18n("Comprobar actualizaciones ahora")
+                enabled: page.kcmRef ? !page.kcmRef.updatesChecking : false
+                onClicked: {
+                    if (page.kcmRef) {
+                        page.kcmRef.refreshUpdates();
+                    }
+                }
+            }
+        }
+
+        ColumnLayout {
+            Kirigami.FormData.label: i18n("Pendientes:")
+            visible: page.kcmRef ? page.kcmRef.updatesAvailable && page.kcmRef.updatesCount > 0 : false
+            spacing: 0
+            Repeater {
+                model: page.kcmRef ? page.kcmRef.updatesList : []
+                delegate: QQC2.Label {
+                    required property string modelData
+                    Layout.fillWidth: true
+                    text: modelData
+                    elide: Text.ElideRight
+                    font.family: "monospace"
+                }
+            }
+            QQC2.Label {
+                visible: page.kcmRef ? page.kcmRef.updatesCount > page.kcmRef.updatesList.length : false
+                color: Kirigami.Theme.disabledTextColor
+                text: page.kcmRef ? i18n("…y %1 más.", page.kcmRef.updatesCount - page.kcmRef.updatesList.length) : ""
+            }
+        }
+
+        QQC2.Switch {
+            Kirigami.FormData.label: i18n("Aviso diario:")
+            visible: page.kcmRef ? page.kcmRef.updatesAvailable : true
+            text: i18n("Avisar cada día si hay pendientes")
+            Accessible.name: i18n("Programar comprobación diaria")
+            checked: page.kcmRef ? page.kcmRef.dailyCheck : false
+            onToggled: {
+                if (page.kcmRef) {
+                    page.kcmRef.dailyCheck = checked;
+                }
+            }
+        }
+        QQC2.Label {
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            color: Kirigami.Theme.disabledTextColor
+            text: i18n("Crea un temporizador de usuario (sin root). Se guarda con «Aplicar».")
+        }
+
+        Kirigami.Separator {
+            Kirigami.FormData.isSection: true
+            Kirigami.FormData.label: i18n("Instalar y volver atrás")
+        }
+
+        RowLayout {
+            QQC2.Button {
+                text: i18n("Abrir Discover")
+                Accessible.name: i18n("Abrir la tienda Discover para instalar")
+                enabled: page.kcmRef ? page.kcmRef.discoverInstalled : false
+                onClicked: {
+                    if (page.kcmRef) {
+                        page.kcmRef.openApp("plasma-discover");
+                    }
+                }
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                color: Kirigami.Theme.disabledTextColor
+                text: page.kcmRef && !page.kcmRef.discoverInstalled
+                    ? i18n("Discover no está instalado; actualiza con pacman en un terminal.")
+                    : i18n("Instalar y actualizar se hace en Discover.")
+            }
+        }
+        QQC2.Label {
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            color: Kirigami.Theme.disabledTextColor
+            text: page.kcmRef && page.kcmRef.snapshotsAvailable
+                ? i18n("Este equipo guarda copias (snapper): si algo se rompe al actualizar, puedes volver atrás.")
+                : i18n("Este equipo no guarda copias automáticas.")
+        }
+        QQC2.Label {
+            Layout.fillWidth: true
+            visible: page.kcmRef && page.kcmRef.helperStatus.length > 0
+            wrapMode: Text.WordWrap
+            color: Kirigami.Theme.neutralTextColor
+            text: page.kcmRef ? page.kcmRef.helperStatus : ""
+        }
+    }
 }
