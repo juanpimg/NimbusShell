@@ -1,0 +1,42 @@
+[apps-acc] checks estáticos en AppsWindow.qml/appmodel
+[apps-acc] STATIC-OK: categorías fijas
+[apps-acc] STATIC-OK: vista rejilla
+[apps-acc] STATIC-OK: vista lista
+[apps-acc] STATIC-OK: flag --view icons|list
+[apps-acc] STATIC-OK: flag --category
+[apps-acc] STATIC-OK: teclado categorías (arriba/abajo/Home/End)
+[apps-acc] STATIC-OK: teclado rejilla (flechas+Enter+Esc)
+[apps-acc] STATIC-OK: Esc oculta
+[apps-acc] STATIC-OK: Tab buscador<->rejilla
+[apps-acc] STATIC-OK: filtro por nombre
+[apps-acc] STATIC-OK: modelo expone categorías
+[apps-acc] arranque kwin_wayland --virtual ...
+[apps-acc] nimbus-apps --demo --shot f6-apps-acceptance.png ...
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=545570 comm="/tmp/opencode/f6accept-apps/nimbus-apps --demo --s")
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=545574 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=545574 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:545574): xdg-desktop-portal-WARNING **: 02:48:32.042: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=545574 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=545597 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=545574 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:545574): xdg-desktop-portal-WARNING **: 02:48:32.166: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=545574 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[545392]: [session uid=1000 pid=545392 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+[apps-acc] ABRE-OK: f6-apps-acceptance.png
+[apps-acc] nimbus-apps --demo --view list --category Desarrollo ...
+[apps-acc] VISTA-OK: list+Desarrollo
+[apps-acc] instancia toggle VIVA
+[apps-acc] toggle oculta rc=0
+[apps-acc] toggle muestra rc=0
+[apps-acc] spectacle OK
+[apps-acc] CIERRA-OK (instancia terminada)
+[apps-acc] 0 errores QML
+A connection to the bus can't be made

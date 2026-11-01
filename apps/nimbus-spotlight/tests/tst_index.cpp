@@ -158,6 +158,41 @@ private Q_SLOTS:
         QVERIFY2(ms < 50, qPrintable(QStringLiteral("tab=apps tardó %1ms").arg(ms)));
     }
 
+    // F6-T09 (G1): contratos 0/1/2 resultados cuyas formas colapsaban el
+    // preview QML (TypeError con índice -1 transitorio del ListView).
+    void previewContracts()
+    {
+        const QByteArray oldHome = qgetenv("HOME");
+        const QByteArray oldXdg = qgetenv("XDG_DATA_DIRS");
+        QTemporaryDir home;
+        QVERIFY(home.isValid());
+        qputenv("HOME", home.path().toUtf8());
+        qputenv("XDG_DATA_DIRS", QStringLiteral(NIMBUS_FIXTURES).toUtf8());
+        NimbusIndex idx;
+        // 0: gibberish en tab=apps (sin acción web) → lista vacía.
+        idx.searchLocal(QStringLiteral("9z8x7q2w"), QStringLiteral("apps"));
+        QVERIFY2(idx.localMatches().isEmpty(), "gibberish en apps debe dar 0");
+        // 1: solo la acción web.
+        idx.searchLocal(QStringLiteral("zzzzzsinmatch"), QString());
+        QCOMPARE(idx.localMatches().size(), 1);
+        QCOMPARE(idx.localMatches().first().toMap()
+                     .value(QStringLiteral("localKind"))
+                     .toString(),
+                 QStringLiteral("web"));
+        // 2: cálculo + web.
+        idx.searchLocal(QStringLiteral("2+2"), QString());
+        QCOMPARE(idx.localMatches().size(), 2);
+        QCOMPARE(idx.localMatches().first().toMap()
+                     .value(QStringLiteral("localKind"))
+                     .toString(),
+                 QStringLiteral("calc"));
+        qputenv("HOME", oldHome);
+        if (oldXdg.isEmpty())
+            qunsetenv("XDG_DATA_DIRS");
+        else
+            qputenv("XDG_DATA_DIRS", oldXdg);
+    }
+
     void settingsWifi()
     {
         // Runner Ajustes en vivo: "wifi" debe dar el KCM de red.

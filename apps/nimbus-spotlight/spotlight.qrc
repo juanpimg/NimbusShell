@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/">
     <file>qml/Spotlight.qml</file>
+    <file>qml/PreviewGuard.js</file>
   </qresource>
 </RCC>
