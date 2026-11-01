@@ -51,7 +51,10 @@ ApplicationWindow {
             var w = flat[i];
             w.fi = i;
             if (map[w.app] === undefined) {
-                map[w.app] = { app: w.app, wins: [] };
+                map[w.app] = {
+                    app: w.app,
+                    wins: []
+                };
                 groups.push(map[w.app]);
             }
             map[w.app].wins.push(w);
@@ -82,11 +85,21 @@ ApplicationWindow {
 
     Connections {
         target: backend
-        function onWindowsChanged() { root.refreshVisible(); }
-        function onDesktopsChanged() { root.refreshVisible(); }
-        function onExposeChanged() { root.refreshVisible(); }
-        function onIntroChanged() { root.restartIntro(); }
-        function onMotionChanged() { root.restartIntro(); }
+        function onWindowsChanged() {
+            root.refreshVisible();
+        }
+        function onDesktopsChanged() {
+            root.refreshVisible();
+        }
+        function onExposeChanged() {
+            root.refreshVisible();
+        }
+        function onIntroChanged() {
+            root.restartIntro();
+        }
+        function onMotionChanged() {
+            root.restartIntro();
+        }
     }
 
     Component.onCompleted: {
