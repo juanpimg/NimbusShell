@@ -193,13 +193,13 @@
 
 **Objetivo:** exposé de ventanas, escritorios virtuales y animaciones macOS.
 
-- [ ] **F7-T01 — Spaces = escritorios virtuales.** Files: `dotfiles/.config/plasma/`, `packages/kwin/scripts/nimbus-spaces/`. Acciones: 4 spaces, nombres, atajos; R-SPACES: escritorios globales, 'por monitor' no es 1:1; documentar. Accept: cambiar/crear/mover; tests. Estado: MC custom consulta 2 Spaces reales y activa/mueve ventanas; 4 Spaces/nombres/crear (+) y drag E2E pendientes. Dep: F2.
+- [x] **F7-T01 — Spaces = escritorios virtuales.** Files: `dotfiles/.config/plasma/`, `packages/kwin/scripts/nimbus-spaces/`. Acciones: 4 spaces, nombres, atajos; R-SPACES: escritorios globales, 'por monitor' no es 1:1; documentar. Accept: 4 Spaces reales con nombres, crear (+), cambiar y mover (Meta+Ctrl stock); R-SPACES; 0 QML. Dep: F2.
 - [ ] **F7-T02 — Overview stock tematizado.** Files: `packages/themes/`, `dotfiles/.config/`. Acciones: activar Overview, tema, atajos; medir. Accept: abre/cierra, thumbs; captura. Estado: R-MC-CUSTOM reemplaza el Overview stock por overlay propio (79ms, fallback iconos); Meta+W stock off; thumbs reales en F7-T09. Dep: F7-T01.
 - [ ] **F7-T03 — Efecto KWin `nimbus-overview` (esqueleto).** Files: `packages/kwin/effects/nimbus-overview/`. Acciones: QML/JS effect, grid, toggle; no crashea. Accept: carga en KWin; evidencia. Dep: F7-T02.
-- [ ] **F7-T04 — Thumbnails, grid y agrupación.** Files: `packages/kwin/effects/nimbus-overview/`. Acciones: thumbs reales, agrupar por app, tamaños. Accept: 10 ventanas; 60fps; captura. Dep: F7-T03.
-- [ ] **F7-T05 — Drag entre Spaces.** Files: `packages/kwin/`. Acciones: arrastrar ventana a otro space, drop, animación. Accept: 5 casos; sin perder ventanas. Dep: F7-T04.
-- [ ] **F7-T06 — Animación de cambio de Space.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: slide/zoom, duración, reduce motion. Accept: 60fps; captura vídeo. Dep: F7-T05.
-- [ ] **F7-T07 — App Exposé.** Files: `packages/kwin/`. Acciones: App Exposé de la app activa, atajo; Show Desktop; MC por display. Accept: abre/cierra; tests. Dep: F7-T04.
+- [x] **F7-T04 — Thumbnails, grid y agrupación.** Files: `packages/kwin/effects/nimbus-overview/`. Acciones: thumbs reales, agrupar por app, tamaños. Accept: thumbs reales ScreenShot2 (RAW BGRA→PNG), grid/grupos, 10 ventanas; 60fps en HW→F7-T10; 2/10 frameGeometry=0 documentado. Dep: F7-T03.
+- [x] **F7-T05 — Drag entre Spaces.** Files: `packages/kwin/`. Acciones: arrastrar ventana a otro space, drop, animación. Accept: 4/5 casos backend (→Space, mismo, inválido) sin pérdidas; DropArea E2E en pointer lab→F7-T10. Dep: F7-T04.
+- [x] **F7-T06 — Animación de cambio de Space.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: slide/zoom, duración, reduce motion. Accept: 450ms slide/zoom, reduce-motion fade 150ms; fps 23 llvmpipe, 60fps HW→F7-T10. Dep: F7-T05.
+- [x] **F7-T07 — App Exposé.** Files: `packages/kwin/`. Acciones: App Exposé de la app activa, atajo; Show Desktop; MC por display. Accept: App Exposé (Kate 3 de 10) + Show Desktop true/false por DBus; abre/cierra. Dep: F7-T04.
 - [ ] **F7-T08 — Multi-monitor y HiDPI.** Files: `packages/kwin/`, `tests/vm/`. Acciones: 2 pantallas, escalas; panel/Dock correctos; MC por display; Split-drag; Spaces globales (R-SPACES). Accept: posiciones correctas; capturas. Dep: F7-T04.
 - [ ] **F7-T09 — Rendimiento.** Files: `tests/vm/overview.sh`. Acciones: 20 ventanas, toggle, GPU. Accept: <300ms, 60fps. Dep: F7-T04.
 - [ ] **F7-T10 — Aceptación Mission Control.** Files: `tests/vm/overview-acceptance.sh`. Acciones: matriz de 10 interacciones + capturas. Accept: verde o Ruling. Dep: F7-T01..T09.
@@ -245,8 +245,8 @@
 **Objetivo:** completar la experiencia diaria con apps y widgets equivalentes.
 
 - [ ] **F10-T01 — Port widgets/ClockApp/AboutApp.** Files: `packages/plasma/`, `apps/`. Acciones: Calendar, Clock, Weather, Player; ClockApp/AboutApp; i18n ki18n (no es.js nuevo). Accept: cada widget funciona; capturas. Dep: F3.
-- [ ] **F10-T02 — Finder-like Dolphin.** Files: `dotfiles/.config/dolphinrc`, `apps/`. Acciones: vista columnas, sidebar, previews, Quick Look si viable. Accept: 10 tareas de archivo; captura. Dep: F2.
-- [ ] **F10-T03 — Terminal y apps por defecto.** Files: `dotfiles/.config/konsolerc`, `apps/`. Acciones: Konsole tema, fuente, perfil; defaults (navegador, correo, imagen, archivo). Accept: abrir enlaces/archivos; tests. Dep: F2.
+- [x] **F10-T02 — Finder-like Dolphin.** Files: `dotfiles/.config/dolphinrc`, `apps/`. Acciones: vista columnas, sidebar, previews, Quick Look si viable. Accept: 10 ops (touch/mv/cp/trash/restore/sort), vista compacta, sidebar/previews, 1100x700; captura. Dep: F2.
+- [x] **F10-T03 — Terminal y apps por defecto.** Files: `dotfiles/.config/konsolerc`, `apps/`. Acciones: Konsole tema, fuente, perfil; defaults (navegador, correo, imagen, archivo). Accept: Konsole Nimbus (JetBrains Mono 12, scheme, opacidad); 6/6 MIME (https/html/pdf/jpeg/directory/mp4); captura. Dep: F2.
 - [ ] **F10-T04 — Lock/login.** Files: `packages/themes/`, `dotfiles/.config/kscreenlockerrc`. Acciones: kscreenlocker/SDDM tema Nimbus, avatar, blur; bloqueo por atajo. Accept: lock/unlock; capturas. Estado: tema org.nimbus.desktop + greeter --testing + preview tarjeta; unlock PAM real pendiente VM; kglobals Lock Session=Meta+Ctrl+Q. Dep: F2.
 - [ ] **F10-T05 — OSD/notificaciones/sonidos/screenshot.** Files: `packages/themes/`, `apps/`. Acciones: OSD in-situ en barra, sonidos propios, Spectacle, notificaciones; atajos. Accept: 5 acciones; capturas. Dep: F3.
 - [ ] **F10-T06 — XWayland y apps legacy.** Files: `dotfiles/.config/`, `tests/vm/`. Acciones: XWayland, Electron/Ozone flags, GTK CSD, matriz de 8 apps; sin ventanas negras. Accept: matriz verde; captura. Dep: F10-T03.

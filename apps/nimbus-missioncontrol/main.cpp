@@ -1,11 +1,13 @@
-// nimbus-missioncontrol — overlay Mission Control/Spaces (F7-T01/T02).
-// Flags: --demo (datos falsos), --shot <png> (captura propia tras pintar).
+// nimbus-missioncontrol — overlay Mission Control/Spaces (F7 R-MC-CUSTOM).
+// Flags: --demo (datos falsos), --shot <png> (captura propia tras pintar),
+//   --reduce-motion (fade 150ms en vez de slide/zoom 450ms).
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlError>
 #include <QQuickWindow>
-#include <QElapsedTimer>
 #include <QScreen>
 #include <QTimer>
 #include <QWindow>
@@ -42,6 +44,45 @@ public Q_SLOTS:
     int desktopCount() const { return m_backend->desktops().size(); }
     int openLatencyMs() const { return m_backend->openLatencyMs(); }
     QString activateFirst() { return m_backend->activateFirst(); }
+    QString moveFirstTo(int deskIndex) { return m_backend->moveFirstTo(deskIndex); }
+    void createSpace() { m_backend->createSpace(); }
+    void ensureSpaces(int n) { m_backend->ensureSpaces(n); }
+    void requestThumbs() { m_backend->requestThumbs(); }
+    QString thumbLog() const { return m_backend->thumbLog(); }
+    void replayIntro() { m_backend->replayIntro(); }
+    void setReduceMotion(bool v) { m_backend->setReduceMotion(v); }
+    void showDesktop(bool show) { m_backend->showDesktop(show); }
+    void toggleExpose() { m_backend->toggleExpose(); }
+    // Captura bajo demanda (fases del test nested).
+    bool grabShot(const QString &path)
+    {
+        auto *qw = qobject_cast<QQuickWindow *>(m_win);
+        if (!qw)
+            return false;
+        QImage img = qw->grabWindow();
+        return !img.isNull() && img.save(path);
+    }
+    // F7-T06: cuenta frameSwapped durante ~1.2s (idealmente durante la intro).
+    int fpsProbe()
+    {
+        int frames = 0;
+        auto *qw = qobject_cast<QQuickWindow *>(m_win);
+        if (!qw)
+            return -1;
+        QMetaObject::Connection c =
+            QObject::connect(qw, &QQuickWindow::frameSwapped, [&frames]() { ++frames; });
+        QEventLoop loop;
+        QTimer t;
+        t.setSingleShot(true);
+        QObject::connect(&t, &QTimer::timeout, &loop, &QEventLoop::quit);
+        QElapsedTimer e;
+        e.start();
+        t.start(1200);
+        loop.exec();
+        QObject::disconnect(c);
+        const int ms = int(e.elapsed());
+        return ms > 0 ? frames * 1000 / ms : 0;
+    }
 private:
     QWindow *m_win = nullptr;
     KWinBackend *m_backend = nullptr;
@@ -69,17 +110,20 @@ int main(int argc, char *argv[])
                 m.toUtf8().constData());
     });
 
-    bool demo = false;
+    bool demo = false, reduceMotion = false;
     QString shotPath;
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo"))
             demo = true;
+        else if (a == QStringLiteral("--reduce-motion"))
+            reduceMotion = true;
         else if (a == QStringLiteral("--shot") && i + 1 < argc)
             shotPath = QString::fromLocal8Bit(argv[++i]);
     }
 
     KWinBackend backend(demo);
+    backend.setReduceMotion(reduceMotion);
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("backend"), &backend);
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
@@ -127,12 +171,8 @@ int main(int argc, char *argv[])
         bus.registerObject(QStringLiteral("/MC"), &toggler,
                            QDBusConnection::ExportAllSlots);
 
-    qInfo().noquote() << QStringLiteral("nimbus-mc: open_ms=%1 demo=%2")
-                             .arg(openT.elapsed()).arg(demo);
-
-    backend.refresh();
-    win->setVisible(true);
-    win->requestActivate();
+    qInfo().noquote() << QStringLiteral("nimbus-mc: open_ms=%1 demo=%2 rm=%3")
+                             .arg(openT.elapsed()).arg(demo).arg(reduceMotion);
 
     if (!shotPath.isEmpty()) {
         QTimer::singleShot(2500, win, [win, shotPath]() {
