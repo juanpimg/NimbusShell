@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Reloj
+Comment=Reloj mundial, alarmas, cronómetro y temporizador
+Exec=nimbus-clock
+Icon=nimbus-clock
+Categories=System;Utility;
+X-Nimbus-AppId=org.nimbus.clock

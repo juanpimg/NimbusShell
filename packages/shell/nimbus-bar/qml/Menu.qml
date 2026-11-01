@@ -35,7 +35,7 @@ Item {
         console.log("menu: run " + cmd + (demo ? " (demo, no ejecutado)" : ""));
         close();
     }
-    // F3-T04 fix: recorre los 7 items y loguea sin ejecutar nada.
+    // F3-T04 fix: recorre los 9 items y loguea sin ejecutar nada.
     function logAllActions() {
         for (var i = 0; i < actionModel.count; i++) {
             var it = actionModel.get(i);
@@ -73,7 +73,7 @@ Item {
         id: popup
         visible: root.opened
         width: 248
-        height: confirmBox.visible ? 380 : 340
+        height: confirmBox.visible ? 412 : 372
         x: 8
         y: 26
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
@@ -106,6 +106,11 @@ Item {
                             label: "Ayuda de Nimbus"
                             cmd: "nimbus-help"
                             glyph: "?"
+                        }
+                        ListElement {
+                            label: "Reloj"
+                            cmd: "nimbus-clock"
+                            glyph: "◷"
                         }
                         ListElement {
                             label: "Ajustes del sistema…"

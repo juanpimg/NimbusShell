@@ -26,6 +26,8 @@
 #include "batteryinfo.h"
 #include "notificationserver.h"
 #include "osdbridge.h"
+#include "mprismodel.h"
+#include "weathermodel.h"
 
 // F3-T07: provider image://sni/<uid> (pixmap SNI, icono de tema o badge).
 class SniProvider : public QQuickImageProvider {
@@ -87,7 +89,8 @@ int main(int argc, char *argv[])
 
     bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false,
          demoCalendar = false, demoAppmenu = false, logAppmenu = false, demoTray = false,
-         demoOsd = false, wantNotif = true, demoNotif = false;
+         demoOsd = false, wantNotif = true, demoNotif = false, demoMedia = false,
+         demoWeather = false, dumpMedia = false, dumpWeather = false;
     QString demoOsdKind = QStringLiteral("volume");
     double demoOsdValue = 0.7;
     int trayOpenMenu = -1;
@@ -128,6 +131,14 @@ int main(int argc, char *argv[])
             wantNotif = false;
         else if (a == QStringLiteral("--demo-notification"))
             demoNotif = true;
+        else if (a == QStringLiteral("--demo-media"))
+            demoMedia = true;
+        else if (a == QStringLiteral("--demo-weather"))
+            demoWeather = true;
+        else if (a == QStringLiteral("--dump-media"))
+            dumpMedia = true;
+        else if (a == QStringLiteral("--dump-weather"))
+            dumpWeather = true;
         else if (a == QStringLiteral("--tray-open-menu"))
             trayOpenMenu = 0;
         else if (a == QStringLiteral("--accent") && i + 1 < argc)
@@ -164,6 +175,17 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("demoCalendar"), demoCalendar);
     engine.rootContext()->setContextProperty(QStringLiteral("appMenu"), &appMenu);
     engine.rootContext()->setContextProperty(QStringLiteral("demoAppmenu"), demoAppmenu);
+    // F10-T01: Now Playing MPRIS + Tiempo Open-Meteo (context props).
+    MprisModel mpris;
+    if (demoMedia)
+        mpris.setDemo(true);
+    engine.rootContext()->setContextProperty(QStringLiteral("mpris"), &mpris);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoMedia"), demoMedia);
+    WeatherModel weather;
+    if (demoWeather)
+        weather.setDemo(true);
+    engine.rootContext()->setContextProperty(QStringLiteral("weather"), &weather);
+    engine.rootContext()->setContextProperty(QStringLiteral("demoWeather"), demoWeather);
     // F3-T10: puente OSD (DBus org.nimbus.OSD /OSD show(kind,value)).
     OsdBridge osdBridge;
     new OsdAdaptor(&osdBridge);
@@ -290,6 +312,22 @@ int main(int argc, char *argv[])
             fprintf(stderr, "preset-dump: orderApplied=%s orderError=%s\n",
                     qUtf8Printable(rootObj->property("presetOrderApplied").toString()),
                     qUtf8Printable(rootObj->property("presetOrderError").toString()));
+            QCoreApplication::quit();
+        });
+    }
+    // F10-T01: --dump-media/--dump-weather (unit test determinista, offscreen).
+    if (dumpMedia || dumpWeather) {
+        QTimer::singleShot(3000, &app, [&mpris, &weather, dumpMedia, dumpWeather]() {
+            if (dumpMedia)
+                fprintf(stderr, "media-dump: has=%d title='%s' artist='%s' playing=%d\n",
+                        mpris.hasPlayer(), qUtf8Printable(mpris.title()),
+                        qUtf8Printable(mpris.artist()), mpris.playing());
+            if (dumpWeather)
+                fprintf(stderr, "weather-dump: city='%s' temp='%s' cond='%s' code=%d minmax='%s' days=%d stale=%d\n",
+                        qUtf8Printable(weather.city()), qUtf8Printable(weather.temp()),
+                        qUtf8Printable(weather.cond()), weather.condCode(),
+                        qUtf8Printable(weather.minMax()), weather.days().size(),
+                        weather.stale());
             QCoreApplication::quit();
         });
     }

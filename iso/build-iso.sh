@@ -71,6 +71,7 @@ need "$REPO_ROOT/packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.pa
 need "$REPO_ROOT/packages/shell/nimbus-bar/CMakeLists.txt" "fuente nimbus-bar"
 need "$REPO_ROOT/apps/nimbus-apps/CMakeLists.txt" "fuente nimbus-apps"
 need "$REPO_ROOT/apps/nimbus-about/CMakeLists.txt" "fuente nimbus-about"
+need "$REPO_ROOT/apps/nimbus-clock/CMakeLists.txt" "fuente nimbus-clock"
 need "$REPO_ROOT/apps/nimbus-help/CMakeLists.txt" "fuente nimbus-help"
 need "$REPO_ROOT/apps/nimbus-spotlight/CMakeLists.txt" "fuente nimbus-spotlight"
 need "$REPO_ROOT/packages/kcm/kcm_nimbus/CMakeLists.txt" "fuente KCM Nimbus (F8)"
@@ -188,7 +189,7 @@ fi
 if [ "$SKIP_APPS" -eq 1 ]; then
   echo "SKIP: compilación de apps omitida (--skip-apps); el live no traerá nimbus-bar/apps/spotlight"
 else
-    for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight" "apps/nimbus-about" "apps/nimbus-help" "apps/nimbus-missioncontrol" "apps/nimbus-welcome"; do
+    for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight" "apps/nimbus-about" "apps/nimbus-clock" "apps/nimbus-help" "apps/nimbus-missioncontrol" "apps/nimbus-welcome"; do
     name="$(basename "$app")"
     builddir="/tmp/nimbus-build-$name"
     rm -rf "$builddir"; mkdir -p "$builddir" || exit 1
@@ -251,7 +252,7 @@ for f in \
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
 done
 if [ "$SKIP_APPS" -eq 0 ]; then
-  for b in nimbus-bar nimbus-apps nimbus-spotlight nimbus-about nimbus-help nimbus-missioncontrol nimbus-welcome; do
+  for b in nimbus-bar nimbus-apps nimbus-spotlight nimbus-about nimbus-clock nimbus-help nimbus-missioncontrol nimbus-welcome; do
     [ -x "$OUT/airootfs/usr/local/bin/$b" ] || { echo "ERROR: falta binario $b en staging" >&2; exit 1; }
   done
 fi

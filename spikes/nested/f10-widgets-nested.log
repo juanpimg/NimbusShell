@@ -1,0 +1,54 @@
+[f10w] qmllint (bar+clock) ...
+[f10w] qmllint limpio (6 ficheros)
+[f10w] barra A: solo CC + demo-media (captura limpia) ...
+nimbus-bar[0]: cc-query: theme kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo
+nimbus-bar[0]: cc-query: theme kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo
+nimbus-bar[4]: nimbus-bar: demoMenu=0 logActions=0 barHeight=24
+nimbus-bar[4]: nimbus-bar: servidor org.freedesktop.Notifications activo
+nimbus-bar[0]: cc-output: theme 
+nimbus-bar[0]: cc-output: theme 
+nimbus-bar[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+[f10w] f10-media.png OK
+[f10w] barra B: calendario + demo-weather ...
+[f10w] reloj (mundo) ...
+nimbus-clock: OPEN tab=mundo
+[f10w] f10-clock.png OK
+[f10w] reloj (alarmas) ...
+nimbus-clock: OPEN tab=alarmas
+[f10w] f10-clock-alarm.png OK
+[f10w] calendario+tiempo (ya abierto por la barra) ...
+[f10w] f10-weather.png OK
+[f10w] --- errores QML en log ---
+[f10w] QML_ERRORS=0
+[f10w] nested rc=0
+[f10w] build-iso.sh bash -n OK
+== build-iso --check de fuentes ==
+OK: profiledef.sh (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/profile/profiledef.sh)
+OK: packages.x86_64 (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/profile/packages.x86_64)
+OK: pacman.conf (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/profile/pacman.conf)
+OK: nimbus-installed-setup (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/profile/airootfs/usr/local/bin/nimbus-installed-setup)
+OK: settings Calamares (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/calamares/settings.conf)
+OK: branding Calamares (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/calamares/branding/nimbus/branding.desc)
+OK: grupos netinstall (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/calamares/groups-nimbus.json)
+OK: módulo shellprocess-nimbus (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/iso/calamares/modules/shellprocess-nimbus.conf)
+OK: dotfiles plasma (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/dotfiles/.config/plasma/kdeglobals)
+OK: script nimbus-theme (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/scripts/nimbus-theme)
+OK: script nimbus-privacy (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/scripts/nimbus-privacy)
+OK: script nimbus-flatpak-perms (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/scripts/nimbus-flatpak-perms)
+OK: script apply-theme (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/scripts/apply-theme)
+OK: tema nimbus-tahoe (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/themes/nimbus-tahoe/kdeglobals)
+OK: tokens Nimbus (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/themes/nimbus-tokens/tokens.json)
+OK: preset klassy (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/themes/klassy-preset/nimbus-tahoe.klpw)
+OK: tema sddm-nimbus (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/themes/sddm-nimbus/Main.qml)
+OK: KWin script spotlight (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/kwin/scripts/nimbus-spotlight/metadata.json)
+OK: parche klassy-hover-plus (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.patch)
+OK: fuente nimbus-bar (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/shell/nimbus-bar/CMakeLists.txt)
+OK: fuente nimbus-apps (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/apps/nimbus-apps/CMakeLists.txt)
+OK: fuente nimbus-about (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/apps/nimbus-about/CMakeLists.txt)
+OK: fuente nimbus-clock (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/apps/nimbus-clock/CMakeLists.txt)
+OK: fuente nimbus-help (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/apps/nimbus-help/CMakeLists.txt)
+OK: fuente nimbus-spotlight (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/apps/nimbus-spotlight/CMakeLists.txt)
+OK: fuente KCM Nimbus (F8) (/home/jp/Escritorio/Proyectos/NimbusShell-f10widgets/packages/kcm/kcm_nimbus/CMakeLists.txt)
+OK: shellprocess invoca /usr/local/bin/nimbus-installed-setup
+== --check OK ==
+[f10w] build-iso --check OK
