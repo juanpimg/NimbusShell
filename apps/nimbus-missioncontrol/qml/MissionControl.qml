@@ -116,43 +116,55 @@ ApplicationWindow {
     }
 
     // Teclado vía Shortcut (Keys no se adjunta a Window, solo a Item).
+    // F7-T10: la lógica vive en ui*() para que selftestKey la ejercite.
+    function uiEsc() { root.visible = false; }
+    function uiEnter() {
+        if (root.visibleWins.length > 0)
+            backend.activateWindow(root.visibleWins[root.selIndex].id);
+        root.visible = false;
+    }
+    function uiRight() {
+        var n = root.visibleWins.length;
+        if (n > 0)
+            root.selIndex = (root.selIndex + 1) % n;
+    }
+    function uiLeft() {
+        var n = root.visibleWins.length;
+        if (n > 0)
+            root.selIndex = (root.selIndex + n - 1) % n;
+    }
+    function uiExpose() { backend.toggleExpose(); }
+    function uiState() {
+        return "visible=" + root.visible + " sel=" + root.selIndex
+            + " expose=" + backend.exposeActiveAppOnly
+            + " rm=" + backend.reduceMotion
+            + " wins=" + root.visibleWins.length;
+    }
     Shortcut {
         sequence: "Escape"
         context: Qt.ApplicationShortcut
-        onActivated: root.visible = false
+        onActivated: root.uiEsc()
     }
     Shortcut {
         sequences: ["Return", "Enter"]
         context: Qt.ApplicationShortcut
-        onActivated: {
-            if (root.visibleWins.length > 0)
-                backend.activateWindow(root.visibleWins[root.selIndex].id);
-            root.visible = false;
-        }
+        onActivated: root.uiEnter()
     }
     Shortcut {
         sequence: "Right"
         context: Qt.ApplicationShortcut
-        onActivated: {
-            var n = root.visibleWins.length;
-            if (n > 0)
-                root.selIndex = (root.selIndex + 1) % n;
-        }
+        onActivated: root.uiRight()
     }
     Shortcut {
         sequence: "Left"
         context: Qt.ApplicationShortcut
-        onActivated: {
-            var n = root.visibleWins.length;
-            if (n > 0)
-                root.selIndex = (root.selIndex + n - 1) % n;
-        }
+        onActivated: root.uiLeft()
     }
     // F7-T07: Tab = App Exposé (pulido: cabecera muestra app + N de M).
     Shortcut {
         sequence: "Tab"
         context: Qt.ApplicationShortcut
-        onActivated: backend.toggleExpose()
+        onActivated: root.uiExpose()
     }
     // F7-T07: Show Desktop (macOS F11); sin binds CTRL (R-HYPR).
     Shortcut {

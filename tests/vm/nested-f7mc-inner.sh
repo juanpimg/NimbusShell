@@ -77,6 +77,22 @@ sleep 1
 $MC.grabShot "$OUT/f7-mc-rm.png" >>"$LOG" 2>&1
 echo "[f7] rm_rc=$? shot=$([ -f "$OUT/f7-mc-rm.png" ] && echo OK || echo FALTA)" | tee -a "$LOG"
 $MC.setReduceMotion false >>"$LOG" 2>&1
+# F7-T10: matriz de aceptación (misma ruta que UI/atajos vía selftestKey).
+echo "[f7t10] st0=$($MC.uiState 2>>"$LOG")" | tee -a "$LOG"
+$MC.show >>"$LOG" 2>&1; sleep 1
+echo "[f7t10] 1-abrir=$($MC.isVisible 2>>"$LOG")" | tee -a "$LOG"
+echo "[f7t10] key-Esc=$($MC.selftestKey Escape 2>>"$LOG") vis=$($MC.isVisible 2>>"$LOG")" | tee -a "$LOG"
+$MC.show >>"$LOG" 2>&1; sleep 1
+$MC.setCurrentDesktopByIndex 2 >>"$LOG" 2>&1; sleep 1
+echo "[f7t10] 3-switch=currentDesktop=$(qdbus6 org.kde.KWin /KWin org.kde.KWin.currentDesktop 2>>"$LOG")" | tee -a "$LOG"
+$MC.setCurrentDesktopByIndex 1 >>"$LOG" 2>&1; sleep 1
+echo "[f7t10] 4-activar=$($MC.activateFirst 2>>"$LOG")" | tee -a "$LOG"
+echo "[f7t10] 6-expose=$($MC.selftestKey Tab 2>>"$LOG") st=$($MC.uiState 2>>"$LOG")" | tee -a "$LOG"
+echo "[f7t10] key-Left=$($MC.selftestKey Left 2>>"$LOG") st=$($MC.uiState 2>>"$LOG")" | tee -a "$LOG"
+echo "[f7t10] key-Right=$($MC.selftestKey Right 2>>"$LOG") st=$($MC.uiState 2>>"$LOG")" | tee -a "$LOG"
+echo "[f7t10] key-Enter=$($MC.selftestKey Enter 2>>"$LOG") vis=$($MC.isVisible 2>>"$LOG")" | tee -a "$LOG"
+$MC.show >>"$LOG" 2>&1; sleep 1
+echo "[f7t10] 10-rm=$($MC.uiState 2>>"$LOG")" | tee -a "$LOG"
 cp -f "$OUT/f7-mc-grab.png" "$OUT/f7-mc.png"
 ls -la "$OUT"/f7-mc*.png >>"$LOG" 2>&1 || true
 kill $MCPID 2>/dev/null || true
