@@ -1,49 +1,50 @@
-[bar] runtime=/tmp/opencode/nimbus-bar-ezoAYZ/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-f3bar/spikes/nested/nested-bar.log bin=/tmp/nimbus-bar-prefix/bin/nimbus-bar
+[bar] runtime=/tmp/opencode/nimbus-bar-3KGywc/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-migration/spikes/nested/nested-bar.log bin=/tmp/nimbus-bar-icons4/nimbus-bar
 [bar] arranque kwin_wayland --virtual ...
 [bar] arranque kwin_wayland --virtual ...
 [bar] socket OK
 [bar] socket OK
 [bar] arranque plasmashell (fondo) + kate (cliente normal) ...
 [bar] arranque plasmashell (fondo) + kate (cliente normal) ...
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=124699 comm="kate")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.3' (uid=1000 pid=124737 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.3' (uid=1000 pid=124737 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=60204 comm="plasmashell")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.3' (uid=1000 pid=60210 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.3' (uid=1000 pid=60210 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
 
-(/usr/lib/xdg-desktop-portal:124737): xdg-desktop-portal-WARNING **: 20:56:52.771: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.3' (uid=1000 pid=124737 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.6' (uid=1000 pid=124778 comm="/usr/lib/xdg-desktop-portal-gtk")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.2' (uid=1000 pid=124698 comm="plasmashell")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.3' (uid=1000 pid=124737 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+(/usr/lib/xdg-desktop-portal:60210): xdg-desktop-portal-WARNING **: 19:32:02.167: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.3' (uid=1000 pid=60210 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.6' (uid=1000 pid=60234 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=60204 comm="plasmashell")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.3' (uid=1000 pid=60210 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
 
-(/usr/lib/xdg-desktop-portal:124737): xdg-desktop-portal-WARNING **: 20:56:52.923: Failed to connect to PipeWire: Couldn't connect to PipeWire
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.3' (uid=1000 pid=124737 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.kde.kdeconnect' requested by ':1.2' (uid=1000 pid=124698 comm="plasmashell")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.kde.kdeconnect'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.freedesktop.Notifications' requested by ':1.14' (uid=1000 pid=125009 comm="/usr/bin/kdeconnectd")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.freedesktop.Notifications'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.2' (uid=1000 pid=124698 comm="plasmashell")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.kde.kded6'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.17' (uid=1000 pid=125032 comm="/usr/bin/kded6")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'ca.desrt.dconf'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.16' (uid=1000 pid=125032 comm="/usr/bin/kded6")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Successfully activated service 'org.bluez.obex'
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.2' (uid=1000 pid=124698 comm="plasmashell")
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Connection :1.32 (uid=1000 pid=125305 comm="dbus-monitor type=method_call,interface=org.nimbus") became a monitor.
+(/usr/lib/xdg-desktop-portal:60210): xdg-desktop-portal-WARNING **: 19:32:02.637: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.3' (uid=1000 pid=60210 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.kde.kdeconnect' requested by ':1.1' (uid=1000 pid=60204 comm="plasmashell")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.kde.kdeconnect'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.freedesktop.Notifications' requested by ':1.14' (uid=1000 pid=60310 comm="/usr/bin/kdeconnectd")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.freedesktop.Notifications'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.1' (uid=1000 pid=60204 comm="plasmashell")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.17' (uid=1000 pid=60325 comm="/usr/bin/kded6")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.16' (uid=1000 pid=60325 comm="/usr/bin/kded6")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Successfully activated service 'org.bluez.obex'
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=60204 comm="plasmashell")
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Connection :1.32 (uid=1000 pid=60475 comm="dbus-monitor type=method_call,interface=org.nimbus") became a monitor.
 [bar] probe ANTES de la barra (foco) ...
 [bar] probe ANTES de la barra (foco) ...
 true
 [bar] arranque nimbus-bar ...
 [bar] arranque nimbus-bar ...
-[bar] nimbus-bar VIVO pid=125322
-[bar] nimbus-bar VIVO pid=125322
+nimbus-bar: org.freedesktop.Notifications ya registrado (plasmashell stock?) — sigo SIN servidor de notificaciones
+[bar] nimbus-bar VIVO pid=60491
+[bar] nimbus-bar VIVO pid=60491
 [bar] probe DESPUES de la barra (foco) ...
 [bar] probe DESPUES de la barra (foco) ...
 true
@@ -64,7 +65,7 @@ true
 true
 [bar] f3-bar-nobar.png OK
 [bar] f3-bar-nobar.png OK
-dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Monitoring connection :1.32 closed.
+dbus-daemon[60125]: [session uid=1000 pid=60125 pidfd=5] Monitoring connection :1.32 closed.
 [bar] resultados sonda:
 [bar] resultados sonda:
    string "NIMBUS active=Bienvenido — Kate"
@@ -77,9 +78,9 @@ dbus-daemon[124534]: [session uid=1000 pid=124534 pidfd=5] Monitoring connection
    string "NIMBUS max-ok caption=Bienvenido — Kate"
    string "NIMBUS geom x=0 y=24 w=1280 h=730 caption=Bienvenido — Kate"
    string "NIMBUS restore-ok"
--rw-r--r-- 1 jp jp 108122 oct 31 20:57 /home/jp/Escritorio/Proyectos/NimbusShell-f3bar/spikes/nested/f3-bar-24-max.png
--rw-r--r-- 1 jp jp 436098 oct 31 20:57 /home/jp/Escritorio/Proyectos/NimbusShell-f3bar/spikes/nested/f3-bar-24.png
--rw-r--r-- 1 jp jp 438446 oct 31 20:57 /home/jp/Escritorio/Proyectos/NimbusShell-f3bar/spikes/nested/f3-bar-nobar.png
+-rw-r--r-- 1 jp jp 108211 nov  1 19:32 /home/jp/Escritorio/Proyectos/NimbusShell-migration/spikes/nested/f3-bar-24-max.png
+-rw-r--r-- 1 jp jp 436899 nov  1 19:32 /home/jp/Escritorio/Proyectos/NimbusShell-migration/spikes/nested/f3-bar-24.png
+-rw-r--r-- 1 jp jp 437703 nov  1 19:32 /home/jp/Escritorio/Proyectos/NimbusShell-migration/spikes/nested/f3-bar-nobar.png
 [bar] FIN.
 [bar] FIN.
 [bar] dbus-run-session exit=0

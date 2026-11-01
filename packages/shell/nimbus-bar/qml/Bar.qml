@@ -137,11 +137,12 @@ Window {
         // F3-T04: clic abre/cierra el menú Apple.
         Rectangle {
             id: logo
-            width: 16
-            height: 16
-            radius: 4
+            width: 18
+            height: 20
+            radius: 5
             anchors.verticalCenter: parent.verticalCenter
-            color: NimbusTokens.accentColor(NimbusTokens.dark)
+            // Menú principal: glifo N propio monocromo (sin activos Apple).
+            color: logoArea.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : logoArea.containsMouse ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
             objectName: "appleLogo"
             border.color: NimbusTokens.accentColor(NimbusTokens.dark)
             border.width: logoArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
@@ -149,13 +150,14 @@ Window {
                 anchors.centerIn: parent
                 text: "N"
                 font.family: NimbusTokens.fontFamily
-                font.pixelSize: 11
+                font.pixelSize: 15
                 font.weight: 700
-                color: "white"
+                color: NimbusTokens.colors(NimbusTokens.dark).label
             }
             MouseArea {
                 id: logoArea
                 anchors.fill: parent
+                hoverEnabled: true
                 activeFocusOnTab: true
                 onClicked: appleMenu.toggle()
                 Keys.onReturnPressed: appleMenu.toggle()
@@ -238,64 +240,15 @@ Window {
         spacing: pNum("bar", "spacingRight", 12)
         // Batería dibujada (sin iconos externos).
         // F3-T05: botón CC propio (dos toggles, sin activos externos).
-        Item {
-            id: ccButton
-            visible: !pHidden("controlcenter")
-            width: 22
-            height: 16
-            anchors.verticalCenter: rightBox.verticalCenter
-            Accessible.name: "Centro de control"
-            objectName: "ccButton"
-            Rectangle {
-                anchors.fill: parent
-                anchors.margins: -3
-                radius: 6
-                color: "transparent"
-                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
-                border.width: ccArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
-            }
-            Column {
-                anchors.centerIn: parent
-                spacing: 2
-                Rectangle {
-                    width: 16
-                    height: 6
-                    radius: 3
-                    color: NimbusTokens.colors(NimbusTokens.dark).label
-                    opacity: 0.85
-                    Rectangle {
-                        x: 9
-                        width: 6
-                        height: 6
-                        radius: 3
-                        color: NimbusTokens.accentColor(NimbusTokens.dark)
-                    }
-                }
-                Rectangle {
-                    width: 16
-                    height: 6
-                    radius: 3
-                    color: NimbusTokens.colors(NimbusTokens.dark).label
-                    opacity: 0.85
-                    Rectangle {
-                        x: 1
-                        width: 6
-                        height: 6
-                        radius: 3
-                        color: NimbusTokens.accentColor(NimbusTokens.dark)
-                    }
-                }
-            }
-            MouseArea {
-                id: ccArea
-                anchors.fill: parent
-                activeFocusOnTab: true
-                onClicked: cc.toggle()
-                Keys.onReturnPressed: cc.toggle()
-            }
-        }
         // F3-T05: extras dibujados con geometría propia (sin activos Apple).
         // Orden macOS: batería · Wi-Fi · Bluetooth · Spotlight · CC · reloj.
+        StatusArea {
+            id: tray
+            objectName: "tray"
+            visible: !pHidden("tray")
+            anchors.verticalCenter: rightBox.verticalCenter
+            autoOpenRow: trayOpenMenu
+        }
         Item {
             id: batteryItem
             objectName: "batteryItem"
@@ -426,14 +379,63 @@ Window {
                 Keys.onReturnPressed: runner.run("qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle")
             }
         }
-        // F3-T07: system tray SNI (antes del reloj).
-        StatusArea {
-            id: tray
-            objectName: "tray"
-            visible: !pHidden("tray")
+        Item {
+            id: ccButton
+            visible: !pHidden("controlcenter")
+            width: 22
+            height: 16
             anchors.verticalCenter: rightBox.verticalCenter
-            autoOpenRow: trayOpenMenu
+            Accessible.name: "Centro de control"
+            objectName: "ccButton"
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -3
+                radius: 6
+                color: "transparent"
+                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                border.width: ccArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
+            }
+            Column {
+                anchors.centerIn: parent
+                spacing: 2
+                Rectangle {
+                    width: 16
+                    height: 6
+                    radius: 3
+                    color: NimbusTokens.colors(NimbusTokens.dark).label
+                    opacity: 0.85
+                    Rectangle {
+                        x: 9
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: NimbusTokens.accentColor(NimbusTokens.dark)
+                    }
+                }
+                Rectangle {
+                    width: 16
+                    height: 6
+                    radius: 3
+                    color: NimbusTokens.colors(NimbusTokens.dark).label
+                    opacity: 0.85
+                    Rectangle {
+                        x: 1
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: NimbusTokens.accentColor(NimbusTokens.dark)
+                    }
+                }
+            }
+            MouseArea {
+                id: ccArea
+                anchors.fill: parent
+                activeFocusOnTab: true
+                onClicked: cc.toggle()
+                Keys.onReturnPressed: cc.toggle()
+            }
         }
+        // F3-T07: system tray SNI (antes del reloj).
         Text {
             id: clock
             visible: !pHidden("clock")

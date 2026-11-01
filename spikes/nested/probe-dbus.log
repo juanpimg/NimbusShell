@@ -1,14 +1,14 @@
-signal time=1793476622.739367 sender=org.freedesktop.DBus -> destination=:1.32 serial=2 path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameAcquired
+signal time=1793557932.055454 sender=org.freedesktop.DBus -> destination=:1.32 serial=2 path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameAcquired
    string ":1.32"
-signal time=1793476622.739395 sender=org.freedesktop.DBus -> destination=:1.32 serial=4 path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameLost
+signal time=1793557932.055513 sender=org.freedesktop.DBus -> destination=:1.32 serial=4 path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameLost
    string ":1.32"
-method call time=1793476623.753817 sender=:1.0 -> destination=org.nimbus.Probe serial=408 path=/Probe; interface=org.nimbus.Probe; member=report
+method call time=1793557933.106916 sender=:1.0 -> destination=org.nimbus.Probe serial=397 path=/Probe; interface=org.nimbus.Probe; member=report
    string "NIMBUS active=Bienvenido — Kate"
-method call time=1793476629.781421 sender=:1.0 -> destination=org.nimbus.Probe serial=415 path=/Probe; interface=org.nimbus.Probe; member=report
+method call time=1793557939.189048 sender=:1.0 -> destination=org.nimbus.Probe serial=422 path=/Probe; interface=org.nimbus.Probe; member=report
    string "NIMBUS active=Bienvenido — Kate"
-method call time=1793476632.053597 sender=:1.0 -> destination=org.nimbus.Probe serial=458 path=/Probe; interface=org.nimbus.Probe; member=report
+method call time=1793557942.435636 sender=:1.0 -> destination=org.nimbus.Probe serial=481 path=/Probe; interface=org.nimbus.Probe; member=report
    string "NIMBUS max-ok caption=Bienvenido — Kate"
-method call time=1793476636.077540 sender=:1.0 -> destination=org.nimbus.Probe serial=465 path=/Probe; interface=org.nimbus.Probe; member=report
+method call time=1793557946.491067 sender=:1.0 -> destination=org.nimbus.Probe serial=504 path=/Probe; interface=org.nimbus.Probe; member=report
    string "NIMBUS geom x=0 y=24 w=1280 h=730 caption=Bienvenido — Kate"
-method call time=1793476638.332671 sender=:1.0 -> destination=org.nimbus.Probe serial=508 path=/Probe; interface=org.nimbus.Probe; member=report
+method call time=1793557949.336925 sender=:1.0 -> destination=org.nimbus.Probe serial=555 path=/Probe; interface=org.nimbus.Probe; member=report
    string "NIMBUS restore-ok"
