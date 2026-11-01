@@ -13,7 +13,7 @@ cmake -S apps/nimbus-apps -B /tmp/opencode/f6accept-apps -DCMAKE_BUILD_TYPE=Rele
 cmake --build /tmp/opencode/f6accept-apps -j$(nproc)
 bash -n tests/vm/spotlight-acceptance.sh && shellcheck -S warning tests/vm/spotlight-acceptance.sh  # 0 warnings
 bash -n tests/vm/apps-acceptance.sh && shellcheck -S warning tests/vm/apps-acceptance.sh            # 0 warnings
-bash tests/vm/spotlight-acceptance.sh   # EXIT=1 (G1; resto PASS)
+bash tests/vm/spotlight-acceptance.sh   # EXIT=0 PASS (tras fix G1)
 bash tests/vm/apps-acceptance.sh        # EXIT=0 PASS
 ```
 
@@ -62,11 +62,23 @@ Logs: `f6-acceptance-nested.log`, `f6-apps-acceptance-nested.log`;
 
 ## Gaps (exactos, no inventados)
 
-- G1 (aceptación Spotlight en FAIL, `EXIT=1`): 18 `TypeError` transitorios en
-  `Spotlight.qml:550/558/566` (preview) al transicionar a ≤2 resultados
-  (q15–q17) y en el run fresco de 0 resultados (#20). La UI se recupera
-  (capturas finales correctas). Candidato: feedback de `ListView.currentIndex`
-  durante el recambio de modelo. Fix QML en tarea futura (aquí 0 QML).
+- G1 (RESUELTO, aceptación Spotlight ahora `EXIT=0`, `0 errores QML`):
+  causa probada con QML instrumentado en copia (`/tmp`, sin tocar el repo):
+  al recambiar el modelo, el `ListView` pasa transitoriamente por `count=0`
+  y escribe `currentIndex=-1`, que `onCurrentIndexChanged` propagaba a
+  `root.currentIndex`; los bindings del preview (solo guardados con
+  `length > 0`) evaluaban `filtered[-1]` → `TypeError` (`:550/558/566`).
+  Se autorrecuperaba al asentarse la vista (de ahí «transitorio»), pero
+  ensuciaba el log y tumbaba el gate. Fix (sin cambio visible):
+  `qml/PreviewGuard.js` nuevo (`isValidIndex`/`safeAt`, fuente única QML+node),
+  `property var previewItem` + 3 bindings + `announceSelection` con accesor
+  seguro, y clamp del writeback (`Spotlight.qml:30 import, :59,
+  :72-80, :431-436, :563/571/579`). C++ sin cambios: `activateLocal(-1)`
+  ya retorna `false` (cubierto en `localActions`). Regresión:
+  `tests/spotlight/test_previewguard.js` (15 aserciones node, OK),
+  `previewContracts` en `tst_index.cpp` (0/1/2 resultados, PASS; total
+  22 passed), `qmllint` OK, repro mínima DBus 20→2→2→1→20→1: 18→0 TypeErrors,
+  aceptación 20/20 `VEREDICTO: PASS`, capturas regeneradas idénticas.
 - G2: fuzzy sin cota de dispersión — gibberish corto da hits (`xqkvjw`→5,
   `zzzzqqqq`→4 vía subsecuencia en keywords largos); el «0 resultados» exige
   `9z8x7q2w`-style. Sin fix aquí.

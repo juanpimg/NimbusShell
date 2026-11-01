@@ -1,21 +1,21 @@
 n|consulta|tipo|ms|resultados
-1|kate|app exacta|2|20
+1|kate|app exacta|1|20
 2|dolphin|app exacta|2|20
-3|konsole|app exacta|2|20
+3|konsole|app exacta|1|20
 4|kat|prefijo|1|20
-5|dolp|prefijo|2|20
+5|dolp|prefijo|1|20
 6|kons|prefijo|1|20
 7|ktae|fuzzy (transposición)|1|20
-8|cnsol|fuzzy|1|20
+8|cnsol|fuzzy|2|20
 9|gwenviw|fuzzy|1|12
-10|ratón|acentos (ajuste Ratón)|2|20
-11|reunion|acentos (fichero reunión-notas)|2|20
+10|ratón|acentos (ajuste Ratón)|1|20
+11|reunion|acentos (fichero reunión-notas)|1|20
 12|informe|archivo semilla|1|20
 13|wifi|ajuste (KCM Red)|1|16
 14|pantalla|ajuste (KCM Pantalla)|1|20
 15|2+2*3|calc|1|2
-16|(10-4)/2|calc|2|2
-17|?clima mañana|web|1|1
-18|nimbus shell|web genérica|1|14
+16|(10-4)/2|calc|1|2
+17|?clima mañana|web|2|1
+18|nimbus shell|web genérica|2|14
 19|nota de reunion (clipboard)|clipboard/history2.lst|visual|PNG
 20|9z8x7q2w (tab apps)|sin resultados|ver-log|nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=0 tab=apps

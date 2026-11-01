@@ -11,52 +11,52 @@
 [spot-acc] semillas: 3 ficheros + xbel + history2.lst
 [spot-acc] arranque kwin_wayland --virtual ...
 [spot-acc] arranque nimbus-spotlight --query kate ...
-SPOT-MAIN-ENTER pid=549553
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=549553 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --que")
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=549557 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=549557 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+SPOT-MAIN-ENTER pid=573131
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=573131 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --que")
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=573135 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=573135 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
 
-(/usr/lib/xdg-desktop-portal:549557): xdg-desktop-portal-WARNING **: 02:53:05.042: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=549557 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=549579 comm="/usr/lib/xdg-desktop-portal-gtk")
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=549557 comm="/usr/lib/xdg-desktop-portal")
-nimbus-spotlight[1]: Spotlight_QMLTYPE_96(0x55bf814e4560, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+(/usr/lib/xdg-desktop-portal:573135): xdg-desktop-portal-WARNING **: 03:04:01.620: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=573135 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=573157 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=573135 comm="/usr/lib/xdg-desktop-portal")
+nimbus-spotlight[1]: Spotlight_QMLTYPE_97(0x55828eafe560, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
 nimbus-spotlight[4]: nimbus-spotlight: demo=0 query='kate'
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
 
-(/usr/lib/xdg-desktop-portal:549557): xdg-desktop-portal-WARNING **: 02:53:05.205: Failed to connect to PipeWire: Couldn't connect to PipeWire
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=549557 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
-dbus-daemon[549475]: [session uid=1000 pid=549475 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+(/usr/lib/xdg-desktop-portal:573135): xdg-desktop-portal-WARNING **: 03:04:01.798: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=573135 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[573000]: [session uid=1000 pid=573000 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
 nimbus-spotlight[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=apps
-[spot-acc] spotlight VIVO (pid 549553)
-nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=20 tab=
-[spot-acc] q1 [app exacta] kate -> 2ms res=20 (rc=0)
+[spot-acc] spotlight VIVO (pid 573131)
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
+[spot-acc] q1 [app exacta] kate -> 1ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=20 tab=
 [spot-acc] q2 [app exacta] dolphin -> 2ms res=20 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=20 tab=
-[spot-acc] q3 [app exacta] konsole -> 2ms res=20 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
+[spot-acc] q3 [app exacta] konsole -> 1ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
 [spot-acc] q4 [prefijo] kat -> 1ms res=20 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=20 tab=
-[spot-acc] q5 [prefijo] dolp -> 2ms res=20 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
+[spot-acc] q5 [prefijo] dolp -> 1ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
 [spot-acc] q6 [prefijo] kons -> 1ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
 [spot-acc] q7 [fuzzy (transposición)] ktae -> 1ms res=20 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
-[spot-acc] q8 [fuzzy] cnsol -> 1ms res=20 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=20 tab=
+[spot-acc] q8 [fuzzy] cnsol -> 2ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=12 tab=
 [spot-acc] q9 [fuzzy] gwenviw -> 1ms res=12 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=20 tab=
-[spot-acc] q10 [acentos (ajuste Ratón)] ratón -> 2ms res=20 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=20 tab=
-[spot-acc] q11 [acentos (fichero reunión-notas)] reunion -> 2ms res=20 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
+[spot-acc] q10 [acentos (ajuste Ratón)] ratón -> 1ms res=20 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
+[spot-acc] q11 [acentos (fichero reunión-notas)] reunion -> 1ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
 [spot-acc] q12 [archivo semilla] informe -> 1ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=16 tab=
@@ -64,31 +64,13 @@ nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=16 t
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=
 [spot-acc] q14 [ajuste (KCM Pantalla)] pantalla -> 1ms res=20 (rc=0)
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=2 tab=
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:566: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:566: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:558: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:558: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:550: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:550: TypeError: Value is undefined and could not be converted to an object
 [spot-acc] q15 [calc] 2+2*3 -> 1ms res=2 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=2 tab=
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:566: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:566: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:558: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:558: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:550: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:550: TypeError: Value is undefined and could not be converted to an object
-[spot-acc] q16 [calc] (10-4)/2 -> 2ms res=2 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=1 tab=
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:566: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:566: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:558: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:558: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:550: TypeError: Value is undefined and could not be converted to an object
-nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:550: TypeError: Value is undefined and could not be converted to an object
-[spot-acc] q17 [web] ?clima mañana -> 1ms res=1 (rc=0)
-nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=14 tab=
-[spot-acc] q18 [web genérica] nimbus shell -> 1ms res=14 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=2 tab=
+[spot-acc] q16 [calc] (10-4)/2 -> 1ms res=2 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=1 tab=
+[spot-acc] q17 [web] ?clima mañana -> 2ms res=1 (rc=0)
+nimbus-spotlight[4]: spotlight-local-latency: query=2ms mode=nimbus results=14 tab=
+[spot-acc] q18 [web genérica] nimbus shell -> 2ms res=14 (rc=0)
 [spot-acc] latencia local máx=2ms, fallos(ms>=50 o res=0)=0
 [spot-acc] FAILCOUNT=0
 [spot-acc] 10 apps lanzables (.desktop + Exec existe):
@@ -108,66 +90,67 @@ nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=14 t
 [spot-acc] spectacle OK
 [spot-acc] cierre instancia principal rc=0
 A connection to the bus can't be made
-[spot-acc] offscreen clipboard/sin-resultados en /tmp/opencode/nimbus-spotacc-off-SlHcUp
-SPOT-MAIN-ENTER pid=550087
-nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x55fc29cc65f0, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
-nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x55fc29cc65f0, name="spotlightWindow") is not a wayland window. Not creating zwlr_layer_surface
+[spot-acc] offscreen clipboard/sin-resultados en /tmp/opencode/nimbus-spotacc-off-JwCtx8
+SPOT-MAIN-ENTER pid=573907
+nimbus-spotlight[1]: Spotlight_QMLTYPE_30(0x5641fa2355f0, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[1]: Spotlight_QMLTYPE_30(0x5641fa2355f0, name="spotlightWindow") is not a wayland window. Not creating zwlr_layer_surface
 nimbus-spotlight[4]: nimbus-spotlight: demo=0 query='reunion'
 [spot-acc] #19 clipboard PNG OK
-SPOT-MAIN-ENTER pid=550109
-nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x55dcccc76590, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
-nimbus-spotlight[1]: Spotlight_QMLTYPE_29(0x55dcccc76590, name="spotlightWindow") is not a wayland window. Not creating zwlr_layer_surface
+SPOT-MAIN-ENTER pid=578686
+nimbus-spotlight[1]: Spotlight_QMLTYPE_30(0x559bfbde2590, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[1]: Spotlight_QMLTYPE_30(0x559bfbde2590, name="spotlightWindow") is not a wayland window. Not creating zwlr_layer_surface
 nimbus-spotlight[4]: nimbus-spotlight: demo=0 query='9z8x7q2w'
 nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=0 tab=apps
 nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "search term" msgid_plural: "" msgctxt: ""
 nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "Configure plugin" msgid_plural: "" msgctxt: ""
 nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "help" msgid_plural: "" msgctxt: "this is a runner keyword"
 nimbus-spotlight[1]: KLocalizedString: Domain is not set for this string, translation will not work. Please see https://invent.kde.org/frameworks/ki18n/-/blob/master/docs/programmers-guide.md msgid: "Finds system settings modules whose names or descriptions match :q:" msgid_plural: "" msgctxt: ""
-nimbus-spotlight[1]: QStandardPaths: wrong permissions on runtime directory /tmp/opencode/nimbus-spotacc-off-SlHcUp/rt, 0755 instead of 0700
 nimbus-spotlight[2]: Interface is not valid
 nimbus-spotlight[1]: Connecting to deprecated signal QDBusConnectionInterface::serviceOwnerChanged(QString,QString,QString)
 nimbus-spotlight[4]: spotlight-search: term='9z8x7q2w'
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.1' (uid=1000 pid=550109 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --tab")
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.0' (uid=1000 pid=550109 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --tab")
 nimbus-spotlight[1]: Error requesting config; calling "org.kde.runners.activities"  : "org.freedesktop.DBus.Error.ServiceUnknown" "The name org.kde.runners.activities was not provided by any .service files"
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.kde.runners.baloo' requested by ':1.0' (uid=1000 pid=550109 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --tab")
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.kde.runners.baloo' requested by ':1.0' (uid=1000 pid=578686 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --tab")
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.0' (uid=1000 pid=578686 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --tab")
 nimbus-spotlight[1]: Error requesting matches; calling "org.kde.KWin"  : "org.freedesktop.DBus.Error.ServiceUnknown" "The name org.kde.KWin was not provided by any .service files"
 nimbus-spotlight[1]: Error requesting matches; calling "org.kde.runners.activities"  : "org.freedesktop.DBus.Error.ServiceUnknown" "The name org.kde.runners.activities was not provided by any .service files"
-nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140036557235904_readonly" "/tmp/opencode/nimbus-spotacc-off-SlHcUp/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
+nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140396132820672_readonly" "/tmp/opencode/nimbus-spotacc-off-JwCtx8/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
 nimbus-spotlight[1]: QSqlDatabasePrivate::database: unable to open database: "unable to open database file Error al abrir la base de datos"
-nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140036557235904_readonly" "/tmp/opencode/nimbus-spotacc-off-SlHcUp/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
+nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140396132820672_readonly" "/tmp/opencode/nimbus-spotacc-off-JwCtx8/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
 nimbus-spotlight[1]: Plasma Activities ERROR: There is no database. This probably means that you do not have the Activity Manager running, or that something else is broken on your system. Recent documents and alike will not work!
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.4' (uid=1000 pid=550171 comm="/usr/lib/kactivitymanagerd")
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.5' (uid=1000 pid=550179 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.5' (uid=1000 pid=550179 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=578817 comm="/usr/lib/kactivitymanagerd")
+nimbus-spotlight[1]: QStandardPaths: wrong permissions on runtime directory /tmp/opencode/nimbus-spotacc-off-JwCtx8/rt, 0755 instead of 0700
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=578824 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=578824 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
 
-(/usr/lib/xdg-desktop-portal:550179): xdg-desktop-portal-WARNING **: 02:53:40.756: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.5' (uid=1000 pid=550179 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+(/usr/lib/xdg-desktop-portal:578824): xdg-desktop-portal-WARNING **: 03:04:37.299: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=578824 comm="/usr/lib/xdg-desktop-portal")
+nimbus-spotlight[1]: No default firefox profile found
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.6' (uid=1000 pid=578686 comm="/tmp/opencode/f6accept-spot/nimbus-spotlight --tab")
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=578824 comm="/usr/lib/xdg-desktop-portal")
 nimbus-spotlight[1]: QSqlDatabasePrivate::database: unable to open database: "unable to open database file Error al abrir la base de datos"
-nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140036557235904_readonly" "/tmp/opencode/nimbus-spotacc-off-SlHcUp/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
+nimbus-spotlight[1]: PlasmaActivities: Database is not open:  "kactivities_db_resources_140396132820672_readonly" "/tmp/opencode/nimbus-spotacc-off-JwCtx8/data/kactivitymanagerd/resources/database" QSqlError("14", "Error al abrir la base de datos", "unable to open database file")
 nimbus-spotlight[1]: Plasma Activities ERROR: There is no database. This probably means that you do not have the Activity Manager running, or that something else is broken on your system. Recent documents and alike will not work!
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.5' (uid=1000 pid=550179 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.kde.runners.baloo'
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.kde.runners.baloo'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:578824): xdg-desktop-portal-WARNING **: 03:04:37.424: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=578824 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[578684]: [session uid=1000 pid=578684 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
 nimbus-spotlight[4]: spotlight-matches: n=0
-nimbus-spotlight[4]: spotlight-latency: query=307ms mode=krunner-progressive results=0
-
-(/usr/lib/xdg-desktop-portal:550179): xdg-desktop-portal-WARNING **: 02:53:40.924: Failed to connect to PipeWire: Couldn't connect to PipeWire
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.5' (uid=1000 pid=550179 comm="/usr/lib/xdg-desktop-portal")
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+nimbus-spotlight[4]: spotlight-latency: query=328ms mode=krunner-progressive results=0
 nimbus-spotlight[4]: currency conversion table data obtained via network
-dbus-daemon[550107]: [session uid=1000 pid=550107 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
 nimbus-spotlight[4]: spotlight-matches: n=0
-nimbus-spotlight[4]: spotlight-latency: query=2541ms mode=krunner-progressive results=0
-nimbus-spotlight[4]: spotlight-latency: query=2541ms mode=krunner results=0
+nimbus-spotlight[4]: spotlight-latency: query=2497ms mode=krunner-progressive results=0
+nimbus-spotlight[4]: spotlight-latency: query=2497ms mode=krunner results=0
 nimbus-spotlight[4]: spotlight-matches: n=1
-nimbus-spotlight[4]: spotlight-latency: query=2792ms mode=krunner-progressive results=1
+nimbus-spotlight[4]: spotlight-latency: query=2747ms mode=krunner-progressive results=1
 [spot-acc] #20 sin-resultados: nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=0 tab=apps
-nimbus-spotlight[1]: Can't open "/tmp/opencode/nimbus-spotacc-off-SlHcUp/data/user-places.xbel"
-[spot-acc] QML-ERRORES: 18 lineas (ver f6-acceptance-qmlerr.txt)
-[spot-acc] VEREDICTO: FAIL (gaps en evidencia F6-T09)
+nimbus-spotlight[1]: Can't open "/tmp/opencode/nimbus-spotacc-off-JwCtx8/data/user-places.xbel"
+[spot-acc] 0 errores QML
+[spot-acc] VEREDICTO: PASS

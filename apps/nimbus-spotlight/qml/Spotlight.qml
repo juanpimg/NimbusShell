@@ -27,6 +27,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "PreviewGuard.js" as PreviewGuard
 
 ApplicationWindow {
     id: root
@@ -51,6 +52,11 @@ ApplicationWindow {
     property var filtered: []
     property string lastQuery: ""
     property int clipLatency: -1 // F6-T06: latencia síncrona clips/emoji
+    // F6-T09 (G1): item seleccionado a prueba de índices inválidos. El
+    // ListView escribe un -1 transitorio al recambiar el modelo (pasa por
+    // count=0); sin esta guarda, filtered[-1] lanzaba TypeError en el
+    // preview. Sin cambio visible: null muestra los fallbacks de abajo.
+    property var previewItem: PreviewGuard.safeAt(root.filtered, root.currentIndex)
     // F6-T02: locales primero; KRunner solo como fallback (Tab o botón).
     property bool krunnerMode: false
     // F6-T07: tokens de foco visible (anillo blanco 2px sobre accent).
@@ -64,11 +70,12 @@ ApplicationWindow {
     }
 
     function announceSelection() {
-        if (root.filtered.length === 0) {
+        // F6-T09 (G1): accesor seguro (cubre lista vacía e índice -1).
+        var it = PreviewGuard.safeAt(root.filtered, root.currentIndex);
+        if (it === null) {
             root.announce(qsTr("Sin resultados"));
             return;
         }
-        var it = root.filtered[root.currentIndex];
         root.announce(it.text + ", " + it.subtext + ". " + (root.currentIndex + 1) + " de " + root.filtered.length);
     }
 
@@ -418,7 +425,13 @@ ApplicationWindow {
                 Layout.margins: 8
                 model: root.filtered
                 currentIndex: root.currentIndex
-                onCurrentIndexChanged: root.currentIndex = currentIndex
+                // F6-T09 (G1): ignora el -1 transitorio del ListView al
+                // recambiar el modelo (pasa por count=0); antes llegaba a
+                // root.currentIndex y rompía el preview con TypeError.
+                onCurrentIndexChanged: {
+                    if (PreviewGuard.isValidIndex(currentIndex, results.count))
+                        root.currentIndex = currentIndex;
+                }
                 clip: true
                 spacing: 2
                 // F6-T07: parada Tab del ciclo + rol accesible.
@@ -547,7 +560,7 @@ ApplicationWindow {
                 spacing: 8
                 Text {
                     Layout.fillWidth: true
-                    text: root.filtered.length > 0 ? root.filtered[root.currentIndex].text : "Sin resultados"
+                    text: root.previewItem !== null ? root.previewItem.text : "Sin resultados"
                     color: "#FFFFFF"
                     font.pixelSize: 17 // t17 title2 [HIG]
                     font.bold: true
@@ -555,7 +568,7 @@ ApplicationWindow {
                 }
                 Text {
                     Layout.fillWidth: true
-                    text: root.filtered.length > 0 ? root.filtered[root.currentIndex].subtext : "Escribe para buscar con KRunner"
+                    text: root.previewItem !== null ? root.previewItem.subtext : "Escribe para buscar con KRunner"
                     color: "#EBEBF5"
                     opacity: 0.6
                     font.pixelSize: 13
@@ -563,7 +576,7 @@ ApplicationWindow {
                 }
                 Text {
                     visible: root.filtered.length > 0
-                    text: root.filtered.length > 0 ? ("Motor: " + root.filtered[root.currentIndex].runner) : ""
+                    text: root.previewItem !== null ? ("Motor: " + root.previewItem.runner) : ""
                     color: "#EBEBF5"
                     opacity: 0.3
                     font.pixelSize: 11 // t11 [HIG]
