@@ -126,6 +126,18 @@ if prog_out="$("$REPO_ROOT/scripts/nimbus-progress" 2>&1)"; then
     else fail "nimbus-progress sin línea Total: X/112 parseable"; fi
 else fail "scripts/nimbus-progress exit distinto de 0"; fi
 
+echo "== ci: i18n (nimbus-i18n --check, solo lectura) =="
+if [ -x "$REPO_ROOT/scripts/nimbus-i18n" ]; then
+    if "$REPO_ROOT/scripts/nimbus-i18n" --check >/tmp/opencode/ci-i18n.txt 2>&1; then
+        pass "nimbus-i18n --check ($(cat /tmp/opencode/ci-i18n.txt))"
+    else fail "nimbus-i18n --check (ver /tmp/opencode/ci-i18n.txt)"; fi
+    if [ -x "$REPO_ROOT/tests/i18n/test_i18n.sh" ]; then
+        if "$REPO_ROOT/tests/i18n/test_i18n.sh" >/tmp/opencode/ci-i18n-test.txt 2>&1; then
+            pass "tests/i18n/test_i18n.sh"
+        else fail "tests/i18n/test_i18n.sh (ver /tmp/opencode/ci-i18n-test.txt)"; fi
+    else fail "tests/i18n/test_i18n.sh ausente o sin +x"; fi
+else fail "scripts/nimbus-i18n ausente o sin +x"; fi
+
 echo "== ci: install.sh --check (solo lectura) =="
 "$REPO_ROOT/install.sh" --check >/tmp/opencode/ci-check.txt 2>&1
 rc=$?
