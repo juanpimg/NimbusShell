@@ -231,6 +231,26 @@ else
   fi
 fi
 
+# 5b. DNS del sistema instalado: NetworkManager escribe resolv.conf directo.
+# (El live usa systemd-resolved; su stub 127.0.0.53 no sirve en el target.)
+if [ "$CHECK" -eq 1 ]; then
+  log "HARÍA: NetworkManager dns=default y /etc/resolv.conf estático"
+else
+  mkdir -p /etc/NetworkManager/conf.d
+  printf '[main]\ndns=default\n' >/etc/NetworkManager/conf.d/90-nimbus-dns.conf || fail=1
+  if [ -L /etc/resolv.conf ]; then
+    rm -f /etc/resolv.conf
+  fi
+  if [ ! -s /etc/resolv.conf ]; then
+    printf 'nameserver 1.1.1.1\nnameserver 9.9.9.9\n' >/etc/resolv.conf || fail=1
+  fi
+  # El target debe poder resolver durante la instalación (pacman posterior).
+  if ! grep -q '^nameserver [0-9]' /etc/resolv.conf 2>/dev/null; then
+    printf 'nameserver 1.1.1.1\nnameserver 9.9.9.9\n' >>/etc/resolv.conf || fail=1
+  fi
+  log "OK: DNS del target (NetworkManager dns=default)"
+fi
+
 # 6. Servicios base: firewall, red y Bluetooth (macOS-like: siempre disponibles).
 for svc in firewalld NetworkManager bluetooth; do
   if [ "$CHECK" -eq 1 ]; then

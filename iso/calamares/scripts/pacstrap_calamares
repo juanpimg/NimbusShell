@@ -354,6 +354,21 @@ mkdir -m 0555 -p "$newroot"/{sys,proc}
 # NimbusOS: pacman --sysroot necesita la config del target antes de instalar.
 cp -a /etc/pacman.conf "$newroot/etc/pacman.conf"
 cp -a /etc/pacman.d/mirrorlist "$newroot/etc/pacman.d/mirrorlist" 2>/dev/null || true
+# DNS del target: el live puede usar systemd-resolved (127.0.0.53), que no
+# existe dentro del chroot; pacman del target fallaría con "Could not resolve".
+if [ -L /etc/resolv.conf ] || grep -q '127\.0\.0\.53' /etc/resolv.conf 2>/dev/null; then
+  : > "$newroot/etc/resolv.conf"
+  if command -v resolvectl >/dev/null 2>&1; then
+    resolvectl dns 2>/dev/null | sed -n 's/.*: //p' | tr ' ' '\n' \
+      | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -n 3 \
+      | sed 's/^/nameserver /' > "$newroot/etc/resolv.conf" || true
+  fi
+  grep -q '^nameserver' "$newroot/etc/resolv.conf" \
+    || printf 'nameserver 1.1.1.1\nnameserver 9.9.9.9\n' > "$newroot/etc/resolv.conf"
+else
+  cp -a /etc/resolv.conf "$newroot/etc/resolv.conf"
+fi
+
 # Keyring del host: pacman --sysroot usa el del target.
 if [ -d /etc/pacman.d/gnupg ]; then
     cp -a /etc/pacman.d/gnupg "$newroot/etc/pacman.d/gnupg"
