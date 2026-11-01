@@ -10,6 +10,11 @@
   `nimbus-flatpak-perms` (F2-T09: política Flatpak por app, no instala),
   `nimbus-bar-preset` (F3-T13: presets de la barra `--list/--apply/--check/
   --reset/--pin-check`, idempotente, sin root, backup
-  `nimbusshell-backup-barpreset`).
+  `nimbusshell-backup-barpreset`),
+  `nimbus-a11y` (F11-T04: `--apply <feature|all>`, `--check`, `--revert`,
+  `--list`, `--home DIR`; idempotente, sin root, backup
+  `nimbusshell-backup-a11y-*`),
+  `nimbus-i18n` (F11-T05: `--extract/--check/--stats/--cheatsheet`; dueño
+  único de `i18n/*.ts`, no root).
 - **Qué va:** solo scripts con `--help`, `set -u`, mensajes accionables.
   **Qué no:** lógica de instalador (vive en `install.sh` + `lib/`, F1-T03).

@@ -1,0 +1,283 @@
+#!/usr/bin/env bash
+# nimbus-a11y — accesibilidad Nimbus (F11-T04): aplica/revierte features de
+# accesibilidad sobre configs Plasma reales (kwinrc, kaccessrc, kdeglobals).
+# Contrato docs/design/tahoe-design-contract.md §2.5/§5-A9 (Reduce Motion →
+# fade 150ms; Reduce Transparency → blur off + sólido; contraste AA).
+#
+# Seguro: sin root, sin red, idempotente; --check/--list son solo lectura;
+# solo --apply/--revert escriben (con backup en
+# ~/.config/nimbusshell-backup-a11y-*). Con --home DIR todo ocurre en DIR
+# (harness anidado/HOME temporal); jamás toca la sesión del host salvo que
+# apuntes --home a tu HOME real. set -u (sin set -e ciego): cada fallo
+# explica qué faltó y cómo reintentarlo.
+#
+# Uso:
+#   nimbus-a11y --list
+#   nimbus-a11y --check [--home DIR]
+#   nimbus-a11y --apply <feature|all> [--home DIR]
+#   nimbus-a11y --revert [--home DIR]
+set -u
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CONTRAST_SRC="$REPO_ROOT/packages/themes/nimbus-tokens/colors/NimbusHighContrast.colors"
+FEATURES="orca zoom contrast stickykeys bouncekeys slowkeys reduce-motion reduce-transparency"
+
+ACTION=""
+APPLY_FEATURE=""
+HOME_DIR=""
+
+usage() {
+  cat <<'EOF'
+Uso: nimbus-a11y --list | --check [--home DIR] | --apply <feature|all> [--home DIR] | --revert [--home DIR]
+
+  --list             lista los features disponibles (solo lectura)
+  --check            muestra on/off por feature (solo lectura)
+  --apply FEATURE    aplica un feature (o 'all'); escribe con backup previo
+  --revert           restaura el backup más reciente de nimbus-a11y
+  --home DIR         usa DIR como HOME alternativo (por defecto tu $HOME)
+
+Features:
+  orca               lector de pantalla (gsettings + kaccessrc + orca.service)
+  zoom               lupa KWin ([Plugins] zoomEnabled)
+  contrast           esquema propio de alto contraste NimbusHighContrast (WCAG AA)
+  stickykeys         teclas fijas (kaccessrc [Keyboard] StickyKeys)
+  bouncekeys         ignorar pulsaciones repetidas (BounceKeys)
+  slowkeys           retardo de pulsación (SlowKeys)
+  reduce-motion      AnimationSpeed=0 + sin Genie (fade 150ms, contrato §2.5)
+  reduce-transparency  blur/translucency off (sólido bgElevated, contrato §2.4)
+EOF
+}
+
+is_feature() { # <nombre>: 0 si es feature válido
+  local f="$1" x
+  for x in $FEATURES; do [ "$x" = "$f" ] && return 0; done
+  return 1
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --list) ACTION="list" ;;
+    --check) ACTION="check" ;;
+    --apply)
+      ACTION="apply"
+      APPLY_FEATURE="${2:-}"
+      if [ -z "$APPLY_FEATURE" ]; then echo "ERROR: --apply necesita un feature o 'all'. Usa --list." >&2; exit 1; fi
+      shift
+      ;;
+    --revert) ACTION="revert" ;;
+    --home)
+      HOME_DIR="${2:-}"
+      if [ -z "$HOME_DIR" ]; then echo "ERROR: --home necesita un directorio." >&2; exit 1; fi
+      shift
+      ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "ERROR: flag desconocido '$1'. Usa --help." >&2; exit 1 ;;
+  esac
+  shift
+done
+if [ -z "$ACTION" ]; then usage >&2; echo "ERROR: indica --list, --check, --apply o --revert." >&2; exit 1; fi
+if [ "$ACTION" = "apply" ] && [ "$APPLY_FEATURE" != "all" ] && ! is_feature "$APPLY_FEATURE"; then
+  echo "ERROR: feature desconocido '$APPLY_FEATURE'. Usa --list." >&2; exit 1
+fi
+if [ "$(id -u)" = "0" ]; then
+  echo "ERROR: no ejecutar como root (la accesibilidad es por usuario)." >&2; exit 1
+fi
+
+# Destino: HOME real o alternativo. Solo lectura hasta --apply/--revert.
+TARGET_HOME="${HOME_DIR:-$HOME}"
+TARGET_CONFIG="$TARGET_HOME/.config"
+TARGET_DATA="$TARGET_HOME/.local/share"
+BACKUP_PREFIX="nimbusshell-backup-a11y-"
+
+need_kconfig() {
+  command -v kwriteconfig6 >/dev/null 2>&1 || {
+    echo "ERROR: falta kwriteconfig6. Instala plasma-desktop y reintenta." >&2; exit 1
+  }
+  command -v kreadconfig6 >/dev/null 2>&1 || {
+    echo "ERROR: falta kreadconfig6. Instala plasma-desktop y reintenta." >&2; exit 1
+  }
+}
+
+wcfg() { # kwriteconfig6 contra el destino (wargs...): --file F --group G --key K V
+  XDG_CONFIG_HOME="$TARGET_CONFIG" kwriteconfig6 "$@" || {
+    echo "ERROR: kwriteconfig6 fallo ($*). Revisa permisos de $TARGET_CONFIG." >&2; return 1
+  }
+}
+rcfg() { # kreadconfig6 contra el destino
+  XDG_CONFIG_HOME="$TARGET_CONFIG" kreadconfig6 "$@" 2>/dev/null
+}
+
+# --- estado (solo lectura) -----------------------------------------------
+st_orca()            { [ "$(rcfg --file kaccessrc --group ScreenReader --key Enabled)" = "true" ] && echo on || echo off; }
+st_zoom()            { [ "$(rcfg --file kwinrc --group Plugins --key zoomEnabled)" = "true" ] && echo on || echo off; }
+st_contrast()        { [ "$(rcfg --file kdeglobals --group General --key ColorScheme)" = "NimbusHighContrast" ] && echo on || echo off; }
+st_stickykeys()      { [ "$(rcfg --file kaccessrc --group Keyboard --key StickyKeys)" = "true" ] && echo on || echo off; }
+st_bouncekeys()      { [ "$(rcfg --file kaccessrc --group Keyboard --key BounceKeys)" = "true" ] && echo on || echo off; }
+st_slowkeys()        { [ "$(rcfg --file kaccessrc --group Keyboard --key SlowKeys)" = "true" ] && echo on || echo off; }
+st_reduce_motion()   { [ "$(rcfg --file kwinrc --group Compositing --key AnimationSpeed)" = "0" ] && echo on || echo off; }
+st_reduce_transparency() { [ "$(rcfg --file kwinrc --group Plugins --key blurEnabled)" = "false" ] && echo on || echo off; }
+
+state_of() { # <feature> -> on/off
+  case "$1" in
+    orca) st_orca ;;
+    zoom) st_zoom ;;
+    contrast) st_contrast ;;
+    stickykeys) st_stickykeys ;;
+    bouncekeys) st_bouncekeys ;;
+    slowkeys) st_slowkeys ;;
+    reduce-motion) st_reduce_motion ;;
+    reduce-transparency) st_reduce_transparency ;;
+  esac
+}
+
+# --- backup (solo en --apply/--revert) ------------------------------------
+MANAGED="kwinrc kaccessrc kdeglobals kglobalshortcutsrc"
+
+ensure_backup() { # crea dir de backup y guarda originales; ecoa el dir
+  local ts bdir f n
+  ts="$(date +%Y%m%d-%H%M%S)"
+  bdir="$TARGET_CONFIG/$BACKUP_PREFIX$ts"
+  n=0
+  while [ -e "$bdir" ]; do n=$((n + 1)); bdir="$TARGET_CONFIG/$BACKUP_PREFIX$ts-$n"; done
+  mkdir -p "$bdir/files" "$bdir" || { echo "ERROR: no se pudo crear $bdir." >&2; return 1; }
+  : > "$bdir/manifest.txt"
+  for f in $MANAGED; do
+    if [ -f "$TARGET_CONFIG/$f" ]; then
+      cp -a "$TARGET_CONFIG/$f" "$bdir/files/$f" || { echo "ERROR: no se pudo respaldar $f." >&2; return 1; }
+      echo "present $f" >> "$bdir/manifest.txt"
+    else
+      echo "absent $f" >> "$bdir/manifest.txt"
+    fi
+  done
+  if [ -f "$TARGET_DATA/color-schemes/NimbusHighContrast.colors" ]; then
+    echo "present colorscheme" >> "$bdir/manifest.txt"
+  else
+    echo "absent colorscheme" >> "$bdir/manifest.txt"
+  fi
+  printf '%s' "$bdir"
+}
+
+latest_backup() { # ecoa el backup más reciente o vacío
+  local d
+  d="$(ls -d "$TARGET_CONFIG/$BACKUP_PREFIX"* 2>/dev/null | sort | tail -n 1 || true)"
+  printf '%s' "${d:-}"
+}
+
+# --- aplicadores (idempotentes: kwriteconfig6 sobrescribe la misma clave) --
+ap_orca() {
+  wcfg --file kaccessrc --group ScreenReader --key Enabled true || return 1
+  if command -v gsettings >/dev/null 2>&1; then
+    if ! gsettings set org.gnome.desktop.a11y.applications screen-reader-enabled true 2>/dev/null; then
+      echo "AVISO: gsettings no pudo fijar screen-reader-enabled (sin dconf de sesión; el espejo kaccessrc sí quedó)."
+    fi
+  else
+    echo "AVISO: sin gsettings; solo se escribió el espejo kaccessrc [ScreenReader]."
+  fi
+  if command -v orca >/dev/null 2>&1; then
+    if systemctl --user list-unit-files orca.service >/dev/null 2>&1; then
+      systemctl --user start orca.service 2>/dev/null ||
+        echo "AVISO: no se pudo arrancar orca.service; actívalo a mano o al reiniciar sesión."
+    else
+      echo "AVISO: Orca instalado pero sin orca.service de usuario; se iniciará al reiniciar sesión."
+    fi
+  else
+    echo "AVISO: Orca no está instalado (paquetes orca+speech-dispatcher+espeak); el valor quedó guardado igual."
+  fi
+}
+ap_zoom() {
+  wcfg --file kwinrc --group Plugins --key zoomEnabled true || return 1
+  echo "NOTA: atajos del efecto Zoom KWin (si existen en tu kglobalshortcutsrc): Meta+= acercar, Meta+- alejar."
+}
+ap_contrast() {
+  if [ ! -f "$CONTRAST_SRC" ]; then
+    echo "ERROR: falta $CONTRAST_SRC (repo incompleto)." >&2; return 1
+  fi
+  mkdir -p "$TARGET_DATA/color-schemes" || { echo "ERROR: no se pudo crear $TARGET_DATA/color-schemes." >&2; return 1; }
+  cp -f "$CONTRAST_SRC" "$TARGET_DATA/color-schemes/NimbusHighContrast.colors" || {
+    echo "ERROR: no se pudo instalar el esquema de alto contraste." >&2; return 1
+  }
+  wcfg --file kdeglobals --group General --key ColorScheme NimbusHighContrast || return 1
+  echo "NOTA: aplica al reiniciar sesión (o plasma-apply-colorscheme NimbusHighContrast en sesión viva)."
+}
+ap_stickykeys() {
+  wcfg --file kaccessrc --group Keyboard --key StickyKeys true || return 1
+}
+ap_bouncekeys() {
+  wcfg --file kaccessrc --group Keyboard --key BounceKeys true || return 1
+  wcfg --file kaccessrc --group Keyboard --key BounceKeysDelay 500 || return 1
+}
+ap_slowkeys() {
+  wcfg --file kaccessrc --group Keyboard --key SlowKeys true || return 1
+  wcfg --file kaccessrc --group Keyboard --key SlowKeysDelay 500 || return 1
+}
+ap_reduce_motion() {
+  wcfg --file kwinrc --group Compositing --key AnimationSpeed 0 || return 1
+  # magiclampEnabled: clave REAL (efecto builtin stock KWin 6.8:
+  # /usr/share/kwin/builtin-effects/magiclamp.json, convención
+  # [Plugins] <nombre>Enabled documentada en F11-T01-nested.md).
+  wcfg --file kwinrc --group Plugins --key magiclampEnabled false || return 1
+  wcfg --file kwinrc --group Effect-fade --key FadeInTime 150 || return 1
+  wcfg --file kwinrc --group Effect-fade --key FadeOutTime 150 || return 1
+  echo "NOTA: Reduce Motion → fade 150ms, sin Genie/parallax (contrato §2.5). KWin aplica con reconfigure/relogin."
+}
+ap_reduce_transparency() {
+  wcfg --file kwinrc --group Plugins --key blurEnabled false || return 1
+  wcfg --file kwinrc --group Plugins --key translucencyEnabled false || return 1
+  echo "NOTA: Reduce Transparency → todo sólido bgElevated + blur off (contrato §2.4). La barra glass queda opaca."
+}
+
+apply_one() { # <feature>
+  case "$1" in
+    orca) ap_orca ;;
+    zoom) ap_zoom ;;
+    contrast) ap_contrast ;;
+    stickykeys) ap_stickykeys ;;
+    bouncekeys) ap_bouncekeys ;;
+    slowkeys) ap_slowkeys ;;
+    reduce-motion) ap_reduce_motion ;;
+    reduce-transparency) ap_reduce_transparency ;;
+  esac
+}
+
+case "$ACTION" in
+  list)
+    echo "$FEATURES" | tr ' ' '\n'
+    ;;
+  check)
+    command -v kreadconfig6 >/dev/null 2>&1 || {
+      echo "ERROR: falta kreadconfig6. Instala plasma-desktop y reintenta." >&2; exit 1
+    }
+    for f in $FEATURES; do printf '%s=%s\n' "$f" "$(state_of "$f")"; done
+    ;;
+  apply)
+    need_kconfig
+    mkdir -p "$TARGET_CONFIG" "$TARGET_DATA" || { echo "ERROR: no se pudo crear $TARGET_CONFIG." >&2; exit 1; }
+    BDIR="$(ensure_backup)" || exit 1
+    if [ "$APPLY_FEATURE" = "all" ]; then
+      for f in $FEATURES; do apply_one "$f" || exit 1; done
+    else
+      apply_one "$APPLY_FEATURE" || exit 1
+    fi
+    echo "APPLY OK ($APPLY_FEATURE). Backup en $BDIR. Revierte con: nimbus-a11y --revert"
+    ;;
+  revert)
+    BDIR="$(latest_backup)"
+    if [ -z "$BDIR" ]; then echo "ERROR: no hay backup $BACKUP_PREFIX* en $TARGET_CONFIG." >&2; exit 1; fi
+    need_kconfig
+    while read -r status name; do
+      [ -n "$status" ] || continue
+      if [ "$name" = "colorscheme" ]; then
+        if [ "$status" = "absent" ]; then rm -f "$TARGET_DATA/color-schemes/NimbusHighContrast.colors"; fi
+        continue
+      fi
+      if [ "$status" = "present" ]; then
+        cp -f "$BDIR/files/$name" "$TARGET_CONFIG/$name" || { echo "ERROR: no se pudo restaurar $name." >&2; exit 1; }
+      else
+        rm -f "$TARGET_CONFIG/$name"
+      fi
+    done < "$BDIR/manifest.txt"
+    rm -rf "$BDIR" || { echo "ERROR: no se pudo consumir $BDIR (el revert sí aplicó; bórralo a mano)." >&2; exit 1; }
+    echo "REVERT OK desde $BDIR."
+    ;;
+esac
+exit 0
