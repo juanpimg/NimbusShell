@@ -232,7 +232,7 @@
 - [x] **F9-T03 — Elección de layout Mac/Win/Nimbus.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: presets de panel/atajos/Dock. Accept: mac (XIA/Meta), windows (IAX/Ctrl), nimbus (Meta); persistencia, revert y 7/7 tests; capturas. Dep: F9-T02.
 - [ ] **F9-T04 — Apps recomendadas.** Files: `apps/nimbus-welcome/`. Acciones: selección Flatpak/PackageKit; progreso; sin bloquear. Accept: instala 3 apps; tests. Dep: F9-T02.
 - [x] **F9-T05 — Migrador Windows/Mac.** Files: `apps/nimbus-migrate/`. Acciones: documentos, marcadores, fondo, lista de equivalencias; dry-run. Accept: 5 tipos (docs, marcadores Chrome/Edge/Firefox/Safari, fondo, apps, oscuro), 28/28 tests, dry-run/apply/rollback y no sobrescritura. Dep: F9-T02.
-- [ ] **F9-T06 — Toggle Cmd/Ctrl y chuleta.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: remapeo, PDF/HTML de atajos. Accept: 20 atajos; reversible. Dep: F9-T02.
+- [x] **F9-T06 — Toggle Cmd/Ctrl y chuleta.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: remapeo, PDF/HTML de atajos. Accept: 33 atajos en HTML autocontenido (PDF con motor opcional), Mac/Win reversible (XIA/IAX) y tests 8 pasos. Dep: F9-T02.
 - [ ] **F9-T07 — Discover simple.** Files: `dotfiles/.config/`, `apps/`. Acciones: modo simple, updates en lenguaje llano, programar. Accept: actualiza 1 paquete; captura. Estado: script+15/15 tests con fakes, discoverrc y hook/GRUB doc; ciclo real VM snapper pendiente. Dep: F2.
 - [ ] **F9-T08 — Rollback Btrfs/snapper.** Files: `apps/`, `iso/`. Acciones: snapshot pre-update, entrada GRUB "volver a ayer", test romper update. Accept: rollback funcional en VM; evidencia. Estado: script/rollback-list/undochange + doc GRUB; ciclo snapshot→upgrade→rollback en VM pendiente. Dep: F9-T07.
 - [ ] **F9-T09 — Migrador legacy Hyprland→Plasma.** Files: `apps/nimbus-migrate/`. Acciones: backup `~/.config/hypr` y `~/.config/quickshell`, importar wallpaper/atajos/pins/settings donde sea posible, dry-run y rollback. Accept: VM con dotfiles Hyprland migra sin pérdida; informe de lo no migrable. Estado: script + 9/9 tests con fixture; apply/rollback OK; ejecución en VM real pendiente. Dep: F9-T02.
@@ -244,7 +244,7 @@
 
 **Objetivo:** completar la experiencia diaria con apps y widgets equivalentes.
 
-- [ ] **F10-T01 — Port widgets/ClockApp/AboutApp.** Files: `packages/plasma/`, `apps/`. Acciones: Calendar, Clock, Weather, Player; ClockApp/AboutApp; i18n ki18n (no es.js nuevo). Accept: cada widget funciona; capturas. Dep: F3.
+- [ ] **F10-T01 — Port widgets/ClockApp/AboutApp.** Files: `packages/plasma/`, `apps/`. Acciones: Calendar, Clock, Weather, Player; ClockApp/AboutApp; i18n ki18n (no es.js nuevo). Accept: cada widget funciona; capturas. Estado: AboutApp y Ayuda hechos (capturas, datos reales); Clock/Weather/Player y ClockApp pendientes. Dep: F3.
 - [x] **F10-T02 — Finder-like Dolphin.** Files: `dotfiles/.config/dolphinrc`, `apps/`. Acciones: vista columnas, sidebar, previews, Quick Look si viable. Accept: 10 ops (touch/mv/cp/trash/restore/sort), vista compacta, sidebar/previews, 1100x700; captura. Dep: F2.
 - [x] **F10-T03 — Terminal y apps por defecto.** Files: `dotfiles/.config/konsolerc`, `apps/`. Acciones: Konsole tema, fuente, perfil; defaults (navegador, correo, imagen, archivo). Accept: Konsole Nimbus (JetBrains Mono 12, scheme, opacidad); 6/6 MIME (https/html/pdf/jpeg/directory/mp4); captura. Dep: F2.
 - [ ] **F10-T04 — Lock/login.** Files: `packages/themes/`, `dotfiles/.config/kscreenlockerrc`. Acciones: kscreenlocker/SDDM tema Nimbus, avatar, blur; bloqueo por atajo. Accept: lock/unlock; capturas. Estado: tema org.nimbus.desktop + greeter --testing + preview tarjeta; unlock PAM real pendiente VM; kglobals Lock Session=Meta+Ctrl+Q. Dep: F2.
@@ -264,7 +264,7 @@
 - [ ] **F11-T04 — Accesibilidad.** Files: `dotfiles/.config/`, `apps/`. Acciones: Orca, zoom, contraste, sticky keys, reduce motion/transparency, navegación teclado. Accept: 10 tareas sin ratón; audit. Estado: 8 features + 58/58 tests + contraste AA; audit estático 6/10 (4 gaps de trigger/VM); pendiente 10/10 en VM. Dep: F8.
 - [x] **F11-T05 — i18n, docs y chuleta.** Files: `docs/`, `apps/`. Acciones: dueño único i18n ki18n/.ts (F9/F10 consumen); es/en completo, textos de UI, guía de usuario, atajos. Accept: 341 cadenas únicas es/en (403 msg, 0 unfinished), guía + chuleta 33 atajos, tests 5/5, CI read-only; Cmd+1 no cableado declarado. Dep: F9,F10.
 
-- [ ] **F11-T06 — Documentación de usuario.** Files: `docs/user/`. Acciones: guía de instalación, uso, atajos, solución de problemas, es/en, offline; enlace en Ayuda. Accept: docs revisadas y accesibles desde el escritorio. Dep: F11-T05.
+- [x] **F11-T06 — Documentación de usuario.** Files: `docs/user/`. Acciones: guía de instalación, uso, atajos, solución de problemas, es/en, offline; enlace en Ayuda. Accept: docs/user es/en offline + nimbus-help (guía/atajos, búsqueda) accesible desde menú N y .desktop; capturas. Dep: F11-T05.
 
 ---
 
