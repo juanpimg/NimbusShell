@@ -9,7 +9,9 @@
 # (abre sin maximizar; maximizar manual sigue funcionando, NO Force).
 # NO se tocan: position (centra placement), fullscreen (apps que lo piden lo
 # conservan), ignoregeometry (respeta sesión), fsplevel/acceptfocus
-# (defaults), decorationpolicy (CSD GTK/Electron intactas). Bar/Dock/
+# (defaults), decorationpolicy (CSD GTK3/4 y Electron intactas: F10-T06 —
+# KWin decora solo SSD/XWayland legacy que la pide; Firefox CSD conserva sus
+# botones a la derecha, excepción a semáforos XIA). Bar/Dock/
 # Spotlight son layer-shell (no Normal): ninguna regla les aplica.
 
 [General]
