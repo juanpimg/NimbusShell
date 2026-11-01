@@ -130,6 +130,14 @@ cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-spotlight "$OUT/airootfs/usr/sha
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-apps-toggle "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-zoom "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 echo "OK: temas y KWin scripts estagiados"
+# R-CALAMARES-BOOST: libs 1.91 para cachyos-calamares (repo sirve 1.92).
+if [ -f "$REPO_ROOT/iso/compat/boost191.tar.gz" ]; then
+  tar -xzf "$REPO_ROOT/iso/compat/boost191.tar.gz" -C "$OUT/airootfs" || {
+    echo "ERROR: no se pudo extraer boost191" >&2; exit 1; }
+  [ -f "$OUT/airootfs/usr/lib/libboost_python314.so.1.91.0" ] || {
+    echo "ERROR: falta libboost_python314 1.91 en staging" >&2; exit 1; }
+  echo "OK: compat boost191 (Calamares)"
+fi
 
 # 5. Apps: cmake+ninja con DESTDIR=staging a /usr/local.
 if [ "$SKIP_APPS" -eq 1 ]; then
@@ -165,6 +173,7 @@ for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
   "$OUT/airootfs/usr/share/sddm/themes/nimbus/Main.qml" \
   "$OUT/airootfs/usr/share/nimbus/klassy/nimbus-tahoe.klpw" \
+  "$OUT/airootfs/usr/lib/libboost_python314.so.1.91.0" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
   ; do
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
