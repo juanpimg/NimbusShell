@@ -1,0 +1,33 @@
+[a11y] runtime=/tmp/opencode/nimbus-a11y-elMZqh/runtime home=/tmp/opencode/nimbus-a11y-elMZqh/home log=/home/jp/Escritorio/Proyectos/NimbusShell-f6a11y/spikes/nested/f6-a11y-nested.log
+[a11y] orca: NO instalado en el host
+[a11y] arranque kwin_wayland --virtual ...
+[a11y] spotlight --demo --query kate --shot f6-a11y-focus.png ...
+SPOT-MAIN-ENTER pid=474341
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=474341 comm="/tmp/opencode/f6a11y-spot/nimbus-spotlight --demo")
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=474345 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=474345 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:474345): xdg-desktop-portal-WARNING **: 02:02:59.882: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=474345 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=474367 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=474345 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:474345): xdg-desktop-portal-WARNING **: 02:03:00.003: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=474345 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+nimbus-spotlight[1]: Spotlight_QMLTYPE_96(0x55c919478830, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[4]: nimbus-spotlight: demo=1 query='kate'
+dbus-daemon[474256]: [session uid=1000 pid=474256 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+nimbus-spotlight[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+nimbus-spotlight[4]: spotlight-local-latency: query=1ms mode=nimbus results=20 tab=apps
+[a11y] spotlight VIVO (pid 474341)
+[a11y] nimbus-apps --demo --shot f6-a11y-apps.png ...
+[a11y] f6-a11y-apps.png OK
+[a11y] orca NO instalado: sin f6-a11y-orca.png (preparado: roles/nombres/announce en QML)
+[a11y] 0 errores QML
+A connection to the bus can't be made

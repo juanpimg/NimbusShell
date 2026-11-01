@@ -56,7 +56,7 @@ DBus no aplica: in-process vía libKF6Runner; se mide query→render).
   calculadora (shunting-yard seguro, sin eval), web (`?` → DuckDuckGo,
   sin red), portapapeles (solo klipper DBus, <16k). Frecuencia en
   `$XDG_STATE_HOME/nimbus-spotlight/frecuencia.json`. Locales primero;
-  KRunner (backend intacto) solo como fallback con Tab o botón.
+  KRunner (backend intacto) solo como fallback con Ctrl+Tab o botón.
 - `qml/Spotlight.qml`, `spotlight.qrc` — overlay QML (tokens hardcodeados
   dark §2.1; `NimbusTokens` como import opcional si está instalado).
   Preview con acciones Abrir/Copiar/Revelar (`nimbus.activateLocal`).
@@ -64,3 +64,25 @@ DBus no aplica: in-process vía libKF6Runner; se mide query→render).
   calculadora, .desktop, 10k sintéticos <50ms.
 - `org.nimbus.spotlight.desktop` — lanzador.
 - KWin script: `packages/kwin/scripts/nimbus-spotlight/`.
+
+## Teclado y accesibilidad (F6-T07, todo sin ratón)
+
+| Atajo | Acción |
+|---|---|
+| Tab / Shift+Tab | Recorre Campo → [Vistas] → Resultados → Acciones → Pestañas → Campo (sin trampas) |
+| ↑ / ↓ | Mueve la selección (en el campo y en la lista) |
+| Home / End · RePág / AvPág | Primera / última · ±10 (con foco en la lista) |
+| Enter | Activa la selección / el botón enfocado |
+| Espacio | Activa el botón enfocado |
+| Esc | Cierra el overlay |
+| Cmd+1..4 | Pestañas Apps / Archivos / Acciones / Portapapeles |
+| A–L | Elige el resultado N visible (solo con foco en la lista; en el campo escriben texto) |
+| Ctrl+Tab | Fallback explícito a KRunner (en Portapapeles no hay: datos locales) |
+
+Ruling F6-T07: Tab antes lanzaba KRunner (F6-T02); ahora Tab navega
+(a11y: Tab nunca queda atrapado) y KRunner pasa a Ctrl+Tab + botón.
+Foco visible (anillo blanco 2px), nombres/roles/descripciones accesibles y
+`announce` de selección/pestaña (Orca/AT-SPI). Contraste y medidas en
+`docs/plans/evidence/F6-T07-nested.md`. Tests: `python3
+tests/spotlight/test_a11y.py` (estático + node `test_focus.js` +
+`tst_focus.qml` + `qmllint`).
