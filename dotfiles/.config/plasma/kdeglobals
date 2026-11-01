@@ -18,3 +18,7 @@ Theme=WhiteSur
 [KDE]
 LookAndFeelPackage=org.kde.breezedark.desktop
 SingleClick=false
+
+[Sounds]
+Enable=true
+Theme=Nimbus
