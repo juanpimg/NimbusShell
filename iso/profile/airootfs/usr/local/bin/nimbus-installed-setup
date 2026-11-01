@@ -140,7 +140,7 @@ fi
 
 # 4. KWin scripts: kpackagetool6 si existe; si no, ya están en /usr/share/kwin/scripts.
 if command -v kpackagetool6 >/dev/null 2>&1; then
-  for script in nimbus-spotlight nimbus-apps-toggle nimbus-zoom; do
+  for script in nimbus-spotlight nimbus-apps-toggle nimbus-tabs nimbus-mc nimbus-zoom; do
     dir="/usr/share/kwin/scripts/$script"
     [ -d "$dir" ] || { log "AVISO: falta $dir"; continue; }
     if [ "$CHECK" -eq 1 ]; then

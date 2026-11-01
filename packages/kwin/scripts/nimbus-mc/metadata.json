@@ -1,0 +1,18 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "nimbus@nimbus.local",
+                "Name": "NimbusShell"
+            }
+        ],
+        "Description": "Meta+W alterna Nimbus Mission Control (org.nimbus.MissionControl)",
+        "Icon": "preferences-system-windows",
+        "Id": "nimbus-mc",
+        "License": "GPL-2.0-or-later",
+        "Name": "Nimbus Mission Control"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}
