@@ -206,6 +206,12 @@ Window {
         popupHeight: root.pNum("osd", "height", 56)
         timeoutMs: root.pNum("osd", "timeoutMs", 1500)
     }
+    // F3-T12: banners de notificación (servidor FDO en la barra,
+    // R-NOTIF-SERVER). Sin servidor la lista está vacía y no se muestra.
+    NotificationCenter {
+        id: notifCenter
+        objectName: "notifCenter"
+    }
     Component.onCompleted: {
         // F11-T03: acento configurable + sync inicial dark desde kdeglobals
         // (CC.refresh lee ColorScheme y reescribe NimbusTokens.dark).

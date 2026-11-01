@@ -23,6 +23,7 @@
 #include "commandrunner.h"
 #include "appmenumodel.h"
 #include "statusnotifiermodel.h"
+#include "notificationserver.h"
 #include "osdbridge.h"
 
 // F3-T07: provider image://sni/<uid> (pixmap SNI, icono de tema o badge).
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
 
     bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false,
          demoCalendar = false, demoAppmenu = false, logAppmenu = false, demoTray = false,
-         demoOsd = false;
+         demoOsd = false, wantNotif = true, demoNotif = false;
     QString demoOsdKind = QStringLiteral("volume");
     double demoOsdValue = 0.7;
     int trayOpenMenu = -1;
@@ -120,6 +121,12 @@ int main(int argc, char *argv[])
             logAppmenu = true;
         else if (a == QStringLiteral("--demo-tray"))
             demoTray = true;
+        else if (a == QStringLiteral("--notifications"))
+            wantNotif = true;
+        else if (a == QStringLiteral("--no-notifications"))
+            wantNotif = false;
+        else if (a == QStringLiteral("--demo-notification"))
+            demoNotif = true;
         else if (a == QStringLiteral("--tray-open-menu"))
             trayOpenMenu = 0;
         else if (a == QStringLiteral("--accent") && i + 1 < argc)
@@ -163,6 +170,11 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("demoOsd"), demoOsd);
     engine.rootContext()->setContextProperty(QStringLiteral("demoOsdKind"), demoOsdKind);
     engine.rootContext()->setContextProperty(QStringLiteral("demoOsdValue"), demoOsdValue);
+    // F3-T12: servidor FDO de notificaciones (R-NOTIF-SERVER). No fatal:
+    // si el nombre lo posee plasmashell stock, la barra sigue viva.
+    NotificationServer notifServer;
+    engine.rootContext()->setContextProperty(QStringLiteral("notifServer"),
+                                             &notifServer);
     // F3-T07: modelo SNI + provider image://sni.
     StatusNotifierModel trayModel;
     engine.rootContext()->setContextProperty(QStringLiteral("trayModel"), &trayModel);
@@ -292,6 +304,25 @@ int main(int argc, char *argv[])
         qWarning("nimbus-bar: no se pudo registrar org.nimbus.OSD (sigue sin DBus)");
     if (!QDBusConnection::sessionBus().registerObject(QStringLiteral("/OSD"), &osdBridge))
         qWarning("nimbus-bar: no se pudo registrar /OSD (sigue sin DBus)");
+
+    // F3-T12: servidor org.freedesktop.Notifications (R-NOTIF-SERVER).
+    // --no-notifications lo omite; --notifications (defecto) lo intenta;
+    // nombre tomado (plasmashell stock) = aviso, NO aborta.
+    if (wantNotif)
+        notifServer.registerOnBus();
+    else
+        qInfo("nimbus-bar: notificaciones desactivadas (--no-notifications)");
+    // --demo-notification: siembra una notificación local (funciona con o
+    // sin bus: ejercita modelo + banner en nested/offscreen).
+    if (demoNotif) {
+        QTimer::singleShot(2500, &notifServer, [&notifServer]() {
+            notifServer.Notify(
+                QStringLiteral("Nimbus"), 0, QString(),
+                QStringLiteral("Reunión"),
+                QStringLiteral("En 5 minutos"), QStringList(),
+                QVariantMap(), 5000);
+        });
+    }
 
     return app.exec();
 }
