@@ -1,0 +1,19 @@
+[about] runtime=/tmp/opencode/nimbus-about-PKuFqv/runtime home=/tmp/opencode/nimbus-about-PKuFqv/home log=/home/jp/Escritorio/Proyectos/NimbusShell-f10about/spikes/nested/f10-about.log
+[about] menú:
+1
+1
+1
+[about] arranque kwin_wayland --virtual ...
+[about] arranque nimbus-about --shot ...
+[about] arranque nimbus-help --shot ...
+nimbus-help: OPEN tab=shortcuts dir=/home/jp/Escritorio/Proyectos/NimbusShell-f10about/docs/user-guide
+nimbus-help[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+nimbus-about: OPEN version=2026.11
+nimbus-about[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: App info not found for ''")
+nimbus-help: SHOT_OK /home/jp/Escritorio/Proyectos/NimbusShell-f10about/spikes/nested/f10-help-grab.png
+nimbus-about: SHOT_OK /home/jp/Escritorio/Proyectos/NimbusShell-f10about/spikes/nested/f10-about-grab.png
+[about] about VIVO (pid 607894)
+[about] help VIVO (pid 607897)
+[about] f10-about.png OK
+[about] f10-help.png OK
+[about] 0 errores QML
