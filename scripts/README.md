@@ -7,6 +7,9 @@
   `--wallpaper <img>`, `--auto enable|disable|status`, `--check`,
   `--revert`; idempotente, sin root, backup `nimbusshell-backup-*`),
   `nimbus-privacy` (F2-T09: telemetría KDE off + purga UserFeedback),
-  `nimbus-flatpak-perms` (F2-T09: política Flatpak por app, no instala).
+  `nimbus-flatpak-perms` (F2-T09: política Flatpak por app, no instala),
+  `nimbus-a11y` (F11-T04: `--apply <feature|all>`, `--check`, `--revert`,
+  `--list`, `--home DIR`; idempotente, sin root, backup
+  `nimbusshell-backup-a11y-*`).
 - **Qué va:** solo scripts con `--help`, `set -u`, mensajes accionables.
   **Qué no:** lógica de instalador (vive en `install.sh` + `lib/`, F1-T03).
