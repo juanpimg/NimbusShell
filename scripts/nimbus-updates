@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# nimbus-updates (F9-T07/T08): actualizaciones en lenguaje llano + rollback snapper.
+# Sin root salvo --apply explicito. Idempotente en lectura (--check nunca
+# escribe ni actualiza). Sin red salvo la que hagan pacman/checkupdates.
+#
+# Uso:
+#   nimbus-updates [--check] [--apply] [--rollback-list] [--rollback N] [--help]
+# Sin flags: equivale a --check (solo lectura, lenguaje llano).
+#
+# Comportamiento:
+#   --check         lista pendientes con checkupdates (o pacman -Qu) en
+#                   lenguaje llano. Nunca crea snapshots ni actualiza.
+#   --apply         crea snapshot snapper pre-update y ejecuta el upgrade
+#                   (pacman -Syu). Requiere intencion explicita; es el unico
+#                   modo que puede pedir root (pacman/snapper lo exigen).
+#                   Cada --apply crea UN snapshot (por diseno, no es
+#                   duplicado: es el punto de retorno de esa actualizacion).
+#   --rollback-list lista snapshots snapper (o instrucciones si no hay).
+#   --rollback N    revierte al snapshot N con snapper undochange
+#                   (o instrucciones si no hay snapper).
+# Fakes para tests: basta con poner en PATH falsos checkupdates/pacman/
+# snapper (ver tests/updates/test_updates.sh).
+set -u
+
+ACTION="check"
+ROLLBACK_N=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --check) ACTION="check" ;;
+    --apply) ACTION="apply" ;;
+    --rollback-list) ACTION="rollback-list" ;;
+    --rollback)
+      ACTION="rollback"; ROLLBACK_N="${2:-}"
+      if [ -z "$ROLLBACK_N" ]; then echo "ERROR: --rollback necesita un numero (ver --rollback-list)." >&2; exit 1; fi
+      shift ;;
+    -h|--help) sed -n '2,22p' "${BASH_SOURCE[0]}" | cut -c3-; exit 0 ;;
+    *) echo "ERROR: flag desconocido '$1' (ver --help)." >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [ "$(id -u)" = "0" ] && [ "$ACTION" != "apply" ]; then
+  echo "ERROR: no ejecutar como root salvo con --apply explicito." >&2; exit 1
+fi
+
+list_pending() {
+  if command -v checkupdates >/dev/null 2>&1; then
+    out="$(checkupdates 2>/dev/null || true)"
+    if [ -z "$out" ]; then echo "Todo al dia: no hay actualizaciones pendientes."; return 0; fi
+    n="$(printf '%s\n' "$out" | wc -l)"
+    echo "Hay $n actualizacion(es) pendiente(s):"
+    printf '%s\n' "$out" | while IFS= read -r l; do echo "  - $l"; done
+    echo "Para instalarlas: sudo nimbus-updates --apply (crea un punto de retorno antes)."
+    return 0
+  fi
+  if command -v pacman >/dev/null 2>&1; then
+    out="$(pacman -Qu 2>/dev/null || true)"
+    if [ -z "$out" ]; then echo "Todo al dia: no hay actualizaciones pendientes."; return 0; fi
+    n="$(printf '%s\n' "$out" | wc -l)"
+    echo "Hay $n actualizacion(es) pendiente(s):"
+    printf '%s\n' "$out" | while IFS= read -r l; do echo "  - $l"; done
+    echo "Para instalarlas: sudo nimbus-updates --apply (crea un punto de retorno antes)."
+    return 0
+  fi
+  echo "ERROR: ni checkupdates ni pacman disponibles. Instala pacman y reintenta." >&2
+  return 1
+}
+
+snapper_ok() { command -v snapper >/dev/null 2>&1 && snapper -c root list >/dev/null 2>&1; }
+
+case "$ACTION" in
+  check) list_pending; exit $? ;;
+  rollback-list)
+    if snapper_ok; then snapper -c root list; exit 0; fi
+    echo "Sin snapper o sin config 'root': no hay puntos de retorno que listar."
+    echo "Para activarlos (en el sistema instalado, no en el live):"
+    echo "  1) sudo snapper -c root create-config /"
+    echo "  2) sudo systemctl enable --now snapper-timeline.timer snapper-cleanup.timer"
+    echo "  3) instala grub-btrfs para la entrada 'volver a ayer' en el arranque."
+    exit 1 ;;
+  rollback)
+    if snapper_ok; then
+      echo "Volviendo al punto $ROLLBACK_N (esto deshace cambios del sistema, no tus documentos)..."
+      if snapper -c root undochange "$ROLLBACK_N"..0; then
+        echo "ROLLBACK OK: sistema revertido al snapshot $ROLLBACK_N. Reinicia para usarlo."
+        exit 0
+      fi
+      echo "ERROR: snapper no pudo revertir (ver su mensaje). No se cambio nada a medias: reintenta o elige otro numero." >&2
+      exit 1
+    fi
+    echo "ERROR: sin snapper no se puede revertir automaticamente." >&2
+    echo "Si arrancaste desde un snapshot (entrada 'volver a ayer' en GRUB):" >&2
+    echo "  el sistema ya esta en el estado anterior; hazlo permanente con" >&2
+    echo "  'sudo snapper -c root create --description nimbus-fijar-estado' y avisa." >&2
+    exit 1 ;;
+  apply)
+    echo "Paso 1/2: punto de retorno..."
+    if snapper_ok; then
+      desc="nimbus-pre-update-$(date +%F-%H%M)"
+      num="$(snapper -c root create --description "$desc" --print-number 2>/dev/null || true)"
+      if [ -n "$num" ]; then echo "Punto de retorno creado: snapshot $num ($desc).";
+      else echo "AVISO: snapper no devolvio numero; sigo igualmente (revisa 'snapper -c root list')." >&2; fi
+    else
+      echo "AVISO: sin snapper/config 'root': actualizo SIN punto de retorno." >&2
+      echo "Activalo tras instalar: sudo snapper -c root create-config / (ver --rollback-list)." >&2
+    fi
+    echo "Paso 2/2: instalando actualizaciones (esto puede tardar)..."
+    if command -v pacman >/dev/null 2>&1; then
+      if pacman -Syu --noconfirm; then
+        echo "APPLY OK: sistema actualizado. Si algo falla, vuelve atras con: sudo nimbus-updates --rollback-list"
+        exit 0
+      fi
+      echo "ERROR: pacman fallo (ver su mensaje). Si el sistema quedo a medias, revierte con --rollback-list." >&2
+      exit 1
+    fi
+    echo "ERROR: pacman no disponible; nada instalado (el snapshot previo, si se creo, sigue valido)." >&2
+    exit 1 ;;
+esac
