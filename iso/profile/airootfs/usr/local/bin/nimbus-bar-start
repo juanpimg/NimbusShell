@@ -1,10 +1,12 @@
 #!/bin/bash
 # nimbus-bar-start — arranca nimbus-bar exactamente una vez (F3-T03).
 # Sin root, HOME temporal, idempotente. Log: ~/.local/state/nimbus/bar.log.
-# Invocado por nimbus-bar.service (systemd: exec en primer plano, Type=simple),
-# y como fallback por el script de entorno de Plasma y el autostart .desktop.
+# Invocado por nimbus-bar.service (systemd de usuario) y por el autostart
+# nimbus-bar.desktop (fallback no-systemd). Bajo systemd (INVOCATION_ID lo
+# pone el gestor) hace exec en primer plano para que el gestor siga el
+# ciclo de vida del binario; fuera de systemd lanza en segundo plano.
 # La instancia única real la garantiza org.nimbus.Bar en nimbus-bar (DBus);
-# el pgrep de aquí solo evita un segundo lanzamiento obvio.
+# el pgrep y la sonda qdbus de aquí solo evitan un lanzamiento obvio.
 set -u
 
 BIN="${NIMBUS_BAR_BIN:-/usr/local/bin/nimbus-bar}"
@@ -25,25 +27,46 @@ if pgrep -f -- "^${BIN}([[:space:]]|$)" >/dev/null 2>&1; then
     exit 0
 fi
 
-# Bajo systemd (INVOCATION_ID lo pone el gestor) la unidad es Type=simple:
-# exec en primer plano y systemd sigue el ciclo de vida del binario.
-# Si aún no hay WAYLAND_DISPLAY (arranque temprano de default.target),
-# espera hasta 30 s antes de intentarlo; Type=simple ya está "started",
-# así que esto no bloquea a plasma-plasmashell.
-if [ -n "${INVOCATION_ID:-}" ]; then
-    tries="${NIMBUS_BAR_WAYLAND_TRIES:-60}"
-    while [ -z "${WAYLAND_DISPLAY:-}" ] && [ "$tries" -gt 0 ]; do
-        sleep 0.5
-        tries=$((tries - 1))
-    done
-    if [ -z "${WAYLAND_DISPLAY:-}" ]; then
-        log "AVISO: sin WAYLAND_DISPLAY tras la espera; intento el arranque igualmente"
+# Si org.nimbus.Bar ya tiene dueño, hay una barra viva: salir 0 sin lanzar
+# (cubre servicio + autostart coincidiendo; sin qdbus se omite la sonda y
+# decide el propio binario, que también sale 0).
+if command -v qdbus6 >/dev/null 2>&1; then
+    QDBUS=qdbus6
+elif command -v qdbus >/dev/null 2>&1; then
+    QDBUS=qdbus
+else
+    QDBUS=""
+fi
+if [ -n "$QDBUS" ] && "$QDBUS" org.nimbus.Bar >/dev/null 2>&1; then
+    log "org.nimbus.Bar ya registrado (barra viva); nada que hacer"
+    exit 0
+fi
+
+# La barra necesita el socket Wayland (lanzarla antes da
+# `Failed to create wl_display`, que era el bug del env script). Espera
+# hasta ~10 s tanto bajo systemd como en autostart/manual.
+RUNTIME="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    if [ ! -S "$RUNTIME/$WAYLAND_DISPLAY" ]; then
+        tries="${NIMBUS_BAR_SOCKET_TRIES:-20}"
+        while [ ! -S "$RUNTIME/$WAYLAND_DISPLAY" ] && [ "$tries" -gt 0 ]; do
+            sleep 0.5
+            tries=$((tries - 1))
+        done
     fi
+    if [ -S "$RUNTIME/$WAYLAND_DISPLAY" ]; then
+        log "socket $RUNTIME/$WAYLAND_DISPLAY listo"
+    else
+        log "AVISO: sin socket $RUNTIME/$WAYLAND_DISPLAY tras la espera; intento el arranque igualmente"
+    fi
+fi
+
+if [ -n "${INVOCATION_ID:-}" ]; then
     log "systemd (INVOCATION_ID=$INVOCATION_ID): exec en primer plano $BIN $*"
     exec "$BIN" "$@"
 fi
 
-# Fallback (env script / autostart / manual): segundo plano, sin bloquear.
+# Fallback (autostart .desktop / manual): segundo plano, sin bloquear.
 log "lanzando $BIN $* en segundo plano"
 nohup "$BIN" "$@" >>"$LOG" 2>&1 &
 log "pid $!"

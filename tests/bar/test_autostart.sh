@@ -52,9 +52,9 @@ cat >"$FAKEDIR/pgrep" <<'EOF'
 exit 1
 EOF
 chmod 755 "$FAKEDIR/pgrep"
-run_start() { # run_start <home>
+run_start() { # run_start <home> [extra env...]
   HOME="$1" XDG_STATE_HOME="$1/.local/state" NIMBUS_BAR_BIN="$FAKEBIN/nimbus-bar" \
-    PATH="$FAKEDIR:$PATH" "$START"
+    WAYLAND_DISPLAY="" PATH="$FAKEDIR:$PATH" "$START"
 }
 run_start "$T" || fail "start sin instancia (rc)"
 grep -q FAKE-BAR "$FAKE_CALLS" && pass "start sin instancia lanza nimbus-bar" \
@@ -70,8 +70,60 @@ unset PGREP_MODE
 grep -q "ya hay una instancia" "$T/.local/state/nimbus/bar.log" \
   && pass "start con instancia lo loguea" || fail "start con instancia lo loguea"
 HOME="$T" XDG_STATE_HOME="$T/.local/state" NIMBUS_BAR_BIN=/noexiste/nimbus-bar \
-  PATH="$FAKEDIR:$PATH" "$START" >/dev/null 2>&1 \
+  WAYLAND_DISPLAY="" PATH="$FAKEDIR:$PATH" "$START" >/dev/null 2>&1 \
   && fail "start sin binario debe fallar" || pass "start sin binario rc != 0"
+
+# --- 1b. nimbus-bar-start espera al socket Wayland (bug `Failed to create
+# wl_display` del env script) y respeta org.nimbus.Bar vía qdbus ---
+echo "== autostart: socket Wayland + org.nimbus.Bar =="
+SOCKDIR="$(mktemp -d)"
+cat >"$SOCKDIR/qdbus6" <<'EOF'
+#!/bin/bash
+# fake qdbus6 para nimbus-bar-start: QDBUS_BAR_TAKEN=1 -> org.nimbus.Bar con
+# dueño (rc 0); si no, sin dueño (rc 1, como sin bus / nombre libre).
+[ "$1" = "org.nimbus.Bar" ] && [ "${QDBUS_BAR_TAKEN:-0}" = "1" ] && exit 0
+exit 1
+EOF
+chmod 755 "$SOCKDIR/qdbus6"
+run_start_env() { # vars en el entorno del llamante; se exportan al hijo
+  export HOME XDG_STATE_HOME NIMBUS_BAR_BIN XDG_RUNTIME_DIR WAYLAND_DISPLAY \
+    NIMBUS_BAR_SOCKET_TRIES QDBUS_BAR_TAKEN
+  PATH="$SOCKDIR:$FAKEDIR:$PATH" "$START"
+}
+# Socket presente: arranca de inmediato y lo loguea.
+R1="$(mktemp -d)"
+python3 -c "import socket; s=socket.socket(socket.AF_UNIX); s.bind('$R1/wayland-0')" \
+  || fail "no se pudo crear socket falso (python3)"
+: >"$FAKE_CALLS"
+HOME="$R1" XDG_STATE_HOME="$R1/.local/state" NIMBUS_BAR_BIN="$FAKEBIN/nimbus-bar" \
+  XDG_RUNTIME_DIR="$R1" WAYLAND_DISPLAY="wayland-0" run_start_env \
+  || fail "start con socket (rc)"
+grep -q FAKE-BAR "$FAKE_CALLS" && pass "start con socket lanza" \
+  || fail "start con socket lanza"
+grep -q "socket $R1/wayland-0 listo" "$R1/.local/state/nimbus/bar.log" \
+  && pass "start con socket lo loguea" || fail "start con socket lo loguea"
+# Socket ausente: espera (rápida: 2 intentos) y avisa, pero igual lanza.
+R2="$(mktemp -d)"
+: >"$FAKE_CALLS"
+HOME="$R2" XDG_STATE_HOME="$R2/.local/state" NIMBUS_BAR_BIN="$FAKEBIN/nimbus-bar" \
+  XDG_RUNTIME_DIR="$R2" WAYLAND_DISPLAY="wayland-0" NIMBUS_BAR_SOCKET_TRIES=2 \
+  run_start_env || fail "start sin socket (rc debe ser 0)"
+grep -q FAKE-BAR "$FAKE_CALLS" && pass "start sin socket lanza tras esperar" \
+  || fail "start sin socket lanza tras esperar"
+grep -q "sin socket $R2/wayland-0" "$R2/.local/state/nimbus/bar.log" \
+  && pass "start sin socket avisa en el log" || fail "start sin socket avisa"
+# org.nimbus.Bar tomado (servicio + autostart coincidiendo): exit 0 sin lanzar.
+R3="$(mktemp -d)"
+: >"$FAKE_CALLS"
+HOME="$R3" XDG_STATE_HOME="$R3/.local/state" NIMBUS_BAR_BIN="$FAKEBIN/nimbus-bar" \
+  WAYLAND_DISPLAY="" QDBUS_BAR_TAKEN=1 run_start_env \
+  || fail "start con org.nimbus.Bar tomado (rc debe ser 0)"
+[ -s "$FAKE_CALLS" ] && fail "start con org.nimbus.Bar tomado no debe lanzar" \
+  || pass "start con org.nimbus.Bar tomado sale 0 sin lanzar"
+grep -q "org.nimbus.Bar ya registrado" "$R3/.local/state/nimbus/bar.log" \
+  && pass "start con org.nimbus.Bar tomado lo loguea" \
+  || fail "start con org.nimbus.Bar tomado lo loguea"
+rm -rf "$SOCKDIR" "$R1" "$R2" "$R3"
 
 # --- 2. single-instance en main.cpp (org.nimbus.Bar; FDO intacto) ---
 echo "== autostart: single-instance C++ =="
@@ -93,10 +145,10 @@ if need cmake "build nimbus-bar" ; then
           set -u
           export QT_QPA_PLATFORM=offscreen HOME="'"$H2"'" XDG_RUNTIME_DIR="'"$H2"'/run"
           mkdir -p "$XDG_RUNTIME_DIR"
-          "'"$B"'/build/nimbus-bar" --no-notifications >"'"$H2"'/first.log" 2>&1 & p=$!
+          "'"$B"'/build/nimbus-bar" >"'"$H2"'/first.log" 2>&1 & p=$!
           sleep 3
           if kill -0 $p 2>/dev/null; then echo ALIVE; else echo DEAD; fi
-          timeout 12 "'"$B"'/build/nimbus-bar" --no-notifications >"'"$H2"'/second.log" 2>&1
+          timeout 12 "'"$B"'/build/nimbus-bar" >"'"$H2"'/second.log" 2>&1
           echo "RC2=$?"
           kill $p 2>/dev/null
         ' >"$H2/out.txt" 2>&1 || true
@@ -159,29 +211,41 @@ out="$(run_hide "$T" down)"
 
 # --- 4. unidad systemd de usuario ---
 echo "== autostart: nimbus-bar.service =="
-for key in 'Type=dbus' 'BusName=org.freedesktop.Notifications' \
+for key in 'Type=simple' \
            'PartOf=plasma-workspace.target' 'After=plasma-kwin_wayland.service' \
            'Before=plasma-plasmashell.service' 'WantedBy=plasma-workspace.target' \
-           'ExecStart=/usr/local/bin/nimbus-bar-start'; do
+           'ExecStart=/usr/local/bin/nimbus-bar-start' 'Restart=on-failure'; do
   grep -qF "$key" "$UNIT" && pass "unidad: $key" || fail "unidad: falta $key"
 done
+if grep -q '^Type=dbus' "$UNIT" || grep -q '^BusName=' "$UNIT"; then
+  fail "unidad: sin Type=dbus/BusName (el FDO es no fatal, no estado de unit)"
+else
+  pass "unidad: sin Type=dbus/BusName"
+fi
 [ -f "$AIROOTFS/etc/skel/.config/autostart/nimbus-bar.desktop" ] \
   && pass "fallback autostart nimbus-bar.desktop" || fail "falta nimbus-bar.desktop"
 grep -q 'nimbus-bar-start' "$AIROOTFS/etc/skel/.config/autostart/nimbus-bar.desktop" \
   && pass "autostart usa nimbus-bar-start" || fail "autostart Exec"
-grep -q 'nimbus-bar-start' "$AIROOTFS/etc/skel/.config/plasma-workspace/env/nimbus-bar.sh" \
-  && pass "env script delega en nimbus-bar-start" || fail "env script"
+if grep -qE 'nimbus-bar-start|nohup|/usr/local/bin/nimbus-bar([[:space:]]|$)' \
+    "$AIROOTFS/etc/skel/.config/plasma-workspace/env/nimbus-bar.sh"; then
+  fail "env script no debe lanzar procesos (bug wl_display)"
+else
+  pass "env script sin lanzamiento (solo variables)"
+fi
 
 # --- 5. installed-setup: habilita servicio + 755 arranque ---
 echo "== autostart: nimbus-installed-setup =="
 grep -q 'nimbus-bar.service' "$SETUP" && pass "setup menciona nimbus-bar.service" \
   || fail "setup: nimbus-bar.service"
-grep -q 'default.target.wants/nimbus-bar.service' "$SETUP" \
-  && pass "setup enlaza default.target.wants" || fail "setup: wants"
-grep -q 'nimbus-bar.sh' "$SETUP" && pass "setup asegura 755 arranque" \
-  || fail "setup: 755 arranque"
-grep -q 'Current=nimbus\|SDDM_THEME' "$SETUP" \
-  && pass "setup SDDM/tema intacto" || fail "setup SDDM tocado?"
+grep -q 'plasma-workspace.target.wants/nimbus-bar.service' "$SETUP" \
+  && pass "setup enlaza plasma-workspace.target.wants" || fail "setup: wants"
+if grep -q 'default.target.wants/nimbus-bar.service' "$SETUP"; then
+  fail "setup: no debe usar default.target.wants para la barra"
+else
+  pass "setup: sin default.target.wants para la barra"
+fi
+grep -q 'nimbus-bar.desktop' "$SETUP" && pass "setup asegura 755 autostart" \
+  || fail "setup: 755 autostart"
 
 # --- 6. qmllint de la barra (sin regresión QML) ---
 echo "== autostart: qmllint =="

@@ -1,8 +1,11 @@
 #!/bin/bash
-# nimbus-hide-panel — oculta el panel stock de Plasma cuando plasmashell ya
-# responde (F3-T03). Sin root, idempotente, exit 0 aunque no haya panel.
-# Espera/reintenta porque en el login plasmashell aún está arrancando cuando
-# corre el autostart; el evaluateScript previo fallaba en silencio.
+# nimbus-hide-panel — pone el panel stock de Plasma en auto-hide cuando
+# plasmashell ya responde (F3-T03). Sin root, idempotente, exit 0 aunque no
+# haya panel. visibilityMode=1 es AUTO-HIDE, no eliminación: el panel queda
+# fuera de vista pero existe (criterio F3-T03: "no visible/auto-hide").
+# La eliminación permanente (panel.remove()) no está verificada en
+# Plasma 6.8 y queda pendiente. Espera/reintenta porque en el login
+# plasmashell aún está arrancando cuando corre el autostart.
 # Log: ~/.local/state/nimbus/hide-panel.log.
 set -u
 
@@ -44,7 +47,7 @@ while [ "$attempt" -lt "$ATTEMPTS" ]; do
             exit 0
         fi
         if apply_hide; then
-            log "panel stock oculto (visibilityMode=1, visible=false) en el intento $attempt"
+            log "panel stock en auto-hide (visibilityMode=1) en el intento $attempt"
             exit 0
         fi
         log "evaluateScript falló (intento $attempt); reintento"
