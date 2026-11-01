@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QProcess>
 #include <QStandardPaths>
+#include <cstdio>
 #include <cstdlib>
 
 namespace {
@@ -35,13 +36,17 @@ QString WelcomeBackend::iniPath()
 void WelcomeBackend::load()
 {
     QSettings s(iniPath(), QSettings::IniFormat);
-    m_step = qBound(0, s.value(QStringLiteral("wizard/step"), 0).toInt(), 5);
+    m_step = qBound(0, s.value(QStringLiteral("wizard/step"), 0).toInt(), 6);
     m_completed = s.value(QStringLiteral("wizard/completed"), false).toBool();
     m_userName = s.value(QStringLiteral("user/name")).toString();
     m_avatarPath = s.value(QStringLiteral("user/avatar")).toString();
     m_language = s.value(QStringLiteral("user/language"), QStringLiteral("es")).toString();
     m_appearance = s.value(QStringLiteral("look/appearance"), QStringLiteral("dark")).toString();
     m_accent = s.value(QStringLiteral("look/accent"), QStringLiteral("#0A84FF")).toString();
+    m_layout = s.value(QStringLiteral("layout/name"), QStringLiteral("mac")).toString();
+    if (m_layout != QStringLiteral("mac") && m_layout != QStringLiteral("windows")
+        && m_layout != QStringLiteral("nimbus"))
+        m_layout = QStringLiteral("mac");
     m_apps = s.value(QStringLiteral("apps/selected")).toStringList();
     m_wifiStatus = s.value(QStringLiteral("wifi/lastStatus")).toString();
     m_wifi = kSimWifi; // lista inicial simulada; scanWifi() la refresca
@@ -57,6 +62,14 @@ void WelcomeBackend::save() const
     s.setValue(QStringLiteral("user/language"), m_language);
     s.setValue(QStringLiteral("look/appearance"), m_appearance);
     s.setValue(QStringLiteral("look/accent"), m_accent);
+    s.setValue(QStringLiteral("layout/name"), m_layout);
+    s.sync();
+    // Espejo en ~/.config/nimbus-layout.ini (lo lee scripts/nimbus-layout
+    // sin layout explicito y otros componentes).
+    QSettings li(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+            + QStringLiteral("/nimbus-layout.ini"), QSettings::IniFormat);
+    li.setValue(QStringLiteral("Layout/name"), m_layout);
+    li.sync();
     s.setValue(QStringLiteral("apps/selected"), m_apps);
     s.setValue(QStringLiteral("wifi/lastStatus"), m_wifiStatus);
     s.sync();
@@ -70,17 +83,19 @@ int WelcomeBackend::stepIndexFor(const QString &name) const
     if (n == QStringLiteral("wifi")) return 2;
     if (n == QStringLiteral("account") || n == QStringLiteral("cuenta")) return 3;
     if (n == QStringLiteral("appearance") || n == QStringLiteral("apariencia")) return 4;
+    if (n == QStringLiteral("layout") || n == QStringLiteral("diseño")
+        || n == QStringLiteral("diseno")) return 5;
     if (n == QStringLiteral("final") || n == QStringLiteral("apps")
-        || n == QStringLiteral("tour")) return 5;
+        || n == QStringLiteral("tour")) return 6;
     bool ok = false;
     const int i = n.toInt(&ok);
-    if (ok) return qBound(0, i, 5);
+    if (ok) return qBound(0, i, 6);
     return -1;
 }
 
 void WelcomeBackend::setStep(int s)
 {
-    s = qBound(0, s, 5);
+    s = qBound(0, s, 6);
     if (s == m_step) return;
     m_step = s;
     save();
@@ -129,9 +144,20 @@ void WelcomeBackend::setAccent(const QString &v)
     Q_EMIT accentChanged();
 }
 
+void WelcomeBackend::setLayout(const QString &v)
+{
+    if (v != QStringLiteral("mac") && v != QStringLiteral("windows")
+        && v != QStringLiteral("nimbus"))
+        return;
+    if (v == m_layout) return;
+    m_layout = v;
+    save();
+    Q_EMIT layoutChanged();
+}
+
 void WelcomeBackend::next()
 {
-    if (m_step < 5) setStep(m_step + 1);
+    if (m_step < 6) setStep(m_step + 1);
     else finish();
 }
 
@@ -159,6 +185,8 @@ void WelcomeBackend::finish()
 void WelcomeBackend::reset()
 {
     QFile::remove(iniPath());
+    QFile::remove(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+            + QStringLiteral("/nimbus-layout.ini"));
     m_step = 0;
     m_completed = false;
     m_userName.clear();
@@ -166,11 +194,13 @@ void WelcomeBackend::reset()
     m_language = QStringLiteral("es");
     m_appearance = QStringLiteral("dark");
     m_accent = QStringLiteral("#0A84FF");
+    m_layout = QStringLiteral("mac");
     m_apps.clear();
     m_wifiStatus.clear();
     m_wifi = kSimWifi;
     Q_EMIT stepChanged();
     Q_EMIT completedChanged();
+    Q_EMIT layoutChanged();
 }
 
 void WelcomeBackend::scanWifi()
@@ -228,6 +258,21 @@ void WelcomeBackend::connectWifi(const QString &ssid, const QString &password)
     }
     Q_EMIT wifiStatusChanged();
     save();
+}
+
+void WelcomeBackend::applyLayout()
+{
+    save(); // persiste layout/name + espejo nimbus-layout.ini siempre
+    if (m_sim) return; // test: simula, no cambia el sistema
+    const char *repo = std::getenv(kRepoEnv);
+    QString script = repo ? QString::fromLocal8Bit(repo) + QStringLiteral("/scripts/nimbus-layout")
+                          : QStringLiteral("nimbus-layout");
+    const bool hasScript = repo ? QFile::exists(script) : !QStandardPaths::findExecutable(script).isEmpty();
+    if (hasScript) {
+        QProcess::startDetached(script, { m_layout, QStringLiteral("--apply") });
+        return;
+    }
+    fprintf(stderr, "nimbus-welcome: sin nimbus-layout (solo inis escritos)\n");
 }
 
 void WelcomeBackend::toggleApp(const QString &id)

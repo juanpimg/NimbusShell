@@ -1,6 +1,7 @@
-// nimbus-welcome — wizard de primer arranque F9-T02.
+// nimbus-welcome — wizard de primer arranque F9-T02/T03.
 // Flags: --demo (abrir aunque esté completado), --page <n|nombre>,
-//   --shot <png> (autocaptura para test nested), --reset (borra el .ini).
+//   --layout <mac|windows|nimbus> (preselecciona diseño), --shot <png>
+//   (autocaptura para test nested), --reset (borra el .ini).
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -24,11 +25,13 @@ int main(int argc, char *argv[])
     });
 
     bool demo = false, reset = false;
-    QString pageArg, shotPath;
+    QString pageArg, shotPath, layoutArg;
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo")) demo = true;
         else if (a == QStringLiteral("--reset")) reset = true;
+        else if (a == QStringLiteral("--layout") && i + 1 < argc)
+            layoutArg = QString::fromLocal8Bit(argv[++i]);
         else if (a == QStringLiteral("--page") && i + 1 < argc)
             pageArg = QString::fromLocal8Bit(argv[++i]);
         else if (a == QStringLiteral("--shot") && i + 1 < argc)
@@ -37,6 +40,14 @@ int main(int argc, char *argv[])
 
     WelcomeBackend backend;
     if (reset) backend.reset();
+    if (!layoutArg.isEmpty()) {
+        backend.setLayout(layoutArg);
+        if (backend.layout() != layoutArg) {
+            fprintf(stderr, "nimbus-welcome: layout desconocido '%s' (mac|windows|nimbus)\n",
+                    layoutArg.toUtf8().constData());
+            return 1;
+        }
+    }
     if (!pageArg.isEmpty()) {
         const int idx = backend.stepIndexFor(pageArg);
         if (idx < 0) {

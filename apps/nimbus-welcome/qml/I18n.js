@@ -36,6 +36,13 @@ var dicts = {
         "Siguiente": "Next",
         "Omitir": "Skip",
         "Terminar": "Finish",
+        "Diseño": "Layout",
+        "Elige cómo se comporta tu escritorio. Mac es el predeterminado.": "Choose how your desktop behaves. Mac is the default.",
+        "Cmd con Meta, semáforos a la izquierda, Dock abajo.": "Cmd with Meta, traffic lights on the left, Dock at the bottom.",
+        "Ctrl y Alt clásicos, botones a la derecha.": "Classic Ctrl and Alt, buttons on the right.",
+        "Mezcla: Meta para apps, Ctrl para Spaces.": "Mix: Meta for apps, Ctrl for Spaces.",
+        "Aplicar diseño": "Apply layout",
+        "Elegido:": "Selected:",
         "de": "of"
     }
 };

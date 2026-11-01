@@ -3,6 +3,7 @@
 // XDG_CONFIG_HOME, así nunca toca el HOME real.
 #include <QDir>
 #include <QFile>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QtTest>
 
@@ -17,11 +18,13 @@ private Q_SLOTS:
         b.reset();
         QCOMPARE(b.step(), 0);
         b.setStep(99);
-        QCOMPARE(b.step(), 5);
+        QCOMPARE(b.step(), 6);
         b.setStep(-3);
         QCOMPARE(b.step(), 0);
-        QCOMPARE(b.stepCount(), 6);
+        QCOMPARE(b.stepCount(), 7);
         QCOMPARE(b.stepIndexFor(QStringLiteral("appearance")), 4);
+        QCOMPARE(b.stepIndexFor(QStringLiteral("layout")), 5);
+        QCOMPARE(b.stepIndexFor(QStringLiteral("final")), 6);
         QCOMPARE(b.stepIndexFor(QStringLiteral("nope")), -1);
     }
 
@@ -75,6 +78,25 @@ private Q_SLOTS:
         QVERIFY(!b.wifiStatus().isEmpty());
         b.connectWifi(QStringLiteral("Casa"), QStringLiteral("test"));
         QVERIFY(b.wifiStatus().contains(QStringLiteral("Casa")));
+    }
+
+    void layoutDefaultAndPersist()
+    {
+        WelcomeBackend b;
+        b.reset();
+        QCOMPARE(b.layout(), QStringLiteral("mac")); // Mac por defecto
+        b.setLayout(QStringLiteral("windows"));
+        QCOMPARE(b.layout(), QStringLiteral("windows"));
+        b.setLayout(QStringLiteral("bogus")); // invalido: se ignora
+        QCOMPARE(b.layout(), QStringLiteral("windows"));
+        b.applyLayout(); // sim (NIMBUS_WELCOME_SIM=1): solo inis
+        WelcomeBackend r; // reanuda: mismo HOME temporal
+        QCOMPARE(r.layout(), QStringLiteral("windows"));
+        const QString cfg = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+        QSettings w(cfg + QStringLiteral("/nimbus-welcome.ini"), QSettings::IniFormat);
+        QCOMPARE(w.value(QStringLiteral("layout/name")).toString(), QStringLiteral("windows"));
+        QSettings li(cfg + QStringLiteral("/nimbus-layout.ini"), QSettings::IniFormat);
+        QCOMPARE(li.value(QStringLiteral("Layout/name")).toString(), QStringLiteral("windows"));
     }
 };
 
