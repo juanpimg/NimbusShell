@@ -127,22 +127,17 @@
     <context>
         <name>Bar</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="256" />
-            <source>BT</source>
-            <translation>BT</translation>
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="306" />
+            <source>Batería </source>
+            <translation>Batería </translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="327" />
-            <source>Batería (placeholder)</source>
-            <translation>Batería (placeholder)</translation>
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="373" />
+            <source>Bluetooth</source>
+            <translation>Bluetooth</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="260" />
-            <source>Bluetooth (placeholder)</source>
-            <translation>Bluetooth (placeholder)</translation>
-        </message>
-        <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="270" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="247" />
             <source>Centro de control</source>
             <translation>Centro de control</translation>
         </message>
@@ -152,19 +147,19 @@
             <translation>N</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="360" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="444" />
             <source>Reloj</source>
             <translation>Reloj</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="245" />
-            <source>Wi-Fi</source>
-            <translation>Wi-Fi</translation>
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="406" />
+            <source>Spotlight</source>
+            <translation>Spotlight</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="249" />
-            <source>Wi-Fi (placeholder)</source>
-            <translation>Wi-Fi (placeholder)</translation>
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="340" />
+            <source>Wi-Fi</source>
+            <translation>Wi-Fi</translation>
         </message>
         <message>
             <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="98" />

@@ -17,7 +17,7 @@ qt_add_executable(nimbus-bar main.cpp commandrunner.h
     appmenumodel.h appmenumodel.cpp
     statusnotifiermodel.h statusnotifiermodel.cpp
     notificationserver.h notificationserver.cpp
-    osdbridge.h bar.qrc)
+    batteryinfo.h osdbridge.h bar.qrc)
 
 target_link_libraries(nimbus-bar PRIVATE
   Qt6::Gui

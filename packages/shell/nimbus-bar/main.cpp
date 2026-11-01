@@ -23,6 +23,7 @@
 #include "commandrunner.h"
 #include "appmenumodel.h"
 #include "statusnotifiermodel.h"
+#include "batteryinfo.h"
 #include "notificationserver.h"
 #include "osdbridge.h"
 
@@ -178,6 +179,9 @@ int main(int argc, char *argv[])
     // F3-T07: modelo SNI + provider image://sni.
     StatusNotifierModel trayModel;
     engine.rootContext()->setContextProperty(QStringLiteral("trayModel"), &trayModel);
+    // F3-T05: batería real (se oculta si el equipo no tiene batería).
+    BatteryInfo battery;
+    engine.rootContext()->setContextProperty(QStringLiteral("battery"), &battery);
     engine.rootContext()->setContextProperty(QStringLiteral("trayOpenMenu"), trayOpenMenu);
     // F11-T03: acento configurable (siempre definido; "" = tabla §2.1).
     engine.rootContext()->setContextProperty(QStringLiteral("customAccent"), customAccent);

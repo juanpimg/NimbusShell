@@ -88,7 +88,7 @@ Window {
             console.warn("preset: orden no aplicado (" + e + ")");
         }
     }
-    property string clockFormat: pStr("clock", "format", "HH:mm")
+    property string clockFormat: pStr("clock", "format", "ddd d MMM HH:mm")
     width: Screen.width
     height: pNum("bar", "height", 24)
     visible: true
@@ -236,29 +236,6 @@ Window {
         anchors.rightMargin: pNum("bar", "marginRight", 12)
         anchors.verticalCenter: parent.verticalCenter
         spacing: pNum("bar", "spacingRight", 12)
-        // Placeholders extras 22pt (menús reales en F3-T04/T05).
-        Text {
-            id: wifiItem
-            objectName: "wifiItem"
-            visible: !pHidden("wifi")
-            anchors.verticalCenter: rightBox.verticalCenter
-            text: "Wi-Fi"
-            font.family: NimbusTokens.fontFamily
-            font.pixelSize: NimbusTokens.type.t12.size
-            color: NimbusTokens.colors(NimbusTokens.dark).label
-            Accessible.name: "Wi-Fi (placeholder)"
-        }
-        Text {
-            id: btItem
-            objectName: "btItem"
-            visible: !pHidden("bluetooth")
-            anchors.verticalCenter: rightBox.verticalCenter
-            text: "BT"
-            font.family: NimbusTokens.fontFamily
-            font.pixelSize: NimbusTokens.type.t12.size
-            color: NimbusTokens.colors(NimbusTokens.dark).label
-            Accessible.name: "Bluetooth (placeholder)"
-        }
         // Batería dibujada (sin iconos externos).
         // F3-T05: botón CC propio (dos toggles, sin activos externos).
         Item {
@@ -317,29 +294,136 @@ Window {
                 Keys.onReturnPressed: cc.toggle()
             }
         }
+        // F3-T05: extras dibujados con geometría propia (sin activos Apple).
+        // Orden macOS: batería · Wi-Fi · Bluetooth · Spotlight · CC · reloj.
         Item {
             id: batteryItem
             objectName: "batteryItem"
-            visible: !pHidden("battery")
+            visible: !pHidden("battery") && battery.present
             width: 26
             height: 12
             anchors.verticalCenter: rightBox.verticalCenter
-            Accessible.name: "Batería (placeholder)"
+            Accessible.name: "Batería " + battery.charge + "%"
             Rectangle {
                 anchors.fill: parent
                 radius: 3
                 color: "transparent"
                 border.color: NimbusTokens.colors(NimbusTokens.dark).label
                 border.width: 1
-                opacity: 0.6
+                opacity: 0.85
+            }
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                x: parent.width + 1
+                width: 2
+                height: 5
+                radius: 1
+                color: NimbusTokens.colors(NimbusTokens.dark).label
+                opacity: 0.85
             }
             Rectangle {
                 x: 2
                 y: 2
-                width: 18
+                width: Math.round(20 * battery.charge / 100)
                 height: 8
                 radius: 1.5
-                color: NimbusTokens.colors(NimbusTokens.dark).label
+                color: battery.charging ? NimbusTokens.accentColor(NimbusTokens.dark) : NimbusTokens.colors(NimbusTokens.dark).label
+            }
+        }
+        Item {
+            id: wifiItem
+            objectName: "wifiItem"
+            visible: !pHidden("wifi")
+            width: 16
+            height: 16
+            anchors.verticalCenter: rightBox.verticalCenter
+            Accessible.name: "Wi-Fi"
+            Canvas {
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.reset();
+                    ctx.strokeStyle = NimbusTokens.colors(NimbusTokens.dark).label;
+                    ctx.fillStyle = ctx.strokeStyle;
+                    ctx.lineWidth = 1.6;
+                    ctx.lineCap = "round";
+                    var cx = 8, cy = 12;
+                    for (var i = 1; i <= 3; ++i) {
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, 2.2 + i * 2.6, Math.PI * 1.20, Math.PI * 1.80);
+                        ctx.stroke();
+                    }
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 1.05, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: cc.toggle()
+            }
+        }
+        Item {
+            id: btItem
+            objectName: "btItem"
+            visible: !pHidden("bluetooth")
+            width: 16
+            height: 16
+            anchors.verticalCenter: rightBox.verticalCenter
+            Accessible.name: "Bluetooth"
+            Canvas {
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.reset();
+                    ctx.strokeStyle = NimbusTokens.colors(NimbusTokens.dark).label;
+                    ctx.lineWidth = 1.5;
+                    ctx.lineJoin = "round";
+                    ctx.lineCap = "round";
+                    ctx.beginPath();
+                    ctx.moveTo(6, 2);
+                    ctx.lineTo(11, 6);
+                    ctx.lineTo(2, 12);
+                    ctx.moveTo(2, 4);
+                    ctx.lineTo(11, 10);
+                    ctx.lineTo(6, 14);
+                    ctx.moveTo(6, 2);
+                    ctx.lineTo(6, 14);
+                    ctx.stroke();
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: cc.toggle()
+            }
+        }
+        Item {
+            id: spotlightItem
+            objectName: "spotlightItem"
+            width: 16
+            height: 16
+            anchors.verticalCenter: rightBox.verticalCenter
+            Accessible.name: "Spotlight"
+            Canvas {
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.reset();
+                    ctx.strokeStyle = NimbusTokens.colors(NimbusTokens.dark).label;
+                    ctx.lineWidth = 1.6;
+                    ctx.lineCap = "round";
+                    ctx.beginPath();
+                    ctx.arc(7, 7, 4.4, 0, Math.PI * 2);
+                    ctx.moveTo(10.4, 10.4);
+                    ctx.lineTo(14, 14);
+                    ctx.stroke();
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                activeFocusOnTab: true
+                onClicked: runner.run("qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle")
+                Keys.onReturnPressed: runner.run("qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle")
             }
         }
         // F3-T07: system tray SNI (antes del reloj).
