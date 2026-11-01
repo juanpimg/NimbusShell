@@ -1,0 +1,26 @@
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Children</key>
+	<array>
+		<dict>
+			<key>URIDictionary</key>
+			<dict>
+				<key>title</key>
+				<string>Apple</string>
+			</dict>
+			<key>URLString</key>
+			<string>https://www.apple.com/es/</string>
+		</dict>
+		<dict>
+			<key>URIDictionary</key>
+			<dict>
+				<key>title</key>
+				<string>MacRumors</string>
+			</dict>
+			<key>URLString</key>
+			<string>https://www.macrumors.com/</string>
+		</dict>
+	</array>
+</dict>
+</plist>
