@@ -1,0 +1,73 @@
+[f10] dotfiles=11 sonidos instalados en $XDG_DATA_HOME/sounds/Nimbus
+[f10] find:
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/index.theme
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/audio-volume-change.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/audio-volume-change.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/bell.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/bell.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/camera-shutter.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/camera-shutter.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/dialog-error.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/dialog-error.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/message-new-instant.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/message-new-instant.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/message.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/message.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/screen-capture.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/screen-capture.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/service-login.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/service-login.wav
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/trash-empty.oga
+/tmp/opencode/nimbus-f10-OtteQP/data/sounds/Nimbus/stereo/trash-empty.wav
+[f10] ffprobe (duracion):
+  audio-volume-change.oga 0.120000s
+  bell.oga 0.200000s
+  camera-shutter.oga 0.180000s
+  dialog-error.oga 0.249977s
+  message-new-instant.oga 0.220000s
+  message.oga 0.220000s
+  screen-capture.oga 0.180000s
+  service-login.oga 0.300000s
+  trash-empty.oga 0.200000s
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=464343 comm="plasmashell")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=464347 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=464347 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:464347): xdg-desktop-portal-WARNING **: 01:58:28.065: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=464347 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=464372 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=464343 comm="plasmashell")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=464347 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:464347): xdg-desktop-portal-WARNING **: 01:58:28.171: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=464347 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=464343 comm="plasmashell")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.14' (uid=1000 pid=464437 comm="/usr/lib/kf6/kioworker /usr/lib/qt6/plugins/kf6/ki")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=464442 comm="/usr/bin/kded6")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=464442 comm="/usr/bin/kded6")
+dbus-daemon[464265]: [session uid=1000 pid=464265 pidfd=5] Successfully activated service 'org.bluez.obex'
+[f10] kdeglobals Sounds: Nimbus / Enable=true
+[f10] kdeglobals Sounds: Nimbus / Enable=true
+[f10] spectaclerc: autoSave=true clipboard=PostScreenshotCopyImage
+[f10] spectaclerc: autoSave=true clipboard=PostScreenshotCopyImage
+[f10] f10-sounds.png OK
+[f10] f10-sounds.png OK
+[f10] f10-spectacle.png OK (fullscreen via Spectacle)
+[f10] f10-spectacle.png OK (fullscreen via Spectacle)
+-rw-r--r-- 1 jp jp 1867895 nov  1 01:52 /home/jp/Escritorio/Proyectos/NimbusShell-f10snd/spikes/nested/f10-lock-card.png
+-rw-r--r-- 1 jp jp  658029 nov  1 01:52 /home/jp/Escritorio/Proyectos/NimbusShell-f10snd/spikes/nested/f10-lock.png
+-rw-r--r-- 1 jp jp    6059 nov  1 01:58 /home/jp/Escritorio/Proyectos/NimbusShell-f10snd/spikes/nested/f10-nested.log
+-rw-r--r-- 1 jp jp  627006 nov  1 01:58 /home/jp/Escritorio/Proyectos/NimbusShell-f10snd/spikes/nested/f10-sounds.png
+-rw-r--r-- 1 jp jp  627018 nov  1 01:58 /home/jp/Escritorio/Proyectos/NimbusShell-f10snd/spikes/nested/f10-spectacle.png
+[f10] exit=0
+A connection to the bus can't be made

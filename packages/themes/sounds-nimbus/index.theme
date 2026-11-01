@@ -1,0 +1,8 @@
+[Sound Theme]
+Name=Nimbus
+Comment=Nimbus sound theme: original synthesized sounds for Tahoe parity (no Apple samples)
+Inherits=freedesktop
+Directories=stereo
+
+[stereo]
+OutputProfile=stereo
