@@ -40,24 +40,42 @@ else
   log "OK: usuario destino: $TARGET_USER ($TARGET_HOME)"
 fi
 
-# 0b. Klassy: paquete local (AUR precompilado) y decoración en skel/home.
+# 0b. Paquetes locales: Klassy (decoración) y Krema (Dock).
 PKGDIR="/usr/share/nimbus/pkgs"
-KLASSY_PKG=""
-for cand in "$PKGDIR"/klassy-nimbus-*.pkg.tar.zst; do
-  [ -f "$cand" ] && KLASSY_PKG="$cand" && break
-done
-if [ -n "$KLASSY_PKG" ]; then
+install_local_pkg() { # $1=nombre $2=glob
+  local name="$1" glob="$2" cand=""
+  for cand in "$PKGDIR"/$glob; do
+    [ -f "$cand" ] && break
+  done
+  [ -f "${cand:-}" ] || { log "AVISO: sin paquete $name en $PKGDIR"; return 1; }
   if [ "$CHECK" -eq 1 ]; then
-    log "HARÍA: pacman -U $KLASSY_PKG"
-  elif pacman -Q klassy-nimbus >/dev/null 2>&1; then
-    log "OK: klassy-nimbus ya instalado"
+    log "HARÍA: pacman -U $cand"
+  elif pacman -Q "$name" >/dev/null 2>&1; then
+    log "OK: $name ya instalado"
   else
-    pacman -U --noconfirm --needed "$KLASSY_PKG" >/dev/null 2>&1 \
-      && log "OK: klassy-nimbus instalado" \
-      || log "AVISO: pacman -U klassy-nimbus falló (revisa dependencias)"
+    pacman -U --noconfirm --needed "$cand" >/dev/null 2>&1 \
+      && log "OK: $name instalado" \
+      || log "AVISO: pacman -U $name falló (revisa dependencias)"
+  fi
+}
+install_local_pkg klassy-nimbus 'klassy-nimbus-*.pkg.tar.zst' || true
+install_local_pkg krema 'krema-*.pkg.tar.zst' || true
+
+# Preset del Dock: skel + home del usuario.
+DOCK_PRESET="/usr/share/nimbus/dock/kremarc-nimbus"
+if [ -f "$DOCK_PRESET" ]; then
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: copiar kremarc-nimbus a skel/home"
+  else
+    for dst in /etc/skel/.config "${TARGET_HOME:-/nonexistent}/.config"; do
+      [ -d "$dst" ] || continue
+      install -Dm644 "$DOCK_PRESET" "$dst/kremarc" \
+        && log "OK: preset Dock en $dst/kremarc" \
+        || log "AVISO: no se pudo copiar el preset del Dock a $dst"
+    done
   fi
 else
-  log "AVISO: sin paquete klassy-nimbus en $PKGDIR (se usará Breeze)"
+  log "AVISO: sin preset del Dock en $DOCK_PRESET"
 fi
 if command -v kwriteconfig6 >/dev/null 2>&1 && pacman -Q klassy-nimbus >/dev/null 2>&1; then
   for krc in /etc/skel/.config/plasma/kwinrc ${TARGET_HOME:+"$TARGET_HOME/.config/plasma/kwinrc"}; do

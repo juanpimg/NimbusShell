@@ -149,6 +149,8 @@ mkdir -p "$OUT/airootfs/usr/share/nimbus/bar"
 cp -a "$REPO_ROOT/packages/shell/nimbus-bar/presets" "$OUT/airootfs/usr/share/nimbus/bar/" || exit 1
 cp -a "$REPO_ROOT/packages/shell/nimbus-bar/pins.txt" "$OUT/airootfs/usr/share/nimbus/bar/" || exit 1
 cp -a "$REPO_ROOT/assets" "$OUT/airootfs/usr/share/nimbus/assets" || exit 1
+mkdir -p "$OUT/airootfs/usr/share/nimbus/dock"
+cp -a "$REPO_ROOT/packages/dock/kremarc-nimbus" "$OUT/airootfs/usr/share/nimbus/dock/" || exit 1
 echo "OK: temas y KWin scripts estagiados"
 # R-CALAMARES-BOOST: libs 1.91 para cachyos-calamares (repo sirve 1.92).
 if [ -f "$REPO_ROOT/iso/compat/boost191.tar.gz" ]; then
@@ -168,6 +170,12 @@ mkdir -p "$OUT/airootfs/usr/share/nimbus/pkgs"
 cp "$REPO_ROOT/iso/compat/klassy-nimbus-"*.pkg.tar.zst "$OUT/airootfs/usr/share/nimbus/pkgs/" \
   || { echo "ERROR: falta paquete klassy-nimbus" >&2; exit 1; }
 echo "OK: klassy-nimbus empaquetado"
+if ls "$REPO_ROOT/iso/compat/krema-"*.pkg.tar.zst >/dev/null 2>&1; then
+  cp "$REPO_ROOT/iso/compat/krema-"*.pkg.tar.zst "$OUT/airootfs/usr/share/nimbus/pkgs/" || exit 1
+  echo "OK: krema empaquetado"
+else
+  echo "AVISO: sin paquete krema (Dock no se instalará)"
+fi
 
 # 5. Apps: cmake+ninja con DESTDIR=staging a /usr/local.
 if [ "$SKIP_APPS" -eq 1 ]; then
@@ -207,6 +215,7 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/pkgs/klassy-nimbus-6.7.3-1-x86_64.pkg.tar.zst" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
   "$OUT/airootfs/usr/share/nimbus/bar/pins.txt" \
+  "$OUT/airootfs/usr/share/nimbus/dock/kremarc-nimbus" \
   "$OUT/airootfs/usr/share/nimbus/bar/presets/default.json" \
   "$OUT/airootfs/usr/share/nimbus/assets/sequoia-dark.jpg" \
   "$OUT/airootfs/usr/local/bin/nimbus-keys" \
