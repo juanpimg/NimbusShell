@@ -1,3 +1,8 @@
+# NimbusHighContrast.colors — esquema propio de alto contraste (F11-T04,
+# arte propio R-APPLE). Ratios WCAG 2.x medidos con script (ver
+# docs/plans/evidence/F11-T04-nested.md §3, salida adjunta):
+# View texto/fondo 21.00, acento/fondo 9.46 (6.28 sobre bgElevated #2C2C2E),
+# seleccion/blanco 6.33, boton y ventana 21.00. Todo >= 4.5:1 (AA).
 [General]
 ColorScheme=NimbusHighContrast
 Name=NimbusHighContrast

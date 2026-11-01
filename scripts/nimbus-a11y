@@ -212,6 +212,9 @@ ap_slowkeys() {
 }
 ap_reduce_motion() {
   wcfg --file kwinrc --group Compositing --key AnimationSpeed 0 || return 1
+  # magiclampEnabled: clave REAL (efecto builtin stock KWin 6.8:
+  # /usr/share/kwin/builtin-effects/magiclamp.json, convención
+  # [Plugins] <nombre>Enabled documentada en F11-T01-nested.md).
   wcfg --file kwinrc --group Plugins --key magiclampEnabled false || return 1
   wcfg --file kwinrc --group Effect-fade --key FadeInTime 150 || return 1
   wcfg --file kwinrc --group Effect-fade --key FadeOutTime 150 || return 1
