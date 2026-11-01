@@ -6,6 +6,27 @@ set -u
 # /etc/locale.conf diga es_ES; Calamares usa el locale del proceso.
 export LANG=es_ES.UTF-8
 export LC_ALL=es_ES.UTF-8
+# DNS real del live: si arranca con el stub de systemd-resolved
+# (127.0.0.53) y el resolver no está activo, pacman no resuelve.
+if ! getent hosts geo.mirror.pkgbuild.com >/dev/null 2>&1; then
+    rm -f /tmp/nimbus-resolv.conf
+    for f in /run/systemd/resolve/resolv.conf /run/NetworkManager/resolv.conf; do
+        [ -f "$f" ] && grep '^nameserver' "$f" >> /tmp/nimbus-resolv.conf
+    done
+    if command -v resolvectl >/dev/null 2>&1; then
+        resolvectl dns 2>/dev/null | sed -n 's/.*: //p' | tr ' ' '\n' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sed 's/^/nameserver /' >> /tmp/nimbus-resolv.conf
+    fi
+    if [ -s /tmp/nimbus-resolv.conf ]; then
+        awk '!seen[$0]++' /tmp/nimbus-resolv.conf > /etc/resolv.conf.nimbus
+        rm -f /etc/resolv.conf
+        mv /etc/resolv.conf.nimbus /etc/resolv.conf
+    else
+        rm -f /etc/resolv.conf
+        printf 'nameserver 1.1.1.1\nnameserver 9.9.9.9\n' > /etc/resolv.conf
+    fi
+fi
 # Mirrors Arch curados: el mirrorlist del live CachyOS trae 425 servidores
 # (varios muertos) y pacman falla al descargar paquetes del target.
 printf 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\n' \
