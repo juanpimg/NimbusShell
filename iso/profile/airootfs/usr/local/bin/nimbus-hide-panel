@@ -1,13 +1,56 @@
 #!/bin/bash
-# Oculta el panel stock de Plasma cuando la barra Nimbus ya está viva.
+# nimbus-hide-panel — oculta el panel stock de Plasma cuando plasmashell ya
+# responde (F3-T03). Sin root, idempotente, exit 0 aunque no haya panel.
+# Espera/reintenta porque en el login plasmashell aún está arrancando cuando
+# corre el autostart; el evaluateScript previo fallaba en silencio.
+# Log: ~/.local/state/nimbus/hide-panel.log.
 set -u
-for _ in $(seq 1 40); do
-    if qdbus6 org.kde.plasmashell /PlasmaShell >/dev/null 2>&1; then
-        qdbus6 org.kde.plasmashell /PlasmaShell \
-            org.kde.PlasmaShell.evaluateScript \
-            'panels().forEach(function(p){ p.visibilityMode = 1; p.visible = false; });' \
-            >/dev/null 2>&1 && exit 0
+
+STATE="${XDG_STATE_HOME:-${HOME:-/tmp}/.local/state}/nimbus"
+LOG="$STATE/hide-panel.log"
+ATTEMPTS="${NIMBUS_HIDE_PANEL_ATTEMPTS:-40}"
+DELAY="${NIMBUS_HIDE_PANEL_DELAY:-0.5}"
+
+mkdir -p "$STATE" 2>/dev/null || true
+log() { printf '%s nimbus-hide-panel: %s\n' "$(date -Is)" "$*" >>"$LOG" 2>/dev/null || true; }
+
+if command -v qdbus6 >/dev/null 2>&1; then
+    QDBUS="qdbus6"
+elif command -v qdbus >/dev/null 2>&1; then
+    QDBUS="qdbus"
+else
+    log "ERROR: sin qdbus6/qdbus; no se puede hablar con plasmashell (nada que hacer)"
+    exit 0
+fi
+
+SERVICE="org.kde.plasmashell"
+OBJ="/PlasmaShell"
+IFACE="org.kde.PlasmaShell"
+SCRIPT_HIDE='panels().forEach(function(p){ p.visibilityMode = 1; p.visible = false; });'
+
+probe() { "$QDBUS" "$SERVICE" "$OBJ" >/dev/null 2>&1; }
+count_panels() { "$QDBUS" "$SERVICE" "$OBJ" "$IFACE.evaluateScript" \
+    'panels().length' 2>/dev/null | tr -dc '0-9' | head -c 4; }
+apply_hide() { "$QDBUS" "$SERVICE" "$OBJ" "$IFACE.evaluateScript" "$SCRIPT_HIDE" \
+    >/dev/null 2>&1; }
+
+attempt=0
+while [ "$attempt" -lt "$ATTEMPTS" ]; do
+    attempt=$((attempt + 1))
+    if probe; then
+        n="$(count_panels)"
+        if [ "$n" = "0" ]; then
+            log "sin paneles stock en plasmashell; nada que ocultar"
+            exit 0
+        fi
+        if apply_hide; then
+            log "panel stock oculto (visibilityMode=1, visible=false) en el intento $attempt"
+            exit 0
+        fi
+        log "evaluateScript falló (intento $attempt); reintento"
     fi
-    sleep 0.5
+    sleep "$DELAY"
 done
+
+log "AVISO: plasmashell no respondió o no se pudo ocultar el panel tras $ATTEMPTS intentos"
 exit 0

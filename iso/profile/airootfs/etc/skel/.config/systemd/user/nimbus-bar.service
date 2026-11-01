@@ -1,0 +1,26 @@
+[Unit]
+# F3-T03: barra superior Nimbus. Via de arranque: nimbus-bar presta
+# org.freedesktop.Notifications como servicio activable por DBus
+# (Type=dbus): arranca al inicio de sesion Plasma, despues de KWin y antes
+# de plasmashell stock, para poder poseer el nombre de notificaciones.
+# Aviso (riesgo, KDE): al poseer el nombre, el applet/historial/DND de
+# plasmashell deja de funcionar; si el daemon muere nadie re-registra.
+# Escape: nimbus-bar-start --no-notifications (barra sin nombre FDO).
+# Solo aplica con arranque systemd (default Plasma 6).
+# Fallback no-systemd: autostart nimbus-bar.desktop + env script (ambos
+# seguros por single-instance org.nimbus.Bar).
+Description=Nimbus Bar (barra superior 24 pt)
+Documentation=file:/usr/share/nimbus/bar/README.md
+PartOf=plasma-workspace.target
+After=plasma-kwin_wayland.service
+Before=plasma-plasmashell.service
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.Notifications
+ExecStart=/usr/local/bin/nimbus-bar-start
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=plasma-workspace.target
