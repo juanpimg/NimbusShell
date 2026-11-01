@@ -53,3 +53,16 @@
 - **F2-T08: `[ ]`** — hay primer boot usable y Plasma, pero la capa
   Nimbus, firewall y SDDM Nimbus faltan; además la instalación requirió
   pasos manuales. Evidencia adjunta para no perder el hito.
+
+## ISO final y bloqueo residual (07:15)
+
+- ISO reconstruida: `nimbusos-2026.11.01-x86_64.iso` 2,3 GB,
+  sha256 `4b343aa27fde1621ba0ffa061bfd8ed02cdab17af9f2535256281ba96a982056`.
+  Incluye `packages` con `operations`, parche de pacstrap en runtime,
+  fallback EFI y binarios Nimbus en `postInstallFiles`.
+- El intento de instalación de esa ISO falló en pacstrap:
+  `PermissionError: /etc/calamares/scripts/pacstrap_calamares` (modo no
+  ejecutable en el live). Corrección aplicada en `profiledef.sh` y
+  `build-iso.sh` (commit `4187757`, permisos 755 para scripts Calamares).
+- **Pendiente inmediato:** reconstruir la ISO con ese commit y repetir el
+  test E2E; el resto del flujo ya está validado con la ISO anterior.
