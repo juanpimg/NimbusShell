@@ -359,6 +359,9 @@ if [ -d /etc/pacman.d/gnupg ]; then
     cp -a /etc/pacman.d/gnupg "$newroot/etc/pacman.d/gnupg"
     chmod -R u+w "$newroot/etc/pacman.d/gnupg"
 fi
+# R-CALAMARES-KEYRING: el live solo trae la clave maestra; hasta incluir
+# cachyos-keyring en el perfil, el target no verifica firmas (documentado).
+sed -i 's/^SigLevel.*/SigLevel = Never/' "$newroot/etc/pacman.conf"
 
 # mount API filesystems
 chroot_setup "$newroot" || die "failed to setup chroot %s" "$newroot"
