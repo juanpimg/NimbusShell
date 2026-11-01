@@ -138,6 +138,12 @@ if [ -f "$REPO_ROOT/iso/compat/boost191.tar.gz" ]; then
     echo "ERROR: falta libboost_python314 1.91 en staging" >&2; exit 1; }
   echo "OK: compat boost191 (Calamares)"
 fi
+# Klassy precompilado (AUR) para decoración 1:1; instalado por
+# nimbus-installed-setup (no depende de AUR en el usuario final).
+mkdir -p "$OUT/airootfs/usr/share/nimbus/pkgs"
+cp "$REPO_ROOT/iso/compat/klassy-nimbus-"*.pkg.tar.zst "$OUT/airootfs/usr/share/nimbus/pkgs/" \
+  || { echo "ERROR: falta paquete klassy-nimbus" >&2; exit 1; }
+echo "OK: klassy-nimbus empaquetado"
 
 # 5. Apps: cmake+ninja con DESTDIR=staging a /usr/local.
 if [ "$SKIP_APPS" -eq 1 ]; then
@@ -174,6 +180,7 @@ for f in \
   "$OUT/airootfs/usr/share/sddm/themes/nimbus/Main.qml" \
   "$OUT/airootfs/usr/share/nimbus/klassy/nimbus-tahoe.klpw" \
   "$OUT/airootfs/usr/lib/libboost_python314.so.1.91.0" \
+  "$OUT/airootfs/usr/share/nimbus/pkgs/klassy-nimbus-6.7.3-1-x86_64.pkg.tar.zst" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
   ; do
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
