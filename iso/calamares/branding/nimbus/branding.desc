@@ -33,6 +33,7 @@ style:
   sidebarTextHighlight: "#7cc4ff"
   windowBackground: "#f2f4f8"
   windowText: "#1b2434"
+slideshow: "slideshow/slideshow.qml"
 images:
   productLogo: "images/nimbus-logo.png"
   productIcon: "images/nimbus-icon.png"

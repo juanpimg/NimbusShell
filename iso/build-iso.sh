@@ -90,7 +90,8 @@ cp -a "$PROFILE/." "$OUT/" || { echo "ERROR: no se pudo copiar el perfil a $OUT"
 # cachyos-calamares instala /etc/calamares; el wrapper lo superpone al
 # lanzar el instalador, evitando conflictos de pacstrap).
 mkdir -p "$OUT/airootfs/usr/share/nimbus/calamares/modules"
-cp -a "$CALAMARES/settings.conf" "$CALAMARES/branding.desc" "$CALAMARES/groups-nimbus.json" "$OUT/airootfs/usr/share/nimbus/calamares/" || exit 1
+cp -a "$CALAMARES/settings.conf" "$CALAMARES/groups-nimbus.json" "$OUT/airootfs/usr/share/nimbus/calamares/" || exit 1
+cp -a "$CALAMARES/branding" "$OUT/airootfs/usr/share/nimbus/calamares/" || exit 1
 cp -a "$CALAMARES"/modules/*.conf "$OUT/airootfs/usr/share/nimbus/calamares/modules/" || exit 1
 echo "OK: calamares estagiado ($(ls "$OUT/airootfs/usr/share/nimbus/calamares/modules" | wc -l) módulos)"
 
@@ -157,6 +158,7 @@ for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" \
   "$OUT/airootfs/usr/share/nimbus/calamares/settings.conf" \
   "$OUT/airootfs/usr/share/nimbus/calamares/groups-nimbus.json" \
+  "$OUT/airootfs/usr/share/nimbus/calamares/branding/nimbus/branding.desc" \
   "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
   "$OUT/airootfs/usr/share/sddm/themes/nimbus/Main.qml" \
