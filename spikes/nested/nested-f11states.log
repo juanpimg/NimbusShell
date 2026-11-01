@@ -1,0 +1,153 @@
+[f11] runtime=/tmp/opencode/nimbus-f11states-k92PnV/runtime log=/home/jp/Escritorio/Proyectos/NimbusShell-f11states/spikes/nested/nested-f11states.log bin=/tmp/nimbus-bar-f11states/bin/nimbus-bar
+[f11] arranque kwin_wayland --virtual ...
+[f11] arranque kwin_wayland --virtual ...
+KWIN environment variables: QList("KWIN_ALLOW_VULKAN_MGPU_COPIES=1", "KWIN_DRM_NO_DIRECT_SCANOUT=1")
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+Accepting client connections on sockets: QList("nimbus-f11states")
+[f11] socket OK
+[f11] socket OK
+kwin_xkbcommon: XKB: Multiple definitions of group 0 name in map 'altgr-intl'; Using 'English (intl., with AltGr dead keys)', ignoring 'English (US, intl., with dead keys)'
+kwin_core: Failed to load cursor theme "Sweet-cursors"
+kwin_screencast: Failed to connect PipeWire context
+kf.svg: Could not locate KSvg image set "Sweet" in "plasma/desktoptheme/" using search path QList("/tmp/opencode/nimbus-f11states-k92PnV/data", "/home/jp/.local/share/flatpak/exports/share", "/var/lib/flatpak/exports/share", "/usr/local/share", "/usr/share")
+kf.plasma.core: Could not locate plasma theme "Sweet" in plasma/desktoptheme/ using search path QList("/tmp/opencode/nimbus-f11states-k92PnV/data", "/home/jp/.local/share/flatpak/exports/share", "/var/lib/flatpak/exports/share", "/usr/local/share", "/usr/share")
+[f11] arranque plasmashell (fondo) ...
+[f11] arranque plasmashell (fondo) ...
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=548455 comm="plasmashell")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=548463 comm="/usr/lib/xdg-desktop-portal")
+kf.iconthemes: Icon theme "candy-icons" not found.
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=548463 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:548463): xdg-desktop-portal-WARNING **: 02:50:46.077: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=548463 comm="/usr/lib/xdg-desktop-portal")
+Could not find color scheme "Sweet" falling back to BreezeLight
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=548486 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.kde.ActivityManager' requested by ':1.1' (uid=1000 pid=548455 comm="plasmashell")
+kf.svg: Could not locate KSvg image set "Sweet" in "plasma/desktoptheme/" using search path QList("/tmp/opencode/nimbus-f11states-k92PnV/data", "/home/jp/.local/share/flatpak/exports/share", "/var/lib/flatpak/exports/share", "/usr/local/share", "/usr/share")
+kf.plasma.core: Could not locate plasma theme "Sweet" in plasma/desktoptheme/ using search path QList("/tmp/opencode/nimbus-f11states-k92PnV/data", "/home/jp/.local/share/flatpak/exports/share", "/var/lib/flatpak/exports/share", "/usr/local/share", "/usr/share")
+kf.svg: Could not locate KSvg image set "Sweet" in "plasma/desktoptheme/" using search path QList("/tmp/opencode/nimbus-f11states-k92PnV/data", "/home/jp/.local/share/flatpak/exports/share", "/var/lib/flatpak/exports/share", "/usr/local/share", "/usr/share")
+kf.plasma.core: Could not locate plasma theme "Sweet" in plasma/desktoptheme/ using search path QList("/tmp/opencode/nimbus-f11states-k92PnV/data", "/home/jp/.local/share/flatpak/exports/share", "/var/lib/flatpak/exports/share", "/usr/local/share", "/usr/share")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.kde.ActivityManager'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=548463 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:548463): xdg-desktop-portal-WARNING **: 02:50:46.249: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=548463 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+qt.qml.propertyCache.append: Member visible of the object PlasmaQuick::Dialog overrides a member of the base object. Consider renaming it or adding final or override specifier
+qt.qml.propertyCache.append: Member enabled of the object DeclarativeDropArea overrides a member of the base object. Consider renaming it or adding final or override specifier
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+kde.plasmashell: Activity added twice "47b57faa-c42a-4eed-ba00-5788ec29d9fa"
+qt.qpa.services: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+qt.sql.qsqlquery: QSqlQuery::value: not positioned on a valid record
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.kde.kdeconnect' requested by ':1.1' (uid=1000 pid=548455 comm="plasmashell")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.kde.kdeconnect'
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.freedesktop.Notifications' requested by ':1.13' (uid=1000 pid=548557 comm="/usr/bin/kdeconnectd")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.freedesktop.Notifications'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.kde.kded6' requested by ':1.1' (uid=1000 pid=548455 comm="plasmashell")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.kde.kded6'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='ca.desrt.dconf' requested by ':1.16' (uid=1000 pid=548569 comm="/usr/bin/kded6")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'ca.desrt.dconf'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.bluez.obex' requested by ':1.15' (uid=1000 pid=548569 comm="/usr/bin/kded6")
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Successfully activated service 'org.bluez.obex'
+dbus-daemon[548326]: [session uid=1000 pid=548326 pidfd=5] Activating service name='org.kde.KSplash' requested by ':1.1' (uid=1000 pid=548455 comm="plasmashell")
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+[f11] scheme=BreezeLight lee=BreezeLight
+[f11] scheme=BreezeLight lee=BreezeLight
+[f11] fase light: nimbus-bar --demo-menu --demo-cc
+[f11] fase light: nimbus-bar --demo-menu --demo-cc
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+[f11] light VIVO pid=548761
+[f11] light VIVO pid=548761
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+[f11] f11-states-light.png OK
+[f11] f11-states-light.png OK
+[f11] scheme=BreezeDark lee=BreezeDark
+[f11] scheme=BreezeDark lee=BreezeDark
+[f11] fase dark: nimbus-bar --demo-menu --demo-cc
+[f11] fase dark: nimbus-bar --demo-menu --demo-cc
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+[f11] dark VIVO pid=548894
+[f11] dark VIVO pid=548894
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+[f11] f11-states-dark.png OK
+[f11] f11-states-dark.png OK
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+[f11] fase accent: nimbus-bar --demo-menu --demo-osd volume --accent #FF9F0A
+[f11] fase accent: nimbus-bar --demo-menu --demo-osd volume --accent #FF9F0A
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+[f11] accent VIVO pid=548982
+[f11] accent VIVO pid=548982
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+[f11] f11-states-accent.png OK
+[f11] f11-states-accent.png OK
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+[f11] matriz de estados QML (mismo NimbusTokens) ...
+[f11] matriz de estados QML (mismo NimbusTokens) ...
+qt.tools.qmlscene.deprecated: Warning: qmlscene is deprecated and will be removed in a future version of Qt. Please use qml instead.
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+aurorae: Could not find decoration svg for "Sweet-Dark"
+kwin_decorations: Failed to initialize decoration theme "__aurorae__svg__Sweet-Dark"
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+[f11] f11-states-matrix-light.png OK
+[f11] f11-states-matrix-light.png OK
+qt.tools.qmlscene.deprecated: Warning: qmlscene is deprecated and will be removed in a future version of Qt. Please use qml instead.
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+aurorae: Could not find decoration svg for "Sweet-Dark"
+kwin_decorations: Failed to initialize decoration theme "__aurorae__svg__Sweet-Dark"
+kpipewire_logging: error: "Ha fallado la conexión a PipeWire" 0
+received error while creating the stream "Ha fallado la conexión a PipeWire" Media monitor will not work.
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+[f11] f11-states-matrix-dark.png OK
+[f11] f11-states-matrix-dark.png OK
+[f11] errores QML/bar (si vacio = limpio):
+[f11] errores QML/bar (si vacio = limpio):
+-rw-r--r-- 1 jp jp 178506 nov  1 02:51 /home/jp/Escritorio/Proyectos/NimbusShell-f11states/spikes/nested/f11-states-accent.png
+-rw-r--r-- 1 jp jp 175958 nov  1 02:51 /home/jp/Escritorio/Proyectos/NimbusShell-f11states/spikes/nested/f11-states-dark.png
+-rw-r--r-- 1 jp jp 201282 nov  1 02:51 /home/jp/Escritorio/Proyectos/NimbusShell-f11states/spikes/nested/f11-states-light.png
+-rw-r--r-- 1 jp jp 234431 nov  1 02:51 /home/jp/Escritorio/Proyectos/NimbusShell-f11states/spikes/nested/f11-states-matrix-dark.png
+-rw-r--r-- 1 jp jp 234226 nov  1 02:51 /home/jp/Escritorio/Proyectos/NimbusShell-f11states/spikes/nested/f11-states-matrix-light.png
+[f11] FIN.
+[f11] FIN.
+[f11] dbus-run-session exit=0
+A connection to the bus can't be made
+Couldn't start kglobalaccel from org.kde.kglobalaccel.service: QDBusError("org.freedesktop.DBus.Error.Disconnected", "Not connected to D-Bus server")

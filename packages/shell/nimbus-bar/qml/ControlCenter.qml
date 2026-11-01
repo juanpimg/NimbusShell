@@ -31,13 +31,14 @@ Item {
         opened = false;
     }
     function refresh() {
+        // F11-T03: el tema (kdeglobals → NimbusTokens.dark) se lee SIEMPRE,
+        // también en demo: es solo lectura y toda la barra reacciona a dark.
+        runner.query("kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo —", "theme");
         if (demo)
             return; // demo: solo UI, sin comandos
-        runner.query("nmcli -t -f WIFI g 2>/dev/null || echo —", "wifiOn");
         runner.query("nmcli -t -f active,ssid dev wifi 2>/dev/null | grep -m1 '^yes' | cut -d: -f2 || echo —", "wifi");
         runner.query("bluetoothctl show 2>/dev/null | grep -m1 Powered | grep -q yes && echo on || echo off", "bt");
         runner.query("qdbus6 org.freedesktop.Notifications /org/freedesktop/Notifications org.freedesktop.Notifications.GetServerInformation 2>/dev/null; qdbus6 org.kde.notificationmanager /NotificationManager org.kde.notificationmanager.doNotDisturb 2>/dev/null || echo —", "dnd");
-        runner.query("kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo —", "theme");
         runner.query("cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo —", "batt");
         runner.query("wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo —", "vol");
         runner.query("brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d '%'", "bri");
@@ -72,6 +73,8 @@ Item {
                 if (out !== "" && out !== "—") {
                     root.darkOn = out.indexOf("Dark") >= 0;
                     root.theme = out;
+                    // F11-T03: kdeglobals → token dark; toda la barra reacciona.
+                    NimbusTokens.dark = root.darkOn;
                 } else {
                     root.theme = "—";
                 }
@@ -134,8 +137,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 12
-            color: Qt.rgba(0.13, 0.13, 0.15, 0.94)
-            border.color: Qt.rgba(1, 1, 1, 0.14)
+            color: NimbusTokens.popupBg(NimbusTokens.dark)
+            border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             Grid {
                 anchors.fill: parent
@@ -177,7 +180,12 @@ Item {
                         width: (300 - 28) / 2
                         height: 64
                         radius: 10
-                        color: modelData.on ? Qt.rgba(0.04, 0.52, 1.0, 0.85) : Qt.rgba(1, 1, 1, 0.1)
+                        // F11-T03: on = accent configurable (selected),
+                        // hover/pressed = iluminación, foco = anillo [HIG §2.5].
+                        property bool tileOn: modelData.on
+                        color: tileArea.pressed || (tileArea.containsMouse && !tileOn) ? NimbusTokens.pressedFill(NimbusTokens.dark) : tileOn ? NimbusTokens.selectedFill(NimbusTokens.dark) : NimbusTokens.hoverFill(NimbusTokens.dark)
+                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                        border.width: tileArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
                         objectName: "ccTile:" + modelData.label
                         Column {
                             anchors.fill: parent
@@ -187,24 +195,28 @@ Item {
                                 text: modelData.glyph
                                 font.pixelSize: 14
                                 font.weight: 700
-                                color: "white"
+                                color: parent.parent.tileOn ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                             }
                             Text {
                                 text: modelData.label
                                 font.pixelSize: 12
-                                color: "white"
+                                color: parent.parent.tileOn ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                             }
                             Text {
                                 text: modelData.sub
                                 font.pixelSize: 11
-                                color: Qt.rgba(1, 1, 1, 0.7)
+                                color: parent.parent.tileOn ? Qt.rgba(1, 1, 1, 0.7) : NimbusTokens.subText(NimbusTokens.dark)
                                 elide: Text.ElideRight
                                 width: parent.width
                             }
                         }
                         MouseArea {
+                            id: tileArea
                             anchors.fill: parent
+                            hoverEnabled: true
+                            activeFocusOnTab: true
                             onClicked: root.flip(modelData.kind)
+                            Keys.onReturnPressed: root.flip(modelData.kind)
                         }
                     }
                 }
@@ -215,10 +227,21 @@ Item {
                 y: 296
                 text: "Batería " + root.batt
                 font.pixelSize: 12
-                color: "white"
+                color: NimbusTokens.colors(NimbusTokens.dark).label
                 objectName: "ccBatt"
             }
+            Rectangle {
+                x: 8
+                y: 312
+                width: 284
+                height: 28
+                radius: 6
+                color: "transparent"
+                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                border.width: volSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
+            }
             Slider {
+                id: volSlider
                 x: 12
                 y: 316
                 width: 276
@@ -229,7 +252,18 @@ Item {
                 objectName: "ccVol"
                 onMoved: runner.run("wpctl set-volume @DEFAULT_AUDIO_SINK@ " + value.toFixed(2))
             }
+            Rectangle {
+                x: 8
+                y: 344
+                width: 284
+                height: 28
+                radius: 6
+                color: "transparent"
+                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                border.width: briSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
+            }
             Slider {
+                id: briSlider
                 x: 12
                 y: 348
                 width: 276

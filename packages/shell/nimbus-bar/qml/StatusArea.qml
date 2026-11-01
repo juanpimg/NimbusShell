@@ -89,8 +89,8 @@ Item {
                     width: tipText.width + 12
                     height: tipText.height + 8
                     radius: 6
-                    color: Qt.rgba(0.15, 0.15, 0.16, 0.95)
-                    border.color: Qt.rgba(1, 1, 1, 0.2)
+                    color: NimbusTokens.popupBg(NimbusTokens.dark)
+                    border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
                     border.width: 1
                     Text {
                         id: tipText
@@ -98,13 +98,22 @@ Item {
                         text: cell.tooltip
                         font.family: NimbusTokens.fontFamily
                         font.pixelSize: NimbusTokens.type.t12.size
-                        color: "white"
+                        color: NimbusTokens.colors(NimbusTokens.dark).label
                     }
+                }
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: -2
+                    radius: 4
+                    color: "transparent"
+                    border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                    border.width: tipArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
                 }
                 MouseArea {
                     id: tipArea
                     anchors.fill: parent
                     hoverEnabled: true
+                    activeFocusOnTab: true
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: mouse => {
                         if (mouse.button === Qt.RightButton) {
@@ -116,6 +125,7 @@ Item {
                             trayModel.activate(cell.index);
                         }
                     }
+                    Keys.onReturnPressed: trayModel.activate(cell.index)
                 }
             }
         }
@@ -167,8 +177,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 10
-            color: Qt.rgba(0.16, 0.16, 0.18, 0.96)
-            border.color: Qt.rgba(1, 1, 1, 0.18)
+            color: NimbusTokens.popupBg(NimbusTokens.dark)
+            border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             Column {
                 anchors.fill: parent
@@ -181,7 +191,13 @@ Item {
                         width: parent.width
                         height: 28
                         radius: 6
-                        color: hover.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : "transparent"
+                        // F11-T03: hover accent, pressed interno, foco 2px,
+                        // disabled tokenizado [HIG §2.5].
+                        property bool sel: hover.containsMouse && modelData.enabled
+                        color: !modelData.enabled ? "transparent" : hover.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : sel ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
+                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                        border.width: hover.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                        opacity: modelData.enabled ? 1.0 : NimbusTokens.states.disabledOpacity[0]
                         Text {
                             anchors.left: parent.left
                             anchors.leftMargin: 8
@@ -189,14 +205,16 @@ Item {
                             text: modelData.label
                             font.family: NimbusTokens.fontFamily
                             font.pixelSize: NimbusTokens.type.t13.size
-                            color: modelData.enabled ? "white" : Qt.rgba(1, 1, 1, 0.4)
+                            color: parent.sel ? "white" : modelData.enabled ? NimbusTokens.colors(NimbusTokens.dark).label : NimbusTokens.disabledText(NimbusTokens.dark)
                         }
                         MouseArea {
                             id: hover
                             anchors.fill: parent
                             hoverEnabled: true
+                            activeFocusOnTab: true
                             enabled: modelData.enabled
                             onClicked: root.trigger(modelData.id)
+                            Keys.onReturnPressed: root.trigger(modelData.id)
                         }
                     }
                 }

@@ -97,8 +97,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 12
-            color: Qt.rgba(0.13, 0.13, 0.15, 0.94)
-            border.color: Qt.rgba(1, 1, 1, 0.14)
+            color: NimbusTokens.popupBg(NimbusTokens.dark)
+            border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             Column {
                 anchors.fill: parent
@@ -111,17 +111,24 @@ Item {
                         width: 28
                         height: 28
                         radius: 6
-                        color: "transparent"
+                        // F11-T03: hover/pressed/foco tokenizados [HIG §2.5].
+                        color: prevArea.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : prevArea.containsMouse ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
+                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                        border.width: prevArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
                         objectName: "calPrev"
                         Text {
                             anchors.centerIn: parent
                             text: "‹"
                             font.pixelSize: 16
-                            color: "white"
+                            color: NimbusTokens.colors(NimbusTokens.dark).label
                         }
                         MouseArea {
+                            id: prevArea
                             anchors.fill: parent
+                            hoverEnabled: true
+                            activeFocusOnTab: true
                             onClicked: root.prev()
+                            Keys.onReturnPressed: root.prev()
                         }
                     }
                     Text {
@@ -133,24 +140,30 @@ Item {
                         font.family: NimbusTokens.fontFamily
                         font.pixelSize: NimbusTokens.type.t13b.size
                         font.weight: 700
-                        color: "white"
+                        color: NimbusTokens.colors(NimbusTokens.dark).label
                         objectName: "calHeader"
                     }
                     Rectangle {
                         width: 28
                         height: 28
                         radius: 6
-                        color: "transparent"
+                        color: nextArea.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : nextArea.containsMouse ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
+                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                        border.width: nextArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
                         objectName: "calNext"
                         Text {
                             anchors.centerIn: parent
                             text: "›"
                             font.pixelSize: 16
-                            color: "white"
+                            color: NimbusTokens.colors(NimbusTokens.dark).label
                         }
                         MouseArea {
+                            id: nextArea
                             anchors.fill: parent
+                            hoverEnabled: true
+                            activeFocusOnTab: true
                             onClicked: root.next()
+                            Keys.onReturnPressed: root.next()
                         }
                     }
                 }
@@ -167,7 +180,7 @@ Item {
                             text: modelData
                             font.pixelSize: 11
                             font.weight: 600
-                            color: Qt.rgba(1, 1, 1, 0.55)
+                            color: NimbusTokens.faintText(NimbusTokens.dark)
                         }
                     }
                     Repeater {
@@ -185,7 +198,9 @@ Item {
                             width: (280 - 20 - 12) / 7
                             height: 30
                             radius: 6
-                            color: root.isToday(index + 1) ? NimbusTokens.colors(NimbusTokens.dark).accent : "transparent"
+                            // F11-T03: hoy = selected accent configurable.
+                            property bool today: root.isToday(index + 1)
+                            color: today ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
                             objectName: "calDay:" + (index + 1)
                             Column {
                                 anchors.centerIn: parent
@@ -194,7 +209,7 @@ Item {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     text: index + 1
                                     font.pixelSize: 12
-                                    color: "white"
+                                    color: parent.parent.today ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                                 }
                                 Rectangle {
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -202,7 +217,7 @@ Item {
                                     height: 4
                                     radius: 2
                                     visible: root.placeholderDays.indexOf(index + 1) >= 0
-                                    color: Qt.rgba(1, 1, 1, 0.7)
+                                    color: parent.parent.today ? Qt.rgba(1, 1, 1, 0.7) : NimbusTokens.subText(NimbusTokens.dark)
                                 }
                             }
                         }

@@ -1,0 +1,17 @@
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+nimbus-bar[0]: cc-query: theme kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo
+nimbus-bar[0]: cc-query: theme kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo
+nimbus-bar[4]: nimbus-bar: demoMenu=1 logActions=0
+nimbus-bar[0]: cc-output: theme BreezeLight
+nimbus-bar[0]: cc-output: theme BreezeLight
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+nimbus-bar[0]: cc-query: theme kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo
+nimbus-bar[0]: cc-query: theme kreadconfig6 --file kdeglobals --group KDE --key ColorScheme 2>/dev/null || echo
+nimbus-bar[4]: nimbus-bar: demoMenu=1 logActions=0
+nimbus-bar[0]: cc-output: theme BreezeDark
+nimbus-bar[0]: cc-output: theme BreezeDark
+kf.iconthemes: Icon theme "candy-icons" not found.
+Could not find color scheme "Sweet" falling back to BreezeLight
+nimbus-bar: demoMenu=1 logActions=0
