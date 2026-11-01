@@ -250,7 +250,7 @@
 - [ ] **F10-T04 — Lock/login.** Files: `packages/themes/`, `dotfiles/.config/kscreenlockerrc`. Acciones: kscreenlocker/SDDM tema Nimbus, avatar, blur; bloqueo por atajo. Accept: lock/unlock; capturas. Estado: tema org.nimbus.desktop + greeter --testing + preview tarjeta; unlock PAM real pendiente VM; kglobals Lock Session=Meta+Ctrl+Q. Dep: F2.
 - [x] **F10-T05 — OSD/notificaciones/sonidos/screenshot.** Files: `packages/themes/`, `apps/`. Acciones: OSD in-situ en barra, sonidos propios, Spectacle, notificaciones; atajos. Accept: 7 sonidos propios ≤300ms + Spectacle + notify/banner capturados; audio real en VM (sin PipeWire nested). Dep: F3.
 - [ ] **F10-T06 — XWayland y apps legacy.** Files: `dotfiles/.config/`, `tests/vm/`. Acciones: XWayland, Electron/Ozone flags, GTK CSD, matriz de 8 apps; sin ventanas negras. Accept: matriz verde; captura. Dep: F10-T03.
-- [ ] **F10-T07 — nimbus-hw, Konsave y harness.** Files: `apps/nimbus-hw/`, `apps/backup/`, `tests/vm/`. Acciones: detección hardware estilo chwd, presets Konsave, harness `kwshot`/`qdbus6` versionado. Accept: detecta GPU/Wi-Fi/impresora; harness reproducible. Dep: F9-T10.
+- [ ] **F10-T07 — nimbus-hw, Konsave y harness.** Files: `apps/nimbus-hw/`, `apps/backup/`, `tests/vm/`. Acciones: detección hardware estilo chwd, presets Konsave, harness `kwshot`/`qdbus6` versionado. Accept: detecta GPU/Wi-Fi/impresora; harness reproducible. Estado: nimbus-hw/backup + 13/13 tests/re-run determinista; ejecución en guest virtio pendiente. Dep: F9-T10.
 
 ---
 
