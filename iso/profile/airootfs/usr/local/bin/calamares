@@ -2,6 +2,14 @@
 # NimbusOS: superpone la configuración propia de Calamares (paquete
 # cachyos-calamares instala /etc/calamares) y lanza el instalador real.
 set -u
+# Idioma de la interfaz: el live puede arrancar en C/inglés aunque
+# /etc/locale.conf diga es_ES; Calamares usa el locale del proceso.
+export LANG="${LANG:-es_ES.UTF-8}"
+export LC_ALL="${LC_ALL:-es_ES.UTF-8}"
+# Mirrors Arch curados: el mirrorlist del live CachyOS trae 425 servidores
+# (varios muertos) y pacman falla al descargar paquetes del target.
+printf 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch\nServer = https://fastly.mirror.pkgbuild.com/$repo/os/$arch\n' \
+    > /etc/pacman.d/mirrorlist
 # Reintento tras un exec fallido: gpg-agent del chroot mantiene el disco
 # ocupado y el módulo partition falla con "disk is currently in use".
 pkill -9 -f 'gpg-agent --homedir' 2>/dev/null || true
