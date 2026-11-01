@@ -69,8 +69,7 @@ ApplicationWindow {
             return;
         }
         var it = root.filtered[root.currentIndex];
-        root.announce(it.text + ", " + it.subtext + ". "
-                      + (root.currentIndex + 1) + " de " + root.filtered.length);
+        root.announce(it.text + ", " + it.subtext + ". " + (root.currentIndex + 1) + " de " + root.filtered.length);
     }
 
     function setTab(t) {
@@ -298,9 +297,9 @@ ApplicationWindow {
                         root.visible = false;
                         event.accepted = true;
                     }
-                    // F6-T07: Tab/Shift+Tab NO se aceptan aquí: los mueve
-                    // KeyNavigation (campo→resultados→acciones→pestañas).
-                    // Ctrl+Tab (fallback KRunner) vive en Shortcut global.
+                // F6-T07: Tab/Shift+Tab NO se aceptan aquí: los mueve
+                // KeyNavigation (campo→resultados→acciones→pestañas).
+                // Ctrl+Tab (fallback KRunner) vive en Shortcut global.
                 }
             }
             Text {
@@ -336,73 +335,73 @@ ApplicationWindow {
             RowLayout {
                 anchors.fill: parent
                 spacing: 8
-            Repeater {
-                model: [["history", qsTr("Historial")], ["emoji", qsTr("Emoji")]]
-                delegate: Rectangle {
-                    width: 96
-                    height: 32 // F6-T07: hit target ≥32px (antes 90x22)
-                    radius: 11
-                    color: root.clipView === modelData[0] ? "#0A84FF" : "transparent"
-                    border.color: clipPill.activeFocus ? root.focusCol : "#0A84FF"
-                    border.width: clipPill.activeFocus ? root.focusW : 1
-                    Text {
-                        anchors.centerIn: parent
-                        text: modelData[1]
-                        color: root.clipView === modelData[0] ? "#FFFFFF" : "#0A84FF"
-                        font.pixelSize: 12 // F6-T07: ≥12px (antes 11)
-                    }
-                    Accessible.role: Accessible.Button
-                    Accessible.name: modelData[0] === "history" ? qsTr("Vista Historial") : qsTr("Vista Emoji")
-                    Accessible.description: qsTr("Pulsa Enter para mostrar esta vista del portapapeles")
-                    FocusScope {
-                        id: clipPill
-                        anchors.fill: parent
-                        activeFocusOnTab: true
-                        Keys.onPressed: function (event) {
-                            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                Repeater {
+                    model: [["history", qsTr("Historial")], ["emoji", qsTr("Emoji")]]
+                    delegate: Rectangle {
+                        width: 96
+                        height: 32 // F6-T07: hit target ≥32px (antes 90x22)
+                        radius: 11
+                        color: root.clipView === modelData[0] ? "#0A84FF" : "transparent"
+                        border.color: clipPill.activeFocus ? root.focusCol : "#0A84FF"
+                        border.width: clipPill.activeFocus ? root.focusW : 1
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData[1]
+                            color: root.clipView === modelData[0] ? "#FFFFFF" : "#0A84FF"
+                            font.pixelSize: 12 // F6-T07: ≥12px (antes 11)
+                        }
+                        Accessible.role: Accessible.Button
+                        Accessible.name: modelData[0] === "history" ? qsTr("Vista Historial") : qsTr("Vista Emoji")
+                        Accessible.description: qsTr("Pulsa Enter para mostrar esta vista del portapapeles")
+                        FocusScope {
+                            id: clipPill
+                            anchors.fill: parent
+                            activeFocusOnTab: true
+                            Keys.onPressed: function (event) {
+                                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                                    root.clipView = modelData[0];
+                                    root.announce(modelData[1]);
+                                    root.doSearch();
+                                    event.accepted = true;
+                                }
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
                                 root.clipView = modelData[0];
                                 root.announce(modelData[1]);
                                 root.doSearch();
-                                event.accepted = true;
                             }
                         }
                     }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            root.clipView = modelData[0];
-                            root.announce(modelData[1]);
-                            root.doSearch();
-                        }
+                }
+                // Filtro por categoría emoji (i18n preparada: qsTr).
+                ComboBox {
+                    visible: root.clipView === "emoji"
+                    Layout.preferredWidth: 140
+                    Layout.preferredHeight: 28 // F6-T07: hit target (antes 24)
+                    model: ["", "caras", "gestos", "animales", "comida", "naturaleza", "objetos", "simbolos", "viajes"]
+                    displayText: root.emojiCategory === "" ? qsTr("Todas") : root.emojiCategory
+                    Accessible.name: qsTr("Categoría de emoji")
+                    Accessible.description: qsTr("Filtra los emoji por categoría")
+                    Accessible.role: Accessible.ComboBox
+                    onActivated: function (index) {
+                        root.emojiCategory = index === 0 ? "" : model[index];
+                        root.announce(displayText);
+                        root.doSearch();
                     }
                 }
-            }
-            // Filtro por categoría emoji (i18n preparada: qsTr).
-            ComboBox {
-                visible: root.clipView === "emoji"
-                Layout.preferredWidth: 140
-                Layout.preferredHeight: 28 // F6-T07: hit target (antes 24)
-                model: ["", "caras", "gestos", "animales", "comida", "naturaleza", "objetos", "simbolos", "viajes"]
-                displayText: root.emojiCategory === "" ? qsTr("Todas") : root.emojiCategory
-                Accessible.name: qsTr("Categoría de emoji")
-                Accessible.description: qsTr("Filtra los emoji por categoría")
-                Accessible.role: Accessible.ComboBox
-                onActivated: function (index) {
-                    root.emojiCategory = index === 0 ? "" : model[index];
-                    root.announce(displayText);
-                    root.doSearch();
+                Item {
+                    Layout.fillWidth: true
                 }
-            }
-            Item {
-                Layout.fillWidth: true
-            }
-            Text {
-                visible: root.clipView === "history"
-                text: qsTr("Enter: copiar y cerrar")
-                color: "#EBEBF5"
-                opacity: 0.4
-                font.pixelSize: 11
-            }
+                Text {
+                    visible: root.clipView === "history"
+                    text: qsTr("Enter: copiar y cerrar")
+                    color: "#EBEBF5"
+                    opacity: 0.4
+                    font.pixelSize: 11
+                }
             } // RowLayout interior de clipRow
         }
 
@@ -472,7 +471,7 @@ ApplicationWindow {
                             event.accepted = true;
                         }
                     }
-                    // Tab/Shift+Tab: los mueve KeyNavigation (sin trampas).
+                // Tab/Shift+Tab: los mueve KeyNavigation (sin trampas).
                 }
                 delegate: Rectangle {
                     width: results.width
@@ -588,42 +587,42 @@ ApplicationWindow {
                     RowLayout {
                         anchors.fill: parent
                         spacing: 8
-                    Repeater {
-                        model: (root.tab === "clipboard") ? [["copy", qsTr("Copiar")], ["copy", qsTr("Pegar")]] : [["open", "Abrir"], ["copy", "Copiar"], ["reveal", "Revelar"]]
-                        delegate: Rectangle {
-                            width: 76
-                            height: 36 // F6-T07: hit target ≥36px (antes 72x28)
-                            radius: 6
-                            color: "#0A84FF"
-                            border.color: actFocus.active ? root.focusCol : "transparent"
-                            border.width: actFocus.active ? root.focusW : 0
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData[1]
-                                color: "#FFFFFF"
-                                font.pixelSize: 13 // F6-T07: ≥13px (antes 12)
-                                font.bold: true // F6-T07: bold sobre accent (3.65:1, ver Ruling)
-                            }
-                            Accessible.role: Accessible.Button
-                            Accessible.name: modelData[0] === "copy" && root.tab === "clipboard" ? modelData[1] + " y cerrar" : modelData[1]
-                            Accessible.description: "Pulsa Enter para " + modelData[1].toLowerCase() + " la selección"
-                            FocusScope {
-                                id: actFocus
-                                anchors.fill: parent
-                                activeFocusOnTab: true
-                                Keys.onPressed: function (event) {
-                                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
-                                        root.activateCurrent(modelData[0]);
-                                        event.accepted = true;
+                        Repeater {
+                            model: (root.tab === "clipboard") ? [["copy", qsTr("Copiar")], ["copy", qsTr("Pegar")]] : [["open", "Abrir"], ["copy", "Copiar"], ["reveal", "Revelar"]]
+                            delegate: Rectangle {
+                                width: 76
+                                height: 36 // F6-T07: hit target ≥36px (antes 72x28)
+                                radius: 6
+                                color: "#0A84FF"
+                                border.color: actFocus.active ? root.focusCol : "transparent"
+                                border.width: actFocus.active ? root.focusW : 0
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: modelData[1]
+                                    color: "#FFFFFF"
+                                    font.pixelSize: 13 // F6-T07: ≥13px (antes 12)
+                                    font.bold: true // F6-T07: bold sobre accent (3.65:1, ver Ruling)
+                                }
+                                Accessible.role: Accessible.Button
+                                Accessible.name: modelData[0] === "copy" && root.tab === "clipboard" ? modelData[1] + " y cerrar" : modelData[1]
+                                Accessible.description: "Pulsa Enter para " + modelData[1].toLowerCase() + " la selección"
+                                FocusScope {
+                                    id: actFocus
+                                    anchors.fill: parent
+                                    activeFocusOnTab: true
+                                    Keys.onPressed: function (event) {
+                                        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                                            root.activateCurrent(modelData[0]);
+                                            event.accepted = true;
+                                        }
                                     }
                                 }
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: root.activateCurrent(modelData[0])
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: root.activateCurrent(modelData[0])
+                                }
                             }
                         }
-                    }
                     } // RowLayout interior de actionRow
                 }
                 // Fallback KRunner explícito (Ctrl+Tab o clic; no en Portapapeles).
@@ -704,56 +703,56 @@ ApplicationWindow {
             RowLayout {
                 anchors.fill: parent
                 spacing: 8
-            Repeater {
-                model: [["apps", "⌘1"], ["files", "⌘2"], ["actions", "⌘3"], ["clipboard", "⌘4"]]
-                delegate: Rectangle {
-                    // F6-T07: hit target 32px + foco visible + Enter/Espacio.
-                    width: tabLabel.implicitWidth + 16
-                    height: 32
-                    radius: 6
-                    color: "transparent"
-                    border.color: tabFocus.active ? root.focusCol : "transparent"
-                    border.width: tabFocus.active ? root.focusW : 0
-                    Text {
-                        id: tabLabel
-                        anchors.centerIn: parent
-                        text: (root.tab === modelData[0] ? "● " : "○ ") + root.tabNames[modelData[0]] + " " + modelData[1]
-                        // F6-T07: seleccionada en blanco (13.94:1; antes
-                        // accent 3.82:1 bajo 4.5) + marcador ● (no solo color).
-                        color: root.tab === modelData[0] ? "#FFFFFF" : "#EBEBF5"
-                        opacity: root.tab === modelData[0] ? 1.0 : 0.6
-                        font.pixelSize: 12 // F6-T07: ≥12px (antes 11)
-                        font.bold: root.tab === modelData[0]
-                    }
-                    Accessible.role: Accessible.Button
-                    Accessible.name: root.tabNames[modelData[0]] + ", " + modelData[1]
-                    Accessible.description: "Pulsa Enter para mostrar esta pestaña"
-                    FocusScope {
-                        id: tabFocus
-                        anchors.fill: parent
-                        activeFocusOnTab: true
-                        Keys.onPressed: function (event) {
-                            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
-                                root.setTab(modelData[0]);
-                                event.accepted = true;
+                Repeater {
+                    model: [["apps", "⌘1"], ["files", "⌘2"], ["actions", "⌘3"], ["clipboard", "⌘4"]]
+                    delegate: Rectangle {
+                        // F6-T07: hit target 32px + foco visible + Enter/Espacio.
+                        width: tabLabel.implicitWidth + 16
+                        height: 32
+                        radius: 6
+                        color: "transparent"
+                        border.color: tabFocus.active ? root.focusCol : "transparent"
+                        border.width: tabFocus.active ? root.focusW : 0
+                        Text {
+                            id: tabLabel
+                            anchors.centerIn: parent
+                            text: (root.tab === modelData[0] ? "● " : "○ ") + root.tabNames[modelData[0]] + " " + modelData[1]
+                            // F6-T07: seleccionada en blanco (13.94:1; antes
+                            // accent 3.82:1 bajo 4.5) + marcador ● (no solo color).
+                            color: root.tab === modelData[0] ? "#FFFFFF" : "#EBEBF5"
+                            opacity: root.tab === modelData[0] ? 1.0 : 0.6
+                            font.pixelSize: 12 // F6-T07: ≥12px (antes 11)
+                            font.bold: root.tab === modelData[0]
+                        }
+                        Accessible.role: Accessible.Button
+                        Accessible.name: root.tabNames[modelData[0]] + ", " + modelData[1]
+                        Accessible.description: "Pulsa Enter para mostrar esta pestaña"
+                        FocusScope {
+                            id: tabFocus
+                            anchors.fill: parent
+                            activeFocusOnTab: true
+                            Keys.onPressed: function (event) {
+                                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) {
+                                    root.setTab(modelData[0]);
+                                    event.accepted = true;
+                                }
                             }
                         }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: root.setTab(modelData[0])
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.setTab(modelData[0])
+                        }
                     }
                 }
-            }
-            Item {
-                Layout.fillWidth: true
-            }
-            Text {
-                text: "A–L elige · Tab navega · Ctrl+Tab=KRunner · Esc cierra"
-                color: "#EBEBF5"
-                opacity: 0.3
-                font.pixelSize: 11
-            }
+                Item {
+                    Layout.fillWidth: true
+                }
+                Text {
+                    text: "A–L elige · Tab navega · Ctrl+Tab=KRunner · Esc cierra"
+                    color: "#EBEBF5"
+                    opacity: 0.3
+                    font.pixelSize: 11
+                }
             } // RowLayout interior de footTabs
         }
     }

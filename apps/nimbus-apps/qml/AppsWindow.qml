@@ -154,7 +154,7 @@ ApplicationWindow {
                             root.hide();
                             event.accepted = true;
                         }
-                        // Tab/Shift+Tab: los mueve KeyNavigation.
+                    // Tab/Shift+Tab: los mueve KeyNavigation.
                     }
                     delegate: Rectangle {
                         width: catList.width
