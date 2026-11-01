@@ -87,8 +87,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 10
-            color: Qt.rgba(0.13, 0.13, 0.15, 0.92)
-            border.color: Qt.rgba(1, 1, 1, 0.14)
+            color: NimbusTokens.popupBg(NimbusTokens.dark)
+            border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             Column {
                 anchors.fill: parent
@@ -137,8 +137,21 @@ Item {
                         width: rows.parent.width
                         height: 32
                         radius: 6
-                        color: rowHover.containsMouse ? Qt.rgba(1, 1, 1, 0.12) : "transparent"
+                        // F11-T03: hover = selected accent (macOS), pressed =
+                        // iluminación interna, foco = anillo 2px [HIG §2.5].
+                        property bool sel: rowHover.containsMouse
+                        color: rowHover.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : sel ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
+                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                        border.width: rowHover.activeFocus ? NimbusTokens.states.focusRingPx : 0
                         objectName: "menuItem:" + label
+                        function activateRow() {
+                            if (model.label === "Reiniciar…" || model.label === "Apagar…")
+                                root.askConfirm(model.cmd, model.label);
+                            else if (model.cmd !== "")
+                                root.doRun(model.cmd);
+                            else
+                                root.close();
+                        }
                         Row {
                             anchors.fill: parent
                             anchors.leftMargin: 8
@@ -148,34 +161,29 @@ Item {
                                 height: 20
                                 radius: 10
                                 anchors.verticalCenter: parent.verticalCenter
-                                color: Qt.rgba(1, 1, 1, 0.14)
+                                color: parent.parent.sel ? Qt.rgba(1, 1, 1, 0.25) : NimbusTokens.hoverFill(NimbusTokens.dark)
                                 Text {
                                     anchors.centerIn: parent
                                     text: glyph
                                     font.pixelSize: 11
                                     font.weight: 700
-                                    color: "white"
+                                    color: parent.parent.parent.sel ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                                 }
                             }
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: label
                                 font.pixelSize: 13
-                                color: "white"
+                                color: parent.parent.sel ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                             }
                         }
                         MouseArea {
                             id: rowHover
                             anchors.fill: parent
                             hoverEnabled: true
-                            onClicked: {
-                                if (model.label === "Reiniciar…" || model.label === "Apagar…")
-                                    root.askConfirm(model.cmd, model.label);
-                                else if (model.cmd !== "")
-                                    root.doRun(model.cmd);
-                                else
-                                    root.close();
-                            }
+                            activeFocusOnTab: true
+                            onClicked: parent.activateRow()
+                            Keys.onReturnPressed: parent.activateRow()
                         }
                     }
                 }
@@ -192,7 +200,7 @@ Item {
                         anchors.top: parent.top
                         text: "¿" + root.pendingLabel + "?"
                         font.pixelSize: 12
-                        color: "#ff9d9d"
+                        color: NimbusTokens.colors(NimbusTokens.dark).destructive
                     }
                     Row {
                         anchors.right: parent.right
@@ -202,23 +210,30 @@ Item {
                             width: 64
                             height: 26
                             radius: 6
-                            color: "#3a3a3e"
+                            color: NimbusTokens.colors(NimbusTokens.dark).bg2
+                            border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
+                            border.width: noBtn.activeFocus ? NimbusTokens.states.focusRingPx : 0
                             Text {
                                 anchors.centerIn: parent
                                 text: "No"
-                                color: "white"
+                                color: NimbusTokens.colors(NimbusTokens.dark).label
                                 font.pixelSize: 12
                             }
                             MouseArea {
+                                id: noBtn
                                 anchors.fill: parent
+                                activeFocusOnTab: true
                                 onClicked: confirmBox.visible = false
+                                Keys.onReturnPressed: confirmBox.visible = false
                             }
                         }
                         Rectangle {
                             width: 64
                             height: 26
                             radius: 6
-                            color: "#b3261e"
+                            color: NimbusTokens.colors(NimbusTokens.dark).destructive
+                            border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                            border.width: yesBtn.activeFocus ? NimbusTokens.states.focusRingPx : 0
                             Text {
                                 anchors.centerIn: parent
                                 text: "Sí"
@@ -226,8 +241,11 @@ Item {
                                 font.pixelSize: 12
                             }
                             MouseArea {
+                                id: yesBtn
                                 anchors.fill: parent
+                                activeFocusOnTab: true
                                 onClicked: root.doRun(root.pendingAction)
+                                Keys.onReturnPressed: root.doRun(root.pendingAction)
                             }
                         }
                     }

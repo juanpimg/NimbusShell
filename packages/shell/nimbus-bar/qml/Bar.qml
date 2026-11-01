@@ -32,7 +32,7 @@ Window {
     Rectangle {
         id: bg
         anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.55)
+        color: NimbusTokens.barBg(NimbusTokens.dark)
     }
     // Hairline inferior 1px (contrato §2.1 separator dark) [HIG].
     Rectangle {
@@ -40,7 +40,7 @@ Window {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: 1
-        color: Qt.rgba(0.22, 0.22, 0.23, 0.6)
+        color: NimbusTokens.hairline(NimbusTokens.dark)
     }
 
     Row {
@@ -57,8 +57,10 @@ Window {
             height: 16
             radius: 4
             anchors.verticalCenter: parent.verticalCenter
-            color: NimbusTokens.colors(NimbusTokens.dark).accent
+            color: NimbusTokens.accentColor(NimbusTokens.dark)
             objectName: "appleLogo"
+            border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+            border.width: logoArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
             Text {
                 anchors.centerIn: parent
                 text: "N"
@@ -68,8 +70,11 @@ Window {
                 color: "white"
             }
             MouseArea {
+                id: logoArea
                 anchors.fill: parent
+                activeFocusOnTab: true
                 onClicked: appleMenu.toggle()
+                Keys.onReturnPressed: appleMenu.toggle()
             }
         }
         Text {
@@ -114,6 +119,10 @@ Window {
         demo: demoOsd
     }
     Component.onCompleted: {
+        // F11-T03: acento configurable + sync inicial dark desde kdeglobals
+        // (CC.refresh lee ColorScheme y reescribe NimbusTokens.dark).
+        NimbusTokens.accentCustom = typeof customAccent !== "undefined" ? customAccent : "";
+        cc.refresh();
         if (demoMenu)
             appleMenu.open();
         if (demoCC || openCC)
@@ -156,6 +165,14 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             Accessible.name: "Centro de control"
             objectName: "ccButton"
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -3
+                radius: 6
+                color: "transparent"
+                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                border.width: ccArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
+            }
             Column {
                 anchors.centerIn: parent
                 spacing: 2
@@ -163,32 +180,37 @@ Window {
                     width: 16
                     height: 6
                     radius: 3
-                    color: Qt.rgba(1, 1, 1, 0.85)
+                    color: NimbusTokens.colors(NimbusTokens.dark).label
+                    opacity: 0.85
                     Rectangle {
                         x: 9
                         width: 6
                         height: 6
                         radius: 3
-                        color: NimbusTokens.colors(NimbusTokens.dark).accent
+                        color: NimbusTokens.accentColor(NimbusTokens.dark)
                     }
                 }
                 Rectangle {
                     width: 16
                     height: 6
                     radius: 3
-                    color: Qt.rgba(1, 1, 1, 0.85)
+                    color: NimbusTokens.colors(NimbusTokens.dark).label
+                    opacity: 0.85
                     Rectangle {
                         x: 1
                         width: 6
                         height: 6
                         radius: 3
-                        color: NimbusTokens.colors(NimbusTokens.dark).accent
+                        color: NimbusTokens.accentColor(NimbusTokens.dark)
                     }
                 }
             }
             MouseArea {
+                id: ccArea
                 anchors.fill: parent
+                activeFocusOnTab: true
                 onClicked: cc.toggle()
+                Keys.onReturnPressed: cc.toggle()
             }
         }
         Item {
@@ -228,9 +250,21 @@ Window {
             Accessible.name: "Reloj"
             objectName: "clock"
             // F3-T08: clic abre/cierra el calendario.
+            // F11-T03: foco teclado visible (anillo accent 2px).
             MouseArea {
+                id: clockArea
                 anchors.fill: parent
+                activeFocusOnTab: true
                 onClicked: cal.toggle()
+                Keys.onReturnPressed: cal.toggle()
+            }
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -2
+                radius: 4
+                color: "transparent"
+                border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                border.width: clockArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
             }
             Timer {
                 interval: 1000

@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
     QString demoOsdKind = QStringLiteral("volume");
     double demoOsdValue = 0.7;
     int trayOpenMenu = -1;
+    QString customAccent; // F11-T03: --accent <hex> → NimbusTokens.accentCustom
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo-menu"))
@@ -90,6 +91,10 @@ int main(int argc, char *argv[])
             demoTray = true;
         else if (a == QStringLiteral("--tray-open-menu"))
             trayOpenMenu = 0;
+        else if (a == QStringLiteral("--accent") && i + 1 < argc)
+            customAccent = QString::fromLocal8Bit(argv[++i]);
+        else if (a.startsWith(QStringLiteral("--accent=")))
+            customAccent = a.mid(QStringLiteral("--accent=").size());
     }
     if (demoOsd && demoOsdKind != QStringLiteral("volume")
         && demoOsdKind != QStringLiteral("brightness")) {
@@ -131,6 +136,8 @@ int main(int argc, char *argv[])
     StatusNotifierModel trayModel;
     engine.rootContext()->setContextProperty(QStringLiteral("trayModel"), &trayModel);
     engine.rootContext()->setContextProperty(QStringLiteral("trayOpenMenu"), trayOpenMenu);
+    // F11-T03: acento configurable (siempre definido; "" = tabla §2.1).
+    engine.rootContext()->setContextProperty(QStringLiteral("customAccent"), customAccent);
     engine.addImageProvider(QStringLiteral("sni"), new SniProvider(&trayModel));
     QObject::connect(&engine, &QQmlApplicationEngine::warnings,
                      [](const QList<QQmlError> &w) {

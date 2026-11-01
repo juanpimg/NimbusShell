@@ -34,6 +34,12 @@ QtObject {
 
     // §2.1 + §2.5: modo + gris inactivo [HIG]
     property bool dark: true
+    // F11-T03: acento configurable. Vacío = tabla §2.1 [HIG]; con hex lo
+    // sustituye en ambos modos. Todos los controles vía accentColor().
+    property string accentCustom: ""
+    function accentColor(isDark) {
+        return accentCustom !== "" ? accentCustom : colors(isDark).accent;
+    }
     readonly property string inactive: "#DDDDDD" // [HIG] §2.5 inactivo/semáforos gris
     readonly property var _light: ({
             "label": "#000000",
@@ -204,8 +210,13 @@ QtObject {
             "exitFactor": 0.7,
             "reduceMotionFade": 150
         })
-    // §2.5 estados [HIG]
+    // §2.5 estados [HIG]: hover/pressed = iluminación interna; disabled
+    // 30-50% sin hover; focus = anillo accent 2px contraste 3:1;
+    // selected = relleno accent. Alfas medidos sobre popover [MEDIDO].
     readonly property var states: ({
+            "hoverAlpha": 0.12,
+            "pressedAlpha": 0.24,
+            "selectedAlpha": 0.85,
             "disabledOpacity": [0.3, 0.5],
             "focusRingPx": 2,
             "focusContrast": 3
@@ -222,5 +233,38 @@ QtObject {
     // (firma sin tipos: compatible con qmllint era-Qt5 y Qt6)
     function colors(isDark) {
         return isDark ? _dark : _light;
+    }
+    // F11-T03: superficies derivadas light/dark [HIG §2.1+§2.4]. Centralizan
+    // los rgba que antes iban cableados en cada popup (sin valores mágicos
+    // fuera del singleton). Fondo popover: elevated + alfa denso [MEDIDO].
+    function barBg(isDark) {
+        return isDark ? Qt.rgba(0, 0, 0, 0.55) : Qt.rgba(1, 1, 1, 0.55);
+    }
+    function popupBg(isDark) {
+        return isDark ? Qt.rgba(0.13, 0.13, 0.15, 0.94) : Qt.rgba(0.97, 0.97, 0.98, 0.92);
+    }
+    function popupBorder(isDark) {
+        return isDark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(0, 0, 0, 0.1);
+    }
+    function hairline(isDark) {
+        return isDark ? Qt.rgba(0.22, 0.22, 0.23, 0.6) : Qt.rgba(0.78, 0.78, 0.78, 0.29);
+    }
+    function hoverFill(isDark) {
+        return isDark ? Qt.rgba(1, 1, 1, states.hoverAlpha) : Qt.rgba(0, 0, 0, 0.06);
+    }
+    function pressedFill(isDark) {
+        return isDark ? Qt.rgba(1, 1, 1, states.pressedAlpha) : Qt.rgba(0, 0, 0, 0.12);
+    }
+    function selectedFill(isDark) {
+        return accentColor(isDark);
+    }
+    function subText(isDark) {
+        return isDark ? Qt.rgba(1, 1, 1, 0.7) : Qt.rgba(0.235, 0.235, 0.263, colors(isDark).label2Alpha);
+    }
+    function faintText(isDark) {
+        return isDark ? Qt.rgba(1, 1, 1, 0.55) : Qt.rgba(0.235, 0.235, 0.263, colors(isDark).label3Alpha);
+    }
+    function disabledText(isDark) {
+        return isDark ? Qt.rgba(1, 1, 1, states.disabledOpacity[1]) : Qt.rgba(0, 0, 0, states.disabledOpacity[1]);
     }
 }

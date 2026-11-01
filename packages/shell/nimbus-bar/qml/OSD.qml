@@ -136,8 +136,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 12
-            color: Qt.rgba(0.13, 0.13, 0.15, 0.94)
-            border.color: Qt.rgba(1, 1, 1, 0.14)
+            color: NimbusTokens.popupBg(NimbusTokens.dark)
+            border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             objectName: "osdPopup"
             Row {
@@ -150,7 +150,7 @@ Item {
                     font.family: NimbusTokens.fontFamily
                     font.pixelSize: 16
                     font.weight: 700
-                    color: "white"
+                    color: NimbusTokens.accentColor(NimbusTokens.dark)
                     objectName: "osdIcon"
                 }
                 Slider {
@@ -161,15 +161,26 @@ Item {
                     to: 1
                     value: root.value < 0 ? 0 : root.value
                     enabled: root.value >= 0
+                    // F11-T03: disabled tokenizado, foco 2px [HIG §2.5].
+                    opacity: enabled ? 1.0 : NimbusTokens.states.disabledOpacity[0]
                     objectName: "osdSlider"
                     onMoved: root.setFromSlider(value)
+                    background: Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.availableWidth
+                        height: 4
+                        radius: 2
+                        color: NimbusTokens.hoverFill(NimbusTokens.dark)
+                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                        border.width: slider.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                    }
                 }
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.label()
                     font.family: NimbusTokens.fontFamily
                     font.pixelSize: NimbusTokens.type.t12.size
-                    color: "white"
+                    color: NimbusTokens.colors(NimbusTokens.dark).label
                     objectName: "osdValue"
                 }
             }

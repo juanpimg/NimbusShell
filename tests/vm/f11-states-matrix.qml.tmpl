@@ -1,0 +1,148 @@
+// F11-T03: matriz de estados offscreen (light/dark ×
+// normal/hover/pressed/disabled/focus/selected). Plantilla: el harness
+// la copia a /tmp sustituyendo @DARK@ (true/false).
+// Usa los mismos tokens y expresiones que los componentes (sin duplicar
+// valores). Se renderiza con `qmlscene --platform offscreen` y se
+// auto-guardia vía grabToImage. El harness prepara /tmp/f11m-$modo con
+// NimbusTokens.qml + qmldir (módulo F11Matrix) y QML_IMPORT_PATH.
+import QtQuick
+import QtQuick.Window
+import F11Matrix 1.0
+
+Window {
+    id: root
+    width: 1280
+    height: 480
+    visible: true
+    title: "f11-states-matrix"
+    property bool darkMode: @DARK@
+    color: NimbusTokens.barBg(darkMode)
+
+    Component.onCompleted: NimbusTokens.dark = darkMode
+
+    Column {
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 10
+        Text {
+            text: (darkMode ? "dark" : "light") + " — matriz F11-T03 (tokens NimbusTokens)"
+            font.family: NimbusTokens.fontFamily
+            font.pixelSize: NimbusTokens.type.t13b.size
+            font.weight: 700
+            color: NimbusTokens.colors(darkMode).label
+        }
+        Grid {
+            columns: 3
+            spacing: 10
+            // 1. popup + texto principal/secundario
+            Rectangle {
+                width: 400
+                height: 96
+                radius: 10
+                color: NimbusTokens.popupBg(darkMode)
+                border.color: NimbusTokens.popupBorder(darkMode)
+                border.width: 1
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 2
+                    Text {
+                        text: "popupBg + label"
+                        font.pixelSize: 13
+                        color: NimbusTokens.colors(darkMode).label
+                    }
+                    Text {
+                        text: "subText / faintText"
+                        font.pixelSize: 12
+                        color: NimbusTokens.subText(darkMode)
+                    }
+                    Text {
+                        text: "faint"
+                        font.pixelSize: 11
+                        color: NimbusTokens.faintText(darkMode)
+                    }
+                    Rectangle {
+                        width: parent.width
+                        height: 1
+                        color: NimbusTokens.hairline(darkMode)
+                    }
+                }
+            }
+            // 2. hover / pressed / selected
+            Column {
+                spacing: 6
+                Repeater {
+                    model: [
+                        { "t": "hover", "c": NimbusTokens.hoverFill(darkMode), "tx": NimbusTokens.colors(darkMode).label },
+                        { "t": "pressed", "c": NimbusTokens.pressedFill(darkMode), "tx": NimbusTokens.colors(darkMode).label },
+                        { "t": "selected (accent)", "c": NimbusTokens.selectedFill(darkMode), "tx": "white" }
+                    ]
+                    delegate: Rectangle {
+                        width: 400
+                        height: 40
+                        radius: 6
+                        color: modelData.c
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.t
+                            font.pixelSize: 13
+                            color: modelData.tx
+                        }
+                    }
+                }
+            }
+            // 3. disabled + foco + acento
+            Column {
+                spacing: 6
+                Rectangle {
+                    width: 400
+                    height: 40
+                    radius: 6
+                    color: "transparent"
+                    opacity: NimbusTokens.states.disabledOpacity[0]
+                    Text {
+                        anchors.centerIn: parent
+                        text: "disabled (sin hover)"
+                        font.pixelSize: 13
+                        color: NimbusTokens.disabledText(darkMode)
+                    }
+                }
+                Rectangle {
+                    width: 400
+                    height: 40
+                    radius: 6
+                    color: NimbusTokens.hoverFill(darkMode)
+                    border.color: NimbusTokens.accentColor(darkMode)
+                    border.width: focusArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                    Text {
+                        anchors.centerIn: parent
+                        text: "focus: anillo accent 2px"
+                        font.pixelSize: 13
+                        color: NimbusTokens.colors(darkMode).label
+                    }
+                    MouseArea {
+                        id: focusArea
+                        anchors.fill: parent
+                        activeFocusOnTab: true
+                        Component.onCompleted: forceActiveFocus()
+                    }
+                }
+                Rectangle {
+                    width: 400
+                    height: 40
+                    radius: 6
+                    color: NimbusTokens.accentColor(darkMode)
+                    Text {
+                        anchors.centerIn: parent
+                        text: "accent (configurable --accent)"
+                        font.pixelSize: 13
+                        color: "white"
+                    }
+                }
+            }
+        }
+    }
+    // En nested, spectacle captura la ventana (sin grabToImage: en
+    // offscreen la ventana no se expone y el grab nunca completa).
+    // El swatch de foco se autofoquista (forceActiveFocus en su MouseArea).
+}
