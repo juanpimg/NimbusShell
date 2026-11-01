@@ -7,7 +7,10 @@ que **está implementado** en este repo; los límites están marcados como
 `Límite`.
 
 - Chuleta de atajos: [shortcuts.md](shortcuts.md) (autogenerada desde
-  `dotfiles/.config/plasma/kglobalshortcutsrc`).
+  `dotfiles/.config/plasma/kglobalshortcutsrc`), también como
+  [HTML imprimible](shortcuts.html) (`scripts/nimbus-i18n --export html`)
+  y [PDF](shortcuts.pdf) (`--export pdf`; se genera si hay weasyprint o
+  pandoc+motor PDF).
 - Idiomas y traducción: [../i18n.md](../i18n.md) (español e inglés).
 
 ## Primeros pasos
