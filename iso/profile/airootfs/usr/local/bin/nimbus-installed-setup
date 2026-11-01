@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # nimbus-installed-setup — post-instalación Calamares (chroot, root).
 # Lo invoca shellprocess@nimbus (iso/calamares/modules/shellprocess-nimbus.conf).
-# No instala paquetes (los pone Calamares). Idempotente. Sin red.
+# Instala el paquete local klassy-nimbus (AUR compilado); el resto lo pone
+# Calamares. Idempotente. Sin red.
 # Log: /var/log/nimbus-installed-setup.log. Nunca toca datos del usuario
 # final: solo añade ficheros de skel que falten, sin sobrescribir.
 # Uso en VM: /usr/local/bin/nimbus-installed-setup [--check]
@@ -37,6 +38,38 @@ if [ -z "${TARGET_USER:-}" ]; then
 else
   TARGET_HOME="$(awk -F: -v u="$TARGET_USER" '$1 == u {print $6}' /etc/passwd)"
   log "OK: usuario destino: $TARGET_USER ($TARGET_HOME)"
+fi
+
+# 0b. Klassy: paquete local (AUR precompilado) y decoración en skel/home.
+PKGDIR="/usr/share/nimbus/pkgs"
+KLASSY_PKG=""
+for cand in "$PKGDIR"/klassy-nimbus-*.pkg.tar.zst; do
+  [ -f "$cand" ] && KLASSY_PKG="$cand" && break
+done
+if [ -n "$KLASSY_PKG" ]; then
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: pacman -U $KLASSY_PKG"
+  elif pacman -Q klassy-nimbus >/dev/null 2>&1; then
+    log "OK: klassy-nimbus ya instalado"
+  else
+    pacman -U --noconfirm --needed "$KLASSY_PKG" >/dev/null 2>&1 \
+      && log "OK: klassy-nimbus instalado" \
+      || log "AVISO: pacman -U klassy-nimbus falló (revisa dependencias)"
+  fi
+else
+  log "AVISO: sin paquete klassy-nimbus en $PKGDIR (se usará Breeze)"
+fi
+if command -v kwriteconfig6 >/dev/null 2>&1 && pacman -Q klassy-nimbus >/dev/null 2>&1; then
+  for krc in /etc/skel/.config/plasma/kwinrc ${TARGET_HOME:+"$TARGET_HOME/.config/plasma/kwinrc"}; do
+    [ -f "$krc" ] || continue
+    if [ "$CHECK" -eq 1 ]; then
+      log "HARÍA: kwinrc library=org.kde.klassy en $krc"
+    else
+      kwriteconfig6 --file "$krc" --group org.kde.kdecoration2 --key library org.kde.klassy \
+        && log "OK: decoración Klassy en $krc" \
+        || log "AVISO: no se pudo fijar Klassy en $krc"
+    fi
+  done
 fi
 
 # 1. Skel -> home: solo copia lo que falte (nunca sobrescribe datos).
@@ -107,7 +140,7 @@ fi
 
 # 4. KWin scripts: kpackagetool6 si existe; si no, ya están en /usr/share/kwin/scripts.
 if command -v kpackagetool6 >/dev/null 2>&1; then
-  for script in nimbus-spotlight nimbus-apps-toggle nimbus-zoom; do
+  for script in nimbus-spotlight nimbus-apps-toggle nimbus-tabs nimbus-mc nimbus-zoom; do
     dir="/usr/share/kwin/scripts/$script"
     [ -d "$dir" ] || { log "AVISO: falta $dir"; continue; }
     if [ "$CHECK" -eq 1 ]; then

@@ -54,7 +54,7 @@ need "$PROFILE/packages.x86_64" "packages.x86_64"
 need "$PROFILE/pacman.conf" "pacman.conf"
 need "$PROFILE/airootfs/usr/local/bin/nimbus-installed-setup" "nimbus-installed-setup"
 need "$CALAMARES/settings.conf" "settings Calamares"
-need "$CALAMARES/branding.desc" "branding Calamares"
+need "$CALAMARES/branding/nimbus/branding.desc" "branding Calamares"
 need "$CALAMARES/groups-nimbus.json" "grupos netinstall"
 need "$CALAMARES/modules/shellprocess-nimbus.conf" "módulo shellprocess-nimbus"
 need "$REPO_ROOT/dotfiles/.config/plasma/kdeglobals" "dotfiles plasma"
@@ -94,6 +94,9 @@ cp -a "$PROFILE/." "$OUT/" || { echo "ERROR: no se pudo copiar el perfil a $OUT"
 mkdir -p "$OUT/airootfs/usr/share/nimbus/calamares/modules"
 cp -a "$CALAMARES/settings.conf" "$CALAMARES/groups-nimbus.json" "$OUT/airootfs/usr/share/nimbus/calamares/" || exit 1
 cp -a "$CALAMARES/branding" "$OUT/airootfs/usr/share/nimbus/calamares/" || exit 1
+mkdir -p "$OUT/airootfs/usr/share/nimbus/calamares/scripts"
+cp -a "$CALAMARES/scripts/." "$OUT/airootfs/usr/share/nimbus/calamares/scripts/" || exit 1
+chmod 755 "$OUT/airootfs/usr/share/nimbus/calamares/scripts/"*.sh "$OUT/airootfs/usr/share/nimbus/calamares/scripts/pacstrap_calamares" 2>/dev/null || true
 cp -a "$CALAMARES"/modules/*.conf "$OUT/airootfs/usr/share/nimbus/calamares/modules/" || exit 1
 echo "OK: calamares estagiado ($(ls "$OUT/airootfs/usr/share/nimbus/calamares/modules" | wc -l) módulos)"
 
@@ -111,9 +114,15 @@ echo "OK: skel estagiado ($(cd "$OUT/airootfs/etc/skel" && find . -type f | wc -
 
 # 3. Scripts -> airootfs/usr/local/bin/.
 mkdir -p "$OUT/airootfs/usr/local/bin"
-for s in nimbus-theme nimbus-privacy nimbus-flatpak-perms apply-theme; do
+for s in nimbus-theme nimbus-privacy nimbus-flatpak-perms apply-theme \
+         nimbus-updates nimbus-layout nimbus-a11y nimbus-bar-preset; do
   cp -a "$REPO_ROOT/scripts/$s" "$OUT/airootfs/usr/local/bin/$s" || exit 1
   chmod 755 "$OUT/airootfs/usr/local/bin/$s" || exit 1
+done
+for tool in apps/nimbus-hw/nimbus-hw apps/backup/nimbus-backup \
+            apps/nimbus-migrate/nimbus-migrate-hyprland apps/nimbus-migrate/nimbus-migrate-desktop; do
+  [ -f "$REPO_ROOT/$tool" ] || { echo "ERROR: falta $tool" >&2; exit 1; }
+  install -m 0755 "$REPO_ROOT/$tool" "$OUT/airootfs/usr/local/bin/$(basename "$tool")" || exit 1
 done
 chmod 755 "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" || exit 1
 echo "OK: scripts en /usr/local/bin"
@@ -129,13 +138,33 @@ cp -a "$REPO_ROOT/packages/themes/sddm-nimbus" "$OUT/airootfs/usr/share/sddm/the
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-spotlight "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-apps-toggle "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-zoom "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
+cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-tabs "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
+cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-mc "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 echo "OK: temas y KWin scripts estagiados"
+# R-CALAMARES-BOOST: libs 1.91 para cachyos-calamares (repo sirve 1.92).
+if [ -f "$REPO_ROOT/iso/compat/boost191.tar.gz" ]; then
+  # No pisar /usr/lib (pacstrap instala boost-libs 1.92 y daría conflicto):
+  # las libs viven en una ruta privada y el wrapper fija LD_LIBRARY_PATH.
+  mkdir -p "$OUT/airootfs/usr/share/nimbus/compat"
+  tar -xzf "$REPO_ROOT/iso/compat/boost191.tar.gz" \
+      -C "$OUT/airootfs/usr/share/nimbus/compat" || {
+    echo "ERROR: no se pudo extraer boost191" >&2; exit 1; }
+  [ -f "$OUT/airootfs/usr/share/nimbus/compat/usr/lib/libboost_python314.so.1.91.0" ] || {
+    echo "ERROR: falta libboost_python314 1.91 en staging" >&2; exit 1; }
+  echo "OK: compat boost191 (Calamares)"
+fi
+# Klassy precompilado (AUR) para decoración 1:1; instalado por
+# nimbus-installed-setup (no depende de AUR en el usuario final).
+mkdir -p "$OUT/airootfs/usr/share/nimbus/pkgs"
+cp "$REPO_ROOT/iso/compat/klassy-nimbus-"*.pkg.tar.zst "$OUT/airootfs/usr/share/nimbus/pkgs/" \
+  || { echo "ERROR: falta paquete klassy-nimbus" >&2; exit 1; }
+echo "OK: klassy-nimbus empaquetado"
 
 # 5. Apps: cmake+ninja con DESTDIR=staging a /usr/local.
 if [ "$SKIP_APPS" -eq 1 ]; then
   echo "SKIP: compilación de apps omitida (--skip-apps); el live no traerá nimbus-bar/apps/spotlight"
 else
-    for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight" "apps/nimbus-about" "apps/nimbus-help"; do
+    for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight" "apps/nimbus-about" "apps/nimbus-help" "apps/nimbus-missioncontrol" "apps/nimbus-welcome"; do
     name="$(basename "$app")"
     builddir="/tmp/nimbus-build-$name"
     rm -rf "$builddir"; mkdir -p "$builddir" || exit 1
@@ -165,12 +194,14 @@ for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
   "$OUT/airootfs/usr/share/sddm/themes/nimbus/Main.qml" \
   "$OUT/airootfs/usr/share/nimbus/klassy/nimbus-tahoe.klpw" \
+  "$OUT/airootfs/usr/share/nimbus/compat/usr/lib/libboost_python314.so.1.91.0" \
+  "$OUT/airootfs/usr/share/nimbus/pkgs/klassy-nimbus-6.7.3-1-x86_64.pkg.tar.zst" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
   ; do
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
 done
 if [ "$SKIP_APPS" -eq 0 ]; then
-  for b in nimbus-bar nimbus-apps nimbus-spotlight nimbus-about nimbus-help; do
+  for b in nimbus-bar nimbus-apps nimbus-spotlight nimbus-about nimbus-help nimbus-missioncontrol nimbus-welcome; do
     [ -x "$OUT/airootfs/usr/local/bin/$b" ] || { echo "ERROR: falta binario $b en staging" >&2; exit 1; }
   done
 fi
