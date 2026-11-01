@@ -179,6 +179,24 @@ else
   log "AVISO: sin kpackagetool6; scripts KWin quedan en /usr/share/kwin/scripts/"
 fi
 
+# 4b. Tema automático claro/oscuro (F3-T11) para el usuario destino.
+THEME_UNIT_DIR="/usr/share/nimbus/systemd/user"
+if [ -d "$THEME_UNIT_DIR" ] && [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" ]; then
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: habilitar nimbus-theme-auto.timer en $TARGET_HOME"
+  else
+    udir="$TARGET_HOME/.config/systemd/user"
+    mkdir -p "$udir/default.target.wants" "$TARGET_HOME/.local/bin"
+    cp -a "$THEME_UNIT_DIR/nimbus-theme-auto.service" "$THEME_UNIT_DIR/nimbus-theme-auto.timer" "$udir/" || fail=1
+    ln -sfn ../nimbus-theme-auto.timer "$udir/default.target.wants/nimbus-theme-auto.timer" || fail=1
+    ln -sfn /usr/local/bin/nimbus-theme "$TARGET_HOME/.local/bin/nimbus-theme" || fail=1
+    chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/systemd" "$TARGET_HOME/.local" 2>/dev/null || true
+    log "OK: nimbus-theme-auto.timer habilitado para $TARGET_USER"
+  fi
+else
+  log "AVISO: sin unidades de tema o sin home; timer de tema omitido"
+fi
+
 # 5. Telemetría off: default de sistema (sin tocar homes).
 FEEDBACK="/etc/xdg/PlasmaUserFeedback"
 if [ -f "$FEEDBACK" ] && grep -q '^\s*FeedbackLevel=0' "$FEEDBACK" 2>/dev/null; then

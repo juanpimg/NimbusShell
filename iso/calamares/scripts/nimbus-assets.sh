@@ -16,6 +16,13 @@ copy_dir /usr/share/nimbus/themes "$ROOT/usr/share/nimbus/themes"
 copy_dir /usr/share/nimbus/tokens "$ROOT/usr/share/nimbus/tokens"
 copy_dir /usr/share/nimbus/bar "$ROOT/usr/share/nimbus/bar"
 copy_dir /usr/share/nimbus/dock "$ROOT/usr/share/nimbus/dock"
+# Solo los esquemas Nimbus: no pisar los de Breeze del target.
+mkdir -p "$ROOT/usr/share/color-schemes"
+for cs in /usr/share/color-schemes/Nimbus*.colors; do
+    [ -f "$cs" ] || continue
+    cp -a "$cs" "$ROOT/usr/share/color-schemes/$(basename "$cs")" || {
+        echo "ERROR: no se pudo copiar $cs" >&2; exit 1; }
+done
 copy_dir /usr/share/dbus-1/services "$ROOT/usr/share/dbus-1/services"
 copy_dir /usr/share/nimbus/user-guide "$ROOT/usr/share/nimbus/user-guide"
 for d in /usr/share/kwin/scripts/nimbus-*; do

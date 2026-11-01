@@ -145,10 +145,16 @@ cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-mc "$OUT/airootfs/usr/share/kwin
 mkdir -p "$OUT/airootfs/usr/share/dbus-1/services"
 cp -a "$REPO_ROOT/packages/dbus/." "$OUT/airootfs/usr/share/dbus-1/services/" || exit 1
 # Presets/pins de la barra y arte propio (instalados: /usr/share/nimbus).
-mkdir -p "$OUT/airootfs/usr/share/nimbus/bar"
+mkdir -p "$OUT/airootfs/usr/share/nimbus/bar" "$OUT/airootfs/usr/share/nimbus/systemd/user"
+cp -a "$REPO_ROOT/dotfiles/.config/systemd/user/." "$OUT/airootfs/usr/share/nimbus/systemd/user/" || exit 1
 cp -a "$REPO_ROOT/packages/shell/nimbus-bar/presets" "$OUT/airootfs/usr/share/nimbus/bar/" || exit 1
 cp -a "$REPO_ROOT/packages/shell/nimbus-bar/pins.txt" "$OUT/airootfs/usr/share/nimbus/bar/" || exit 1
 cp -a "$REPO_ROOT/assets" "$OUT/airootfs/usr/share/nimbus/assets" || exit 1
+# Esquemas de color del sistema: el skel referencia NimbusTahoe y debe existir
+# en /usr/share/color-schemes para cualquier usuario (no solo el live).
+mkdir -p "$OUT/airootfs/usr/share/color-schemes"
+cp -a "$REPO_ROOT/packages/themes/nimbus-tahoe/colorschemes/." "$OUT/airootfs/usr/share/color-schemes/" || exit 1
+cp -a "$REPO_ROOT/packages/themes/nimbus-tokens/colors/NimbusHighContrast.colors" "$OUT/airootfs/usr/share/color-schemes/" || exit 1
 mkdir -p "$OUT/airootfs/usr/share/nimbus/dock"
 cp -a "$REPO_ROOT/packages/dock/kremarc-nimbus" "$OUT/airootfs/usr/share/nimbus/dock/" || exit 1
 echo "OK: temas y KWin scripts estagiados"
@@ -214,6 +220,7 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/compat/usr/lib/libboost_python314.so.1.91.0" \
   "$OUT/airootfs/usr/share/nimbus/pkgs/klassy-nimbus-6.7.3-1-x86_64.pkg.tar.zst" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
+  "$OUT/airootfs/usr/share/color-schemes/NimbusTahoe.colors" \
   "$OUT/airootfs/usr/share/nimbus/bar/pins.txt" \
   "$OUT/airootfs/usr/share/nimbus/dock/kremarc-nimbus" \
   "$OUT/airootfs/usr/share/nimbus/bar/presets/default.json" \
