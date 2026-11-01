@@ -1,0 +1,63 @@
+[f10apps] dotfiles desplegados en /tmp/opencode/nimbus-f10apps-GT8xDx/home
+[f10apps] --- kreadconfig6 (HOME temporal) ---
+  SortingChoice=0
+  GlobalViewProps=true
+  GlobalViewMode=2
+  GlobalPreviews=true
+  Width=1100
+  Height=700
+  ConfirmTrash=false
+  DefaultProfile=Nimbus.profile
+  ProfileFont=JetBrains Mono,12,-1,5,400,0,0,0,0,0
+  ProfileScheme=Nimbus
+  SchemeOpacity=0.92
+  SchemeBlur=true
+  SchemeBg=28,28,30
+[f10apps] --- xdg-mime query default ---
+  x-scheme-handler/https=firefox.desktop
+  text/html=firefox.desktop
+  application/pdf=firefox.desktop
+  image/jpeg=org.kde.gwenview.desktop
+  inode/directory=org.kde.dolphin.desktop
+  video/mp4=mpv.desktop
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.1' (uid=1000 pid=424336 comm="konsole --list-profiles")
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.2' (uid=1000 pid=424340 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.2' (uid=1000 pid=424340 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:424340): xdg-desktop-portal-WARNING **: 23:57:52.101: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.2' (uid=1000 pid=424340 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.5' (uid=1000 pid=424364 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.2' (uid=1000 pid=424340 comm="/usr/lib/xdg-desktop-portal")
+[f10apps] perfiles konsole: Nimbus 
+[f10apps] konsole (perfil Nimbus) ...
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:424340): xdg-desktop-portal-WARNING **: 23:57:52.202: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.2' (uid=1000 pid=424340 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+dbus-daemon[424068]: [session uid=1000 pid=424068 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+[f10apps] f10-konsole.png OK
+[f10apps] dolphin (F10test) ...
+[f10apps] f10-dolphin.png OK
+[f10apps] --- geometria real ventanas (script KWin) ---
+0
+true
+[f10apps] --- 10 operaciones de archivo en carpeta temporal ---
+  op1 OK: touch x3
+  op2 OK: mkdir
+  op3 OK: cp
+  op4 OK: mv
+  op5 OK: ls
+  op6 OK: orden natural (ls -v)
+  op7 OK: trash via KIO
+  op8 OK: en papelera
+kioclient: URL trash:/files/f10.txt mal formada
+  op9 OK: restaurar
+  op10 OK: limpieza
+[f10apps] OPS_OK=10/10
+[f10apps] FIN
+A connection to the bus can't be made
