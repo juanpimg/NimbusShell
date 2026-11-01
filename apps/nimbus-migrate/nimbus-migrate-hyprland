@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# NimbusShell — nimbus-migrate-hyprland (F9-T09)
+# Migrador legacy Hyprland→Plasma: dry-run por defecto, --apply con backup,
+# rollback. Sin root, idempotente, sin red. Solo toca $HOME.
+set -u
+MARK="# NimbusMigrate-Hyprland (F9-T09)"
+SRC_HOME="${HOME}"
+MODE="dry-run"
+AS_JSON=0
+BACKUP_GLOB="nimbusshell-backup-*"
+
+usage() {
+    cat <<'EOF'
+Uso: nimbus-migrate-hyprland [--home DIR] [--dry-run] [--apply] [--rollback] [--json] [-h|--help]
+  --dry-run   (por defecto) plan sin escribir nada.
+  --apply     escribe en $HOME/.config con backup nimbusshell-backup-*.
+  --rollback  restaura el backup más reciente y sale.
+  --home DIR  usa DIR como $HOME (tests/fixtures).
+  --json      resumen en JSON por stdout.
+EOF
+}
+
+ACTION=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --home) SRC_HOME="${2:?falta DIR tras --home (ej.: --home /tmp/h)}"; shift 2;;
+        --dry-run) MODE="dry-run"; shift;;
+        --apply) MODE="apply"; shift;;
+        --rollback) ACTION="rollback"; shift;;
+        --json) AS_JSON=1; shift;;
+        -h|--help) usage; exit 0;;
+        *) echo "error: opción desconocida '$1'. Usa --help." >&2; exit 1;;
+    esac
+done
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "error: no ejecutes como root (protege tu ~/.config). Reintenta como usuario." >&2
+    exit 1
+fi
+[ -d "$SRC_HOME" ] || { echo "error: --home '$SRC_HOME' no existe." >&2; exit 1; }
+
+CFG="$SRC_HOME/.config"
+HYPR="$CFG/hypr/hyprland.conf"; SHORT="$CFG/hypr/10-shortcuts.conf"
+LUA="$CFG/hypr/hyprland.lua"; PAPER="$CFG/hypr/hyprpaper.conf"
+DOCKJSON="$CFG/macdock/settings.json"; GTK3="$CFG/gtk-3.0/settings.ini"
+QS="$CFG/quickshell/MacShell"
+
+latest_backup() { ls -dt "$CFG"/$BACKUP_GLOB 2>/dev/null | head -1; }
+
+if [ "$ACTION" = "rollback" ]; then
+    B="$(latest_backup)"
+    [ -n "${B:-}" ] || { echo "error: sin backup $CFG/$BACKUP_GLOB; nada que restaurar." >&2; exit 1; }
+    [ "$MODE" = "apply" ] || { echo "rollback pendiente (dry-run): restauraría $B. Repite con --rollback --apply."; exit 0; }
+    cp -f "$B"/kwinrc "$CFG/kwinrc" 2>/dev/null || rm -f "$CFG/kwinrc"
+    cp -f "$B"/kglobalshortcutsrc "$CFG/kglobalshortcutsrc" 2>/dev/null || rm -f "$CFG/kglobalshortcutsrc"
+    cp -f "$B"/plasma-org.kde.plasma.desktop-appletsrc "$CFG/plasma-org.kde.plasma.desktop-appletsrc" 2>/dev/null || rm -f "$CFG/plasma-org.kde.plasma.desktop-appletsrc"
+    cp -f "$B"/kdeglobals "$CFG/kdeglobals" 2>/dev/null || rm -f "$CFG/kdeglobals"
+    echo "ROLLBACK_OK desde $B"
+    exit 0
+fi
+
+# --- Extracción legacy -------------------------------------------------------
+[ -f "$HYPR" ] || [ -f "$LUA" ] || { echo "error: sin legacy ($HYPR ni $LUA). Nada que migrar." >&2; exit 1; }
+MON="$(grep -h "^monitor" "$HYPR" 2>/dev/null | head -1)"
+[ -z "$MON" ] && MON="$(grep -h "hl.monitor" -A4 "$LUA" 2>/dev/null | tr '\n' ' ')"
+WALL="$(grep -h "^wallpaper" "$PAPER" 2>/dev/null | sed 's/.*,//;s/^ *//' | head -1)"
+[ -z "$WALL" ] && WALL="$(grep -ho "swaybg -i [^ ]*" "$HYPR" 2>/dev/null | sed 's/.*-i //' | head -1)"
+[ -z "$WALL" ] && WALL="$(grep -ho '"wallpaperPath": *"[^"]*"' "$DOCKJSON" 2>/dev/null | sed 's/.*: *"//;s/"//' | head -1)"
+G_IN="$(grep -h "gaps_in" "$HYPR" 2>/dev/null | grep -o "[0-9]*" | head -1)"
+G_OUT="$(grep -h "gaps_out" "$HYPR" 2>/dev/null | grep -o "[0-9]*" | head -1)"
+BORD="$(grep -h "border_size" "$HYPR" 2>/dev/null | grep -o "[0-9]*" | head -1)"
+ROUND="$(grep -h "rounding" "$HYPR" 2>/dev/null | grep -o "[0-9]*" | head -1)"
+NBIND="$(grep -hc "^bind" "$SHORT" "$HYPR" 2>/dev/null | awk -F: '{s+=$2} END{print s+0}')"
+DARK="$(grep -h "prefer-dark-theme" "$GTK3" 2>/dev/null | grep -o "true\|false" | head -1)"
+PINS="$(grep -ho '"pinned": *\[[^]]*\]' "$DOCKJSON" 2>/dev/null | head -1)"
+[ -z "$PINS" ] && PINS="[]"
+QML_N="$(ls "$QS"/*.qml 2>/dev/null | wc -l)"
+MIGRATED=0; [ -n "$WALL" ] && MIGRATED=$((MIGRATED+1))
+[ -n "$G_IN$G_OUT$BORD" ] && MIGRATED=$((MIGRATED+1))
+[ "$NBIND" -gt 0 ] 2>/dev/null && MIGRATED=$((MIGRATED+1))
+[ "$PINS" != "[]" ] && MIGRATED=$((MIGRATED+1))
+[ -n "$DARK" ] && MIGRATED=$((MIGRATED+1))
+
+# --- Contenidos destino (idempotentes, sin fechas) ---------------------------
+kwinrc_body() { printf '%s\n[Windows]\nBorderSize=%s\n%s\n[NimbusMigrated]\nGapsIn=%s\nGapsOut=%s\nRounding=%s\nMonitor=%s\n' \
+    "$MARK" "$([ "${BORD:-1}" -gt 1 ] 2>/dev/null && echo Large || echo Normal)" \
+    "$MARK" "${G_IN:-4}" "${G_OUT:-8}" "${ROUND:-12}" "${MON:-auto}"; }
+shortcuts_body() {
+    printf '%s\n[kwin]\nWalk Through Windows=Alt+Tab\\tMeta+Tab,Alt+Tab\\tMeta+Tab,heredado Hyprland (%s binds)\nWindow Minimize=Meta+M\\tMeta+H,Meta+M\\tMeta+H,heredado Hyprland\n' \
+        "$MARK" "${NBIND:-0}"
+    grep -h "^bind" "$SHORT" "$HYPR" 2>/dev/null | sed 's/^/# hypr: /'
+}
+applets_body() { printf '%s\n[Containments][1][Wallpaper][org.kde.image][General]\nImage=%s\n' "$MARK" "${WALL:-none}"; }
+kdeglobals_body() { printf '%s\n[KDE]\nColorScheme=%s\n' "$MARK" "$([ "$DARK" = "true" ] && echo BreezeDark || echo BreezeLight)"; }
+
+write_if_diff() { # $1 destino $2 contenido
+    if [ -f "$1" ] && [ "$(cat "$1")" = "$2" ]; then return 1; fi
+    printf '%s' "$2" > "$1"; return 0
+}
+NOT_MIGRABLE="Quickshell QML ($QML_N ficheros), hyprbars, layer_rules/blur, gestures, exec-once, windowrules float-all"
+
+if [ "$AS_JSON" -eq 1 ]; then
+    printf '{"mode":"%s","wallpaper":"%s","gaps_in":"%s","gaps_out":"%s","border":"%s","rounding":"%s","binds":%s,"pins":%s,"dark":"%s","migrated_types":%s,"not_migratable":"Quickshell QML"}\n' \
+        "$MODE" "$WALL" "${G_IN:-?}" "${G_OUT:-?}" "${BORD:-?}" "${ROUND:-?}" "${NBIND:-0}" "$PINS" "${DARK:-?}" "$MIGRATED"
+    [ "$MODE" = "dry-run" ] && exit 0
+fi
+
+if [ "$MODE" = "dry-run" ]; then
+    cat <<EOF
+plan (dry-run, sin escribir):
+  monitor   : ${MON:-?}            -> kwinrc [NimbusMigrated] (nota)
+  wallpaper : ${WALL:-?}           -> plasma-appletsrc Image=
+  gaps/borde: in=${G_IN:-?} out=${G_OUT:-?} b=${BORD:-?} r=${ROUND:-12} -> kwinrc
+  atajos    : ${NBIND:-0} binds Meta       -> kglobalshortcutsrc [kwin]
+  pins Dock : $PINS -> taskmanager (nota manual)
+  tema      : dark=${DARK:-?}              -> kdeglobals ColorScheme
+  tipos migrables: $MIGRATED
+  NO migrable: $NOT_MIGRABLE
+Repite con --apply para escribir (con backup $BACKUP_GLOB).
+EOF
+    exit 0
+fi
+
+# --- --apply con backup ------------------------------------------------------
+STAMP="$(date +%Y%m%d-%H%M%S)"
+BDIR="$CFG/nimbusshell-backup-$STAMP"
+mkdir -p "$BDIR" || { echo "error: no puedo crear $BDIR (revisa permisos)." >&2; exit 1; }
+for f in kwinrc kglobalshortcutsrc plasma-org.kde.plasma.desktop-appletsrc kdeglobals; do
+    [ -f "$CFG/$f" ] && cp -f "$CFG/$f" "$BDIR/$f"
+done
+echo "backup: $BDIR" > "$BDIR/MANIFEST"
+W=0
+write_if_diff "$CFG/kwinrc" "$(kwinrc_body)" && W=$((W+1))
+write_if_diff "$CFG/kglobalshortcutsrc" "$(shortcuts_body)" && W=$((W+1))
+write_if_diff "$CFG/plasma-org.kde.plasma.desktop-appletsrc" "$(applets_body)" && W=$((W+1))
+write_if_diff "$CFG/kdeglobals" "$(kdeglobals_body)" && W=$((W+1))
+echo "APPLY_OK backup=$BDIR escritos=$W tipos=$MIGRATED"
+echo "NO migrable: $NOT_MIGRABLE (restaura con --rollback --apply)"
