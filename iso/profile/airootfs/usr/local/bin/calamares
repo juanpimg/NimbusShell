@@ -2,6 +2,12 @@
 # NimbusOS: superpone la configuración propia de Calamares (paquete
 # cachyos-calamares instala /etc/calamares) y lanza el instalador real.
 set -u
+# Reintento tras un exec fallido: gpg-agent del chroot mantiene el disco
+# ocupado y el módulo partition falla con "disk is currently in use".
+pkill -9 -f 'gpg-agent --homedir' 2>/dev/null || true
+for d in /tmp/calamares-root-*; do
+    [ -d "$d" ] && umount -R "$d" 2>/dev/null || true
+done
 # R-CALAMARES-BOOST: cachyos-calamares enlaza Boost 1.91; el ISO trae 1.92.
 # Las libs 1.91 viven aquí y solo se exponen a Calamares.
 if [ -d /usr/share/nimbus/compat/usr/lib ]; then
