@@ -235,7 +235,7 @@
 - [ ] **F9-T06 — Toggle Cmd/Ctrl y chuleta.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: remapeo, PDF/HTML de atajos. Accept: 20 atajos; reversible. Dep: F9-T02.
 - [ ] **F9-T07 — Discover simple.** Files: `dotfiles/.config/`, `apps/`. Acciones: modo simple, updates en lenguaje llano, programar. Accept: actualiza 1 paquete; captura. Dep: F2.
 - [ ] **F9-T08 — Rollback Btrfs/snapper.** Files: `apps/`, `iso/`. Acciones: snapshot pre-update, entrada GRUB "volver a ayer", test romper update. Accept: rollback funcional en VM; evidencia. Dep: F9-T07.
-- [ ] **F9-T09 — Migrador legacy Hyprland→Plasma.** Files: `apps/nimbus-migrate/`. Acciones: backup `~/.config/hypr` y `~/.config/quickshell`, importar wallpaper/atajos/pins/settings donde sea posible, dry-run y rollback. Accept: VM con dotfiles Hyprland migra sin pérdida; informe de lo no migrable. Dep: F9-T02.
+- [ ] **F9-T09 — Migrador legacy Hyprland→Plasma.** Files: `apps/nimbus-migrate/`. Acciones: backup `~/.config/hypr` y `~/.config/quickshell`, importar wallpaper/atajos/pins/settings donde sea posible, dry-run y rollback. Accept: VM con dotfiles Hyprland migra sin pérdida; informe de lo no migrable. Estado: script + 9/9 tests con fixture; apply/rollback OK; ejecución en VM real pendiente. Dep: F9-T02.
 - [ ] **F9-T10 — Soporte, diagnóstico y backup.** Files: `apps/nimbus-bug-report/`, `apps/backup/`. Acciones: `nimbus-bug-report` (journal, `kinfo`, `qdbus6`), backup/restore Konsave, tarball restorable, botón Ayuda. Accept: genera y restaura un tarball en VM; captura. Dep: F9-T02.
 
 ---
