@@ -16,6 +16,7 @@ pkg_check_modules(DBUS1 REQUIRED IMPORTED_TARGET dbus-1)
 qt_add_executable(nimbus-bar main.cpp commandrunner.h
     appmenumodel.h appmenumodel.cpp
     statusnotifiermodel.h statusnotifiermodel.cpp
+    notificationserver.h notificationserver.cpp
     osdbridge.h bar.qrc)
 
 target_link_libraries(nimbus-bar PRIVATE
