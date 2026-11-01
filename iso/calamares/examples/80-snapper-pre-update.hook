@@ -1,0 +1,12 @@
+# Ejemplo (NO instalado por el staging): hook pacman de snapshot pre-update.
+# Destino en el instalado: /etc/pacman.d/hooks/80-snapper-pre-update.hook
+# Requiere: snapper con config 'root' (snapper -c root create-config /).
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = *
+
+[Action]
+Description = Snapshot pre-update NimbusOS...
+When = PreTransaction
+Exec = /usr/bin/snapper -c root create --description nimbus-pre-update-pacman
