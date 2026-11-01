@@ -14,6 +14,7 @@ copy_dir /usr/share/klassy-nimbus "$ROOT/usr/share/klassy-nimbus"
 copy_dir /usr/share/nimbus/klassy "$ROOT/usr/share/nimbus/klassy"
 copy_dir /usr/share/nimbus/themes "$ROOT/usr/share/nimbus/themes"
 copy_dir /usr/share/nimbus/tokens "$ROOT/usr/share/nimbus/tokens"
+copy_dir /usr/share/nimbus/bar "$ROOT/usr/share/nimbus/bar"
 copy_dir /usr/share/nimbus/user-guide "$ROOT/usr/share/nimbus/user-guide"
 for d in /usr/share/kwin/scripts/nimbus-*; do
     [ -d "$d" ] || continue

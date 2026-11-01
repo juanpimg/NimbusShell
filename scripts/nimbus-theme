@@ -56,9 +56,13 @@ if [ "$(id -u)" = "0" ]; then
   echo "ERROR: no ejecutar como root (el tema es por usuario)" >&2; exit 1
 fi
 
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Sistema instalado: recursos en /usr/share/nimbus (no hay repo).
 THEME_DIR="$REPO_ROOT/packages/themes/nimbus-tahoe"
+[ -d "$THEME_DIR" ] || THEME_DIR="/usr/share/nimbus/themes/nimbus-tahoe"
 UNIT_SRC="$REPO_ROOT/dotfiles/.config/systemd/user"
+[ -d "$UNIT_SRC" ] || UNIT_SRC="$HOME/.config/systemd/user"
 BACKUP_BASE="$HOME/.config"
 STAMP_FILE="$HOME/.config/nimbus-theme-applied"
 CONF_FILE="$HOME/.config/plasma/nimbus-theme.conf"
@@ -127,7 +131,7 @@ do_auto_cmd() {
   case "$AUTO_CMD" in
     enable)
       mkdir -p "$bin_dir" "$unit_dir"
-      ln -sfn "$REPO_ROOT/scripts/nimbus-theme" "$bin_dir/nimbus-theme"
+      ln -sfn "$SELF" "$bin_dir/nimbus-theme"
       cp -a "$UNIT_SRC/nimbus-theme-auto.service" "$UNIT_SRC/nimbus-theme-auto.timer" "$unit_dir/"
       if command -v systemctl >/dev/null 2>&1 && systemctl --user daemon-reload 2>/dev/null; then
         if systemctl --user enable --now nimbus-theme-auto.timer 2>/dev/null; then

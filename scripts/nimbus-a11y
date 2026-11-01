@@ -20,6 +20,7 @@ set -u
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONTRAST_SRC="$REPO_ROOT/packages/themes/nimbus-tokens/colors/NimbusHighContrast.colors"
+[ -f "$CONTRAST_SRC" ] || CONTRAST_SRC="/usr/share/nimbus/tokens/colors/NimbusHighContrast.colors"
 FEATURES="orca zoom contrast stickykeys bouncekeys slowkeys reduce-motion reduce-transparency"
 
 ACTION=""

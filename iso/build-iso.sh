@@ -115,7 +115,8 @@ echo "OK: skel estagiado ($(cd "$OUT/airootfs/etc/skel" && find . -type f | wc -
 # 3. Scripts -> airootfs/usr/local/bin/.
 mkdir -p "$OUT/airootfs/usr/local/bin"
 for s in nimbus-theme nimbus-privacy nimbus-flatpak-perms apply-theme \
-         nimbus-updates nimbus-layout nimbus-a11y nimbus-bar-preset nimbus-hide-panel; do
+         nimbus-updates nimbus-layout nimbus-a11y nimbus-bar-preset nimbus-hide-panel \
+         nimbus-keys; do
   cp -a "$REPO_ROOT/scripts/$s" "$OUT/airootfs/usr/local/bin/$s" || exit 1
   chmod 755 "$OUT/airootfs/usr/local/bin/$s" || exit 1
 done
@@ -140,6 +141,11 @@ cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-apps-toggle "$OUT/airootfs/usr/s
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-zoom "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-tabs "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-mc "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
+# Presets/pins de la barra y arte propio (instalados: /usr/share/nimbus).
+mkdir -p "$OUT/airootfs/usr/share/nimbus/bar"
+cp -a "$REPO_ROOT/packages/shell/nimbus-bar/presets" "$OUT/airootfs/usr/share/nimbus/bar/" || exit 1
+cp -a "$REPO_ROOT/packages/shell/nimbus-bar/pins.txt" "$OUT/airootfs/usr/share/nimbus/bar/" || exit 1
+cp -a "$REPO_ROOT/assets" "$OUT/airootfs/usr/share/nimbus/assets" || exit 1
 echo "OK: temas y KWin scripts estagiados"
 # R-CALAMARES-BOOST: libs 1.91 para cachyos-calamares (repo sirve 1.92).
 if [ -f "$REPO_ROOT/iso/compat/boost191.tar.gz" ]; then
@@ -197,6 +203,10 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/compat/usr/lib/libboost_python314.so.1.91.0" \
   "$OUT/airootfs/usr/share/nimbus/pkgs/klassy-nimbus-6.7.3-1-x86_64.pkg.tar.zst" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
+  "$OUT/airootfs/usr/share/nimbus/bar/pins.txt" \
+  "$OUT/airootfs/usr/share/nimbus/bar/presets/default.json" \
+  "$OUT/airootfs/usr/share/nimbus/assets/sequoia-dark.jpg" \
+  "$OUT/airootfs/usr/local/bin/nimbus-keys" \
   ; do
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
 done

@@ -49,6 +49,9 @@ command -v python3 >/dev/null 2>&1 || {
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PRESET_DIR="$REPO_ROOT/packages/shell/nimbus-bar/presets"
 PINS_FILE="$REPO_ROOT/packages/shell/nimbus-bar/pins.txt"
+# Sistema instalado: presets versionados en /usr/share/nimbus/bar.
+[ -d "$PRESET_DIR" ] || PRESET_DIR="/usr/share/nimbus/bar/presets"
+[ -f "$PINS_FILE" ] || PINS_FILE="/usr/share/nimbus/bar/pins.txt"
 
 # Valida un preset contra el esquema nimbus-bar-preset/1 (ver presets/README.md).
 validate() {
@@ -158,8 +161,10 @@ if [ "$ACTION" = "pin-check" ]; then
   [ -z "$qt_evidence" ] && [ -x /usr/lib/qt6/bin/qmake6 ] && \
     qt_evidence="$(/usr/lib/qt6/bin/qmake6 --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
   cfg_ver="$(grep -m1 'set(PACKAGE_VERSION' /usr/lib/cmake/LayerShellQt/LayerShellQtConfigVersion.cmake 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)"
-  krema_evidence="$(grep -rl 'Krema 0.12.0' "$REPO_ROOT/docs" 2>/dev/null | head -1 || true)"
-  klassy_evidence="$(grep -rl 'libklassycommon6.so.6.7.3' "$REPO_ROOT/docs" 2>/dev/null | head -1 || true)"
+  docs_dir="$REPO_ROOT/docs"
+  [ -d "$docs_dir" ] || docs_dir="/usr/share/doc/nimbus"
+  krema_evidence="$(grep -rl 'Krema 0.12.0' "$docs_dir" 2>/dev/null | head -1 || true)"
+  klassy_evidence="$(grep -rl 'libklassycommon6.so.6.7.3' "$docs_dir" 2>/dev/null | head -1 || true)"
   pin krema 0.12.0 "$krema_evidence"
   pin klassy 6.7.3 "$klassy_evidence"
   # Qt/LayerShellQt comparan major.minor contra lo instalado (parche libre).

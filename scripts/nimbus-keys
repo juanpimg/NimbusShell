@@ -9,6 +9,8 @@ set -u
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CANONICAL="$REPO_ROOT/dotfiles/.config/plasma/kglobalshortcutsrc"
+# Sistema instalado: no hay repo; el destino natural es la config del usuario.
+[ -d "$(dirname "$CANONICAL")" ] || CANONICAL="$HOME/.config/kglobalshortcutsrc"
 MODE="meta"
 ACTION="check"
 HOME_DIR=""
