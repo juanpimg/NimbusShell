@@ -1,0 +1,240 @@
+#!/usr/bin/env bash
+# NimbusShell — nimbus-migrate-desktop (F9-T05)
+# Migrador Windows/Mac: documentos, marcadores, fondo, equivalencias de apps
+# y ajustes simples. --dry-run por defecto, --apply con backup, --rollback.
+# Sin root, idempotente, sin red. Nunca sobrescribe: lo existente se omite.
+# Solo escribe dentro de --home (por defecto $HOME).
+set -u
+MARK="# NimbusMigrate-Desktop (F9-T05)"
+SRC=""                    # perfil Windows/Mac exportado (obligatorio)
+DST_HOME="${HOME}"
+MODE="dry-run"
+AS_JSON=0
+BACKUP_GLOB="nimbusshell-backup-*"
+MIGDIR=".local/share/nimbus-migrate"
+
+usage() {
+    cat <<'EOF'
+Uso: nimbus-migrate-desktop --source DIR [--home DIR] [--dry-run] [--apply] [--rollback] [--json] [-h|--help]
+  --source DIR  perfil Windows/Mac exportado (obligatorio).
+  --home DIR    destino Linux (por defecto $HOME; en tests, HOME temporal).
+  --dry-run     (por defecto) plan sin escribir nada.
+  --apply       importa con backup nimbusshell-backup-*; no sobrescribe.
+  --rollback    restaura el backup más reciente y sale.
+  --json        resumen en JSON por stdout.
+EOF
+}
+
+ACTION=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --source) SRC="${2:?falta DIR tras --source}"; shift 2;;
+        --home) DST_HOME="${2:?falta DIR tras --home}"; shift 2;;
+        --dry-run) MODE="dry-run"; shift;;
+        --apply) MODE="apply"; shift;;
+        --rollback) ACTION="rollback"; shift;;
+        --json) AS_JSON=1; shift;;
+        -h|--help) usage; exit 0;;
+        *) echo "error: opción desconocida '$1'. Usa --help." >&2; exit 1;;
+    esac
+done
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "error: no ejecutes como root (protege tu ~/.config). Reintenta como usuario." >&2
+    exit 1
+fi
+[ -n "$SRC" ] || { echo "error: falta --source DIR (perfil Windows/Mac exportado)." >&2; exit 1; }
+[ -d "$SRC" ] || { echo "error: --source '$SRC' no existe." >&2; exit 1; }
+[ -d "$DST_HOME" ] || { echo "error: --home '$DST_HOME' no existe." >&2; exit 1; }
+
+CFG="$DST_HOME/.config"
+latest_backup() { ls -dt "$CFG"/$BACKUP_GLOB 2>/dev/null | head -1; }
+
+if [ "$ACTION" = "rollback" ]; then
+    NB="$(ls -dt "$CFG"/$BACKUP_GLOB 2>/dev/null | wc -l)"; [ -z "$NB" ] && NB=0
+    [ "$NB" -gt 0 ] || { echo "error: sin backup $CFG/$BACKUP_GLOB; nada que restaurar." >&2; exit 1; }
+    B="$(latest_backup)"
+    [ "$MODE" = "apply" ] || { echo "rollback pendiente (dry-run): restauraría $NB backup(s), el más reciente $B. Repite con --rollback --apply."; exit 0; }
+    # Borra la unión de todos los manifiestos (cubren applies acumulados).
+    cat "$CFG"/$BACKUP_GLOB/MANIFEST.imports 2>/dev/null | sort -u | while IFS= read -r rel; do
+        [ -n "$rel" ] && rm -f "$DST_HOME/$rel"
+    done
+    # Restaura cada fichero desde el backup MÁS ANTIGUO que lo guardó (estado original).
+    oldest_with() { ls -tr "$CFG"/$BACKUP_GLOB/"$1" 2>/dev/null | head -1; }
+    O="$(oldest_with kdeglobals)"
+    if [ -n "${O:-}" ]; then cp -f "$O" "$CFG/kdeglobals"; else rm -f "$CFG/kdeglobals"; fi
+    for g in bookmarks.html equivalencias.txt; do
+        O="$(oldest_with "$MIGDIR/$g")"
+        if [ -n "${O:-}" ]; then mkdir -p "$DST_HOME/$MIGDIR"; cp -f "$O" "$DST_HOME/$MIGDIR/$g"; else rm -f "$DST_HOME/$MIGDIR/$g"; fi
+    done
+    echo "ROLLBACK_OK desde $B ($NB backup(s))"
+    echo "ROLLBACK_OK desde $B"
+    exit 0
+fi
+
+# --- Detección de origen -----------------------------------------------------
+OS="desconocido"
+[ -d "$SRC/AppData" ] && OS="windows"
+[ -d "$SRC/Library" ] && OS="mac"
+
+# Documentos candidatos (Documents/Desktop/Downloads si existen).
+DOC_DIRS=""; NDOC=0; NEXE=0; EXE_LIST=""
+for d in Documents Desktop Downloads; do
+    [ -d "$SRC/$d" ] || continue
+    DOC_DIRS="$DOC_DIRS $d"
+    while IFS= read -r f; do
+        case "$f" in *.exe|*.msi|*.dmg|*.pkg) NEXE=$((NEXE+1)); EXE_LIST="$EXE_LIST $(basename "$f")";; *) NDOC=$((NDOC+1));; esac
+    done < <(find "$SRC/$d" -type f)
+done
+
+# Marcadores: Chrome/Edge (JSON) + Firefox (HTML) + Safari (plist).
+URLS_TMP="$(mktemp /tmp/opencode/f9t05-urls-XXXXXX)"
+trap 'rm -f "$URLS_TMP"' EXIT INT TERM
+grep -ho '"url": *"[^"]*"' "$SRC/AppData/Local/Google/Chrome/User Data/Default/Bookmarks" \
+    "$SRC/AppData/Local/Microsoft/Edge/User Data/Default/Bookmarks" \
+    "$SRC/Library/Application Support/Google/Chrome/Default/Bookmarks" 2>/dev/null \
+    | sed 's/.*: *"//;s/"$//' >> "$URLS_TMP" || true
+grep -hoi 'href="[^"]*"' "$SRC/AppData/Roaming/Mozilla/Firefox/Profiles"/*/bookmarks.html \
+    "$SRC/Library/Application Support/Firefox/Profiles"/*/bookmarks.html 2>/dev/null \
+    | sed 's/^[^=]*="//;s/"$//' >> "$URLS_TMP" || true
+grep -ho '<string>https\?://[^<]*</string>' "$SRC/Library/Safari/Bookmarks.plist" 2>/dev/null \
+    | sed 's/<[^>]*>//g' >> "$URLS_TMP" || true
+NURL="$(grep -c 'https\?://' "$URLS_TMP" 2>/dev/null || true)"; [ -z "$NURL" ] && NURL=0
+
+# Fondo: ruta conocida según SO.
+WALL_SRC=""
+if [ "$OS" = "windows" ]; then
+    for c in "$SRC/AppData/Roaming/Microsoft/Windows/Themes/TranscodedWallpaper.jpg" \
+             "$SRC/AppData/Roaming/Microsoft/Windows/Themes/wallpaper.jpg"; do
+        [ -f "$c" ] && WALL_SRC="$c" && break
+    done
+elif [ "$OS" = "mac" ]; then
+    REF="$(grep -ho '/[^"<>]*\.\(jpg\|jpeg\|png\|heic\)' "$SRC/Library/Preferences/com.apple.desktop.plist" 2>/dev/null | head -1)"
+    [ -n "${REF:-}" ] && [ -f "$SRC/Pictures/$(basename "$REF")" ] && WALL_SRC="$SRC/Pictures/$(basename "$REF")"
+fi
+[ -z "$WALL_SRC" ] && WALL_SRC="$(find "$SRC/Pictures" -maxdepth 1 -type f 2>/dev/null | head -1)"
+
+# Apps: .lnk (menú inicio Win) + .app (mac); tabla de equivalencias.
+equiv() { # $1 nombre base (Word, Safari...) -> equivalente
+    case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
+        word|pages) echo "LibreOffice Writer (documentos)";;
+        excel|numbers) echo "LibreOffice Calc (hojas)";;
+        powerpoint|keynote) echo "LibreOffice Impress (presentaciones)";;
+        edge|chrome|chromium|safari|firefox) echo "Firefox (navegador)";;
+        explorer|finder) echo "Dolphin (archivos)";;
+        notepad|textedit) echo "Kate (editor)";;
+        photos|fotos|fotos-legacy) echo "Gwenview (fotos)";;
+        cmd|powershell|terminal|terminal.app) echo "Konsole (terminal)";;
+        store|microsoft*store|app*store) echo "Discover (tienda de apps)";;
+        mail) echo "Thunderbird (correo)";;
+        music|itunes|música) echo "Elisa (música)";;
+        settings|configuración) echo "Configuración del sistema";;
+        task*manager|monitor*actividad) echo "Monitor del sistema";;
+        *) echo "(sin equivalente directo; búscala en Discover)";;
+    esac
+}
+APPS_TMP="$(mktemp /tmp/opencode/f9t05-apps-XXXXXX)"
+trap 'rm -f "$URLS_TMP" "$APPS_TMP"' EXIT INT TERM
+find "$SRC/AppData/Roaming/Microsoft/Windows/Start Menu" -iname '*.lnk' 2>/dev/null | while IFS= read -r l; do basename "$l" .lnk; done >> "$APPS_TMP" || true
+find "$SRC/Applications" -maxdepth 1 -name '*.app' 2>/dev/null | while IFS= read -r a; do basename "$a" .app; done >> "$APPS_TMP" || true
+NAPPS="$(grep -c . "$APPS_TMP" 2>/dev/null || true)"; [ -z "$NAPPS" ] && NAPPS=0
+
+# Ajuste simple: tema oscuro (registro Win / GlobalPreferences Mac).
+DARK="?"
+grep -q 'AppsUseLightTheme"=dword:00000000' "$SRC/AppData/Local/Microsoft/Windows/registry-personalize.txt" 2>/dev/null && DARK="true"
+grep -q 'AppleInterfaceStyle = Dark' "$SRC/Library/Preferences/.GlobalPreferences.plist" 2>/dev/null && DARK="true"
+grep -q 'AppsUseLightTheme"=dword:00000001' "$SRC/AppData/Local/Microsoft/Windows/registry-personalize.txt" 2>/dev/null && DARK="false"
+
+MIGRATED=0
+[ "$NDOC" -gt 0 ] && MIGRATED=$((MIGRATED+1))
+[ "$NURL" -gt 0 ] && MIGRATED=$((MIGRATED+1))
+[ -n "$WALL_SRC" ] && MIGRATED=$((MIGRATED+1))
+[ "$NAPPS" -gt 0 ] && MIGRATED=$((MIGRATED+1))
+[ "$DARK" != "?" ] && MIGRATED=$((MIGRATED+1))
+NOT_MIGRABLE="ejecutables$EXE_LIST; registro Windows (salvo tema); PST/OST de Outlook; llaveros/credenciales; drivers"
+
+if [ "$AS_JSON" -eq 1 ]; then
+    printf '{"mode":"%s","os":"%s","docs":%s,"bookmarks":%s,"wallpaper":"%s","apps":%s,"dark":"%s","migrated_types":%s,"not_migratable":"ejecutables y registro"}\n' \
+        "$MODE" "$OS" "$NDOC" "$NURL" "$(basename "${WALL_SRC:-none}")" "$NAPPS" "$DARK" "$MIGRATED"
+    [ "$MODE" = "dry-run" ] && exit 0
+fi
+
+if [ "$MODE" = "dry-run" ]; then
+    cat <<EOF
+plan (dry-run, sin escribir) origen=$OS:
+  documentos:$DOC_DIRS ($NDOC ficheros) -> ~/Documents|Desktop|Downloads (sin sobrescribir)
+  marcadores: $NURL urls (Chrome/Edge/Firefox/Safari) -> ~/.local/share/nimbus-migrate/bookmarks.html
+  fondo     : ${WALL_SRC:-?} -> ~/Pictures/fondo-importado.*
+  apps      : $NAPPS detectadas -> equivalencias.txt (Office→LibreOffice, Explorer/Finder→Dolphin...)
+  ajustes   : oscuro=$DARK -> kdeglobals ColorScheme
+  tipos migrables: $MIGRATED
+  NO migrable: $NOT_MIGRABLE
+Repite con --apply para importar (con backup $BACKUP_GLOB). Origen: --source $SRC.
+EOF
+    [ "$OS" = "desconocido" ] || [ "$MIGRATED" -eq 0 ] && { echo "error: origen sin nada migrable (¿perfil Windows/Mac válido?)." >&2; exit 1; }
+    exit 0
+fi
+
+# --- --apply con backup, sin sobrescribir ------------------------------------
+[ "$OS" = "desconocido" ] && { echo "error: origen no reconocido como Windows (AppData) ni Mac (Library)." >&2; exit 1; }
+STAMP="$(date +%Y%m%d-%H%M%S-%N)"
+BDIR="$CFG/nimbusshell-backup-$STAMP"
+mkdir -p "$BDIR" "$BDIR/$MIGDIR" || { echo "error: no puedo crear $BDIR (revisa permisos)." >&2; exit 1; }
+# Backup: omite ficheros con nuestra marca (generados por un apply previo);
+# así un re-apply sin cambios no fosiliza su propio resultado como "original".
+mine() { [ -f "$1" ] && grep -q "NimbusMigrate-Desktop" "$1"; }
+[ -f "$CFG/kdeglobals" ] && ! mine "$CFG/kdeglobals" && cp -f "$CFG/kdeglobals" "$BDIR/kdeglobals"
+for g in bookmarks.html equivalencias.txt; do
+    [ -f "$DST_HOME/$MIGDIR/$g" ] && ! mine "$DST_HOME/$MIGDIR/$g" && cp -f "$DST_HOME/$MIGDIR/$g" "$BDIR/$MIGDIR/$g"
+done
+NEWIMPORTS="$(mktemp /tmp/opencode/f9t05-imp-XXXXXX)"
+: > "$NEWIMPORTS"
+W=0; OMIT=0
+track() { printf '%s\n' "$1" >> "$NEWIMPORTS"; }
+
+for d in $DOC_DIRS; do
+    while IFS= read -r f; do
+        case "$f" in *.exe|*.msi|*.dmg|*.pkg) continue;; esac
+        rel="$d/${f#"$SRC/$d"/}"
+        if [ -e "$DST_HOME/$rel" ]; then OMIT=$((OMIT+1)); continue; fi
+        mkdir -p "$(dirname "$DST_HOME/$rel")"
+        cp -f "$f" "$DST_HOME/$rel" && { track "$rel"; W=$((W+1)); }
+    done < <(find "$SRC/$d" -type f)
+done
+
+mkdir -p "$DST_HOME/$MIGDIR"
+if [ "$NURL" -gt 0 ]; then
+    BM="$DST_HOME/$MIGDIR/bookmarks.html"
+    if [ ! -f "$BM" ]; then
+        { printf '<!-- %s importado de %s -->\n<!DOCTYPE NETSCAPE-Bookmark-file-1>\n<TITLE>Importados</TITLE>\n<DL><p>\n' "$MARK" "$OS";
+          while IFS= read -r u; do [ -n "$u" ] && printf '<DT><A HREF="%s">%s</A>\n' "$u" "$u"; done < "$URLS_TMP";
+          printf '</DL><p>\n'; } > "$BM" && { track "$MIGDIR/bookmarks.html"; W=$((W+1)); }
+    else OMIT=$((OMIT+1)); fi
+fi
+if [ "$NAPPS" -gt 0 ]; then
+    EQ="$DST_HOME/$MIGDIR/equivalencias.txt"
+    if [ ! -f "$EQ" ]; then
+        { printf '%s: equivalencias %s -> Nimbus\n' "$MARK" "$OS";
+          while IFS= read -r a; do [ -n "$a" ] && printf '%s -> %s\n' "$a" "$(equiv "$a")"; done < "$APPS_TMP"; } > "$EQ" \
+        && { track "$MIGDIR/equivalencias.txt"; W=$((W+1)); }
+    else OMIT=$((OMIT+1)); fi
+fi
+if [ -n "$WALL_SRC" ]; then
+    ext="${WALL_SRC##*.}"; DEST_PIC="$DST_HOME/Pictures/fondo-importado.$ext"
+    if [ ! -e "$DEST_PIC" ]; then
+        mkdir -p "$DST_HOME/Pictures"
+        cp -f "$WALL_SRC" "$DEST_PIC" && { track "Pictures/fondo-importado.$ext"; W=$((W+1)); }
+    else OMIT=$((OMIT+1)); fi
+fi
+if [ "$DARK" != "?" ]; then
+    KG="$CFG/kdeglobals"
+    body="$(printf '%s\n[KDE]\nColorScheme=%s\n' "$MARK" "$([ "$DARK" = "true" ] && echo BreezeDark || echo BreezeLight)")"
+    if [ ! -f "$KG" ] || [ "$(cat "$KG")" != "$body" ]; then printf '%s' "$body" > "$KG" && W=$((W+1)); fi
+# El manifiesto acumula (sin duplicados): un re-apply no borra el de applies previos.
+{ [ -f "$BDIR/MANIFEST.imports" ] && cat "$BDIR/MANIFEST.imports"; cat "$NEWIMPORTS"; } | grep . | sort -u > "$BDIR/MANIFEST.new"
+mv "$BDIR/MANIFEST.new" "$BDIR/MANIFEST.imports"
+rm -f "$NEWIMPORTS"
+fi
+
+echo "APPLY_OK backup=$BDIR importados=$W omitidos=$OMIT tipos=$MIGRATED"
+echo "NO migrable: $NOT_MIGRABLE (restaura con --rollback --apply)"
