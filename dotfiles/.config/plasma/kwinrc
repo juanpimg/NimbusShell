@@ -38,10 +38,17 @@ fadeEnabled=true
 glideEnabled=true
 magiclampEnabled=true
 maximizeEnabled=true
-overviewEnabled=true
+# R-MC-STOCK: Overview stock desactivado; Mission Control propio (nimbus-mc).
+overviewEnabled=false
 scaleEnabled=true
 squashEnabled=false
 translucencyEnabled=true
+# Atajos Nimbus vía KWin Script (F6/F7/F11; sin Ctrl nuevos).
+nimbus-spotlightEnabled=true
+nimbus-apps-toggleEnabled=true
+nimbus-tabsEnabled=true
+nimbus-mcEnabled=true
+nimbus-zoomEnabled=true
 
 [Windows]
 BorderSize=Normal
