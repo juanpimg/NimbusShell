@@ -20,3 +20,14 @@ Escenario `system`: `userCount=2` (AccountsService), `currentUser=jp`,
 ## Captura
 `spikes/nested/f8-kcm-system.png`: KCM en Sistema (jp + builder,
 Europe/Madrid, NTP activo); `QML_ERRORS=0`.
+
+## Review: hostname/locale (sin canal sin root → lectura + aviso)
+- No existe canal sin root: `hostnamectl set-hostname` y `localectl
+  set-locale` exigen polkit/root en todos los casos (transitorio
+  incluido). No se inventa escritura directa.
+- `trySetHostName/trySetLocale` Q_INVOKABLE: validan formato, intentan
+  la herramienta (en sesión real polkit pediría permiso) y, si falla,
+  avisan «necesita permiso de administrador» sin cambiar nada. La UI
+  tiene botones «Cambiar…» con diálogos.
+- Tests: en sandbox (sin agente polkit) ambos fallan honesto, nombre
+  inválido rechazado sin ejecutar, hostname/locale intactos. 0 cambios.

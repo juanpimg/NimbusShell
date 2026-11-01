@@ -36,6 +36,9 @@ cleanup() { rm -rf "$BASE_TMP" || echo "WARN: no se pudo borrar $BASE_TMP" >&2; 
 trap cleanup EXIT INT TERM
 
 # Un escenario = un HOME virgen (si no, defaults pisaría lo anterior).
+# FAKE_BIN (exportado): dir con fakes que precede al PATH interno.
+# FAKE_PATH_OVERRIDE (exportado): sustituye el PATH interno por completo
+# (para simular herramientas ausentes). El resto de FAKE_* se propaga.
 run_scenario() { # <nombre> <scenario-arg>
   local name="$1" arg="$2"
   local nh="$BASE_TMP/home-$name"
@@ -44,7 +47,16 @@ run_scenario() { # <nombre> <scenario-arg>
 set -u
 export HOME="'"$nh"'" XDG_CONFIG_HOME="'"$nh"'/.config" XDG_DATA_HOME="'"$nh"'/.local/share"
 export XDG_CACHE_HOME="'"$BASE_TMP"'/cache-'"$name"'" XDG_CONFIG_DIRS="'"$BASE_TMP"'/sys-'"$name"'"
-export XDG_RUNTIME_DIR="'"$RUNTIME_DIR"'" PATH="'"$REPO_ROOT"'/scripts:$PATH"
+export XDG_RUNTIME_DIR="'"$RUNTIME_DIR"'"
+export FAKE_LOG="'"$BASE_TMP"'/fake-'"$name"'" FAKE_BT_DIR="'"$REPO_ROOT"'/tests/kcm/fakes/bt-state"
+export FAKE_BT_FAIL="${FAKE_BT_FAIL:-}" FAKE_PKEXEC_RC="${FAKE_PKEXEC_RC:-0}" FAKE_LP_RC="${FAKE_LP_RC:-0}"
+export FAKE_BIN="'"${FAKE_BIN:-}"'" FAKE_PATH_OVERRIDE="'"${FAKE_PATH_OVERRIDE:-}"'"
+mkdir -p "$FAKE_LOG"
+if [ -n "$FAKE_PATH_OVERRIDE" ]; then
+  export PATH="$FAKE_PATH_OVERRIDE"
+else
+  export PATH="'"$REPO_ROOT"'/scripts${FAKE_BIN:+:$FAKE_BIN}:$PATH"
+fi
 "'"$PROBE"'" "'"$arg"'" >"'"$BASE_TMP"'/'"$name"'.dump" 2>/dev/null
 ' >/dev/null 2>&1
 }
@@ -209,6 +221,41 @@ if [ -n "$BK" ] && [ "$(ls "$BK" 2>/dev/null | wc -l)" -ge 1 ]; then
 else
   bad "backup" "dir con ficheros" "ausente"
 fi
+
+echo "== Acciones BT/impresión/install/hostname (fakes, 0 cambios reales) =="
+export FAKE_BIN="$REPO_ROOT/tests/kcm/fakes"
+run_scenario bt-ok bt-ok
+check_eq "bt pair" "true" "$(dump_get bt-ok pair)"
+check_eq "bt connect" "true" "$(dump_get bt-ok connect)"
+check_eq "bt disconnect" "true" "$(dump_get bt-ok disconnect)"
+check_eq "bt lista 1 aparato" "1" "$(dump_get bt-ok btDevices)"
+[ -s "$BASE_TMP/fake-bt-ok/bluetoothctl.log" ] && ok "fake bluetoothctl invocado" || bad "fake bluetoothctl" "invocado" "sin log"
+export FAKE_BT_FAIL="pair"
+run_scenario bt-fail bt-fail
+check_eq "bt pair falla honesto" "false" "$(dump_get bt-fail pairFail)"
+unset FAKE_BT_FAIL
+run_scenario print-ok print-ok
+check_eq "print test page" "true" "$(dump_get print-ok print)"
+[ -s "$BASE_TMP/fake-print-ok/lp.log" ] && ok "fake lp invocado: $(head -1 "$BASE_TMP/fake-print-ok/lp.log")" || bad "fake lp" "invocado" "sin log"
+export FAKE_PATH_OVERRIDE="$REPO_ROOT/scripts"
+run_scenario print-nocups print-nocups
+unset FAKE_PATH_OVERRIDE
+check_eq "print sin CUPS falla honesto" "false" "$(dump_get print-nocups printNoCups)"
+export FAKE_PATH_OVERRIDE="$REPO_ROOT/tests/kcm/fakes"
+run_scenario install-ok install-ok
+unset FAKE_PATH_OVERRIDE
+check_eq "install termina" "false" "$(dump_get install-ok installing)"
+check_eq "install paquete limpio" "" "$(dump_get install-ok installPkg)"
+PKLOG="$(cat "$BASE_TMP/fake-install-ok/pkexec.log" 2>/dev/null | head -1)"
+case "$PKLOG" in *"pacman -S --noconfirm nimbus-test-pkg"*) ok "pkexec pacman -S nimbus-test-pkg ($PKLOG)";; *) bad "pkexec args" "pacman -S --noconfirm nimbus-test-pkg" "$PKLOG";; esac
+case "$(dump_get install-ok installOut)" in *fake-pkexec*) ok "salida visible en UI";; *) bad "installOutput" "…fake-pkexec…" "$(dump_get install-ok installOut)";; esac
+run_scenario hostname-locale hostname-locale
+check_eq "hostname sin permiso falla" "false" "$(dump_get hostname-locale setHost)"
+check_eq "hostname inválido rechazado" "false" "$(dump_get hostname-locale setHostBad)"
+check_eq "locale sin permiso falla" "false" "$(dump_get hostname-locale setLoc)"
+check_eq "hostname intacto" "true" "$(dump_get hostname-locale hostUnchanged)"
+check_eq "locale intacto" "true" "$(dump_get hostname-locale locUnchanged)"
+unset FAKE_BIN
 
 echo "== JSON del paquete =="
 if python3 -c "import json,sys; json.load(open('$REPO_ROOT/packages/kcm/kcm_nimbus/package-metadata.json')); json.load(open('$REPO_ROOT/packages/kcm/kcm_nimbus/src/metadata.json'))" 2>/dev/null; then

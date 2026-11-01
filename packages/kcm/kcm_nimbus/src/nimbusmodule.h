@@ -45,8 +45,10 @@ class NimbusModule : public KQuickConfigModule
     Q_PROPERTY(bool bluetoothAvailable READ bluetoothAvailable CONSTANT)
     Q_PROPERTY(bool bluetoothPowered READ bluetoothPowered WRITE setBluetoothPowered NOTIFY bluetoothPoweredChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
+    Q_PROPERTY(bool bluetoothScanning READ bluetoothScanning NOTIFY bluetoothScanningChanged)
     Q_PROPERTY(bool printingAvailable READ printingAvailable CONSTANT)
     Q_PROPERTY(QString printerInfo READ printerInfo NOTIFY printerInfoChanged)
+    Q_PROPERTY(QStringList printerNames READ printerNames NOTIFY printerInfoChanged)
     // F8-T06 — Sistema (lecturas en vivo; NTP/energía aplican al momento).
     Q_PROPERTY(QStringList userList READ userList NOTIFY userListChanged)
     Q_PROPERTY(QString currentUser READ currentUser CONSTANT)
@@ -64,6 +66,10 @@ class NimbusModule : public KQuickConfigModule
     Q_PROPERTY(bool dailyCheck READ dailyCheck WRITE setDailyCheck NOTIFY dailyCheckChanged)
     Q_PROPERTY(bool discoverInstalled READ discoverInstalled CONSTANT)
     Q_PROPERTY(bool snapshotsAvailable READ snapshotsAvailable NOTIFY snapshotsAvailableChanged)
+    // Review F8-T03/T06/T07: acciones con confirmación y salida visible.
+    Q_PROPERTY(bool installingUpdate READ installingUpdate NOTIFY installingUpdateChanged)
+    Q_PROPERTY(QString installingPackage READ installingPackage NOTIFY installingPackageChanged)
+    Q_PROPERTY(QString installOutput READ installOutput NOTIFY installOutputChanged)
     // Seam de test: página inicial vía NIMBUS_KCM_PAGE (solo harness nested).
     Q_PROPERTY(QString initialPage READ initialPage CONSTANT)
     // Seam de test: auto-comprobar updates al abrir (NIMBUS_KCM_AUTOCHECK).
@@ -122,11 +128,19 @@ public:
     bool bluetoothPowered() const;
     void setBluetoothPowered(bool on);
     QStringList bluetoothDevices() const;
+    bool bluetoothScanning() const;
     bool printingAvailable() const;
     QString printerInfo() const;
+    QStringList printerNames() const;
     Q_INVOKABLE void refreshWifi();
     Q_INVOKABLE bool connectWifi(const QString &ssid, const QString &password);
     Q_INVOKABLE void refreshBluetooth();
+    // Review: vincular/conectar/desconectar (bluetoothctl, sin root).
+    Q_INVOKABLE bool pairBluetooth(const QString &mac);
+    Q_INVOKABLE bool connectBluetooth(const QString &mac);
+    Q_INVOKABLE bool disconnectBluetooth(const QString &mac);
+    Q_INVOKABLE void scanBluetooth();
+    Q_INVOKABLE bool printTestPage(const QString &printer);
     // F8-T06.
     QStringList userList() const;
     QString currentUser() const;
@@ -144,11 +158,19 @@ public:
     int updatesCount() const;
     QStringList updatesList() const;
     bool updatesChecking() const;
+    bool installingUpdate() const;
+    QString installingPackage() const;
+    QString installOutput() const;
     bool dailyCheck() const;
     void setDailyCheck(bool on);
     bool discoverInstalled() const;
     bool snapshotsAvailable() const;
     Q_INVOKABLE void refreshUpdates();
+    // Review: instalar un paquete con confirmación previa en QML.
+    Q_INVOKABLE void installUpdate(const QString &package);
+    // Review: hostname/locale intentan polkit; sin permiso solo avisan.
+    Q_INVOKABLE bool trySetHostName(const QString &name);
+    Q_INVOKABLE bool trySetLocale(const QString &locale);
     // F8-T08 — Reset canónico por sección (backup + defaults + escritura).
     Q_INVOKABLE void resetSection(const QString &section);
 
@@ -194,6 +216,7 @@ Q_SIGNALS:
     void wifiScanningChanged();
     void bluetoothPoweredChanged();
     void bluetoothDevicesChanged();
+    void bluetoothScanningChanged();
     void printerInfoChanged();
     void userListChanged();
     void hostNameChanged();
@@ -204,6 +227,10 @@ Q_SIGNALS:
     void updatesCountChanged();
     void updatesListChanged();
     void updatesCheckingChanged();
+    void installingUpdateChanged();
+    void installingPackageChanged();
+    void installOutputChanged();
+    void installFinished(bool ok);
     void dailyCheckChanged();
     void snapshotsAvailableChanged();
     void updatesFinished();
@@ -258,6 +285,7 @@ private:
     bool m_bluetoothAvailable = false;
     bool m_bluetoothPowered = false;
     QStringList m_bluetoothDevices;
+    bool m_bluetoothScanning = false;
     bool m_printingAvailable = false;
     QString m_printerInfo;
     // F8-T06 — estado en vivo.
@@ -274,6 +302,9 @@ private:
     int m_updatesCount = -1;
     QStringList m_updatesList;
     QProcess *m_updatesProc = nullptr;
+    QProcess *m_installProc = nullptr;
+    QString m_installingPackage;
+    QString m_installOutput;
     bool m_dailyCheck = false;
     bool m_discoverInstalled = false;
     bool m_snapshotsAvailable = false;

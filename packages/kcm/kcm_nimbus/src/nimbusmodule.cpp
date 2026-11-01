@@ -13,11 +13,13 @@
 #include <KConfigGroup>
 #include <KPluginFactory>
 #include <KSharedConfig>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QHostInfo>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QtDBus/QDBusConnection>
@@ -986,7 +988,7 @@ void NimbusModule::refreshBluetooth()
         runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("show")});
     m_bluetoothPowered = show.contains(QStringLiteral("Powered: yes"));
     Q_EMIT bluetoothPoweredChanged();
-    // Forma "nombre|mac|conectado" (solo vinculados; emparejar pide agente).
+    // Forma "nombre|mac|conectado|vinculado" (vincular pide agente).
     m_bluetoothDevices.clear();
     const QStringList lines =
         runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("devices")})
@@ -1002,10 +1004,122 @@ void NimbusModule::refreshBluetooth()
         const QString info =
             runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("info"), mac});
         const bool connected = info.contains(QStringLiteral("Connected: yes"));
-        m_bluetoothDevices << QStringLiteral("%1|%2|%3").arg(
+        m_bluetoothDevices << QStringLiteral("%1|%2|%3|1").arg(
             name, mac, connected ? QStringLiteral("1") : QStringLiteral("0"));
     }
     Q_EMIT bluetoothDevicesChanged();
+}
+
+bool NimbusModule::bluetoothScanning() const
+{
+    return m_bluetoothScanning;
+}
+
+namespace
+{
+bool validMac(const QString &mac)
+{
+    static const QRegularExpression re(QStringLiteral("^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"));
+    return re.match(mac).hasMatch();
+}
+
+// bluetoothctl informa con "…uccessful…" (Pairing/Connection successful,
+// Successful disconnected); "Failed"/"not available" es error.
+bool btOk(const QString &output)
+{
+    return output.contains(QStringLiteral("uccessful"), Qt::CaseInsensitive)
+        && !output.contains(QStringLiteral("Failed"), Qt::CaseInsensitive);
+}
+}
+
+bool NimbusModule::pairBluetooth(const QString &mac)
+{
+    if (!m_bluetoothAvailable || !validMac(mac)) {
+        return false;
+    }
+    const QString out =
+        runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("pair"), mac}, 30000);
+    const bool ok = btOk(out);
+    setHelperStatus(ok ? QStringLiteral("Vinculado con %1.").arg(mac)
+                       : QStringLiteral("No se pudo vincular con %1.").arg(mac));
+    if (ok) {
+        refreshBluetooth();
+    }
+    Q_EMIT bluetoothDevicesChanged();
+    return ok;
+}
+
+bool NimbusModule::connectBluetooth(const QString &mac)
+{
+    if (!m_bluetoothAvailable || !validMac(mac)) {
+        return false;
+    }
+    const QString out =
+        runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("connect"), mac}, 20000);
+    const bool ok = btOk(out);
+    setHelperStatus(ok ? QStringLiteral("Conectado a %1.").arg(mac)
+                       : QStringLiteral("No se pudo conectar a %1.").arg(mac));
+    if (ok) {
+        refreshBluetooth();
+    }
+    Q_EMIT bluetoothDevicesChanged();
+    return ok;
+}
+
+bool NimbusModule::disconnectBluetooth(const QString &mac)
+{
+    if (!m_bluetoothAvailable || !validMac(mac)) {
+        return false;
+    }
+    const QString out =
+        runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("disconnect"), mac}, 20000);
+    const bool ok = btOk(out);
+    setHelperStatus(ok ? QStringLiteral("Desconectado de %1.").arg(mac)
+                       : QStringLiteral("No se pudo desconectar de %1.").arg(mac));
+    if (ok) {
+        refreshBluetooth();
+    }
+    Q_EMIT bluetoothDevicesChanged();
+    return ok;
+}
+
+void NimbusModule::scanBluetooth()
+{
+    if (!m_bluetoothAvailable || m_bluetoothScanning) {
+        return;
+    }
+    m_bluetoothScanning = true;
+    Q_EMIT bluetoothScanningChanged();
+    refreshBluetooth();
+    // Descubrimiento breve (10 s); fusiona no vinculados como paired=0.
+    QSet<QString> known;
+    for (const QString &entry : m_bluetoothDevices) {
+        known.insert(entry.split(QLatin1Char('|')).value(1));
+    }
+    const QStringList lines =
+        runCapture(QStringLiteral("bluetoothctl"),
+                   {QStringLiteral("--timeout"), QStringLiteral("10"), QStringLiteral("scan"),
+                    QStringLiteral("on")}, 15000)
+            .split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        // "[NEW] Device MAC Nombre…"
+        const QStringList parts = line.split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        const int dev = parts.indexOf(QStringLiteral("Device"));
+        if (dev < 0 || parts.size() < dev + 2 || !validMac(parts.at(dev + 1))) {
+            continue;
+        }
+        const QString mac = parts.at(dev + 1);
+        if (known.contains(mac)) {
+            continue;
+        }
+        known.insert(mac);
+        const QString name = parts.mid(dev + 2).join(QLatin1Char(' '));
+        m_bluetoothDevices << QStringLiteral("%1|%2|0|0").arg(
+            name.isEmpty() ? mac : name, mac);
+    }
+    Q_EMIT bluetoothDevicesChanged();
+    m_bluetoothScanning = false;
+    Q_EMIT bluetoothScanningChanged();
 }
 
 bool NimbusModule::printingAvailable() const
@@ -1016,6 +1130,47 @@ bool NimbusModule::printingAvailable() const
 QString NimbusModule::printerInfo() const
 {
     return m_printerInfo;
+}
+
+QStringList NimbusModule::printerNames() const
+{
+    // "printer Nombre ..." (una por línea en `lpstat -p`).
+    QStringList names;
+    const QStringList lines = m_printerInfo.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        const QStringList parts = line.split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        if (parts.size() >= 2 && parts.at(0) == QLatin1String("printer")) {
+            names << parts.at(1);
+        }
+    }
+    return names;
+}
+
+bool NimbusModule::printTestPage(const QString &printer)
+{
+    if (!m_printingAvailable) {
+        setHelperStatus(QStringLiteral("Sin soporte de impresión en este equipo (falta CUPS)."));
+        return false;
+    }
+    if (printer.isEmpty()) {
+        return false;
+    }
+    // Página temporal con texto propio (sin activos de terceros).
+    const QString path =
+        QDir::tempPath() + QStringLiteral("/nimbus-test-page-%1.txt").arg(QCoreApplication::applicationPid());
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        setHelperStatus(QStringLiteral("No se pudo crear la página de prueba."));
+        return false;
+    }
+    QTextStream out(&file);
+    out << "Nimbus — página de prueba\nImpresora: " << printer << "\n";
+    file.close();
+    const bool ok = runHelper(QStringLiteral("lp"), {QStringLiteral("-d"), printer, path}, 30000);
+    QFile::remove(path);
+    setHelperStatus(ok ? QStringLiteral("Página enviada a %1.").arg(printer)
+                       : QStringLiteral("No se pudo imprimir en %1.").arg(printer));
+    return ok;
 }
 
 // --- F8-T06: Sistema en vivo ---
@@ -1451,6 +1606,117 @@ void NimbusModule::defaults()
     Q_EMIT dailyCheckChanged();
     setNeedsSave(true);
     setRepresentsDefaults(true);
+}
+
+bool NimbusModule::installingUpdate() const
+{
+    return m_installProc != nullptr;
+}
+
+QString NimbusModule::installingPackage() const
+{
+    return m_installingPackage;
+}
+
+QString NimbusModule::installOutput() const
+{
+    return m_installOutput;
+}
+
+void NimbusModule::installUpdate(const QString &package)
+{
+    // Nombres de paquete Arch: letras, dígitos y .@_+- (sin espacios ni shell).
+    static const QRegularExpression validPkg(QStringLiteral("^[A-Za-z0-9@._+-]+$"));
+    if (package.isEmpty() || !validPkg.match(package).hasMatch() || m_installProc != nullptr) {
+        return;
+    }
+    // Cadena: pkexec+pacman; sin pkexec, pamac; sin ninguno, aviso a Discover.
+    QString program = QStandardPaths::findExecutable(QStringLiteral("pkexec"));
+    QStringList args;
+    if (!program.isEmpty()) {
+        args = {QStringLiteral("pacman"), QStringLiteral("-S"), QStringLiteral("--noconfirm"),
+                package};
+    } else {
+        program = QStandardPaths::findExecutable(QStringLiteral("pamac"));
+        if (program.isEmpty()) {
+            setHelperStatus(QStringLiteral("Sin instalador (abre Discover)."));
+            return;
+        }
+        args = {QStringLiteral("install"), QStringLiteral("--no-confirm"), package};
+    }
+    m_installingPackage = package;
+    m_installOutput.clear();
+    Q_EMIT installingPackageChanged();
+    Q_EMIT installOutputChanged();
+    m_installProc = new QProcess(this);
+    connect(m_installProc, &QProcess::finished, this,
+            [this](int exitCode, QProcess::ExitStatus) {
+                bool ok = false;
+                if (m_installProc != nullptr) {
+                    const QString raw =
+                        QString::fromUtf8(m_installProc->readAllStandardOutput())
+                        + QString::fromUtf8(m_installProc->readAllStandardError());
+                    m_installOutput = raw.right(2000);
+                    ok = (exitCode == 0);
+                    m_installProc->deleteLater();
+                    m_installProc = nullptr;
+                }
+                m_installingPackage.clear();
+                Q_EMIT installingUpdateChanged();
+                Q_EMIT installingPackageChanged();
+                Q_EMIT installOutputChanged();
+                setHelperStatus(ok ? QStringLiteral("Instalado. Revisa la lista.")
+                                   : QStringLiteral("Falló la instalación (mira la salida)."));
+                if (ok) {
+                    refreshUpdates();
+                }
+                Q_EMIT installFinished(ok);
+            });
+    m_installProc->setProgram(program);
+    m_installProc->setArguments(args);
+    m_installProc->start();
+    Q_EMIT installingUpdateChanged();
+    setHelperStatus(QStringLiteral("Instalando %1… (pedirá permiso)").arg(package));
+}
+
+bool NimbusModule::trySetHostName(const QString &name)
+{
+    static const QRegularExpression validHost(QStringLiteral("^[A-Za-z0-9-]{1,64}$"));
+    if (!validHost.match(name).hasMatch()) {
+        setHelperStatus(QStringLiteral("Nombre no válido (letras, dígitos y guiones)."));
+        return false;
+    }
+    // hostnamectl usa polkit: en sesión real pide permiso; sin agente falla
+    // sin cambiar nada.
+    if (!runHelper(QStringLiteral("hostnamectl"), {QStringLiteral("set-hostname"), name}, 30000)) {
+        setHelperStatus(QStringLiteral("Cambiar el equipo necesita permiso de administrador."));
+        return false;
+    }
+    m_hostName = name;
+    Q_EMIT hostNameChanged();
+    return true;
+}
+
+bool NimbusModule::trySetLocale(const QString &locale)
+{
+    static const QRegularExpression validLoc(QStringLiteral("^[A-Za-z_]+(\\.[A-Za-z0-9-]+)?( .*)?$"));
+    if (locale.isEmpty() || locale.contains(QLatin1Char(';')) || locale.contains(QLatin1Char('|'))
+        || locale.contains(QLatin1Char('&'))) {
+        setHelperStatus(QStringLiteral("Idioma no válido."));
+        return false;
+    }
+    if (!validLoc.match(locale).hasMatch()) {
+        setHelperStatus(QStringLiteral("Idioma no válido."));
+        return false;
+    }
+    if (!runHelper(QStringLiteral("localectl"), {QStringLiteral("set-locale"),
+                                                 QStringLiteral("LANG=") + locale}, 30000)) {
+        setHelperStatus(QStringLiteral("Cambiar el idioma necesita permiso de administrador."));
+        return false;
+    }
+    m_systemLocale = QStringLiteral("System Locale: LANG=") + locale;
+    Q_EMIT systemLocaleChanged();
+    return true;
 }
 
 #include "nimbusmodule.moc"

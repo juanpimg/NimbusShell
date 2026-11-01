@@ -11,6 +11,7 @@ KCMUtils.SimpleKCM {
     id: page
 
     property var kcmRef: (typeof kcm !== "undefined") ? kcm : null
+    property string pendingPkg: ""
 
     // Seam de test: el harness pide la comprobación al abrir la página.
     Component.onCompleted: {
@@ -83,13 +84,38 @@ KCMUtils.SimpleKCM {
             spacing: 0
             Repeater {
                 model: page.kcmRef ? page.kcmRef.updatesList : []
-                delegate: QQC2.Label {
+                delegate: RowLayout {
                     required property string modelData
                     Layout.fillWidth: true
-                    text: modelData
-                    elide: Text.ElideRight
-                    font.family: "monospace"
+                    property string pkgName: modelData.split(" ")[0]
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        text: modelData
+                        elide: Text.ElideRight
+                        font.family: "monospace"
+                    }
+                    QQC2.Button {
+                        text: i18n("Instalar")
+                        Accessible.name: i18n("Instalar %1 (pedirá permiso)", pkgName)
+                        enabled: page.kcmRef ? !page.kcmRef.installingUpdate : false
+                        onClicked: {
+                            page.pendingPkg = pkgName;
+                            installDialog.open();
+                        }
+                    }
                 }
+            }
+            QQC2.Label {
+                visible: page.kcmRef ? page.kcmRef.installingUpdate : false
+                color: Kirigami.Theme.neutralTextColor
+                text: page.kcmRef ? i18n("Instalando %1…", page.kcmRef.installingPackage) : ""
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                visible: page.kcmRef ? page.kcmRef.installOutput.length > 0 : false
+                wrapMode: Text.WordWrap
+                color: Kirigami.Theme.disabledTextColor
+                text: page.kcmRef ? page.kcmRef.installOutput : ""
             }
             QQC2.Label {
                 visible: page.kcmRef ? page.kcmRef.updatesCount > page.kcmRef.updatesList.length : false
@@ -156,6 +182,23 @@ KCMUtils.SimpleKCM {
             wrapMode: Text.WordWrap
             color: Kirigami.Theme.neutralTextColor
             text: page.kcmRef ? page.kcmRef.helperStatus : ""
+        }
+    }
+
+    QQC2.Dialog {
+        id: installDialog
+        title: i18n("Instalar %1", page.pendingPkg)
+        standardButtons: QQC2.Dialog.Ok | QQC2.Dialog.Cancel
+        modal: true
+        anchors.centerIn: Overlay.overlay
+        contentItem: QQC2.Label {
+            wrapMode: Text.WordWrap
+            text: i18n("Se instalará %1 con permisos de administrador. ¿Seguir?", page.pendingPkg)
+        }
+        onAccepted: {
+            if (page.kcmRef && page.pendingPkg.length > 0) {
+                page.kcmRef.installUpdate(page.pendingPkg);
+            }
         }
     }
 }

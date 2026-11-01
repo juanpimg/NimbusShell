@@ -27,3 +27,20 @@ NetworkManager del host, candados e iconos de señal; `QML_ERRORS=0`.
 Trampa: el `rcc` no re-embebía `ui/*.qml` cambiados (el `.so` mostraba la
 página vieja) → `OBJECT_DEPENDS` en `CMakeLists.txt` + reinstalación
 forzada (el `cmake --install` dijo «Up-to-date» con binario rancio).
+
+## Review: vincular/conectar e imprimir (sin root)
+- `pairBluetooth/connectBluetooth/disconnectBluetooth(mac)` Q_INVOKABLE:
+  validan MAC, usan `bluetoothctl pair/connect/disconnect`, éxito =
+  «…uccessful…» sin «Failed»; refrescan y ponen estado en UI.
+- `scanBluetooth()`: descubrimiento 10 s (`--timeout 10 scan on`),
+  fusiona no vinculados como `paired=0`; la lista muestra Vincular /
+  Conectar / Desconectar según estado (modelo `nombre|mac|conectado|
+  vinculado`).
+- `printTestPage(printer)`: página temporal propia en `$TMPDIR`
+  + `lp -d`; sin CUPS (`lpstat` ausente) avisa y no hace nada.
+- Tests con fakes en PATH (`tests/kcm/fakes/`: `bluetoothctl` con
+  estado enlatado + `FAKE_BT_FAIL`, `lp`/`lpstat`, `pkexec`, `pamac`):
+  pair/connect/disconnect OK + log invocado, pair-fallo honesto,
+  print OK (fake `lp` invocado) y sin-CUPS honesto.
+- Trampa: los fakes con shebang `#!/usr/bin/env bash` mueren con PATH
+  mínimo (`env: bash no existe`) → shebang `#!/bin/bash`.

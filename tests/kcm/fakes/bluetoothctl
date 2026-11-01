@@ -1,0 +1,25 @@
+#!/bin/bash
+# Fake bluetoothctl para tests (sin hardware ni root).
+# Lee $FAKE_BT_DIR (defecto: junto al script, estado inicial):
+#   show.txt, devices.txt, info-<MAC>.txt
+# $FAKE_BT_FAIL puede ser "pair", "connect" o "disconnect" (fuerza fallo).
+# Registra llamadas en $FAKE_LOG/bluetoothctl.log si está definido.
+set -u
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STATE="${FAKE_BT_DIR:-$DIR/bt-state}"
+[ -n "${FAKE_LOG:-}" ] && echo "bluetoothctl $*" >>"$FAKE_LOG/bluetoothctl.log"
+fail_if() { [ "${FAKE_BT_FAIL:-}" = "$1" ] && { echo "Failed: $1 $2"; exit 1; }; }
+case "${1:-}" in
+  show) cat "$STATE/show.txt" 2>/dev/null || echo -e "Controller AA:BB:CC:DD:EE:FF\n\tPowered: yes" ;;
+  devices) cat "$STATE/devices.txt" 2>/dev/null || echo "Device AA:BB:CC:DD:EE:FF Teclado Nimbus" ;;
+  info)
+    f="$STATE/info-${2:-none}.txt"
+    [ -f "$f" ] && cat "$f" || echo -e "Device ${2:-}\n\tConnected: no"
+    ;;
+  pair) fail_if pair "$2"; echo "Pairing successful" ;;
+  connect) fail_if connect "$2"; echo "Connection successful" ;;
+  disconnect) fail_if disconnect "$2"; echo "Successful disconnected" ;;
+  power) echo "Changing power $2 succeeded" ;;
+  *) echo "Fake bluetoothctl: $* (ok)" ;;
+esac
+exit 0

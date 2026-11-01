@@ -1,0 +1,7 @@
+#!/bin/bash
+# Fake pkexec para tests: NO eleva nada; registra args y sale $FAKE_PKEXEC_RC.
+# Emite una línea de "salida" para que installOutput sea verificable.
+set -u
+[ -n "${FAKE_LOG:-}" ] && echo "pkexec $*" >>"$FAKE_LOG/pkexec.log"
+echo "fake-pkexec: $*"
+exit "${FAKE_PKEXEC_RC:-0}"

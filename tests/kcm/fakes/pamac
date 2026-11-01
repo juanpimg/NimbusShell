@@ -1,0 +1,6 @@
+#!/bin/bash
+# Fake pamac para tests (fallback sin pkexec).
+set -u
+[ -n "${FAKE_LOG:-}" ] && echo "pamac $*" >>"$FAKE_LOG/pamac.log"
+echo "fake-pamac: $*"
+exit "${FAKE_PAMAC_RC:-0}"
