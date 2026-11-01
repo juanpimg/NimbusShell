@@ -16,6 +16,10 @@ copy_dir /usr/share/nimbus/themes "$ROOT/usr/share/nimbus/themes"
 copy_dir /usr/share/nimbus/tokens "$ROOT/usr/share/nimbus/tokens"
 copy_dir /usr/share/nimbus/bar "$ROOT/usr/share/nimbus/bar"
 copy_dir /usr/share/nimbus/dock "$ROOT/usr/share/nimbus/dock"
+# Skel Nimbus (dotfiles): sin esto el usuario no recibe barra/tema/atajos.
+copy_dir /etc/skel "$ROOT/etc/skel"
+# Paquetes locales Klassy/Krema (installed-setup los instala con pacman -U).
+copy_dir /usr/share/nimbus/pkgs "$ROOT/usr/share/nimbus/pkgs"
 # KCM Nimbus (F8): plugin de Sistema y metadatos.
 mkdir -p "$ROOT/usr/lib/qt6/plugins/plasma/kcms/systemsettings" \
          "$ROOT/usr/share/applications" "$ROOT/usr/share/kpackage/kcms"

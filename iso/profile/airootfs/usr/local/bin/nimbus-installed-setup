@@ -37,6 +37,10 @@ if [ -z "${TARGET_USER:-}" ]; then
   TARGET_HOME=""
 else
   TARGET_HOME="$(awk -F: -v u="$TARGET_USER" '$1 == u {print $6}' /etc/passwd)"
+  if [ -n "$TARGET_HOME" ] && [ ! -d "$TARGET_HOME" ]; then
+    mkdir -p "$TARGET_HOME" && chown "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME" \
+      && log "OK: creado home $TARGET_HOME" || log "AVISO: no se pudo crear $TARGET_HOME"
+  fi
   log "OK: usuario destino: $TARGET_USER ($TARGET_HOME)"
 fi
 
@@ -88,6 +92,16 @@ if command -v kwriteconfig6 >/dev/null 2>&1 && pacman -Q klassy-nimbus >/dev/nul
         || log "AVISO: no se pudo fijar Klassy en $krc"
     fi
   done
+fi
+
+# 0c. Hostname de respaldo si el módulo users no lo escribió.
+if [ ! -s /etc/hostname ]; then
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: escribir /etc/hostname nimbusos"
+  else
+    printf 'nimbusos\n' >/etc/hostname && log "OK: hostname nimbusos (respaldo)" || fail=1
+    grep -q 'nimbusos' /etc/hosts 2>/dev/null || printf '127.0.1.1 nimbusos\n' >>/etc/hosts || true
+  fi
 fi
 
 # 1. Skel -> home: solo copia lo que falte (nunca sobrescribe datos).
@@ -254,7 +268,7 @@ else
 fi
 
 # 6. Servicios base: firewall, red y Bluetooth (macOS-like: siempre disponibles).
-for svc in firewalld NetworkManager bluetooth; do
+for svc in firewalld NetworkManager bluetooth sddm; do
   if [ "$CHECK" -eq 1 ]; then
     log "HARÍA: systemctl enable $svc"
     continue
