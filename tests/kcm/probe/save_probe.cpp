@@ -131,6 +131,53 @@ int main(int argc, char **argv)
         QTextStream(stdout) << "dailyCheckLoaded=" << (m.dailyCheck() ? "true" : "false") << "\n";
         m.setDailyCheck(false);
         m.save();
+    } else if (scenario == QStringLiteral("persist")) {
+        // Escritura + relectura: prueba persistencia real en ficheros.
+        m.setDarkMode(false);
+        m.setDockIconSize(72);
+        m.setZoomEnabled(true);
+        m.setRepeatDelay(250);
+        m.save();
+        m.load();
+    } else if (scenario == QStringLiteral("reset-appearance")) {
+        m.setDarkMode(false);
+        m.setAccentColor(QStringLiteral("#FF0000"));
+        m.setDockIconSize(72);
+        m.setBarHeight(48);
+        m.save();
+        m.resetSection(QStringLiteral("appearance"));
+    } else if (scenario == QStringLiteral("reset-a11y")) {
+        m.setZoomEnabled(true);
+        m.setInvertColors(true);
+        m.setReduceMotion(true);
+        m.setReduceTransparency(true);
+        m.setRepeatDelay(200);
+        m.save();
+        m.resetSection(QStringLiteral("accessibility"));
+    } else if (scenario == QStringLiteral("reset-shortcuts")) {
+        m.setCmdMode(false);
+        m.save();
+        m.resetSection(QStringLiteral("shortcuts"));
+    } else if (scenario == QStringLiteral("reset-system")) {
+        const QString original = m.energyProfile();
+        if (!m.energyProfiles().isEmpty()) {
+            const QString target =
+                m.energyProfiles().contains(QStringLiteral("power-saver"))
+                    ? QStringLiteral("power-saver")
+                    : m.energyProfiles().first();
+            m.setEnergyProfile(target);
+            m.resetSection(QStringLiteral("system"));
+            QTextStream(stdout) << "energyAfterReset=" << m.energyProfile() << "\n";
+            if (!original.isEmpty() && original != m.energyProfile()) {
+                m.setEnergyProfile(original);
+            }
+        }
+    } else if (scenario == QStringLiteral("reset-updates")) {
+        m.setDailyCheck(true);
+        m.save();
+        m.resetSection(QStringLiteral("updates"));
+    } else if (scenario == QStringLiteral("reset-network")) {
+        m.resetSection(QStringLiteral("network"));
     }
     dump(m);
     return 0;

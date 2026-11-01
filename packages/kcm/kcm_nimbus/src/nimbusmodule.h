@@ -149,6 +149,8 @@ public:
     bool discoverInstalled() const;
     bool snapshotsAvailable() const;
     Q_INVOKABLE void refreshUpdates();
+    // F8-T08 — Reset canónico por sección (backup + defaults + escritura).
+    Q_INVOKABLE void resetSection(const QString &section);
 
     QString initialPage() const;
     bool autoCheckUpdates() const;
@@ -210,6 +212,15 @@ Q_SIGNALS:
 private:
     void readConfig();
     void markDirty();
+    // F8-T08: copia los ficheros que toca a ~/.config/nimbusshell-backup-*.
+    // Solo crea directorios nuevos; jamás borra backups ajenos.
+    QString backupConfigs();
+    void setCanonical(const QString &section);
+    void saveAppearance(QStringList &notes);
+    void saveAccessibility(QStringList &notes);
+    void saveShortcuts(QStringList &notes);
+    void saveSystem(QStringList &notes);
+    void saveUpdates(QStringList &notes);
     bool runHelper(const QString &program, const QStringList &args, int timeoutMs = 15000);
     QString gsettingsGet(const QString &schema, const QString &key);
     bool gsettingsSet(const QString &schema, const QString &key, const QString &value);

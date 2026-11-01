@@ -149,6 +149,76 @@ else
   bad "timer borrado" "ausente" "existe"
 fi
 
+echo "== Persistencia (save→load round-trip) =="
+run_scenario persist persist
+check_eq "persiste darkMode" "false" "$(dump_get persist darkMode)"
+check_eq "persiste dock" "72" "$(dump_get persist dockIconSize)"
+check_eq "persiste zoom" "true" "$(dump_get persist zoomEnabled)"
+check_eq "persiste delay" "250" "$(dump_get persist repeatDelay)"
+# nimbus-theme (en PATH) aplica su esquema tras nuestra escritura.
+PSCHEME="$(cfg "$BASE_TMP/home-persist" --file kdeglobals --group General --key ColorScheme)"
+case "$PSCHEME" in *Light*) ok "persiste kdeglobals ($PSCHEME)";; *) bad "persiste kdeglobals" "…Light…" "$PSCHEME";; esac
+
+echo "== Reset Apariencia =="
+run_scenario reset-appearance reset-appearance
+check_eq "reset darkMode" "true" "$(dump_get reset-appearance darkMode)"
+check_eq "reset accent" "#0A84FF" "$(dump_get reset-appearance accentColor)"
+check_eq "reset dock" "48" "$(dump_get reset-appearance dockIconSize)"
+RSCHEME="$(cfg "$BASE_TMP/home-reset-appearance" --file kdeglobals --group General --key ColorScheme)"
+case "$RSCHEME" in BreezeDark|NimbusTahoe) ok "reset kdeglobals ($RSCHEME)";; *) bad "reset kdeglobals" "BreezeDark|NimbusTahoe" "$RSCHEME";; esac
+check_eq "reset kremarc" "48" "$(cfg "$BASE_TMP/home-reset-appearance" --file kremarc --group General --key IconSize)"
+
+echo "== Reset Accesibilidad (+kscreenlockerrc) =="
+run_scenario reset-a11y reset-a11y
+check_eq "reset zoom" "false" "$(dump_get reset-a11y zoomEnabled)"
+check_eq "reset invert" "false" "$(dump_get reset-a11y invertColors)"
+check_eq "reset motion" "false" "$(dump_get reset-a11y reduceMotion)"
+check_eq "reset delay" "500" "$(dump_get reset-a11y repeatDelay)"
+check_eq "reset kwinrc zoom" "false" "$(cfg "$BASE_TMP/home-reset-a11y" --file kwinrc --group Plugins --key zoomEnabled)"
+check_eq "reset anim 3" "3" "$(cfg "$BASE_TMP/home-reset-a11y" --file kwinrc --group Compositing --key AnimationSpeed)"
+check_eq "reset Autolock" "false" "$(cfg "$BASE_TMP/home-reset-a11y" --file kscreenlockerrc --group Daemon --key Autolock)"
+check_eq "reset LockOnResume" "false" "$(cfg "$BASE_TMP/home-reset-a11y" --file kscreenlockerrc --group Daemon --key LockOnResume)"
+
+echo "== Reset Atajos =="
+run_scenario reset-shortcuts reset-shortcuts
+check_eq "reset cmdMode" "true" "$(dump_get reset-shortcuts cmdMode)"
+RSCLOSE="$(cfg "$BASE_TMP/home-reset-shortcuts" --file kglobalshortcutsrc --group kwin --key Window\ Close)"
+case "$RSCLOSE" in *Meta*) ok "reset escribe Meta ($RSCLOSE)";; *) bad "reset atajos" "…Meta…" "$RSCLOSE";; esac
+
+echo "== Reset Sistema (energía reversible) =="
+run_scenario reset-system reset-system
+check_eq "reset energía balanced" "balanced" "$(dump_get reset-system energyAfterReset)"
+
+echo "== Reset Updates =="
+run_scenario reset-updates reset-updates
+check_eq "reset dailyCheck" "false" "$(dump_get reset-updates dailyCheck)"
+if [ ! -e "$BASE_TMP/home-reset-updates/.config/systemd/user/nimbus-updates-check.timer" ]; then
+  ok "reset borra timer"
+else
+  bad "reset timer" "ausente" "existe"
+fi
+
+echo "== Reset Red (radios encendidos, sin cambiar estado) =="
+run_scenario reset-network reset-network
+check_eq "reset wifi on" "true" "$(dump_get reset-network wifiEnabled)"
+
+echo "== Backup nimbusshell-backup-* =="
+BK="$(ls -d "$BASE_TMP"/home-persist/.config/nimbusshell-backup-* 2>/dev/null | head -1)"
+if [ -n "$BK" ] && [ "$(ls "$BK" 2>/dev/null | wc -l)" -ge 1 ]; then
+  ok "backup en HOME temporal: $(basename "$BK") ($(ls "$BK" | wc -l) ficheros)"
+else
+  bad "backup" "dir con ficheros" "ausente"
+fi
+
+echo "== JSON del paquete =="
+if python3 -c "import json,sys; json.load(open('$REPO_ROOT/packages/kcm/kcm_nimbus/package-metadata.json')); json.load(open('$REPO_ROOT/packages/kcm/kcm_nimbus/src/metadata.json'))" 2>/dev/null; then
+  ok "metadata.json válidos"
+else
+  bad "metadata.json" "válidos" "parse error"
+fi
+desktop-file-validate "$REPO_ROOT/packages/kcm/kcm_nimbus/kcm_nimbus.desktop" 2>/dev/null \
+  && ok "desktop válido" || bad "desktop" "válido" "fallo validate"
+
 echo
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" = "0" ]
