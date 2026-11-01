@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Acerca de Nimbus
+Comment=Información del sistema NimbusShell
+Exec=nimbus-about
+Icon=nimbus-about
+Categories=System;Settings;
+X-Nimbus-AppId=org.nimbus.about
