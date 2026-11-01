@@ -3,11 +3,32 @@ AnimationSpeed=3
 Enabled=true
 GLCore=true
 
-[Effect-Overview]
+[Effect-fade]
+FadeInTime=150
+FadeOutTime=150
+
+[Effect-glide]
+Duration=250
+
+[Effect-magiclamp]
+AnimationDuration=350
+
+[Effect-overview]
 BorderActivate=9
 
 [NightColor]
 Active=false
+
+[Plugins]
+blurEnabled=true
+fadeEnabled=true
+glideEnabled=true
+magiclampEnabled=true
+maximizeEnabled=true
+overviewEnabled=true
+scaleEnabled=true
+squashEnabled=false
+translucencyEnabled=true
 
 [Windows]
 BorderSize=Normal
