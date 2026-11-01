@@ -48,6 +48,37 @@ activará `SDDM_THEME=nimbus` solo si esto pasa).
   Xvfb en el host).
 - `bash -n` + `shellcheck -S warning`: cero warnings.
 
+## Fix v2 — greeter real sin Controls (commit encima de 738f82f)
+
+La VM (out8, SDDM 0.21, `sddm-greeter-qt6 --test-mode`) con el tema
+desplegado cayó al fallback Breeze con:
+
+`Main.qml:158:17: Cannot assign to non-existent property "contentItem"`
+
+Nota: línea 158 = `contentItem` del fichero **pre-fix** (tras el fix v1 está
+en la 185); el despliegue en VM pudo ser anterior. En cualquier caso, se
+elimina la clase entera de fallo: el tema ya **no usa `QtQuick.Controls`
+ni `SddmComponents`** (solo QtQuick + QtQuick.Layouts + tipos propios):
+
+- `Main.qml`: `TextField` → `Item` + `TextInput` (placeholder propio,
+  `onAccepted`, `Keys.onEscapePressed` intactos); `Button` login →
+  `NimbusButton` (nuevo `components/NimbusButton.qml`: Rectangle +
+  MouseArea + Text, foco teclado con Return/Espacio).
+- `UserSelector.qml`: delegado `Button` → `Rectangle` + `MouseArea`
+  (mismo look: seleccionado `#0A84FF`, resto con borde).
+- `SessionBar.qml`: `ComboBox` → selector cíclico propio (clic =
+  siguiente sesión; teclado oculto si no hay layouts); `Button` →
+  `NimbusButton` flat.
+- `LoginClock.qml`: quitado import Controls sin uso. `qmldir`: registra
+  `NimbusButton`.
+- `tests/sddm/test_theme.sh`: nuevo check "sin contentItem/background de
+  Controls" (ignora comentarios) + check de imports.
+
+Verificación host: harness Qt6 offscreen `status=Ready`, 0 errores,
+996143/1024000 px no negros; `qmllint` 0; `test_theme.sh` PASS (test-mode
+SKIP). Captura `spikes/nested/sddm-nimbus-greeter.png` regenerada sin
+Controls (placeholder, botón, selector cíclico `plasma`, energía OK).
+
 ## Captura / límite
 
 - `spikes/nested/sddm-nimbus-greeter.png` (1280×800, offscreen Qt6 +

@@ -34,11 +34,16 @@ grep -q '^MainScript=Main.qml' "$THEME/metadata.desktop" 2>/dev/null \
 grep -q '^ConfigFile=theme.conf' "$THEME/metadata.desktop" 2>/dev/null \
   && pass "ConfigFile=theme.conf" || fail "sin ConfigFile"
 
-echo "== sddm-nimbus: no SddmComponents (colisiona con Button de Controls) =="
-if grep -rq 'import SddmComponents' "$THEME/Main.qml" "$THEME/components/" 2>/dev/null; then
-  fail "import SddmComponents presente (rompe Button.contentItem => negro)"
+echo "== sddm-nimbus: sin Controls/SddmComponents (greeter real) =="
+if grep -rq 'import SddmComponents\|import QtQuick.Controls' "$THEME/Main.qml" "$THEME/components/" "$THEME/NimbusTokens.qml" 2>/dev/null; then
+  fail "import SddmComponents/Controls presente (rompe el greeter real)"
 else
-  pass "sin import SddmComponents"
+  pass "solo QtQuick (+Layouts) y tipos propios"
+fi
+if grep -rn 'contentItem\|[^_a-zA-Z]background:' "$THEME/Main.qml" "$THEME/components/"*.qml 2>/dev/null | grep -vE ':[0-9]+:\s*//'; then
+  fail "queda contentItem/background de Controls (ver arriba)"
+else
+  pass "sin contentItem/background de Controls"
 fi
 
 echo "== sddm-nimbus: roles UserModel SDDM 0.21 (Name=+1, RealName=+2) =="

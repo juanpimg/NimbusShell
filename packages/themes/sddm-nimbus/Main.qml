@@ -4,17 +4,17 @@
 // Tokens: NimbusTokens (copia md5-idéntica de packages/themes/nimbus-tokens).
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import "components"
 
-// NimbusOS Ruling (F2-T02): NO importar `SddmComponents 2.0`. Ese módulo
-// exporta su propio `Button` (Rectangle-based, sin `contentItem`) y, al
-// importarse después de QtQuick.Controls, gana la resolución del nombre:
-// `Button { contentItem: ... }` abortaba la carga entera del tema
-// ("Cannot assign to non-existent property contentItem") => pantalla negra.
-// El tema usa solo tipos de QtQuick.Controls; los context properties del
-// greeter (`sddm`, `config`, `userModel`, `sessionModel`) no requieren import.
+// NimbusOS Ruling (F2-T02): el tema SOLO usa QtQuick (+Layouts) y tipos
+// propios (`components/`). Nada de `SddmComponents 2.0` ni de
+// `QtQuick.Controls`: el greeter real resolvía `Button` a un tipo sin
+// `contentItem`/`background` y la carga abortaba entera ("Cannot assign to
+// non-existent property", línea 158 en VM) => pantalla negra. Botones,
+// campo de contraseña y selectores son Rectangle+MouseArea+Text/TextInput.
+// Los context properties (`sddm`, `config`, `userModel`, `sessionModel`)
+// los inyecta el greeter y no requieren import.
 Rectangle {
     id: root
 
@@ -125,33 +125,71 @@ Rectangle {
                 }
             }
 
-            // Campo de contraseña.
-            TextField {
+            // Campo de contraseña (TextInput propio, sin Controls).
+            Item {
                 id: pwField
+
+                property alias text: pwInput.text
+
+                function forceActiveFocus() {
+                    pwInput.forceActiveFocus();
+                }
 
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 280
                 Layout.preferredHeight: 36
-                placeholderText: "Contraseña"
-                echoMode: TextInput.Password
-                font.family: NimbusTokens.fontFamily
-                font.pixelSize: NimbusTokens.type.t15.size
-                focus: true
-                onAccepted: loginButton.clicked()
-                // macOS: Esc limpia el campo y devuelve el foco a la tarjeta
-                // (al botón de login); no interfiere con Enter (onAccepted).
-                Keys.onEscapePressed: {
-                    pwField.text = "";
-                    failLabel.text = "";
-                    loginButton.forceActiveFocus();
-                }
 
-                background: Rectangle {
+                Rectangle {
+                    anchors.fill: parent
                     radius: NimbusTokens.radii.rMd
                     color: "#1C1C1E"
                     opacity: 0.9
-                    border.color: pwField.activeFocus ? NimbusTokens.colors(true).accent : "#38383A"
-                    border.width: pwField.activeFocus ? 2 : 1
+                    border.color: pwInput.activeFocus ? NimbusTokens.colors(true).accent : "#38383A"
+                    border.width: pwInput.activeFocus ? 2 : 1
+                }
+
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 12
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: pwInput.text === ""
+                    text: "Contraseña"
+                    color: "#8E8E93"
+                    font.family: NimbusTokens.fontFamily
+                    font.pixelSize: NimbusTokens.type.t15.size
+                }
+
+                TextInput {
+                    id: pwInput
+
+                    anchors.fill: parent
+                    anchors.leftMargin: 12
+                    anchors.rightMargin: 12
+                    verticalAlignment: TextInput.AlignVCenter
+                    echoMode: TextInput.Password
+                    color: "white"
+                    font.family: NimbusTokens.fontFamily
+                    font.pixelSize: NimbusTokens.type.t15.size
+                    focus: true
+                    selectByMouse: true
+                    onAccepted: loginButton.clicked()
+                    // macOS: Esc limpia el campo y devuelve el foco al botón
+                    // de login; no interfiere con Enter (onAccepted).
+                    Keys.onEscapePressed: {
+                        pwInput.text = "";
+                        failLabel.text = "";
+                        loginButton.forceActiveFocus();
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton
+                    cursorShape: Qt.IBeamCursor
+                    onPressed: function(mouse) {
+                        mouse.accepted = false;
+                        pwInput.forceActiveFocus();
+                    }
                 }
 
             }
@@ -166,31 +204,18 @@ Rectangle {
                 font.pixelSize: NimbusTokens.type.t13.size
             }
 
-            Button {
+            NimbusButton {
                 id: loginButton
 
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 280
                 Layout.preferredHeight: 36
                 text: "Iniciar sesión"
-                font.family: NimbusTokens.fontFamily
-                font.pixelSize: NimbusTokens.type.t15.size
+                fontFamily: NimbusTokens.fontFamily
+                fontSize: NimbusTokens.type.t15.size
+                bg: NimbusTokens.colors(true).accent
+                radius: NimbusTokens.radii.rMd
                 onClicked: sddm.login(userModel.data(userModel.index(userList.currentIndex, 0), Qt.UserRole + 1), pwField.text, sessionBar.sessionIndex)
-
-                background: Rectangle {
-                    radius: NimbusTokens.radii.rMd
-                    color: NimbusTokens.colors(true).accent
-                }
-
-                contentItem: Text {
-                    text: loginButton.text
-                    color: "white"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    font.family: NimbusTokens.fontFamily
-                    font.pixelSize: NimbusTokens.type.t15.size
-                }
-
             }
 
             // Sesión + teclado + apagar/reiniciar.
