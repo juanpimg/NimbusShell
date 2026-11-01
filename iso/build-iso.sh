@@ -257,6 +257,11 @@ if [ "$SKIP_APPS" -eq 0 ]; then
   done
 fi
 bash -n "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" || { echo "ERROR: nimbus-installed-setup no pasa bash -n" >&2; exit 1; }
+# El staging debe llevar el pacstrap con DNS/mirrors (evita copias 9p viejas).
+grep -q 'getent ahostsv4' "$OUT/airootfs/usr/share/nimbus/calamares/scripts/pacstrap_calamares" \
+  || { echo "ERROR: pacstrap_calamares del staging no tiene el bypass DNS" >&2; exit 1; }
+grep -q 'target usa solo Arch' "$OUT/airootfs/usr/share/nimbus/calamares/scripts/pacstrap_calamares" \
+  || { echo "ERROR: pacstrap_calamares del staging no tiene mirrors curados" >&2; exit 1; }
 echo "== staging OK en $OUT =="
 [ "$STAGE_ONLY" -eq 1 ] && exit 0
 
