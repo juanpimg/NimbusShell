@@ -357,6 +357,7 @@ cp -a /etc/pacman.d/mirrorlist "$newroot/etc/pacman.d/mirrorlist" 2>/dev/null ||
 # Keyring del host: pacman --sysroot usa el del target.
 if [ -d /etc/pacman.d/gnupg ]; then
     cp -a /etc/pacman.d/gnupg "$newroot/etc/pacman.d/gnupg"
+    chmod -R u+w "$newroot/etc/pacman.d/gnupg"
 fi
 
 # mount API filesystems
