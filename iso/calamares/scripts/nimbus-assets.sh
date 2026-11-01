@@ -16,6 +16,16 @@ copy_dir /usr/share/nimbus/themes "$ROOT/usr/share/nimbus/themes"
 copy_dir /usr/share/nimbus/tokens "$ROOT/usr/share/nimbus/tokens"
 copy_dir /usr/share/nimbus/bar "$ROOT/usr/share/nimbus/bar"
 copy_dir /usr/share/nimbus/dock "$ROOT/usr/share/nimbus/dock"
+# KCM Nimbus (F8): plugin de Sistema y metadatos.
+mkdir -p "$ROOT/usr/lib/qt6/plugins/plasma/kcms/systemsettings" \
+         "$ROOT/usr/share/applications" "$ROOT/usr/share/kpackage/kcms"
+if [ -f /usr/lib/qt6/plugins/plasma/kcms/systemsettings/kcm_nimbus.so ]; then
+    cp -a /usr/lib/qt6/plugins/plasma/kcms/systemsettings/kcm_nimbus.so \
+        "$ROOT/usr/lib/qt6/plugins/plasma/kcms/systemsettings/" || exit 1
+fi
+[ -f /usr/share/applications/kcm_nimbus.desktop ] && \
+    cp -a /usr/share/applications/kcm_nimbus.desktop "$ROOT/usr/share/applications/" || true
+copy_dir /usr/share/kpackage/kcms/kcm_nimbus "$ROOT/usr/share/kpackage/kcms/kcm_nimbus"
 # Solo los esquemas Nimbus: no pisar los de Breeze del target.
 mkdir -p "$ROOT/usr/share/color-schemes"
 for cs in /usr/share/color-schemes/Nimbus*.colors; do

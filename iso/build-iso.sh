@@ -73,6 +73,7 @@ need "$REPO_ROOT/apps/nimbus-apps/CMakeLists.txt" "fuente nimbus-apps"
 need "$REPO_ROOT/apps/nimbus-about/CMakeLists.txt" "fuente nimbus-about"
 need "$REPO_ROOT/apps/nimbus-help/CMakeLists.txt" "fuente nimbus-help"
 need "$REPO_ROOT/apps/nimbus-spotlight/CMakeLists.txt" "fuente nimbus-spotlight"
+need "$REPO_ROOT/packages/kcm/kcm_nimbus/CMakeLists.txt" "fuente KCM Nimbus (F8)"
 # Coherencia: shellprocess debe invocar lo estagiado.
 if grep -q '/usr/local/bin/nimbus-installed-setup' "$CALAMARES/modules/shellprocess-nimbus.conf" 2>/dev/null; then
   echo "OK: shellprocess invoca /usr/local/bin/nimbus-installed-setup"
@@ -207,6 +208,22 @@ else
   done
 fi
 
+# 5b. KCM Nimbus (F8): plugin de Sistema, instala en /usr (rutas KDE).
+kcm_build="/tmp/nimbus-build-kcm"
+rm -rf "$kcm_build"; mkdir -p "$kcm_build" || exit 1
+if ! cmake -S "$REPO_ROOT/packages/kcm/kcm_nimbus" -B "$kcm_build" -G Ninja \
+     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr >/tmp/nimbus-cmake-kcm.log 2>&1; then
+  echo "ERROR: cmake del KCM Nimbus falló (¿KF6KCMUtils?). Ver /tmp/nimbus-cmake-kcm.log" >&2
+  exit 1
+fi
+if ! cmake --build "$kcm_build" -j"$(nproc)" >>/tmp/nimbus-cmake-kcm.log 2>&1; then
+  echo "ERROR: build del KCM Nimbus falló. Ver /tmp/nimbus-cmake-kcm.log" >&2; exit 1
+fi
+if ! DESTDIR="$OUT/airootfs" cmake --install "$kcm_build" >>/tmp/nimbus-cmake-kcm.log 2>&1; then
+  echo "ERROR: install del KCM Nimbus falló. Ver /tmp/nimbus-cmake-kcm.log" >&2; exit 1
+fi
+echo "OK: KCM Nimbus construido e instalado (/usr)"
+
 # 6. Verificación del staging antes de mkarchiso.
 for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" \
@@ -228,6 +245,8 @@ for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-keys" \
   "$OUT/airootfs/usr/share/dbus-1/services/org.nimbus.Spotlight.service" \
   "$OUT/airootfs/usr/share/dbus-1/services/org.nimbus.MissionControl.service" \
+  "$OUT/airootfs/usr/lib/qt6/plugins/plasma/kcms/systemsettings/kcm_nimbus.so" \
+  "$OUT/airootfs/usr/share/applications/kcm_nimbus.desktop" \
   ; do
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
 done

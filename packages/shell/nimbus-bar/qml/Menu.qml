@@ -109,7 +109,7 @@ Item {
                         }
                         ListElement {
                             label: "Ajustes del sistema…"
-                            cmd: "systemsettings"
+                            cmd: "systemsettings kcm_nimbus"
                             glyph: "S"
                         }
                         ListElement {
