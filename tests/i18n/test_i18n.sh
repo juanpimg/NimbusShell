@@ -82,6 +82,63 @@ PYEOF
     pass "chuleta sin Ctrl nuevos"
 else fail "chuleta sin Ctrl nuevos"; fi
 
+echo "== i18n: export html válido, >=20 filas, 0 Ctrl nuevos, idempotente =="
+if "$ROOT/scripts/nimbus-i18n" --export html >/tmp/opencode/i18n-export.txt 2>&1; then
+    pass "nimbus-i18n --export html ($(cat /tmp/opencode/i18n-export.txt))"
+else fail "nimbus-i18n --export html ($(cat /tmp/opencode/i18n-export.txt))"; fi
+if python3 - "$ROOT" <<'PYEOF'; then
+import re, sys
+from html.parser import HTMLParser
+from pathlib import Path
+ROOT = Path(sys.argv[1])
+html = (ROOT / "docs" / "user-guide" / "shortcuts.html").read_text(encoding="utf-8")
+class T(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.rows, self.cur, self.cell, self.in_td = [], None, "", False
+    def handle_starttag(self, tag, attrs):
+        if tag == "tr":
+            self.cur = []
+        elif tag in ("td", "th") and self.cur is not None:
+            self.in_td, self.cell = True, ""
+    def handle_data(self, d):
+        if self.in_td:
+            self.cell += d
+    def handle_endtag(self, tag):
+        if tag in ("td", "th") and self.cur is not None:
+            self.cur.append(self.cell)
+            self.in_td = False
+        elif tag == "tr" and self.cur is not None:
+            self.rows.append(self.cur)
+            self.cur = None
+p = T()
+p.feed(html)  # HTML válido si parsea sin excepción
+body = [r for r in p.rows if len(r) == 3 and "macOS" not in r[0]]
+assert len(body) >= 20, f"tabla con {len(body)} filas (<20)"
+src = (ROOT / "dotfiles" / ".config" / "plasma" / "kglobalshortcutsrc").read_text(encoding="utf-8")
+have = set(re.findall(r"[A-Za-z]+\+Ctrl\+[A-Za-z]+|Ctrl\+[A-Za-z]+", src))
+for r in body:
+    for b in re.findall(r"Meta\+Ctrl\+[A-Za-z]+|(?<!\+)Ctrl\+[A-Za-z]+", r[1]):
+        assert b in have, f"Ctrl nuevo en HTML: {b}"
+print(f"HTML válido: {len(body)} filas, 0 Ctrl nuevos")
+PYEOF
+    pass "HTML válido, tabla >=20, 0 Ctrl nuevos"
+else fail "HTML válido, tabla >=20, 0 Ctrl nuevos"; fi
+md5a="$(md5sum "$ROOT/docs/user-guide/shortcuts.html" | cut -d' ' -f1)"
+"$ROOT/scripts/nimbus-i18n" --export html >/dev/null 2>&1
+md5b="$(md5sum "$ROOT/docs/user-guide/shortcuts.html" | cut -d' ' -f1)"
+if [ "$md5a" = "$md5b" ]; then pass "--export html idempotente ($md5a)";
+else fail "--export html no idempotente ($md5a vs $md5b)"; fi
+
+echo "== i18n: export pdf (genera o aviso exit 0) =="
+if "$ROOT/scripts/nimbus-i18n" --export pdf >/tmp/opencode/i18n-pdf.txt 2>&1; then
+    if [ -f "$ROOT/docs/user-guide/shortcuts.pdf" ]; then
+        pass "shortcuts.pdf generado ($(cat /tmp/opencode/i18n-pdf.txt))"
+    elif grep -q "pacman -S" /tmp/opencode/i18n-pdf.txt; then
+        pass "sin motor PDF: aviso accionable y exit 0 (documentado)"
+    else fail "sin PDF ni aviso accionable ($(cat /tmp/opencode/i18n-pdf.txt))"; fi
+else fail "nimbus-i18n --export pdf rc!=0 ($(cat /tmp/opencode/i18n-pdf.txt))"; fi
+
 echo "== i18n: docs sin enlaces internos rotos =="
 if python3 - "$ROOT" <<'PYEOF'; then
 import re, sys
@@ -96,6 +153,10 @@ for d in docs:
     for m in re.finditer(r"\]\(([^)\"#]+)\)", d.read_text(encoding="utf-8")):
         t = m.group(1)
         if re.match(r"https?:|mailto:", t):
+            continue
+        # shortcuts.pdf es artefacto bajo demanda (--export pdf genera o
+        # avisa con exit 0 si no hay motor; lo cubre el paso "export pdf").
+        if t.endswith("shortcuts.pdf") and not (d.parent / t).exists():
             continue
         if not (d.parent / t).exists():
             bad.append(f"{d.name}: {t}")
