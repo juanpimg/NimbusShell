@@ -1,15 +1,23 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
-import SddmComponents 2.0
-import "components"
-
 // Main.qml — greeter SDDM Nimbus (F2-T02). Layout centrado estilo login macOS:
 // fondo NPS a pantalla completa, reloj arriba, tarjeta glass centrada con
 // avatar+usuario, contraseña, selector de sesión/teclado y apagar/reiniciar.
 // Tokens: NimbusTokens (copia md5-idéntica de packages/themes/nimbus-tokens).
+
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import "components"
+
+// NimbusOS Ruling (F2-T02): NO importar `SddmComponents 2.0`. Ese módulo
+// exporta su propio `Button` (Rectangle-based, sin `contentItem`) y, al
+// importarse después de QtQuick.Controls, gana la resolución del nombre:
+// `Button { contentItem: ... }` abortaba la carga entera del tema
+// ("Cannot assign to non-existent property contentItem") => pantalla negra.
+// El tema usa solo tipos de QtQuick.Controls; los context properties del
+// greeter (`sddm`, `config`, `userModel`, `sessionModel`) no requieren import.
 Rectangle {
     id: root
+
     width: 1920
     height: 1080
     color: "black"
@@ -17,11 +25,13 @@ Rectangle {
     // Fondo propio NPS (R-APPLE). `config.background` = Background.jpg.
     Image {
         id: bg
+
         anchors.fill: parent
         fillMode: Image.PreserveAspectCrop
         source: config.background
         asynchronous: true
     }
+
     Rectangle {
         anchors.fill: parent
         color: "black"
@@ -41,6 +51,7 @@ Rectangle {
     // Tarjeta glass centrada.
     Rectangle {
         id: card
+
         anchors.centerIn: parent
         width: 360
         height: loginLayout.implicitHeight + 48
@@ -52,6 +63,7 @@ Rectangle {
 
         ColumnLayout {
             id: loginLayout
+
             anchors.centerIn: parent
             width: parent.width - 48
             spacing: 12
@@ -63,18 +75,22 @@ Rectangle {
                 height: 72
                 radius: 36
                 color: "#3A3A3C"
+
                 Text {
                     anchors.centerIn: parent
-                    text: userList.count > 0 ? userList.currentUserName().charAt(0).toUpperCase() : "?"
+                    text: userList.users.length > 0 ? userList.currentUserName().charAt(0).toUpperCase() : "?"
                     color: "white"
                     font.family: NimbusTokens.fontFamily
                     font.pixelSize: 28
                 }
+
             }
+
             Text {
                 id: userName
+
                 Layout.alignment: Qt.AlignHCenter
-                text: userList.count > 0 ? userList.currentUserName() : ""
+                text: userList.users.length > 0 ? userList.currentUserName() : ""
                 color: NimbusTokens.colors(true).label
                 font.family: NimbusTokens.fontFamily
                 font.pixelSize: NimbusTokens.type.t17.size
@@ -83,25 +99,28 @@ Rectangle {
             // Selector de usuario (userModel del daemon).
             UserSelector {
                 id: userList
+
+                function currentUserName() {
+                    if (users.length === 0)
+                        return "";
+
+                    var u = users[currentIndex];
+                    return u.realName || u.name;
+                }
+
                 Layout.alignment: Qt.AlignHCenter
                 fontFamily: NimbusTokens.fontFamily
                 textColor: NimbusTokens.colors(true).label
                 Component.onCompleted: {
+                    // UserModel (SDDM 0.21): NameRole=UserRole+1, RealNameRole=+2.
                     var arr = [];
-                    for (var i = 0; i < userModel.count; i++)
-                        arr.push({
-                            "name": userModel.data(userModel.index(i, 0), Qt.UserRole + 2),
-                            "realName": userModel.data(userModel.index(i, 0), Qt.UserRole + 3)
-                        });
+                    for (var i = 0; i < userModel.count; i++) arr.push({
+                        "name": userModel.data(userModel.index(i, 0), Qt.UserRole + 1),
+                        "realName": userModel.data(userModel.index(i, 0), Qt.UserRole + 2)
+                    })
                     users = arr;
                 }
-                function currentUserName() {
-                    if (users.length === 0)
-                        return "";
-                    var u = users[currentIndex];
-                    return u.realName || u.name;
-                }
-                onUserSelected: function (i) {
+                onUserSelected: function(i) {
                     userModel.lastIndex = i;
                 }
             }
@@ -109,6 +128,7 @@ Rectangle {
             // Campo de contraseña.
             TextField {
                 id: pwField
+
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 280
                 Layout.preferredHeight: 36
@@ -125,6 +145,7 @@ Rectangle {
                     failLabel.text = "";
                     loginButton.forceActiveFocus();
                 }
+
                 background: Rectangle {
                     radius: NimbusTokens.radii.rMd
                     color: "#1C1C1E"
@@ -132,9 +153,12 @@ Rectangle {
                     border.color: pwField.activeFocus ? NimbusTokens.colors(true).accent : "#38383A"
                     border.width: pwField.activeFocus ? 2 : 1
                 }
+
             }
+
             Text {
                 id: failLabel
+
                 Layout.alignment: Qt.AlignHCenter
                 visible: text !== ""
                 color: NimbusTokens.colors(true).destructive
@@ -144,17 +168,20 @@ Rectangle {
 
             Button {
                 id: loginButton
+
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 280
                 Layout.preferredHeight: 36
                 text: "Iniciar sesión"
                 font.family: NimbusTokens.fontFamily
                 font.pixelSize: NimbusTokens.type.t15.size
-                onClicked: sddm.login(userModel.data(userModel.index(userList.currentIndex, 0), Qt.UserRole + 2), pwField.text, sessionBar.sessionIndex)
+                onClicked: sddm.login(userModel.data(userModel.index(userList.currentIndex, 0), Qt.UserRole + 1), pwField.text, sessionBar.sessionIndex)
+
                 background: Rectangle {
                     radius: NimbusTokens.radii.rMd
                     color: NimbusTokens.colors(true).accent
                 }
+
                 contentItem: Text {
                     text: loginButton.text
                     color: "white"
@@ -163,45 +190,51 @@ Rectangle {
                     font.family: NimbusTokens.fontFamily
                     font.pixelSize: NimbusTokens.type.t15.size
                 }
+
             }
 
             // Sesión + teclado + apagar/reiniciar.
             SessionBar {
                 id: sessionBar
+
                 Layout.alignment: Qt.AlignHCenter
                 fontFamily: NimbusTokens.fontFamily
                 textColor: NimbusTokens.colors(true).label
                 Component.onCompleted: {
                     var s = [];
-                    for (var i = 0; i < sessionModel.count; i++)
-                        s.push({
-                            "name": sessionModel.data(sessionModel.index(i, 0), Qt.UserRole + 4)
-                        });
+                    for (var i = 0; i < sessionModel.count; i++) s.push({
+                        "name": sessionModel.data(sessionModel.index(i, 0), Qt.UserRole + 4)
+                    })
                     sessions = s;
                     sessionIndex = sessionModel.lastIndex;
                 }
-                onSessionSelected: function (i) {
+                onSessionSelected: function(i) {
                     sessionModel.lastIndex = i;
                 }
-                onPowerRequested: function (action) {
+                onPowerRequested: function(action) {
                     if (action === "reboot")
                         sddm.reboot();
                     else
                         sddm.powerOff();
                 }
             }
+
         }
+
     }
 
     Connections {
-        target: sddm
         function onLoginSucceeded() {
             failLabel.text = "";
         }
+
         function onLoginFailed() {
             failLabel.text = "Contraseña incorrecta, inténtalo de nuevo";
             pwField.text = "";
             pwField.focus = true;
         }
+
+        target: sddm
     }
+
 }
