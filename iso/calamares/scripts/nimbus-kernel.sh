@@ -1,8 +1,11 @@
 #!/bin/bash
-# NimbusOS: copia el kernel del ISO y genera un initramfs estándar en el target.
+# NimbusOS: kernel del ISO + initramfs estándar en el target (host).
+# Uso: nimbus-kernel.sh <ROOT>   (ROOT = punto de montaje del target)
 set -u
-rm -f /etc/mkinitcpio.conf.d/archiso.conf
-cat > /etc/mkinitcpio.conf <<'CONF'
+ROOT="${1:-/}"
+[ -d "$ROOT" ] || { echo "ERROR: ROOT no existe: $ROOT" >&2; exit 1; }
+rm -f "$ROOT/etc/mkinitcpio.conf.d/archiso.conf"
+cat > "$ROOT/etc/mkinitcpio.conf" <<'CONF'
 MODULES=(btrfs)
 BINARIES=()
 FILES=()
@@ -10,7 +13,7 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 CONF
 SRC=/run/archiso/bootmnt/nimbus/boot/x86_64/vmlinuz-linux
 if [ -f "$SRC" ]; then
-    cp "$SRC" /boot/vmlinuz-linux
+    mkdir -p "$ROOT/boot"
+    cp "$SRC" "$ROOT/boot/vmlinuz-linux" || { echo "ERROR: copia kernel" >&2; exit 1; }
 fi
-mkdir -p /boot
-mkinitcpio -P
+chroot "$ROOT" mkinitcpio -P
