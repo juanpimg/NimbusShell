@@ -142,9 +142,13 @@ cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-mc "$OUT/airootfs/usr/share/kwin
 echo "OK: temas y KWin scripts estagiados"
 # R-CALAMARES-BOOST: libs 1.91 para cachyos-calamares (repo sirve 1.92).
 if [ -f "$REPO_ROOT/iso/compat/boost191.tar.gz" ]; then
-  tar -xzf "$REPO_ROOT/iso/compat/boost191.tar.gz" -C "$OUT/airootfs" || {
+  # No pisar /usr/lib (pacstrap instala boost-libs 1.92 y daría conflicto):
+  # las libs viven en una ruta privada y el wrapper fija LD_LIBRARY_PATH.
+  mkdir -p "$OUT/airootfs/usr/share/nimbus/compat"
+  tar -xzf "$REPO_ROOT/iso/compat/boost191.tar.gz" \
+      -C "$OUT/airootfs/usr/share/nimbus/compat" || {
     echo "ERROR: no se pudo extraer boost191" >&2; exit 1; }
-  [ -f "$OUT/airootfs/usr/lib/libboost_python314.so.1.91.0" ] || {
+  [ -f "$OUT/airootfs/usr/share/nimbus/compat/usr/lib/libboost_python314.so.1.91.0" ] || {
     echo "ERROR: falta libboost_python314 1.91 en staging" >&2; exit 1; }
   echo "OK: compat boost191 (Calamares)"
 fi
@@ -189,7 +193,7 @@ for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
   "$OUT/airootfs/usr/share/sddm/themes/nimbus/Main.qml" \
   "$OUT/airootfs/usr/share/nimbus/klassy/nimbus-tahoe.klpw" \
-  "$OUT/airootfs/usr/lib/libboost_python314.so.1.91.0" \
+  "$OUT/airootfs/usr/share/nimbus/compat/usr/lib/libboost_python314.so.1.91.0" \
   "$OUT/airootfs/usr/share/nimbus/pkgs/klassy-nimbus-6.7.3-1-x86_64.pkg.tar.zst" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
   ; do

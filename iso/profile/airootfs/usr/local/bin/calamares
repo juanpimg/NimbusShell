@@ -2,6 +2,12 @@
 # NimbusOS: superpone la configuración propia de Calamares (paquete
 # cachyos-calamares instala /etc/calamares) y lanza el instalador real.
 set -u
+# R-CALAMARES-BOOST: cachyos-calamares enlaza Boost 1.91; el ISO trae 1.92.
+# Las libs 1.91 viven aquí y solo se exponen a Calamares.
+if [ -d /usr/share/nimbus/compat/usr/lib ]; then
+    LD_LIBRARY_PATH="/usr/share/nimbus/compat/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH
+fi
 if [ -d /usr/share/nimbus/calamares/branding ]; then
     mkdir -p /usr/share/calamares/branding
     cp -a /usr/share/nimbus/calamares/branding/. /usr/share/calamares/branding/ 2>/dev/null || true
