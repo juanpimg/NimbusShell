@@ -24,6 +24,7 @@ file_permissions=(
   ["/usr/local/bin/calamares"]="0:0:755"
   ["/usr/local/bin/nimbus-installed-setup"]="0:0:755"
   ["/usr/local/bin/nimbus-bar"]="0:0:755"
+  ["/etc/skel/.config/plasma-workspace/env/nimbus-bar.sh"]="0:0:755"
   ["/usr/local/bin/nimbus-apps"]="0:0:755"
   ["/usr/local/bin/nimbus-spotlight"]="0:0:755"
   ["/usr/local/bin/nimbus-theme"]="0:0:755"
