@@ -244,6 +244,8 @@ else
   if [ ! -s /etc/resolv.conf ]; then
     printf 'nameserver 1.1.1.1\nnameserver 9.9.9.9\n' >/etc/resolv.conf || fail=1
   fi
+  # /etc/hosts limpio en el sistema final (los mirrors IP solo eran para instalar).
+  printf '127.0.0.1 localhost\n::1 localhost\n' >/etc/hosts || fail=1
   # El target debe poder resolver durante la instalación (pacman posterior).
   if ! grep -q '^nameserver [0-9]' /etc/resolv.conf 2>/dev/null; then
     printf 'nameserver 1.1.1.1\nnameserver 9.9.9.9\n' >>/etc/resolv.conf || fail=1

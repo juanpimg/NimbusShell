@@ -373,6 +373,18 @@ else
   cp -a /etc/resolv.conf "$newroot/etc/resolv.conf"
 fi
 
+# Resolución garantizada dentro del chroot: /etc/hosts con los IPv4 de los
+# mirrors curados (resolv.conf puede faltar en el target y el chroot no hereda
+# systemd-resolved). TLS sigue validando por nombre.
+{
+  echo "127.0.0.1 localhost"
+  echo "::1 localhost"
+  for h in geo.mirror.pkgbuild.com fastly.mirror.pkgbuild.com; do
+    ip="$(getent ahostsv4 "$h" 2>/dev/null | awk 'NR==1{print $1}')"
+    [ -n "$ip" ] && echo "$ip $h"
+  done
+} > "$newroot/etc/hosts"
+
 # Keyring del host: pacman --sysroot usa el del target.
 if [ -d /etc/pacman.d/gnupg ]; then
     cp -a /etc/pacman.d/gnupg "$newroot/etc/pacman.d/gnupg"
