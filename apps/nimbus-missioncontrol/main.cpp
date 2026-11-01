@@ -53,6 +53,8 @@ public Q_SLOTS:
     void setReduceMotion(bool v) { m_backend->setReduceMotion(v); }
     void showDesktop(bool show) { m_backend->showDesktop(show); }
     void toggleExpose() { m_backend->toggleExpose(); }
+    void setCurrentDesktopByIndex(int i) { m_backend->setCurrentDesktopByIndex(i); }
+    void setCurrentDesktopById(const QString &id) { m_backend->setCurrentDesktopById(id); }
     // Captura bajo demanda (fases del test nested).
     bool grabShot(const QString &path)
     {
@@ -62,7 +64,62 @@ public Q_SLOTS:
         QImage img = qw->grabWindow();
         return !img.isNull() && img.save(path);
     }
-    // F7-T06: cuenta frameSwapped durante ~1.2s (idealmente durante la intro).
+    // F7-T08: info de pantallas (count, primaria, geometría MC).
+    QString screenInfo()
+    {
+        const QList<QScreen *> ss = QGuiApplication::screens();
+        QStringList parts;
+        for (QScreen *s : ss)
+            parts << QStringLiteral("%1:%2x%3%4")
+                         .arg(s->name(),
+                              QString::number(s->geometry().width()),
+                              QString::number(s->geometry().height()),
+                              s == QGuiApplication::primaryScreen()
+                                  ? QStringLiteral("(prim)")
+                                  : QString());
+        const QRect g = m_win->geometry();
+        return QStringLiteral("count=%1 [%2] mc=%3x%4@%5,%6")
+            .arg(ss.size())
+            .arg(parts.join(QStringLiteral(" ")))
+            .arg(g.width())
+            .arg(g.height())
+            .arg(g.x())
+            .arg(g.y());
+    }
+    // F7-T10: invoca la misma ruta que los Shortcuts de teclado QML.
+    QString selftestKey(const QString &name)
+    {
+        auto *qw = qobject_cast<QQuickWindow *>(m_win);
+        if (!qw)
+            return QStringLiteral("sin-ventana");
+        const char *fn = nullptr;
+        if (name == QStringLiteral("Enter"))
+            fn = "uiEnter";
+        else if (name == QStringLiteral("Tab"))
+            fn = "uiExpose";
+        else if (name == QStringLiteral("Left"))
+            fn = "uiLeft";
+        else if (name == QStringLiteral("Right"))
+            fn = "uiRight";
+        else if (name == QStringLiteral("Escape"))
+            fn = "uiEsc";
+        else
+            return QStringLiteral("tecla-desconocida");
+        bool ok = QMetaObject::invokeMethod(qw, fn);
+        return ok ? QStringLiteral("ok:") + name : QStringLiteral("fallo-invoke:") + name;
+    }
+    // F7-T10: estado observable para la matriz de aceptación.
+    QString uiState()
+    {
+        auto *qw = qobject_cast<QQuickWindow *>(m_win);
+        if (!qw)
+            return QStringLiteral("sin-ventana");
+        QVariant ret;
+        bool ok = QMetaObject::invokeMethod(qw, "uiState",
+                                            Q_RETURN_ARG(QVariant, ret));
+        return ok ? ret.toString() : QStringLiteral("fallo-invoke");
+    }
+    bool isVisible() const { return m_win->isVisible(); }
     int fpsProbe()
     {
         int frames = 0;
@@ -145,9 +202,14 @@ int main(int argc, char *argv[])
     }
 
     // Fullscreen sobre todo, sin zona exclusiva, teclado solo si visible.
-    QScreen *sc = QGuiApplication::primaryScreen();
-    if (sc)
-        win->setGeometry(sc->geometry());
+    // F7-T08: sigue a la primaria si cambia el layout (R-MC-DISPLAY).
+    auto refitPrimary = [win]() {
+        if (QScreen *sc = QGuiApplication::primaryScreen())
+            win->setGeometry(sc->geometry());
+    };
+    refitPrimary();
+    QObject::connect(&app, &QGuiApplication::primaryScreenChanged,
+                     win, [refitPrimary](QScreen *) { refitPrimary(); });
     if (auto *ls = LayerShellQt::Window::get(win)) {
         ls->setLayer(LayerShellQt::Window::LayerOverlay);
         ls->setExclusiveZone(-1);

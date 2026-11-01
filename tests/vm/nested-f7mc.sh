@@ -40,7 +40,7 @@ export QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=nimbus-f7mc
 export XDG_SESSION_TYPE=wayland XDG_CURRENT_DESKTOP=KDE
 dbus-run-session -- bash "$REPO_ROOT/tests/vm/nested-f7mc-inner.sh" >>"$F7LOG" 2>&1
 RC=$?
-grep -E "f7\]|nimbus-mc\[" "$F7LOG" | sort -u | head -20
+grep -E "f7(t10)?\]|nimbus-mc\[" "$F7LOG" | sort -u | head -20
 # Caza restos de ESTA sesión anidada (patrón con [n] para no autocoincidir;
 # nunca toca el KWin del host) y reintenta el borrado.
 ps -eo pid,args | grep "[k]win_wayland --virtual.*nimbus-f7mc" | awk '{print $1}' | xargs -r kill 2>/dev/null || true
