@@ -8,6 +8,8 @@
     <file alias="StatusArea.qml">qml/StatusArea.qml</file>
     <file alias="OSD.qml">qml/OSD.qml</file>
     <file alias="NotificationCenter.qml">qml/NotificationCenter.qml</file>
+    <file alias="MediaWidget.qml">qml/MediaWidget.qml</file>
+    <file alias="WeatherWidget.qml">qml/WeatherWidget.qml</file>
     <file alias="NimbusTokens.qml">qml/NimbusTokens.qml</file>
     <file alias="qmldir">qml/qmldir</file>
   </qresource>

@@ -122,7 +122,7 @@ Item {
         id: popup
         visible: root.opened
         width: 300
-        height: 380
+        height: 500
         x: Screen.width - width - 8
         y: 26
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
@@ -140,9 +140,14 @@ Item {
             color: NimbusTokens.popupBg(NimbusTokens.dark)
             border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
-            Grid {
+            Column {
                 anchors.fill: parent
                 anchors.margins: 10
+                spacing: 8
+                MediaWidget {
+                    id: media
+                }
+                Grid {
                 columns: 2
                 spacing: 8
                 Repeater {
@@ -223,57 +228,50 @@ Item {
             }
             Text {
                 id: battLine
-                x: 12
-                y: 296
                 text: "Batería " + root.batt
                 font.pixelSize: 12
                 color: NimbusTokens.colors(NimbusTokens.dark).label
                 objectName: "ccBatt"
             }
             Rectangle {
-                x: 8
-                y: 312
                 width: 284
                 height: 28
                 radius: 6
                 color: "transparent"
                 border.color: NimbusTokens.accentColor(NimbusTokens.dark)
                 border.width: volSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
-            }
-            Slider {
-                id: volSlider
-                x: 12
-                y: 316
-                width: 276
-                from: 0
-                to: 1
-                value: root.vol < 0 ? 0.5 : root.vol
-                enabled: !root.demo && root.vol >= 0
-                objectName: "ccVol"
-                onMoved: runner.run("wpctl set-volume @DEFAULT_AUDIO_SINK@ " + value.toFixed(2))
+                Slider {
+                    id: volSlider
+                    anchors.fill: parent
+                    anchors.margins: 2
+                    from: 0
+                    to: 1
+                    value: root.vol < 0 ? 0.5 : root.vol
+                    enabled: !root.demo && root.vol >= 0
+                    objectName: "ccVol"
+                    onMoved: runner.run("wpctl set-volume @DEFAULT_AUDIO_SINK@ " + value.toFixed(2))
+                }
             }
             Rectangle {
-                x: 8
-                y: 344
                 width: 284
                 height: 28
                 radius: 6
                 color: "transparent"
                 border.color: NimbusTokens.accentColor(NimbusTokens.dark)
                 border.width: briSlider.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                Slider {
+                    id: briSlider
+                    anchors.fill: parent
+                    anchors.margins: 2
+                    from: 0
+                    to: 1
+                    value: root.bri < 0 ? 0.5 : root.bri
+                    enabled: !root.demo && root.bri >= 0
+                    objectName: "ccBri"
+                    onMoved: runner.run("brightnessctl set " + Math.round(value * 100) + "%")
+                }
             }
-            Slider {
-                id: briSlider
-                x: 12
-                y: 348
-                width: 276
-                from: 0
-                to: 1
-                value: root.bri < 0 ? 0.5 : root.bri
-                enabled: !root.demo && root.bri >= 0
-                objectName: "ccBri"
-                onMoved: runner.run("brightnessctl set " + Math.round(value * 100) + "%")
-            }
+        }
         }
     }
 }

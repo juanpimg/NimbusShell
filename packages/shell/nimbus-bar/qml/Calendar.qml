@@ -82,7 +82,7 @@ Item {
         id: popup
         visible: root.opened
         width: 280
-        height: 320
+        height: 470
         x: Screen.width - width - 8
         y: 26
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
@@ -222,6 +222,9 @@ Item {
                             }
                         }
                     }
+                }
+                WeatherWidget {
+                    id: wx
                 }
             }
         }
