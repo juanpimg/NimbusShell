@@ -18,13 +18,19 @@ ApplicationWindow {
     color: "transparent"
 
     property var c: ({
-        "label": "#FFFFFF", "label2": "#EBEBF5", "bg": "#000000",
-        "bgElevated": "#2C2C2E", "bg2": "#1C1C1E", "accent": "#0A84FF",
-        "separator": "#38383A"
-    })
+            "label": "#FFFFFF",
+            "label2": "#EBEBF5",
+            "bg": "#000000",
+            "bgElevated": "#2C2C2E",
+            "bg2": "#1C1C1E",
+            "accent": "#0A84FF",
+            "separator": "#38383A"
+        })
     property int tab: (typeof initialTab !== "undefined" && initialTab === "shortcuts") ? 1 : 0
     property string query: ""
-    function fullText() { return root.tab === 0 ? backend.guideText : backend.shortcutsText; }
+    function fullText() {
+        return root.tab === 0 ? backend.guideText : backend.shortcutsText;
+    }
     function shownText() {
         var t = fullText();
         if (root.query === "")
@@ -62,10 +68,18 @@ ApplicationWindow {
                     Layout.preferredWidth: 240
                     currentIndex: root.tab
                     onCurrentIndexChanged: root.tab = currentIndex
-                    TabButton { text: "Guía"; width: 120 }
-                    TabButton { text: "Atajos"; width: 120 }
+                    TabButton {
+                        text: "Guía"
+                        width: 120
+                    }
+                    TabButton {
+                        text: "Atajos"
+                        width: 120
+                    }
                 }
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                }
                 ComboBox {
                     objectName: "langCombo"
                     model: ["ES", "EN"]
@@ -95,7 +109,9 @@ ApplicationWindow {
                     textFormat: Text.MarkdownText
                     selectByMouse: true
                     color: root.c.label
-                    background: Rectangle { color: root.c.bg }
+                    background: Rectangle {
+                        color: root.c.bg
+                    }
                 }
             }
         }
