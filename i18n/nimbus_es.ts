@@ -127,22 +127,22 @@
     <context>
         <name>Bar</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="250" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="256" />
             <source>BT</source>
             <translation>BT</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="321" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="327" />
             <source>Batería (placeholder)</source>
             <translation>Batería (placeholder)</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="254" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="260" />
             <source>Bluetooth (placeholder)</source>
             <translation>Bluetooth (placeholder)</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="264" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="270" />
             <source>Centro de control</source>
             <translation>Centro de control</translation>
         </message>
@@ -152,17 +152,17 @@
             <translation>N</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="354" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="360" />
             <source>Reloj</source>
             <translation>Reloj</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="239" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="245" />
             <source>Wi-Fi</source>
             <translation>Wi-Fi</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="243" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="249" />
             <source>Wi-Fi (placeholder)</source>
             <translation>Wi-Fi (placeholder)</translation>
         </message>
@@ -847,12 +847,12 @@
     <context>
         <name>KcmNetwork</name>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="207" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="274" />
             <source>Abrir los ajustes de Bluetooth originales</source>
             <translation>Abrir los ajustes de Bluetooth originales</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="198" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="265" />
             <source>Abrir los ajustes de red originales</source>
             <translation>Abrir los ajustes de red originales</translation>
         </message>
@@ -867,12 +867,12 @@
             <translation>Activar o apagar el wifi</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="206" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="273" />
             <source>Ajustes de Bluetooth avanzados</source>
             <translation>Ajustes de Bluetooth avanzados</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="197" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="264" />
             <source>Ajustes de red avanzados</source>
             <translation>Ajustes de red avanzados</translation>
         </message>
@@ -897,6 +897,16 @@
             <translation>Buscando…</translation>
         </message>
         <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="212" />
+            <source>Buscar aparatos</source>
+            <translation>Buscar aparatos</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="213" />
+            <source>Buscar aparatos Bluetooth cercanos</source>
+            <translation>Buscar aparatos Bluetooth cercanos</translation>
+        </message>
+        <message>
             <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="65" />
             <source>Buscar redes</source>
             <translation>Buscar redes</translation>
@@ -907,14 +917,19 @@
             <translation>Buscar redes wifi</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="171" />
-            <source>Conectado</source>
-            <translation>Conectado</translation>
-        </message>
-        <message>
             <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="55" />
             <source>Conectado a %1</source>
             <translation>Conectado a %1</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="185" />
+            <source>Conectar</source>
+            <translation>Conectar</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="186" />
+            <source>Conectar %1</source>
+            <translation>Conectar %1</translation>
         </message>
         <message>
             <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="105" />
@@ -922,19 +937,29 @@
             <translation>Conectar a %1</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="226" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="293" />
             <source>Contraseña de %1</source>
             <translation>Contraseña de %1</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="233" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="300" />
             <source>Contraseña del wifi</source>
             <translation>Contraseña del wifi</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="234" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="301" />
             <source>Contraseña del wifi (no se guarda)</source>
             <translation>Contraseña del wifi (no se guarda)</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="195" />
+            <source>Desconectar</source>
+            <translation>Desconectar</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="196" />
+            <source>Desconectar %1</source>
+            <translation>Desconectar %1</translation>
         </message>
         <message>
             <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="134" />
@@ -947,14 +972,29 @@
             <translation>Este equipo no tiene wifi.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="185" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="226" />
             <source>Impresoras</source>
             <translation>Impresoras</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="201" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="251" />
+            <source>Imprimir página de prueba en %1</source>
+            <translation>Imprimir página de prueba en %1</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="268" />
             <source>No disponible en este sistema.</source>
             <translation>No disponible en este sistema.</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="236" />
+            <source>Probar:</source>
+            <translation>Probar:</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="250" />
+            <source>Página de prueba</source>
+            <translation>Página de prueba</translation>
         </message>
         <message>
             <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="102" />
@@ -977,12 +1017,12 @@
             <translation>Restablecer esta sección a valores Nimbus</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="179" />
-            <source>Sin aparatos vinculados.</source>
-            <translation>Sin aparatos vinculados.</translation>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="208" />
+            <source>Sin aparatos a la vista. Pulsa «Buscar aparatos».</source>
+            <translation>Sin aparatos a la vista. Pulsa «Buscar aparatos».</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="192" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="233" />
             <source>Sin impresoras configuradas.</source>
             <translation>Sin impresoras configuradas.</translation>
         </message>
@@ -992,9 +1032,19 @@
             <translation>Sin redes a la vista. Pulsa «Buscar redes».</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="192" />
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="233" />
             <source>Sin soporte de impresión en este equipo (falta CUPS).</source>
             <translation>Sin soporte de impresión en este equipo (falta CUPS).</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="175" />
+            <source>Vincular</source>
+            <translation>Vincular</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="176" />
+            <source>Vincular %1</source>
+            <translation>Vincular %1</translation>
         </message>
         <message>
             <location filename="packages/kcm/kcm_nimbus/ui/NetworkPage.qml" line="55" />
@@ -1123,37 +1173,52 @@
             <translation>%1 (%2)</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="151" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="161" />
             <source>Abrir los ajustes originales de idioma</source>
             <translation>Abrir los ajustes originales de idioma</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="142" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="152" />
             <source>Abrir los ajustes originales de usuarios y fecha</source>
             <translation>Abrir los ajustes originales de usuarios y fecha</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="122" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="132" />
             <source>Ahorro</source>
             <translation>Ahorro</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="90" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="95" />
             <source>Automática:</source>
             <translation>Automática:</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="71" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="121" />
+            <source>Cambiar el idioma del sistema (pide permiso)</source>
+            <translation>Cambiar el idioma del sistema (pide permiso)</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="68" />
+            <source>Cambiar el nombre del equipo (pide permiso)</source>
+            <translation>Cambiar el nombre del equipo (pide permiso)</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="76" />
             <source>Cambiar el nombre o añadir personas necesita permiso de administrador.</source>
             <translation>Cambiar el nombre o añadir personas necesita permiso de administrador.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="117" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="67" />
+            <source>Cambiar…</source>
+            <translation>Cambiar…</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="127" />
             <source>Energía:</source>
             <translation>Energía:</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="122" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="132" />
             <source>Equilibrado</source>
             <translation>Equilibrado</translation>
         </message>
@@ -1168,42 +1233,42 @@
             <translation>Eres tú</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="76" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="81" />
             <source>Fecha y hora</source>
             <translation>Fecha y hora</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="150" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="160" />
             <source>Idioma avanzado</source>
             <translation>Idioma avanzado</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="112" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="117" />
             <source>Idioma del sistema</source>
             <translation>Idioma del sistema</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="103" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="108" />
             <source>Idioma y energía</source>
             <translation>Idioma y energía</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="107" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="112" />
             <source>Idioma:</source>
             <translation>Idioma:</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="163" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="173" />
             <source>Los cambios de energía aplican al momento. Lo demás lo guarda su propio ajuste (puede pedir tu contraseña).</source>
             <translation>Los cambios de energía aplican al momento. Lo demás lo guarda su propio ajuste (puede pedir tu contraseña).</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="122" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="132" />
             <source>Máximo</source>
             <translation>Máximo</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="145" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="155" />
             <source>No disponible en este sistema.</source>
             <translation>No disponible en este sistema.</translation>
         </message>
@@ -1213,7 +1278,17 @@
             <translation>Nombre del equipo</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="123" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="214" />
+            <source>Nuevo idioma del sistema</source>
+            <translation>Nuevo idioma del sistema</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="193" />
+            <source>Nuevo nombre del equipo</source>
+            <translation>Nuevo nombre del equipo</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="133" />
             <source>Perfil de energía %1</source>
             <translation>Perfil de energía %1</translation>
         </message>
@@ -1223,7 +1298,7 @@
             <translation>Personas:</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="91" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="96" />
             <source>Poner la hora por internet</source>
             <translation>Poner la hora por internet</translation>
         </message>
@@ -1238,150 +1313,185 @@
             <translation>Restablecer esta sección a valores Nimbus</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="135" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="145" />
             <source>Sin perfiles de energía en este equipo.</source>
             <translation>Sin perfiles de energía en este equipo.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="92" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="97" />
             <source>Sincronizar la hora por internet</source>
             <translation>Sincronizar la hora por internet</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="141" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="151" />
             <source>Usuarios y fecha avanzados</source>
             <translation>Usuarios y fecha avanzados</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="85" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="90" />
             <source>Zona horaria</source>
             <translation>Zona horaria</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="80" />
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="85" />
             <source>Zona:</source>
             <translation>Zona:</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="213" />
+            <source>p. ej. es_ES.UTF-8</source>
+            <translation>p. ej. es_ES.UTF-8</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/SystemPage.qml" line="192" />
+            <source>p. ej. mi-portatil</source>
+            <translation>p. ej. mi-portatil</translation>
         </message>
     </context>
     <context>
         <name>KcmUpdates</name>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="126" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="152" />
             <source>Abrir Discover</source>
             <translation>Abrir Discover</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="127" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="153" />
             <source>Abrir la tienda Discover para instalar</source>
             <translation>Abrir la tienda Discover para instalar</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="103" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="129" />
             <source>Avisar cada día si hay pendientes</source>
             <translation>Avisar cada día si hay pendientes</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="101" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="127" />
             <source>Aviso diario:</source>
             <translation>Aviso diario:</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="58" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="59" />
             <source>Aún sin comprobar.</source>
             <translation>Aún sin comprobar.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="55" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="56" />
             <source>Comprobando…</source>
             <translation>Comprobando…</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="69" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="70" />
             <source>Comprobar actualizaciones ahora</source>
             <translation>Comprobar actualizaciones ahora</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="68" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="69" />
             <source>Comprobar ahora</source>
             <translation>Comprobar ahora</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="116" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="142" />
             <source>Crea un temporizador de usuario (sin root). Se guarda con «Aplicar».</source>
             <translation>Crea un temporizador de usuario (sin root). Se guarda con «Aplicar».</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="139" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="165" />
             <source>Discover no está instalado; actualiza con pacman en un terminal.</source>
             <translation>Discover no está instalado; actualiza con pacman en un terminal.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="65" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="66" />
             <source>Estado de las actualizaciones</source>
             <translation>Estado de las actualizaciones</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="44" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="45" />
             <source>Estado:</source>
             <translation>Estado:</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="146" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="172" />
             <source>Este equipo guarda copias (snapper): si algo se rompe al actualizar, puedes volver atrás.</source>
             <translation>Este equipo guarda copias (snapper): si algo se rompe al actualizar, puedes volver atrás.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="146" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="172" />
             <source>Este equipo no guarda copias automáticas.</source>
             <translation>Este equipo no guarda copias automáticas.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="40" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="41" />
             <source>Este equipo no usa paquetes de Arch.</source>
             <translation>Este equipo no usa paquetes de Arch.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="139" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="110" />
+            <source>Instalando %1…</source>
+            <translation>Instalando %1…</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="97" />
+            <source>Instalar</source>
+            <translation>Instalar</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="185" />
+            <source>Instalar %1</source>
+            <translation>Instalar %1</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="98" />
+            <source>Instalar %1 (pedirá permiso)</source>
+            <translation>Instalar %1 (pedirá permiso)</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="165" />
             <source>Instalar y actualizar se hace en Discover.</source>
             <translation>Instalar y actualizar se hace en Discover.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="121" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="147" />
             <source>Instalar y volver atrás</source>
             <translation>Instalar y volver atrás</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="80" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="81" />
             <source>Pendientes:</source>
             <translation>Pendientes:</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="104" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="130" />
             <source>Programar comprobación diaria</source>
             <translation>Programar comprobación diaria</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="26" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="27" />
             <source>Restablecer esta sección</source>
             <translation>Restablecer esta sección</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="27" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="28" />
             <source>Restablecer esta sección a valores Nimbus</source>
             <translation>Restablecer esta sección a valores Nimbus</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="63" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="191" />
+            <source>Se instalará %1 con permisos de administrador. ¿Seguir?</source>
+            <translation>Se instalará %1 con permisos de administrador. ¿Seguir?</translation>
+        </message>
+        <message>
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="64" />
             <source>Tienes %1 actualizaciones pendientes.</source>
             <translation>Tienes %1 actualizaciones pendientes.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="61" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="62" />
             <source>Todo al día. Buen trabajo.</source>
             <translation>Todo al día. Buen trabajo.</translation>
         </message>
         <message>
-            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="96" />
+            <location filename="packages/kcm/kcm_nimbus/ui/UpdatesPage.qml" line="122" />
             <source>…y %1 más.</source>
             <translation>…y %1 más.</translation>
         </message>

@@ -322,6 +322,9 @@ EN = {
     "\u00bfC\u00f3mo te llamas? Tu nombre aparece en el men\u00fa y la pantalla de bloqueo.": "What is your name? It shows in the menu and the lock screen.",
 }
 
+# Traducciones F8 (páginas KCM); revisar estilo.
+EN.update({'Buscar aparatos': 'Scan for devices', 'Buscar aparatos Bluetooth cercanos': 'Scan for nearby Bluetooth devices', 'Cambiar el idioma del sistema (pide permiso)': 'Change system language (asks permission)', 'Cambiar el nombre del equipo (pide permiso)': 'Change computer name (asks permission)', 'Cambiar…': 'Change…', 'Conectar %1': 'Connect %1', 'Desconectar': 'Disconnect', 'Desconectar %1': 'Disconnect %1', 'Imprimir página de prueba en %1': 'Print test page on %1', 'Instalando %1…': 'Installing %1…', 'Instalar': 'Instalar', 'Instalar %1': 'Instalar %1', 'Instalar %1 (pedirá permiso)': 'Instalar %1 (pedirá permiso)', 'Nuevo idioma del sistema': 'Nuevo idioma del sistema', 'Nuevo nombre del equipo': 'Nuevo nombre del equipo', 'Probar:': 'Probar:', 'Página de prueba': 'Página de prueba', 'Se instalará %1 con permisos de administrador. ¿Seguir?': 'Se instalará %1 con permisos de administrador. ¿Seguir?', 'Sin aparatos a la vista. Pulsa «Buscar aparatos».': 'Sin aparatos a la vista. Pulsa «Buscar aparatos».', 'Vincular': 'Vincular', 'Vincular %1': 'Vincular %1', 'p. ej. es_ES.UTF-8': 'p. ej. es_ES.UTF-8', 'p. ej. mi-portatil': 'p. ej. mi-portatil'})
+
 MAC = {
     "Switch to Next Keyboard Layout": "\u2014 (liberada para KRunner)",
     "Lock Session": "Cmd+Ctrl+Q",
