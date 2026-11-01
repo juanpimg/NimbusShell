@@ -1,0 +1,44 @@
+SPOT-MAIN-ENTER pid=594015
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Activating service name='org.freedesktop.portal.Desktop' requested by ':1.2' (uid=1000 pid=594015 comm="/tmp/opencode/spot-f6tabs/nimbus-spotlight --demo")
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Activating service name='org.freedesktop.impl.portal.PermissionStore' requested by ':1.3' (uid=1000 pid=594023 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.PermissionStore'
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Activating service name='org.freedesktop.portal.Documents' requested by ':1.3' (uid=1000 pid=594023 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Successfully activated service 'org.freedesktop.portal.Documents'
+
+(/usr/lib/xdg-desktop-portal:594023): xdg-desktop-portal-WARNING **: 03:07:34.985: Choosing gtk.portal for org.freedesktop.impl.portal.Lockdown as a last-resort fallback
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.gtk' requested by ':1.3' (uid=1000 pid=594023 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Activating service name='org.gtk.vfs.Daemon' requested by ':1.6' (uid=1000 pid=594045 comm="/usr/lib/xdg-desktop-portal-gtk")
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Successfully activated service 'org.gtk.vfs.Daemon'
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.gtk'
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kde' requested by ':1.3' (uid=1000 pid=594023 comm="/usr/lib/xdg-desktop-portal")
+nimbus-spotlight[1]: Spotlight_QMLTYPE_96(0x5577e31dc840, name="spotlightWindow") already has a shell integration. Call QWindow::close() first and show it again.
+nimbus-spotlight[4]: spotlight-local-latency: query=0ms mode=nimbus results=0 tab=apps
+nimbus-spotlight[4]: nimbus-spotlight: demo=1 query=''
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kde'
+
+(/usr/lib/xdg-desktop-portal:594023): xdg-desktop-portal-WARNING **: 03:07:35.146: Failed to connect to PipeWire: Couldn't connect to PipeWire
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Activating service name='org.freedesktop.impl.portal.desktop.kwallet' requested by ':1.3' (uid=1000 pid=594023 comm="/usr/lib/xdg-desktop-portal")
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Successfully activated service 'org.freedesktop.portal.Desktop'
+DBUS_OK
+dbus-daemon[593933]: [session uid=1000 pid=593933 pidfd=5] Successfully activated service 'org.freedesktop.impl.portal.desktop.kwallet'
+nimbus-spotlight[1]: Failed to register with host portal QDBusError("org.freedesktop.portal.Error.Failed", "Could not register app ID: Connection already associated with an application ID")
+nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:31:1: QML Spotlight: Accessible attached property must be attached to an object deriving from Item or Action
+nimbus-spotlight[1]: qrc:/qml/Spotlight.qml:31:1: QML Spotlight: Accessible attached property must be attached to an object deriving from Item or Action
+nimbus-spotlight[4]: spotlight-local-latency: query=0ms mode=nimbus results=0 tab=files
+nimbus-spotlight[4]: spotlight-tab=files
+TAB_OK files
+SHOT_OK files
+nimbus-spotlight[4]: spotlight-local-latency: query=0ms mode=nimbus results=0 tab=actions
+nimbus-spotlight[4]: spotlight-tab=actions
+TAB_OK actions
+SHOT_OK actions
+nimbus-spotlight[4]: spotlight-tab=clipboard
+TAB_OK clipboard
+SHOT_OK clipboard
+TOGGLE_HIDE_OK
+nimbus-spotlight[1]: showTab: pestaña inválida 'bogus'
+INVALID_OK
+ALIVE_OK pid 594015
+QML_ERRORS=0
+DONE
+A connection to the bus can't be made

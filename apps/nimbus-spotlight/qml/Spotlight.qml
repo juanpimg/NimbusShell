@@ -81,6 +81,11 @@ ApplicationWindow {
         root.doSearch();
     }
 
+    // F6-T09: foco de teclado tras apertura vía DBus (showTab/toggleTab).
+    function focusSearch() {
+        searchField.forceActiveFocus();
+    }
+
     function refreshFilter() {
         // F6-T06: clipboard/emoji son síncronos (sin señal): se recomputan.
         if (root.tab === "clipboard") {
