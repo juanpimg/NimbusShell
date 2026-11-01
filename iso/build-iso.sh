@@ -96,6 +96,7 @@ cp -a "$CALAMARES/settings.conf" "$CALAMARES/groups-nimbus.json" "$OUT/airootfs/
 cp -a "$CALAMARES/branding" "$OUT/airootfs/usr/share/nimbus/calamares/" || exit 1
 mkdir -p "$OUT/airootfs/usr/share/nimbus/calamares/scripts"
 cp -a "$CALAMARES/scripts/." "$OUT/airootfs/usr/share/nimbus/calamares/scripts/" || exit 1
+chmod 755 "$OUT/airootfs/usr/share/nimbus/calamares/scripts/"*.sh "$OUT/airootfs/usr/share/nimbus/calamares/scripts/pacstrap_calamares" 2>/dev/null || true
 cp -a "$CALAMARES"/modules/*.conf "$OUT/airootfs/usr/share/nimbus/calamares/modules/" || exit 1
 echo "OK: calamares estagiado ($(ls "$OUT/airootfs/usr/share/nimbus/calamares/modules" | wc -l) módulos)"
 
