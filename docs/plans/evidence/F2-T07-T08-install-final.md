@@ -66,3 +66,30 @@
   `build-iso.sh` (commit `4187757`, permisos 755 para scripts Calamares).
 - **Pendiente inmediato:** reconstruir la ISO con ese commit y repetir el
   test E2E; el resto del flujo ya está validado con la ISO anterior.
+
+## Iteración E2E 2026-11-01 20:00-20:50 (fallos reales y fixes)
+
+Tras el primer E2E exitoso (manual), la ISO integrada se probó de nuevo y
+aparecieron tres fallos de instalación, ya corregidos en el repo:
+
+1. **`packages` no podía resolver DNS** (chroot del target): el live usa
+   systemd-resolved (`127.0.0.53`), que no existe dentro del target. El
+   instalador ahora copia un `resolv.conf` útil, escribe los IPv4 de los
+   mirrors curados en `/etc/hosts` del target (TLS sigue validando por
+   nombre) y el sistema final restaura un `/etc/hosts` limpio.
+2. **Mirrorlist de 425 servidores** (varios muertos/lentos): la ISO y el
+   target usan solo `geo.mirror.pkgbuild.com` y
+   `fastly.mirror.pkgbuild.com`. El target además instala solo Arch
+   (core/extra/multilib), sin repos CachyOS (el live los conserva).
+3. **Reintento tras fallo bloqueado por `gpg-agent`** del chroot (mantenía
+   el disco ocupado y `sfdisk` fallaba con "disk is currently in use"): el
+   wrapper de Calamares mata agentes huérfanos y desmonta restos antes de
+   abrir; el disco se limpia con `sfdisk --wipe=always --force`.
+4. **Live en inglés**: `profiledef.sh` fija `locale_name=es_ES.UTF-8`,
+   `locale.gen`, `locale.conf` y `vconsole.conf` (teclado es).
+5. **Branding**: `strings` de `branding.desc` pasa a formato plano de
+   Calamares 3.4 para que la bienvenida muestre «NimbusOS».
+
+Capturas de las páginas reales en español: `spikes/f2-install/` (locale
+Europe/Madrid, teclado ES, arranque GRUB, particiones, usuarios, netinstall,
+resumen). La ISO final se reconstruye con todo y se repite el E2E limpio.
