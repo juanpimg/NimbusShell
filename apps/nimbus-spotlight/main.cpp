@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
                 m.toUtf8().constData());
     });
 
-    bool demo = false;
+    bool demo = false, daemon = false;
     QString initialQuery, shotPath;
     QString initialTab = QStringLiteral("apps");
     QString initialClipView = QStringLiteral("history");
@@ -141,6 +141,8 @@ int main(int argc, char *argv[])
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo"))
             demo = true;
+        else if (a == QStringLiteral("--daemon"))
+            daemon = true;
         else if (a == QStringLiteral("--query") && i + 1 < argc)
             initialQuery = QString::fromLocal8Bit(argv[++i]);
         else if (a == QStringLiteral("--shot") && i + 1 < argc)
@@ -211,8 +213,17 @@ int main(int argc, char *argv[])
         bus.registerObject(QStringLiteral("/Spotlight"), &toggler,
                            QDBusConnection::ExportAllSlots);
 
-    qInfo().noquote() << QStringLiteral("nimbus-spotlight: demo=%1 query='%2'")
-                             .arg(demo).arg(initialQuery);
+    // Arranque: visible solo en demo/consulta/captura; en --daemon (DBus
+    // activation) queda oculta hasta el toggle del atajo.
+    const bool startVisible = demo || !initialQuery.isEmpty() || !shotPath.isEmpty();
+    if (startVisible) {
+        win->setVisible(true);
+        win->requestActivate();
+    } else {
+        win->setVisible(false);
+    }
+    qInfo().noquote() << QStringLiteral("nimbus-spotlight: demo=%1 daemon=%2 query='%3'")
+                             .arg(demo).arg(daemon).arg(initialQuery);
 
     if (!shotPath.isEmpty()) {
         // Test nested: espera a resultados y vuelca píxeles a PNG.

@@ -245,8 +245,13 @@ int main(int argc, char *argv[])
         });
     }
     backend.refresh();
-    win->setVisible(true);
-    win->requestActivate();
+    // --demo/--shot muestran; el resto (DBus activation) espera al toggle.
+    if (demo || !shotPath.isEmpty()) {
+        win->setVisible(true);
+        win->requestActivate();
+    } else {
+        win->setVisible(false);
+    }
     return app.exec();
 }
 

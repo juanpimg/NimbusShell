@@ -141,6 +141,9 @@ cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-apps-toggle "$OUT/airootfs/usr/s
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-zoom "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-tabs "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-mc "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
+# Activación DBus de las apps residentes (F6/F7): el atajo abre el servicio.
+mkdir -p "$OUT/airootfs/usr/share/dbus-1/services"
+cp -a "$REPO_ROOT/packages/dbus/." "$OUT/airootfs/usr/share/dbus-1/services/" || exit 1
 # Presets/pins de la barra y arte propio (instalados: /usr/share/nimbus).
 mkdir -p "$OUT/airootfs/usr/share/nimbus/bar"
 cp -a "$REPO_ROOT/packages/shell/nimbus-bar/presets" "$OUT/airootfs/usr/share/nimbus/bar/" || exit 1
@@ -207,6 +210,8 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/bar/presets/default.json" \
   "$OUT/airootfs/usr/share/nimbus/assets/sequoia-dark.jpg" \
   "$OUT/airootfs/usr/local/bin/nimbus-keys" \
+  "$OUT/airootfs/usr/share/dbus-1/services/org.nimbus.Spotlight.service" \
+  "$OUT/airootfs/usr/share/dbus-1/services/org.nimbus.MissionControl.service" \
   ; do
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
 done

@@ -34,7 +34,7 @@ ApplicationWindow {
     objectName: "spotlightWindow"
     width: 680
     height: 460
-    visible: true
+    visible: false // main.cpp la muestra en --demo/--query/--shot o al alternar
     flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool
     color: "transparent"
     title: "Spotlight"
