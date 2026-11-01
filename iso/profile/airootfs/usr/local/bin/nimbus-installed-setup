@@ -220,16 +220,18 @@ else
   fi
 fi
 
-# 6. Firewalld: enable (el servicio lo activa Calamares services + este paso lo asegura).
-if [ "$CHECK" -eq 1 ]; then
-  log "HARÍA: systemctl enable firewalld"
-else
-  if systemctl enable firewalld >/dev/null 2>&1; then
-    log "OK: firewalld enable"
-  else
-    log "AVISO: systemctl enable firewalld falló (lo cubre el módulo services de Calamares)"
+# 6. Servicios base: firewall, red y Bluetooth (macOS-like: siempre disponibles).
+for svc in firewalld NetworkManager bluetooth; do
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: systemctl enable $svc"
+    continue
   fi
-fi
+  if systemctl enable "$svc" >/dev/null 2>&1; then
+    log "OK: $svc enable"
+  else
+    log "AVISO: systemctl enable $svc falló (revisar paquete/servicio)"
+  fi
+done
 
 # 7. Locale/keyboard: verificar (los fijan los módulos locale/keyboard de Calamares).
 for f in /etc/locale.conf /etc/vconsole.conf /etc/locale.gen; do
