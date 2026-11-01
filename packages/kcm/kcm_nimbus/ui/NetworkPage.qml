@@ -28,6 +28,18 @@ KCMUtils.SimpleKCM {
     }
 
     Kirigami.FormLayout {
+        // Reset canónico de la sección (F8-T08): arriba para estar visible.
+        RowLayout {
+            QQC2.Button {
+                text: i18n("Restablecer esta sección")
+                Accessible.name: i18n("Restablecer esta sección a valores Nimbus")
+                onClicked: {
+                    if (page.kcmRef) {
+                        page.kcmRef.resetSection("network");
+                    }
+                }
+            }
+        }
         QQC2.Label {
             Layout.fillWidth: true
             visible: page.kcmRef ? !page.kcmRef.wifiAvailable : false

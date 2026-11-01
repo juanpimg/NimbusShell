@@ -38,7 +38,6 @@ set_property(SOURCE kcm_nimbus.qrc PROPERTY OBJECT_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/ui/AccessibilityPage.qml
     ${CMAKE_CURRENT_SOURCE_DIR}/ui/SystemPage.qml
     ${CMAKE_CURRENT_SOURCE_DIR}/ui/UpdatesPage.qml
-    ${CMAKE_CURRENT_SOURCE_DIR}/ui/NimbusPlaceholder.qml
 )
 qt_add_resources(KCM_QML_RESOURCES kcm_nimbus.qrc)
 target_sources(kcm_nimbus PRIVATE ${KCM_QML_RESOURCES})

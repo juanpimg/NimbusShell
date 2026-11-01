@@ -13,6 +13,7 @@
 #include <KConfigGroup>
 #include <KPluginFactory>
 #include <KSharedConfig>
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QHostInfo>
@@ -614,7 +615,39 @@ void NimbusModule::load()
 void NimbusModule::save()
 {
     QStringList notes;
+    backupConfigs();
+    saveAppearance(notes);
+    saveAccessibility(notes);
+    saveShortcuts(notes);
+    saveSystem(notes);
+    saveUpdates(notes);
+    setHelperStatus(notes.isEmpty() ? QString() : notes.join(QStringLiteral(" · ")));
+    setNeedsSave(false);
+}
 
+QString NimbusModule::backupConfigs()
+{
+    const QString backupDir =
+        QDir::homePath() + QStringLiteral("/.config/nimbusshell-backup-")
+        + QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-hhmmss"));
+    static const char *files[] = {"kdeglobals", "kwinrc",      "kremarc",
+                                  "plasmashellrc", "nimbusrc",  "kcminputrc",
+                                  "kaccessrc",     "kscreenlockerrc", "kglobalshortcutsrc"};
+    const QString configHome =
+        QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    for (const char *file : files) {
+        const QString src = configHome + QLatin1Char('/') + QString::fromLatin1(file);
+        if (!QFile::exists(src)) {
+            continue;
+        }
+        QDir().mkpath(backupDir);
+        QFile::copy(src, backupDir + QLatin1Char('/') + QString::fromLatin1(file));
+    }
+    return backupDir;
+}
+
+void NimbusModule::saveAppearance(QStringList &notes)
+{
     // Apariencia en kdeglobals (+ script si existe; si no, plasma-apply-*).
     KSharedConfig::Ptr globals = KSharedConfig::openConfig(QStringLiteral("kdeglobals"));
     KConfigGroup general(globals, QStringLiteral("General"));
@@ -677,7 +710,17 @@ void NimbusModule::save()
     }
     shell->sync();
 
-    // KWin: animaciones + efectos.
+    // Velocidad (0 == movimiento reducido, coherente con Accesibilidad).
+    KSharedConfig::Ptr kwinAnim = KSharedConfig::openConfig(QStringLiteral("kwinrc"));
+    KConfigGroup(kwinAnim, QStringLiteral("Compositing"))
+        .writeEntry("AnimationSpeed", m_reduceMotion ? 0 : m_animationSpeed);
+    kwinAnim->sync();
+}
+
+void NimbusModule::saveAccessibility(QStringList &notes)
+{
+    // KWin: efectos de accesibilidad + velocidad (0 == movimiento reducido;
+    // también la escribe Apariencia: mismo valor, idempotente).
     KSharedConfig::Ptr kwin = KSharedConfig::openConfig(QStringLiteral("kwinrc"));
     KConfigGroup(kwin, QStringLiteral("Compositing"))
         .writeEntry("AnimationSpeed", m_reduceMotion ? 0 : m_animationSpeed);
@@ -717,7 +760,10 @@ void NimbusModule::save()
     } else if (m_screenReader) {
         notes << QStringLiteral("Orca no está instalado");
     }
+}
 
+void NimbusModule::saveShortcuts(QStringList &notes)
+{
     // Atajos vía script canónico (escribe --home, idempotente).
     const QString keysHelper = QStandardPaths::findExecutable(QStringLiteral("nimbus-keys"));
     if (!keysHelper.isEmpty()) {
@@ -732,7 +778,10 @@ void NimbusModule::save()
     } else if (!m_cmdMode) {
         notes << QStringLiteral("sin nimbus-keys");
     }
+}
 
+void NimbusModule::saveUpdates(QStringList &notes)
+{
     // F8-T07: programar comprobación diaria (timer de usuario, sin root).
     const QString sysDir =
         QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
@@ -768,9 +817,6 @@ void NimbusModule::save()
         QFile::remove(servicePath);
         QFile::remove(timerPath);
     }
-
-    setHelperStatus(notes.isEmpty() ? QString() : notes.join(QStringLiteral(" · ")));
-    setNeedsSave(false);
 }
 
 // --- F8-T03: Red en vivo (nmcli/bluetoothctl/lpstat, sin root) ---
@@ -1236,6 +1282,135 @@ void NimbusModule::refreshUpdates()
     Q_EMIT updatesCheckingChanged();
 }
 
+void NimbusModule::saveSystem(QStringList &notes)
+{
+    // Energía: reafirma el perfil vigente (el setter ya lo aplicó al momento).
+    if (!m_energyProfiles.isEmpty() && !m_energyProfile.isEmpty()) {
+        if (!runHelper(QStringLiteral("powerprofilesctl"),
+                       {QStringLiteral("set"), m_energyProfile})) {
+            notes << QStringLiteral("No se pudo reafirmar el perfil de energía.");
+        }
+    }
+    // NTP y resto del sistema son inmediatos o de solo lectura.
+}
+
+void NimbusModule::setCanonical(const QString &section)
+{
+    if (section == QLatin1String("appearance")) {
+        m_darkMode = true;
+        m_accentColor = QString::fromLatin1(kDarkAccent);
+        m_wallpaperPath.clear();
+        m_dockIconSize = kDockIconDefault;
+        m_dockZoomFactor = kZoomDefault;
+        m_dockAutohide = false;
+        m_barHeight = kBarDefault;
+        m_animationSpeed = kAnimDefault;
+        Q_EMIT darkModeChanged();
+        Q_EMIT accentColorChanged();
+        Q_EMIT wallpaperPathChanged();
+        Q_EMIT dockIconSizeChanged();
+        Q_EMIT dockZoomFactorChanged();
+        Q_EMIT dockAutohideChanged();
+        Q_EMIT barHeightChanged();
+        Q_EMIT animationSpeedChanged();
+    } else if (section == QLatin1String("accessibility")) {
+        m_zoomEnabled = false;
+        m_invertColors = false;
+        m_reduceMotion = false;
+        m_reduceTransparency = false;
+        // setReduceMotion(true) pudo pisar el miembro: restaurar canónico.
+        m_animationSpeed = kAnimDefault;
+        m_keyboardRepeat = true;
+        m_repeatDelay = kDelayDefault;
+        m_repeatRate = kRateDefault;
+        m_screenReader = false;
+        Q_EMIT zoomEnabledChanged();
+        Q_EMIT invertColorsChanged();
+        Q_EMIT reduceMotionChanged();
+        Q_EMIT reduceTransparencyChanged();
+        Q_EMIT animationSpeedChanged();
+        Q_EMIT keyboardRepeatChanged();
+        Q_EMIT repeatDelayChanged();
+        Q_EMIT repeatRateChanged();
+        Q_EMIT screenReaderChanged();
+    } else if (section == QLatin1String("shortcuts")) {
+        m_cmdMode = true;
+        Q_EMIT cmdModeChanged();
+    } else if (section == QLatin1String("system")) {
+        if (!m_energyProfiles.isEmpty()) {
+            m_energyProfile = m_energyProfiles.contains(QStringLiteral("balanced"))
+                ? QStringLiteral("balanced")
+                : m_energyProfiles.first();
+        }
+        m_ntpEnabled = true;
+        Q_EMIT energyProfileChanged();
+        Q_EMIT ntpEnabledChanged();
+    } else if (section == QLatin1String("updates")) {
+        m_dailyCheck = false;
+        Q_EMIT dailyCheckChanged();
+    }
+}
+
+void NimbusModule::resetSection(const QString &section)
+{
+    backupConfigs();
+    QStringList notes;
+    setCanonical(section);
+    if (section == QLatin1String("appearance")) {
+        saveAppearance(notes);
+    } else if (section == QLatin1String("accessibility")) {
+        // Pantalla de bloqueo canónica Nimbus (dotfiles kscreenlockerrc).
+        KSharedConfig::Ptr lock = KSharedConfig::openConfig(QStringLiteral("kscreenlockerrc"));
+        KConfigGroup daemon(lock, QStringLiteral("Daemon"));
+        daemon.writeEntry("Autolock", false);
+        daemon.writeEntry("LockOnResume", false);
+        daemon.writeEntry("LockOnStart", false);
+        daemon.writeEntry("Timeout", 10);
+        KConfigGroup(lock, QStringLiteral("Greeter")).writeEntry("Theme", QStringLiteral("breeze"));
+        lock->sync();
+        saveAccessibility(notes);
+    } else if (section == QLatin1String("shortcuts")) {
+        saveShortcuts(notes);
+    } else if (section == QLatin1String("system")) {
+        saveSystem(notes);
+        // NTP exige permiso: intento honesto con aviso si no se puede.
+        if (!runHelper(QStringLiteral("timedatectl"),
+                       {QStringLiteral("set-ntp"), QStringLiteral("true")})) {
+            notes << QStringLiteral("NTP necesita permiso de administrador.");
+        }
+    } else if (section == QLatin1String("updates")) {
+        saveUpdates(notes);
+    } else if (section == QLatin1String("network")) {
+        // Sin ficheros propios: radios encendidos + redescubrir.
+        if (m_nmcliAvailable) {
+            if (runHelper(QStringLiteral("nmcli"), {QStringLiteral("radio"),
+                                                    QStringLiteral("wifi"),
+                                                    QStringLiteral("on")})) {
+                m_wifiEnabled = true;
+                Q_EMIT wifiEnabledChanged();
+                refreshWifi();
+            } else {
+                notes << QStringLiteral("No se pudo encender el wifi.");
+            }
+        }
+        if (m_bluetoothAvailable) {
+            if (runHelper(QStringLiteral("bluetoothctl"), {QStringLiteral("power"),
+                                                           QStringLiteral("on")})) {
+                m_bluetoothPowered = true;
+                Q_EMIT bluetoothPoweredChanged();
+                refreshBluetooth();
+            } else {
+                notes << QStringLiteral("No se pudo encender el Bluetooth.");
+            }
+        }
+    } else {
+        setHelperStatus(QStringLiteral("Sección desconocida."));
+        return;
+    }
+    setHelperStatus(notes.isEmpty() ? QStringLiteral("Sección restablecida a valores Nimbus.")
+                                    : notes.join(QStringLiteral(" · ")));
+}
+
 void NimbusModule::defaults()
 {
     m_darkMode = true;
@@ -1255,6 +1430,7 @@ void NimbusModule::defaults()
     m_repeatRate = kRateDefault;
     m_screenReader = false;
     m_cmdMode = true;
+    m_dailyCheck = false;
     Q_EMIT darkModeChanged();
     Q_EMIT accentColorChanged();
     Q_EMIT wallpaperPathChanged();
@@ -1272,6 +1448,7 @@ void NimbusModule::defaults()
     Q_EMIT repeatRateChanged();
     Q_EMIT screenReaderChanged();
     Q_EMIT cmdModeChanged();
+    Q_EMIT dailyCheckChanged();
     setNeedsSave(true);
     setRepresentsDefaults(true);
 }

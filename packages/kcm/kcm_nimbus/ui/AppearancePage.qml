@@ -15,6 +15,18 @@ KCMUtils.SimpleKCM {
     property var kcmRef: (typeof kcm !== "undefined") ? kcm : null
 
     Kirigami.FormLayout {
+        // Reset canónico de la sección (F8-T08): arriba para estar visible.
+        RowLayout {
+            QQC2.Button {
+                text: i18n("Restablecer esta sección")
+                Accessible.name: i18n("Restablecer esta sección a valores Nimbus")
+                onClicked: {
+                    if (page.kcmRef) {
+                        page.kcmRef.resetSection("appearance");
+                    }
+                }
+            }
+        }
         // Dos radios en vez de ComboBox: el checked deriva de kcm desde el
         // inicio (el ComboBox emite activated al asignar el modelo y
         // corrompe el estado antes de que el usuario toque nada).

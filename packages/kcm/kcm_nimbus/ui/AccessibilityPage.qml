@@ -13,6 +13,18 @@ KCMUtils.SimpleKCM {
     property var kcmRef: (typeof kcm !== "undefined") ? kcm : null
 
     Kirigami.FormLayout {
+        // Reset canónico de la sección (F8-T08): arriba para estar visible.
+        RowLayout {
+            QQC2.Button {
+                text: i18n("Restablecer esta sección")
+                Accessible.name: i18n("Restablecer esta sección a valores Nimbus")
+                onClicked: {
+                    if (page.kcmRef) {
+                        page.kcmRef.resetSection("accessibility");
+                    }
+                }
+            }
+        }
         QQC2.Switch {
             Kirigami.FormData.label: i18n("Ver:")
             text: i18n("Ampliar la pantalla con el teclado")

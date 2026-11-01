@@ -8,6 +8,5 @@
     <file alias="AccessibilityPage.qml">ui/AccessibilityPage.qml</file>
     <file alias="SystemPage.qml">ui/SystemPage.qml</file>
     <file alias="UpdatesPage.qml">ui/UpdatesPage.qml</file>
-    <file alias="NimbusPlaceholder.qml">ui/NimbusPlaceholder.qml</file>
   </qresource>
 </RCC>
