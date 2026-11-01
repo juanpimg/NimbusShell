@@ -18,6 +18,7 @@
 #include <QSet>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QTimer>
 #include <QUrl>
 #include <QtDBus/QDBusInterface>
 #include <QtDBus/QDBusReply>
@@ -686,6 +687,21 @@ bool NimbusIndex::copyToClipboard(const QString &text)
     QClipboard *c = QGuiApplication::clipboard();
     if (!c || text.isEmpty()) return false;
     c->setText(text);
+    return true;
+}
+
+bool NimbusIndex::pasteFromClipboard()
+{
+    // La app destino necesita recuperar el foco tras ocultar el overlay;
+    // ydotool (uinput) inyecta Ctrl+V sin depender del protocolo del compositor.
+    const QString exe = QStandardPaths::findExecutable(QStringLiteral("ydotool"));
+    if (exe.isEmpty())
+        return false;
+    QTimer::singleShot(260, this, [exe]() {
+        QProcess::startDetached(exe, {QStringLiteral("key"),
+                                      QStringLiteral("29:1"), QStringLiteral("47:1"),
+                                      QStringLiteral("47:0"), QStringLiteral("29:0")});
+    });
     return true;
 }
 

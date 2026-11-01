@@ -151,8 +151,11 @@ ApplicationWindow {
                 nimbus.recordEmoji(item.localExec);
             else
                 nimbus.recordUse(item.localId);
-            if (nimbus.copyToClipboard(item.localExec))
+            if (nimbus.copyToClipboard(item.localExec)) {
                 root.visible = false;
+                if (action === "paste")
+                    nimbus.pasteFromClipboard();
+            }
             return;
         }
         if (root.krunnerMode)
@@ -606,7 +609,7 @@ ApplicationWindow {
                         anchors.fill: parent
                         spacing: 8
                         Repeater {
-                            model: (root.tab === "clipboard") ? [["copy", qsTr("Copiar")], ["copy", qsTr("Pegar")]] : [["open", "Abrir"], ["copy", "Copiar"], ["reveal", "Revelar"]]
+                            model: (root.tab === "clipboard") ? [["copy", qsTr("Copiar")], ["paste", qsTr("Pegar")]] : [["open", "Abrir"], ["copy", "Copiar"], ["reveal", "Revelar"]]
                             delegate: Rectangle {
                                 width: 76
                                 height: 36 // F6-T07: hit target ≥36px (antes 72x28)

@@ -54,6 +54,8 @@ public:
     Q_INVOKABLE QVariantList clipboardEntries(const QString &filter = QString());
     // Copia texto al portapapeles (Pegar/Copiar cierra el overlay en QML).
     Q_INVOKABLE bool copyToClipboard(const QString &text);
+    // F6-T06: pega en la app con foco vía ydotool (si está disponible).
+    Q_INVOKABLE bool pasteFromClipboard();
     // Última latencia de clipboardEntries/emojiList (síncronos, sin señal).
     Q_INVOKABLE qint64 lastClipLatency() const { return m_latency; }
     // Emoji (F6-T06): datos propios, sin assets externos; i18n vía qsTr en QML.

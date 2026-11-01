@@ -192,6 +192,17 @@ if [ -d "$THEME_UNIT_DIR" ] && [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" 
     ln -sfn /usr/local/bin/nimbus-theme "$TARGET_HOME/.local/bin/nimbus-theme" || fail=1
     chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/systemd" "$TARGET_HOME/.local" 2>/dev/null || true
     log "OK: nimbus-theme-auto.timer habilitado para $TARGET_USER"
+    # F6-T06: autopegado con ydotool (uinput, sin root por sesión).
+    if getent group input >/dev/null 2>&1; then
+      usermod -aG input "$TARGET_USER" && log "OK: $TARGET_USER en grupo input (ydotool)" \
+        || log "AVISO: no se pudo añadir $TARGET_USER al grupo input"
+    fi
+    if [ -f /usr/lib/systemd/user/ydotool.service ]; then
+      ln -sfn /usr/lib/systemd/user/ydotool.service "$udir/default.target.wants/ydotool.service" || fail=1
+      log "OK: ydotoold (usuario) habilitado"
+    else
+      log "AVISO: ydotool no instalado; Pegar copiará sin autopegar"
+    fi
   fi
 else
   log "AVISO: sin unidades de tema o sin home; timer de tema omitido"
