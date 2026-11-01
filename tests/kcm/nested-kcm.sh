@@ -6,6 +6,7 @@
 #
 # Uso: bash tests/kcm/nested-kcm.sh [--out spikes/nested] [--timeout 60]
 #        [--prefix /tmp/nimbus-kcm-prefix] [--page appearance] [--shot f8-kcm.png]
+#        [--wait 6] [--autocheck]
 set -u
 
 OUT_DIR="spikes/nested"
@@ -13,6 +14,8 @@ TIMEOUT=60
 PREFIX="/tmp/nimbus-kcm-prefix"
 PAGE="appearance"
 SHOT_NAME="f8-kcm.png"
+WAIT_SECS=6
+AUTOCHECK=""
 for ((i=1; i<=$#; i++)); do
   case "${!i}" in
     --out) j=$((i+1)); OUT_DIR="${!j}" ;;
@@ -20,6 +23,8 @@ for ((i=1; i<=$#; i++)); do
     --prefix) j=$((i+1)); PREFIX="${!j}" ;;
     --page) j=$((i+1)); PAGE="${!j}" ;;
     --shot) j=$((i+1)); SHOT_NAME="${!j}" ;;
+    --wait) j=$((i+1)); WAIT_SECS="${!j}" ;;
+    --autocheck) AUTOCHECK="1" ;;
   esac
 done
 case "$PAGE" in
@@ -69,6 +74,8 @@ TIMEOUT="'"$TIMEOUT"'"
 PREFIX="'"$PREFIX"'"
 PAGE="'"$PAGE"'"
 REPO="'"$REPO_ROOT"'"
+WAIT_SECS="'"$WAIT_SECS"'"
+AUTOCHECK="'"$AUTOCHECK"'"
 export HOME="'"$NESTED_HOME"'"
 export XDG_RUNTIME_DIR="'"$RUNTIME_DIR"'"
 export XDG_CONFIG_HOME="'"$NESTED_HOME"'/.config"
@@ -88,6 +95,9 @@ export QT_PLUGIN_PATH="'"$PREFIX"'/usr/lib/qt6/plugins${QT_PLUGIN_PATH:+:$QT_PLU
 export XDG_DATA_DIRS="'"$PREFIX"'/usr/share:/usr/share"
 export QML_IMPORT_PATH=/usr/lib/qt6/qml
 export NIMBUS_KCM_PAGE="$PAGE"
+if [ -n "$AUTOCHECK" ]; then
+  export NIMBUS_KCM_AUTOCHECK=1
+fi
 trap '"'"'kill $(jobs -p) 2>/dev/null || true'"'"' EXIT
 
 echo "[kcm] arranque kwin_wayland --virtual ..." | tee -a "$LOG"
@@ -117,10 +127,10 @@ kwriteconfig6 --file kdeglobals --group Icons --key Theme breeze >>"$LOG" 2>&1 |
 # Alt+F4 y el KCM refleja Ctrl; en un sistema Nimbus rige nimbus-keys meta).
 "$REPO/scripts/nimbus-keys" --apply --toggle-cmd meta --home "$HOME" >>"$LOG" 2>&1 || true
 
-echo "[kcm] arranque kcmshell6 kcm_nimbus ..." | tee -a "$LOG"
+echo "[kcm] arranque kcmshell6 kcm_nimbus (pagina $PAGE) ..." | tee -a "$LOG"
 kcmshell6 kcm_nimbus >>"$LOG" 2>&1 &
 KCM_PID=$!
-sleep 6
+sleep "$WAIT_SECS"
 if kill -0 $KCM_PID 2>/dev/null; then
   echo "[kcm] kcmshell6 VIVO (pid $KCM_PID)" | tee -a "$LOG"
 else

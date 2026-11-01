@@ -10,6 +10,8 @@
 
 #include <KQuickConfigModule>
 
+class QProcess;
+
 class NimbusModule : public KQuickConfigModule
 {
     Q_OBJECT
@@ -34,8 +36,38 @@ class NimbusModule : public KQuickConfigModule
     Q_PROPERTY(bool orcaInstalled READ orcaInstalled CONSTANT)
     // F8-T04 — Atajos.
     Q_PROPERTY(bool cmdMode READ cmdMode WRITE setCmdMode NOTIFY cmdModeChanged)
+    // F8-T03 — Red (estado en vivo; los cambios aplican al momento).
+    Q_PROPERTY(bool wifiAvailable READ wifiAvailable CONSTANT)
+    Q_PROPERTY(bool wifiEnabled READ wifiEnabled WRITE setWifiEnabled NOTIFY wifiEnabledChanged)
+    Q_PROPERTY(QString wifiSsid READ wifiSsid NOTIFY wifiSsidChanged)
+    Q_PROPERTY(QStringList wifiNetworks READ wifiNetworks NOTIFY wifiNetworksChanged)
+    Q_PROPERTY(bool wifiScanning READ wifiScanning NOTIFY wifiScanningChanged)
+    Q_PROPERTY(bool bluetoothAvailable READ bluetoothAvailable CONSTANT)
+    Q_PROPERTY(bool bluetoothPowered READ bluetoothPowered WRITE setBluetoothPowered NOTIFY bluetoothPoweredChanged)
+    Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
+    Q_PROPERTY(bool printingAvailable READ printingAvailable CONSTANT)
+    Q_PROPERTY(QString printerInfo READ printerInfo NOTIFY printerInfoChanged)
+    // F8-T06 — Sistema (lecturas en vivo; NTP/energía aplican al momento).
+    Q_PROPERTY(QStringList userList READ userList NOTIFY userListChanged)
+    Q_PROPERTY(QString currentUser READ currentUser CONSTANT)
+    Q_PROPERTY(QString hostName READ hostName NOTIFY hostNameChanged)
+    Q_PROPERTY(QString timeZone READ timeZone NOTIFY timeZoneChanged)
+    Q_PROPERTY(bool ntpEnabled READ ntpEnabled WRITE setNtpEnabled NOTIFY ntpEnabledChanged)
+    Q_PROPERTY(QString systemLocale READ systemLocale NOTIFY systemLocaleChanged)
+    Q_PROPERTY(QString energyProfile READ energyProfile WRITE setEnergyProfile NOTIFY energyProfileChanged)
+    Q_PROPERTY(QStringList energyProfiles READ energyProfiles CONSTANT)
+    // F8-T07 — Updates (checkupdates sin root; async).
+    Q_PROPERTY(bool updatesAvailable READ updatesAvailable CONSTANT)
+    Q_PROPERTY(int updatesCount READ updatesCount NOTIFY updatesCountChanged)
+    Q_PROPERTY(QStringList updatesList READ updatesList NOTIFY updatesListChanged)
+    Q_PROPERTY(bool updatesChecking READ updatesChecking NOTIFY updatesCheckingChanged)
+    Q_PROPERTY(bool dailyCheck READ dailyCheck WRITE setDailyCheck NOTIFY dailyCheckChanged)
+    Q_PROPERTY(bool discoverInstalled READ discoverInstalled CONSTANT)
+    Q_PROPERTY(bool snapshotsAvailable READ snapshotsAvailable NOTIFY snapshotsAvailableChanged)
     // Seam de test: página inicial vía NIMBUS_KCM_PAGE (solo harness nested).
     Q_PROPERTY(QString initialPage READ initialPage CONSTANT)
+    // Seam de test: auto-comprobar updates al abrir (NIMBUS_KCM_AUTOCHECK).
+    Q_PROPERTY(bool autoCheckUpdates READ autoCheckUpdates CONSTANT)
     Q_PROPERTY(QString helperStatus READ helperStatus WRITE setHelperStatus NOTIFY helperStatusChanged)
 
 public:
@@ -79,7 +111,47 @@ public:
     bool cmdMode() const;
     void setCmdMode(bool meta);
 
+    // F8-T03.
+    bool wifiAvailable() const;
+    bool wifiEnabled() const;
+    void setWifiEnabled(bool on);
+    QString wifiSsid() const;
+    QStringList wifiNetworks() const;
+    bool wifiScanning() const;
+    bool bluetoothAvailable() const;
+    bool bluetoothPowered() const;
+    void setBluetoothPowered(bool on);
+    QStringList bluetoothDevices() const;
+    bool printingAvailable() const;
+    QString printerInfo() const;
+    Q_INVOKABLE void refreshWifi();
+    Q_INVOKABLE bool connectWifi(const QString &ssid, const QString &password);
+    Q_INVOKABLE void refreshBluetooth();
+    // F8-T06.
+    QStringList userList() const;
+    QString currentUser() const;
+    QString hostName() const;
+    QString timeZone() const;
+    bool ntpEnabled() const;
+    void setNtpEnabled(bool on);
+    QString systemLocale() const;
+    QString energyProfile() const;
+    void setEnergyProfile(const QString &profile);
+    QStringList energyProfiles() const;
+    Q_INVOKABLE void refreshSystem();
+    // F8-T07.
+    bool updatesAvailable() const;
+    int updatesCount() const;
+    QStringList updatesList() const;
+    bool updatesChecking() const;
+    bool dailyCheck() const;
+    void setDailyCheck(bool on);
+    bool discoverInstalled() const;
+    bool snapshotsAvailable() const;
+    Q_INVOKABLE void refreshUpdates();
+
     QString initialPage() const;
+    bool autoCheckUpdates() const;
     QString helperStatus() const;
     void setHelperStatus(const QString &status);
 
@@ -114,6 +186,25 @@ Q_SIGNALS:
     void repeatRateChanged();
     void screenReaderChanged();
     void cmdModeChanged();
+    void wifiEnabledChanged();
+    void wifiSsidChanged();
+    void wifiNetworksChanged();
+    void wifiScanningChanged();
+    void bluetoothPoweredChanged();
+    void bluetoothDevicesChanged();
+    void printerInfoChanged();
+    void userListChanged();
+    void hostNameChanged();
+    void timeZoneChanged();
+    void ntpEnabledChanged();
+    void systemLocaleChanged();
+    void energyProfileChanged();
+    void updatesCountChanged();
+    void updatesListChanged();
+    void updatesCheckingChanged();
+    void dailyCheckChanged();
+    void snapshotsAvailableChanged();
+    void updatesFinished();
     void helperStatusChanged();
 
 private:
@@ -146,4 +237,34 @@ private:
     QString m_initialPage;
     QString m_helperStatus;
     bool m_loaded = false;
+
+    // F8-T03 — estado en vivo.
+    bool m_nmcliAvailable = false;
+    bool m_wifiEnabled = false;
+    QString m_wifiSsid;
+    QStringList m_wifiNetworks;
+    bool m_wifiScanning = false;
+    bool m_bluetoothAvailable = false;
+    bool m_bluetoothPowered = false;
+    QStringList m_bluetoothDevices;
+    bool m_printingAvailable = false;
+    QString m_printerInfo;
+    // F8-T06 — estado en vivo.
+    QStringList m_userList;
+    QString m_currentUser;
+    QString m_hostName;
+    QString m_timeZone;
+    bool m_ntpEnabled = false;
+    QString m_systemLocale;
+    QString m_energyProfile;
+    QStringList m_energyProfiles;
+    // F8-T07 — estado en vivo.
+    bool m_checkupdatesAvailable = false;
+    int m_updatesCount = -1;
+    QStringList m_updatesList;
+    QProcess *m_updatesProc = nullptr;
+    bool m_dailyCheck = false;
+    bool m_discoverInstalled = false;
+    bool m_snapshotsAvailable = false;
+    bool m_autoCheckUpdates = false;
 };

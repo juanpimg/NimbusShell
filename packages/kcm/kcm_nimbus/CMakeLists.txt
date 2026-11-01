@@ -28,6 +28,18 @@ qt_add_library(kcm_nimbus MODULE
 
 # QML embebido: mismo prefijo que genera __kcmutils_target_qml_sources
 # (alias = nombre del fichero, SIN subdir ui/: el cargador pide main.qml).
+# OBJECT_DEPENDS: el .qrc manual no arrastra dependencias solo; sin esto el
+# rcc reutiliza QML viejo aunque cambien los ui/*.qml (cazado en F8-T03).
+set_property(SOURCE kcm_nimbus.qrc PROPERTY OBJECT_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/main.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/AppearancePage.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/NetworkPage.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/ShortcutsPage.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/AccessibilityPage.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/SystemPage.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/UpdatesPage.qml
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui/NimbusPlaceholder.qml
+)
 qt_add_resources(KCM_QML_RESOURCES kcm_nimbus.qrc)
 target_sources(kcm_nimbus PRIVATE ${KCM_QML_RESOURCES})
 

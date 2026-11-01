@@ -7,7 +7,9 @@
 
 #include <KPluginMetaData>
 #include <QCoreApplication>
+#include <QEventLoop>
 #include <QTextStream>
+#include <QTimer>
 
 static void dump(NimbusModule &m)
 {
@@ -32,6 +34,29 @@ static void dump(NimbusModule &m)
     out << "orcaInstalled=" << boolean(m.orcaInstalled()) << "\n";
     out << "cmdMode=" << boolean(m.cmdMode()) << "\n";
     out << "helperStatus=" << m.helperStatus() << "\n";
+    out << "wifiAvailable=" << boolean(m.wifiAvailable()) << "\n";
+    out << "wifiEnabled=" << boolean(m.wifiEnabled()) << "\n";
+    out << "wifiSsid=" << m.wifiSsid() << "\n";
+    out << "wifiCount=" << m.wifiNetworks().size() << "\n";
+    out << "bluetoothAvailable=" << boolean(m.bluetoothAvailable()) << "\n";
+    out << "bluetoothPowered=" << boolean(m.bluetoothPowered()) << "\n";
+    out << "btCount=" << m.bluetoothDevices().size() << "\n";
+    out << "printingAvailable=" << boolean(m.printingAvailable()) << "\n";
+    out << "printerInfo=" << m.printerInfo().replace("\n", " / ") << "\n";
+    out << "userCount=" << m.userList().size() << "\n";
+    out << "currentUser=" << m.currentUser() << "\n";
+    out << "hostName=" << m.hostName() << "\n";
+    out << "timeZone=" << m.timeZone() << "\n";
+    out << "ntpEnabled=" << boolean(m.ntpEnabled()) << "\n";
+    out << "systemLocale=" << m.systemLocale() << "\n";
+    out << "energyProfile=" << m.energyProfile() << "\n";
+    out << "energyProfiles=" << m.energyProfiles().join(",") << "\n";
+    out << "updatesAvailable=" << boolean(m.updatesAvailable()) << "\n";
+    out << "updatesCount=" << m.updatesCount() << "\n";
+    out << "updatesShown=" << m.updatesList().size() << "\n";
+    out << "dailyCheck=" << boolean(m.dailyCheck()) << "\n";
+    out << "discoverInstalled=" << boolean(m.discoverInstalled()) << "\n";
+    out << "snapshotsAvailable=" << boolean(m.snapshotsAvailable()) << "\n";
 }
 
 int main(int argc, char **argv)
@@ -68,6 +93,43 @@ int main(int argc, char **argv)
         m.save();
     } else if (scenario == QStringLiteral("defaults")) {
         m.defaults();
+        m.save();
+    } else if (scenario == QStringLiteral("network")) {
+        // Solo lectura (no tocar radios del host); load() ya escaneó.
+        m.refreshWifi();
+        m.refreshBluetooth();
+    } else if (scenario == QStringLiteral("system")) {
+        // Energía: cambio benigno y reversible (se restaura al final).
+        const QString original = m.energyProfile();
+        if (!m.energyProfiles().isEmpty()) {
+            const QString target =
+                m.energyProfiles().contains(QStringLiteral("balanced"))
+                    ? QStringLiteral("balanced")
+                    : m.energyProfiles().first();
+            m.setEnergyProfile(target);
+            m.refreshSystem();
+            QTextStream(stdout) << "energyRoundtrip=" << m.energyProfile() << "\n";
+            if (!original.isEmpty() && original != target) {
+                m.setEnergyProfile(original);
+            }
+        }
+        m.refreshSystem();
+    } else if (scenario == QStringLiteral("updates")) {
+        if (m.updatesAvailable()) {
+            QEventLoop loop;
+            QObject::connect(&m, &NimbusModule::updatesFinished, &loop, &QEventLoop::quit);
+            QTimer::singleShot(150000, &loop, &QEventLoop::quit);
+            m.refreshUpdates();
+            loop.exec();
+        }
+    } else if (scenario == QStringLiteral("schedule-on")) {
+        m.setDailyCheck(true);
+        m.save();
+    } else if (scenario == QStringLiteral("schedule-off")) {
+        // Parte del mismo HOME que schedule-on: verifica borrado.
+        m.load();
+        QTextStream(stdout) << "dailyCheckLoaded=" << (m.dailyCheck() ? "true" : "false") << "\n";
+        m.setDailyCheck(false);
         m.save();
     }
     dump(m);

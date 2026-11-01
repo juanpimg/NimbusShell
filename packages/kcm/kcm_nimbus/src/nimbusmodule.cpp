@@ -14,8 +14,14 @@
 #include <KPluginFactory>
 #include <KSharedConfig>
 #include <QDir>
+#include <QFile>
+#include <QHostInfo>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QTextStream>
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusInterface>
+#include <QtDBus/QDBusReply>
 
 K_PLUGIN_CLASS_WITH_JSON(NimbusModule, "metadata.json")
 
@@ -49,6 +55,26 @@ constexpr int kDelayDefault = 500;
 constexpr int kRateMin = 5;
 constexpr int kRateMax = 50;
 constexpr int kRateDefault = 25;
+} // namespace
+
+namespace
+{
+// Ejecuta y captura stdout (vacío si falla). Solo lecturas rápidas.
+QString runCapture(const QString &program, const QStringList &args, int timeoutMs = 10000)
+{
+    const QString exe = QStandardPaths::findExecutable(program);
+    if (exe.isEmpty()) {
+        return {};
+    }
+    QProcess proc;
+    proc.setProgram(exe);
+    proc.setArguments(args);
+    proc.start();
+    if (!proc.waitForFinished(timeoutMs) || proc.exitCode() != 0) {
+        return {};
+    }
+    return QString::fromUtf8(proc.readAllStandardOutput());
+}
 }
 
 NimbusModule::NimbusModule(QObject *parent, const KPluginMetaData &metaData)
@@ -56,6 +82,21 @@ NimbusModule::NimbusModule(QObject *parent, const KPluginMetaData &metaData)
     , m_orcaInstalled(!QStandardPaths::findExecutable(QStringLiteral("orca")).isEmpty())
 {
     setButtons(Apply | Default);
+    m_currentUser = QString::fromLocal8Bit(qgetenv("USER"));
+    if (m_currentUser.isEmpty()) {
+        m_currentUser = QString::fromLocal8Bit(qgetenv("LOGNAME"));
+    }
+    m_nmcliAvailable = !QStandardPaths::findExecutable(QStringLiteral("nmcli")).isEmpty();
+    m_bluetoothAvailable = !QStandardPaths::findExecutable(QStringLiteral("bluetoothctl")).isEmpty();
+    m_printingAvailable = !QStandardPaths::findExecutable(QStringLiteral("lpstat")).isEmpty();
+    m_checkupdatesAvailable =
+        !QStandardPaths::findExecutable(QStringLiteral("checkupdates")).isEmpty();
+    if (!m_checkupdatesAvailable) {
+        m_checkupdatesAvailable =
+            !QStandardPaths::findExecutable(QStringLiteral("pacman")).isEmpty();
+    }
+    m_discoverInstalled =
+        !QStandardPaths::findExecutable(QStringLiteral("plasma-discover")).isEmpty();
     const QString page = QString::fromLocal8Bit(qgetenv("NIMBUS_KCM_PAGE")).trimmed().toLower();
     // Seam solo-harness: ids válidos de docs/plans/research/F8-kcm.md.
     static const QStringList valid{
@@ -63,6 +104,7 @@ NimbusModule::NimbusModule(QObject *parent, const KPluginMetaData &metaData)
         QStringLiteral("accessibility"), QStringLiteral("system"), QStringLiteral("updates"),
     };
     m_initialPage = valid.contains(page) ? page : QStringLiteral("appearance");
+    m_autoCheckUpdates = QString::fromLocal8Bit(qgetenv("NIMBUS_KCM_AUTOCHECK")) == QStringLiteral("1");
 }
 
 void NimbusModule::markDirty()
@@ -416,6 +458,11 @@ QString NimbusModule::initialPage() const
     return m_initialPage;
 }
 
+bool NimbusModule::autoCheckUpdates() const
+{
+    return m_autoCheckUpdates;
+}
+
 QString NimbusModule::helperStatus() const
 {
     return m_helperStatus;
@@ -537,8 +584,31 @@ void NimbusModule::load()
     Q_EMIT keyboardRepeatChanged();
     Q_EMIT repeatDelayChanged();
     Q_EMIT repeatRateChanged();
+    // Estado en vivo (F8-T03/T06; T07 no auto-escanea: checkupdates tarda).
+    refreshWifi();
+    refreshBluetooth();
+    if (!m_printingAvailable) {
+        m_printerInfo = QString();
+    } else {
+        m_printerInfo =
+            runCapture(QStringLiteral("lpstat"), {QStringLiteral("-p")}).trimmed();
+    }
+    refreshSystem();
+    const QString timerPath =
+        QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
+        + QStringLiteral("/systemd/user/nimbus-updates-check.timer");
+    m_dailyCheck = QFile::exists(timerPath);
+    if (QStandardPaths::findExecutable(QStringLiteral("snapper")).isEmpty()) {
+        m_snapshotsAvailable = false;
+    } else {
+        m_snapshotsAvailable =
+            !runCapture(QStringLiteral("snapper"), {QStringLiteral("list-configs")}).trimmed().isEmpty();
+    }
     Q_EMIT screenReaderChanged();
     Q_EMIT cmdModeChanged();
+    Q_EMIT printerInfoChanged();
+    Q_EMIT dailyCheckChanged();
+    Q_EMIT snapshotsAvailableChanged();
 }
 
 void NimbusModule::save()
@@ -663,8 +733,507 @@ void NimbusModule::save()
         notes << QStringLiteral("sin nimbus-keys");
     }
 
+    // F8-T07: programar comprobación diaria (timer de usuario, sin root).
+    const QString sysDir =
+        QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
+        + QStringLiteral("/systemd/user");
+    const QString servicePath = sysDir + QStringLiteral("/nimbus-updates-check.service");
+    const QString timerPath = sysDir + QStringLiteral("/nimbus-updates-check.timer");
+    if (m_dailyCheck) {
+        QDir().mkpath(sysDir);
+        QFile service(servicePath);
+        if (service.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+            QTextStream out(&service);
+            out << "[Unit]\nDescription=Nimbus: comprobar actualizaciones pendientes\n\n"
+                   "[Service]\nType=oneshot\nExecStart="
+                << QStandardPaths::findExecutable(QStringLiteral("checkupdates"),
+                                                  {QStringLiteral("/usr/bin")})
+                << "\n";
+        }
+        QFile timer(timerPath);
+        if (timer.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+            QTextStream out(&timer);
+            out << "[Unit]\nDescription=Nimbus: comprobar actualizaciones a diario\n\n"
+                   "[Timer]\nOnCalendar=daily\nPersistent=true\n\n"
+                   "[Install]\nWantedBy=timers.target\n";
+        }
+        if (!runHelper(QStringLiteral("systemctl"),
+                       {QStringLiteral("--user"), QStringLiteral("daemon-reload")})
+            || !runHelper(QStringLiteral("systemctl"),
+                          {QStringLiteral("--user"), QStringLiteral("enable"),
+                           QStringLiteral("nimbus-updates-check.timer")})) {
+            notes << QStringLiteral("temporizador guardado (actívalo con systemctl --user)");
+        }
+    } else {
+        QFile::remove(servicePath);
+        QFile::remove(timerPath);
+    }
+
     setHelperStatus(notes.isEmpty() ? QString() : notes.join(QStringLiteral(" · ")));
     setNeedsSave(false);
+}
+
+// --- F8-T03: Red en vivo (nmcli/bluetoothctl/lpstat, sin root) ---
+
+bool NimbusModule::wifiAvailable() const
+{
+    return m_nmcliAvailable;
+}
+
+bool NimbusModule::wifiEnabled() const
+{
+    return m_wifiEnabled;
+}
+
+void NimbusModule::setWifiEnabled(bool on)
+{
+    if (!m_nmcliAvailable) {
+        setHelperStatus(QStringLiteral("Sin wifi en este equipo."));
+        return;
+    }
+    if (!runHelper(QStringLiteral("nmcli"), {QStringLiteral("radio"), QStringLiteral("wifi"),
+                                             on ? QStringLiteral("on") : QStringLiteral("off")})) {
+        setHelperStatus(QStringLiteral("No se pudo cambiar el wifi (puede pedir permiso)."));
+        return;
+    }
+    m_wifiEnabled = on;
+    Q_EMIT wifiEnabledChanged();
+    refreshWifi();
+}
+
+QString NimbusModule::wifiSsid() const
+{
+    return m_wifiSsid;
+}
+
+QStringList NimbusModule::wifiNetworks() const
+{
+    return m_wifiNetworks;
+}
+
+bool NimbusModule::wifiScanning() const
+{
+    return m_wifiScanning;
+}
+
+void NimbusModule::refreshWifi()
+{
+    if (!m_nmcliAvailable) {
+        return;
+    }
+    m_wifiScanning = true;
+    Q_EMIT wifiScanningChanged();
+    m_wifiEnabled =
+        runCapture(QStringLiteral("nmcli"), {QStringLiteral("radio"), QStringLiteral("wifi")})
+            .trimmed()
+        == QStringLiteral("enabled");
+    Q_EMIT wifiEnabledChanged();
+    // Activa primero (conectar exige escaneo reciente); lista terseada
+    // ACTIVE,SSID,SIGNAL,SECURITY. Sin secretos en ningún fichero.
+    runCapture(QStringLiteral("nmcli"), {QStringLiteral("device"), QStringLiteral("wifi"),
+                                         QStringLiteral("rescan")}, 15000);
+    const QString out =
+        runCapture(QStringLiteral("nmcli"),
+                   {QStringLiteral("-t"), QStringLiteral("-f"),
+                    QStringLiteral("ACTIVE,SSID,SIGNAL,SECURITY"), QStringLiteral("device"),
+                    QStringLiteral("wifi"), QStringLiteral("list")}, 20000);
+    m_wifiNetworks.clear();
+    m_wifiSsid.clear();
+    const QStringList lines = out.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        // SSID puede llevar '\:' escapado: partir por ':' no escapados.
+        QStringList fields;
+        QString current;
+        bool escape = false;
+        for (const QChar ch : line) {
+            if (escape) {
+                current += ch;
+                escape = false;
+            } else if (ch == QLatin1Char('\\')) {
+                escape = true;
+            } else if (ch == QLatin1Char(':')) {
+                fields << current;
+                current.clear();
+            } else {
+                current += ch;
+            }
+        }
+        fields << current;
+        if (fields.size() < 4 || fields.at(1).isEmpty()) {
+            continue;
+        }
+        const bool active = fields.at(0).trimmed().compare(QLatin1String("yes"),
+                                                           Qt::CaseInsensitive)
+            == 0;
+        if (active) {
+            m_wifiSsid = fields.at(1);
+        }
+        // Forma "ssid|señal|seguridad|activa" para el delegado QML.
+        m_wifiNetworks
+            << QStringLiteral("%1|%2|%3|%4")
+                   .arg(fields.at(1), fields.at(2).trimmed(), fields.at(3).trimmed(),
+                        active ? QStringLiteral("1") : QStringLiteral("0"));
+    }
+    Q_EMIT wifiSsidChanged();
+    Q_EMIT wifiNetworksChanged();
+    m_wifiScanning = false;
+    Q_EMIT wifiScanningChanged();
+}
+
+bool NimbusModule::connectWifi(const QString &ssid, const QString &password)
+{
+    if (!m_nmcliAvailable || ssid.isEmpty()) {
+        return false;
+    }
+    // La contraseña viaja solo en memoria al proceso nmcli; jamás se guarda.
+    QStringList args{QStringLiteral("device"), QStringLiteral("wifi"),
+                     QStringLiteral("connect"), ssid};
+    if (!password.isEmpty()) {
+        args << QStringLiteral("password") << password;
+    }
+    const bool ok = runHelper(QStringLiteral("nmcli"), args, 45000);
+    setHelperStatus(ok ? QStringLiteral("Conectado a %1.").arg(ssid)
+                       : QStringLiteral("No se pudo conectar a %1.").arg(ssid));
+    if (ok) {
+        refreshWifi();
+    }
+    return ok;
+}
+
+bool NimbusModule::bluetoothAvailable() const
+{
+    return m_bluetoothAvailable;
+}
+
+bool NimbusModule::bluetoothPowered() const
+{
+    return m_bluetoothPowered;
+}
+
+void NimbusModule::setBluetoothPowered(bool on)
+{
+    if (!m_bluetoothAvailable) {
+        setHelperStatus(QStringLiteral("Sin Bluetooth en este equipo."));
+        return;
+    }
+    if (!runHelper(QStringLiteral("bluetoothctl"),
+                   {QStringLiteral("power"), on ? QStringLiteral("on") : QStringLiteral("off")})) {
+        setHelperStatus(QStringLiteral("No se pudo cambiar el Bluetooth."));
+        return;
+    }
+    m_bluetoothPowered = on;
+    Q_EMIT bluetoothPoweredChanged();
+    refreshBluetooth();
+}
+
+QStringList NimbusModule::bluetoothDevices() const
+{
+    return m_bluetoothDevices;
+}
+
+void NimbusModule::refreshBluetooth()
+{
+    if (!m_bluetoothAvailable) {
+        return;
+    }
+    const QString show =
+        runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("show")});
+    m_bluetoothPowered = show.contains(QStringLiteral("Powered: yes"));
+    Q_EMIT bluetoothPoweredChanged();
+    // Forma "nombre|mac|conectado" (solo vinculados; emparejar pide agente).
+    m_bluetoothDevices.clear();
+    const QStringList lines =
+        runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("devices")})
+            .split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        // "Device MAC Nombre con espacios"
+        const QStringList parts = line.split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        if (parts.size() < 3 || parts.at(0) != QLatin1String("Device")) {
+            continue;
+        }
+        const QString mac = parts.at(1);
+        const QString name = parts.mid(2).join(QLatin1Char(' '));
+        const QString info =
+            runCapture(QStringLiteral("bluetoothctl"), {QStringLiteral("info"), mac});
+        const bool connected = info.contains(QStringLiteral("Connected: yes"));
+        m_bluetoothDevices << QStringLiteral("%1|%2|%3").arg(
+            name, mac, connected ? QStringLiteral("1") : QStringLiteral("0"));
+    }
+    Q_EMIT bluetoothDevicesChanged();
+}
+
+bool NimbusModule::printingAvailable() const
+{
+    return m_printingAvailable;
+}
+
+QString NimbusModule::printerInfo() const
+{
+    return m_printerInfo;
+}
+
+// --- F8-T06: Sistema en vivo ---
+
+QStringList NimbusModule::userList() const
+{
+    return m_userList;
+}
+
+QString NimbusModule::currentUser() const
+{
+    return m_currentUser;
+}
+
+QString NimbusModule::hostName() const
+{
+    return m_hostName;
+}
+
+QString NimbusModule::timeZone() const
+{
+    return m_timeZone;
+}
+
+bool NimbusModule::ntpEnabled() const
+{
+    return m_ntpEnabled;
+}
+
+void NimbusModule::setNtpEnabled(bool on)
+{
+    // timedatectl set-ntp exige privilegios: lo intenta (en sesión real
+    // pide autenticación) y cuenta lo que pasó.
+    if (runHelper(QStringLiteral("timedatectl"),
+                  {QStringLiteral("set-ntp"), on ? QStringLiteral("true")
+                                                 : QStringLiteral("false")})) {
+        m_ntpEnabled = on;
+        Q_EMIT ntpEnabledChanged();
+    } else {
+        setHelperStatus(QStringLiteral("Cambiar NTP necesita permiso de administrador."));
+    }
+}
+
+QString NimbusModule::systemLocale() const
+{
+    return m_systemLocale;
+}
+
+QString NimbusModule::energyProfile() const
+{
+    return m_energyProfile;
+}
+
+void NimbusModule::setEnergyProfile(const QString &profile)
+{
+    if (profile.isEmpty() || !m_energyProfiles.contains(profile)) {
+        return;
+    }
+    if (!runHelper(QStringLiteral("powerprofilesctl"), {QStringLiteral("set"), profile})) {
+        setHelperStatus(QStringLiteral("No se pudo cambiar el perfil de energía."));
+        return;
+    }
+    m_energyProfile = profile;
+    Q_EMIT energyProfileChanged();
+}
+
+QStringList NimbusModule::energyProfiles() const
+{
+    return m_energyProfiles;
+}
+
+void NimbusModule::refreshSystem()
+{
+    // Usuarios: AccountsService por D-Bus; sin él, /etc/passwd
+    // (uid>=1000 con shell válida + root; jamás contraseñas).
+    m_userList.clear();
+    bool viaAccounts = false;
+    QDBusInterface accounts(QStringLiteral("org.freedesktop.Accounts"),
+                            QStringLiteral("/org/freedesktop/Accounts"),
+                            QStringLiteral("org.freedesktop.Accounts"),
+                            QDBusConnection::systemBus());
+    if (accounts.isValid()) {
+        QDBusReply<QList<QDBusObjectPath>> reply = accounts.call(QStringLiteral("ListCachedUsers"));
+        if (reply.isValid()) {
+            for (const QDBusObjectPath &path : reply.value()) {
+                QDBusInterface user(QStringLiteral("org.freedesktop.Accounts"), path.path(),
+                                    QStringLiteral("org.freedesktop.Accounts.User"),
+                                    QDBusConnection::systemBus());
+                if (!user.isValid()) {
+                    continue;
+                }
+                const QString name = user.property("UserName").toString();
+                const QString real = user.property("RealName").toString();
+                if (name.isEmpty()) {
+                    continue;
+                }
+                m_userList << QStringLiteral("%1|%2|%3").arg(
+                    name, real, name == m_currentUser ? QStringLiteral("1") : QStringLiteral("0"));
+            }
+            viaAccounts = !m_userList.isEmpty();
+        }
+    }
+    if (!viaAccounts) {
+        QFile passwd(QStringLiteral("/etc/passwd"));
+        if (passwd.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&passwd);
+            while (!in.atEnd()) {
+                const QStringList fields = in.readLine().split(QLatin1Char(':'));
+                if (fields.size() < 7) {
+                    continue;
+                }
+                const QString name = fields.at(0);
+                const int uid = fields.at(2).toInt();
+                const QString shell = fields.at(6);
+                const bool loginOk = !shell.endsWith(QLatin1String("nologin"))
+                    && !shell.endsWith(QLatin1String("false"));
+                if ((uid >= 1000 && loginOk) || uid == 0) {
+                    m_userList << QStringLiteral("%1|%2|%3").arg(
+                        name, fields.at(4).split(QLatin1Char(',')).first(),
+                        name == m_currentUser ? QStringLiteral("1") : QStringLiteral("0"));
+                }
+            }
+        }
+    }
+    Q_EMIT userListChanged();
+
+    m_hostName = QHostInfo::localHostName();
+    Q_EMIT hostNameChanged();
+
+    m_timeZone =
+        runCapture(QStringLiteral("timedatectl"), {QStringLiteral("show"), QStringLiteral("-p"),
+                                                   QStringLiteral("Timezone")})
+            .trimmed()
+            .remove(QStringLiteral("Timezone="));
+    Q_EMIT timeZoneChanged();
+    m_ntpEnabled =
+        runCapture(QStringLiteral("timedatectl"), {QStringLiteral("show"), QStringLiteral("-p"),
+                                                   QStringLiteral("NTP")})
+            .trimmed()
+            .endsWith(QLatin1String("yes"), Qt::CaseInsensitive);
+    Q_EMIT ntpEnabledChanged();
+
+    m_systemLocale =
+        runCapture(QStringLiteral("localectl"), {QStringLiteral("status")})
+            .split(QLatin1Char('\n'), Qt::SkipEmptyParts)
+            .filter(QStringLiteral("System Locale"))
+            .value(0)
+            .trimmed();
+    Q_EMIT systemLocaleChanged();
+
+    m_energyProfiles.clear();
+    const QStringList profilesOut =
+        runCapture(QStringLiteral("powerprofilesctl"), {QStringLiteral("list")})
+            .split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (QString line : profilesOut) {
+        line = line.trimmed();
+        if (line.startsWith(QLatin1Char('*'))) {
+            line = line.mid(1).trimmed();
+        }
+        if (line.endsWith(QLatin1Char(':'))) {
+            line.chop(1);
+        }
+        if (line == QStringLiteral("balanced") || line == QStringLiteral("performance")
+            || line == QStringLiteral("power-saver")) {
+            m_energyProfiles << line;
+            if (profilesOut.join(QLatin1Char('\n')).contains(QLatin1String("* ") + line + QLatin1Char(':'))) {
+                m_energyProfile = line;
+            }
+        }
+    }
+    if (m_energyProfile.isEmpty() && !m_energyProfiles.isEmpty()) {
+        m_energyProfile = runCapture(QStringLiteral("powerprofilesctl"),
+                                     {QStringLiteral("get")})
+                              .trimmed();
+    }
+    Q_EMIT energyProfileChanged();
+}
+
+// --- F8-T07: Updates sin root (checkupdates async) ---
+
+bool NimbusModule::updatesAvailable() const
+{
+    return m_checkupdatesAvailable;
+}
+
+int NimbusModule::updatesCount() const
+{
+    return m_updatesCount;
+}
+
+QStringList NimbusModule::updatesList() const
+{
+    return m_updatesList;
+}
+
+bool NimbusModule::updatesChecking() const
+{
+    return m_updatesProc != nullptr;
+}
+
+bool NimbusModule::dailyCheck() const
+{
+    return m_dailyCheck;
+}
+
+void NimbusModule::setDailyCheck(bool on)
+{
+    if (m_dailyCheck == on) {
+        return;
+    }
+    m_dailyCheck = on;
+    Q_EMIT dailyCheckChanged();
+    markDirty();
+}
+
+bool NimbusModule::discoverInstalled() const
+{
+    return m_discoverInstalled;
+}
+
+bool NimbusModule::snapshotsAvailable() const
+{
+    return m_snapshotsAvailable;
+}
+
+void NimbusModule::refreshUpdates()
+{
+    if (m_updatesProc != nullptr) {
+        return;
+    }
+    QString program = QStandardPaths::findExecutable(QStringLiteral("checkupdates"));
+    QStringList args;
+    if (program.isEmpty()) {
+        // Fallback: pacman -Qu (solo lectura del db de sincronización).
+        program = QStandardPaths::findExecutable(QStringLiteral("pacman"));
+        if (program.isEmpty()) {
+            setHelperStatus(QStringLiteral("Sin gestor de paquetes en este equipo."));
+            return;
+        }
+        args = {QStringLiteral("-Qu")};
+    }
+    m_updatesProc = new QProcess(this);
+    connect(m_updatesProc, &QProcess::finished, this,
+            [this](int exitCode, QProcess::ExitStatus) {
+                QStringList lines;
+                if (m_updatesProc != nullptr) {
+                    // checkupdates rc=2 == sin actualizaciones; pacman -Qu rc=0.
+                    lines = QString::fromUtf8(m_updatesProc->readAllStandardOutput())
+                                .split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+                    m_updatesProc->deleteLater();
+                    m_updatesProc = nullptr;
+                }
+                Q_UNUSED(exitCode);
+                m_updatesCount = lines.size();
+                m_updatesList = lines.mid(0, 15);
+                Q_EMIT updatesCountChanged();
+                Q_EMIT updatesListChanged();
+                Q_EMIT updatesCheckingChanged();
+                Q_EMIT updatesFinished();
+            });
+    m_updatesProc->setProgram(program);
+    m_updatesProc->setArguments(args);
+    m_updatesProc->start();
+    Q_EMIT updatesCheckingChanged();
 }
 
 void NimbusModule::defaults()

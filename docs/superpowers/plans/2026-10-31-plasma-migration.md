@@ -183,7 +183,7 @@
 - [x] **F6-T04 — Apps (Tahoe, sin Launchpad).** Files: `packages/plasma/`, `apps/nimbus-apps/`. Acciones: Apps Tahoe (NO Launchpad, R-APPSVIEW): ventana centrada, Cmd+1, categorías fijas + Suggestions, vistas Icons/List; sin carpetas/páginas/reorden. Accept: abre/cierra verificado (DBus toggle; Meta+1 script documentado); ventana estática sin animación; fps real en F6-T08/A5; captura. Dep: F2.
 - [x] **F6-T05 — Vistas y categorías de Apps.** Files: `apps/nimbus-apps/`. Acciones: vistas Icons/List, categorías, Suggestions, orden Category/Name; sin carpetas/páginas/reorden (R-APPSVIEW). Accept: Icons/List, 10 categorías, Suggestions persistentes, orden alfabético; 21 checks; capturas. Dep: F6-T04.
 - [ ] **F6-T06 — Portapapeles y emoji.** Files: `apps/`, `packages/plasma/`. Acciones: port MacBar clipboard/emoji; atajos. Accept: pega en apps; captura. Estado: clipboard klipper→archivo→wl-paste, copia+cierra y emoji 66/8 cat. verificados; autopaste en app destino pendiente VM (sin inyector). Dep: F6-T01.
-- [ ] **F6-T07 — Teclado y accesibilidad.** Files: `apps/*`. Acciones: navegación completa, lector, foco visible. Accept: 0 uso de ratón; Orca. Dep: F6-T02.
+- [ ] **F6-T07 — Teclado y accesibilidad.** Files: `apps/*`. Acciones: navegación completa, lector, foco visible. Accept: navegación/foco/Accesible 35+30 checks y capturas; Orca no instalado → pendiente VM/AT-SPI. Dep: F6-T02.
 - [x] **F6-T08 — Rendimiento.** Files: `tests/vm/spotlight.sh`. Acciones: latencia, RAM, 10k archivos. Accept: query frío 1-3ms / caliente 15ms, toggle med 8ms, 10k, 0 QML, sin freeze; RSS 231-252MB informativo. Dep: F6-T03.
 - [ ] **F6-T09 — Aceptación Spotlight/Apps.** Files: `tests/vm/spotlight-acceptance.sh`. Acciones: 20 consultas + 10 apps + teclado + Cmd1-4 + QuickKeys. Accept: A6 y todo verde; evidence. Dep: F6-T01..T08.
 
@@ -212,11 +212,11 @@
 
 - [x] **F8-T01 — KCM Nimbus esqueleto.** Files: `packages/kcm/kcm_nimbus/`. Acciones: Kirigami, 6 páginas, búsqueda, `systemsettings` lo carga. Accept: plugin C++ KQuickConfigModule (kpackagetool6 N/A, documentado), instala por DESTDIR, `kcmshell6` abre 6 páginas, 0 QML; captura. Dep: F2.
 - [x] **F8-T02 — Página Apariencia.** Files: `packages/kcm/kcm_nimbus/`. Acciones: tema, acento, fondo, Dock, barra, animaciones; preview. Accept: tema/acento/Dock/barra/anims + reset vía config real (HOME temporal, 24/24 tests); cambio en sesión viva en VM. Dep: F8-T01.
-- [ ] **F8-T03 — Página Red/BT/Impresoras.** Files: `packages/kcm/kcm_nimbus/`. Acciones: embeber KCMs, estados, mensajes llanos. Accept: conectar Wi-Fi/BT; imprimir prueba. Dep: F8-T01.
+- [ ] **F8-T03 — Página Red/BT/Impresoras.** Files: `packages/kcm/kcm_nimbus/`. Acciones: embeber KCMs, estados, mensajes llanos. Accept: conectar Wi-Fi/BT; imprimir prueba. Estado: Wi-Fi conectar + lectura NM/BT/impresoras; BT connect y print test pendientes. Dep: F8-T01.
 - [x] **F8-T04 — Página Atajos Cmd/Ctrl.** Files: `packages/kcm/kcm_nimbus/`. Acciones: toggle, cheat sheet, reset; sin Ctrl por defecto. Accept: toggle Meta/Ctrl sobre 30 atajos (nimbus-keys), persistencia; chuleta 8 esenciales + enlace kcm_keys. Dep: F8-T01.
 - [x] **F8-T05 — Página Accesibilidad.** Files: `packages/kcm/kcm_nimbus/`. Acciones: zoom, contraste, reduce motion/transparency, teclado, Orca. Accept: zoom/invert/reduce-motion/blur/teclado/Orca vía config+kaccessrc (24/24), captura; dconf en VM. Dep: F8-T01.
-- [ ] **F8-T06 — Página Sistema/Usuarios/Fecha-hora.** Files: `packages/kcm/kcm_nimbus/`. Acciones: usuarios/cuentas, fecha-hora/NTP, locale, energía; mensajes llanos. Accept: cambios persistentes; tests. Dep: F8-T01.
-- [ ] **F8-T07 — Página Updates/Discover.** Files: `packages/kcm/kcm_nimbus/`. Acciones: estado de updates, programar, enlaces a Discover/rollback; sin jerga. Accept: actualiza 1 paquete; captura. Dep: F8-T01.
+- [ ] **F8-T06 — Página Sistema/Usuarios/Fecha-hora.** Files: `packages/kcm/kcm_nimbus/`. Acciones: usuarios/cuentas, fecha-hora/NTP, locale, energía; mensajes llanos. Accept: cambios persistentes; tests. Estado: usuarios/tz/locale/energía lectura, NTP/energía/timer persistentes; setters de usuarios/locale pendientes. Dep: F8-T01.
+- [ ] **F8-T07 — Página Updates/Discover.** Files: `packages/kcm/kcm_nimbus/`. Acciones: estado de updates, programar, enlaces a Discover/rollback; sin jerga. Accept: actualiza 1 paquete; captura. Estado: lista checkupdates + timer; instalar 1 paquete delegado a Discover (sin botón) pendiente. Dep: F8-T01.
 - [ ] **F8-T08 — Reset, persistencia y tests.** Files: `tests/kcm/`. Acciones: defaults, backup, JSON/KConfig; tests de todas las páginas. Accept: reset deja estado canónico; tests. Dep: F8-T02..T07.
 
 **Gate F8:** el KCM abre las 6 páginas, reset canónico verde y `systemsettings` lo carga sin errores; si no, no entra onboarding.
@@ -229,7 +229,7 @@
 
 - [ ] **F9-T01 — Calamares pulido.** Files: `iso/calamares/`. Acciones: mismo `settings.conf` que F2-T07; idioma/teclado/zona/cuenta/particiones; textos llanos; marca. Accept: instalación guiada sin terminal; cronómetro. Dep: F2-T07.
 - [x] **F9-T02 — Wizard de primer arranque (6 pasos).** Files: `apps/nimbus-welcome/`. Acciones: bienvenida, idioma, Wi-Fi, cuenta/avatar, apariencia, apps, tour; i18n: cadenas desde I18n.js, destino ki18n/.ts (F11-T05). Accept: 6 pasos, skip/reanudar persistido (STEP=4), 4/4 tests, capturas; cronómetro real y autostart en ISO (F2-T08). Dep: F9-T01.
-- [ ] **F9-T03 — Elección de layout Mac/Win/Nimbus.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: presets de panel/atajos/Dock. Accept: cambia layout; reversible. Dep: F9-T02.
+- [x] **F9-T03 — Elección de layout Mac/Win/Nimbus.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: presets de panel/atajos/Dock. Accept: mac (XIA/Meta), windows (IAX/Ctrl), nimbus (Meta); persistencia, revert y 7/7 tests; capturas. Dep: F9-T02.
 - [ ] **F9-T04 — Apps recomendadas.** Files: `apps/nimbus-welcome/`. Acciones: selección Flatpak/PackageKit; progreso; sin bloquear. Accept: instala 3 apps; tests. Dep: F9-T02.
 - [ ] **F9-T05 — Migrador Windows/Mac.** Files: `apps/nimbus-migrate/`. Acciones: documentos, marcadores, fondo, lista de equivalencias; dry-run. Accept: importa 3 tipos; no sobrescribe; tests. Dep: F9-T02.
 - [ ] **F9-T06 — Toggle Cmd/Ctrl y chuleta.** Files: `apps/nimbus-welcome/`, `settings/`. Acciones: remapeo, PDF/HTML de atajos. Accept: 20 atajos; reversible. Dep: F9-T02.
@@ -248,7 +248,7 @@
 - [x] **F10-T02 — Finder-like Dolphin.** Files: `dotfiles/.config/dolphinrc`, `apps/`. Acciones: vista columnas, sidebar, previews, Quick Look si viable. Accept: 10 ops (touch/mv/cp/trash/restore/sort), vista compacta, sidebar/previews, 1100x700; captura. Dep: F2.
 - [x] **F10-T03 — Terminal y apps por defecto.** Files: `dotfiles/.config/konsolerc`, `apps/`. Acciones: Konsole tema, fuente, perfil; defaults (navegador, correo, imagen, archivo). Accept: Konsole Nimbus (JetBrains Mono 12, scheme, opacidad); 6/6 MIME (https/html/pdf/jpeg/directory/mp4); captura. Dep: F2.
 - [ ] **F10-T04 — Lock/login.** Files: `packages/themes/`, `dotfiles/.config/kscreenlockerrc`. Acciones: kscreenlocker/SDDM tema Nimbus, avatar, blur; bloqueo por atajo. Accept: lock/unlock; capturas. Estado: tema org.nimbus.desktop + greeter --testing + preview tarjeta; unlock PAM real pendiente VM; kglobals Lock Session=Meta+Ctrl+Q. Dep: F2.
-- [ ] **F10-T05 — OSD/notificaciones/sonidos/screenshot.** Files: `packages/themes/`, `apps/`. Acciones: OSD in-situ en barra, sonidos propios, Spectacle, notificaciones; atajos. Accept: 5 acciones; capturas. Dep: F3.
+- [x] **F10-T05 — OSD/notificaciones/sonidos/screenshot.** Files: `packages/themes/`, `apps/`. Acciones: OSD in-situ en barra, sonidos propios, Spectacle, notificaciones; atajos. Accept: 7 sonidos propios ≤300ms + Spectacle + notify/banner capturados; audio real en VM (sin PipeWire nested). Dep: F3.
 - [ ] **F10-T06 — XWayland y apps legacy.** Files: `dotfiles/.config/`, `tests/vm/`. Acciones: XWayland, Electron/Ozone flags, GTK CSD, matriz de 8 apps; sin ventanas negras. Accept: matriz verde; captura. Dep: F10-T03.
 - [ ] **F10-T07 — nimbus-hw, Konsave y harness.** Files: `apps/nimbus-hw/`, `apps/backup/`, `tests/vm/`. Acciones: detección hardware estilo chwd, presets Konsave, harness `kwshot`/`qdbus6` versionado. Accept: detecta GPU/Wi-Fi/impresora; harness reproducible. Dep: F9-T10.
 
@@ -258,8 +258,8 @@
 
 **Objetivo:** cerrar la brecha visual y de accesibilidad.
 
-- [ ] **F11-T01 — Animaciones macOS.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: Magic Lamp, zoom, dock bounce, overview, sheets; t-quick 250ms, t-normal 350ms, MC 400-500ms, reduce motion fade 150ms; curvas del contrato §2.5. Accept: 5 animaciones; 60fps; vídeo. Dep: F4,F5,F7.
-- [ ] **F11-T02 — Glass/Liquid Glass.** Files: `packages/kwin/effects/`, `packages/themes/`. Acciones: blur/refracción en barra/Dock/paneles; preferir blur stock antes de Better Blur; pin commit xarblu/Glass; tiers alto/bajo; reduce transparency (A9). Accept: visual + fps; toggle. Dep: F11-T01.
+- [ ] **F11-T01 — Animaciones macOS.** Files: `packages/kwin/`, `dotfiles/.config/`. Acciones: Magic Lamp, zoom, dock bounce, overview, sheets; t-quick 250ms, t-normal 350ms, MC 400-500ms, reduce motion fade 150ms; curvas del contrato §2.5. Accept: claves KWin reales (magiclamp/glide/fade/overview) + toggles verificados sin crash; fps/vídeo/fotones en VM (llvmpipe 23fps). Dep: F4,F5,F7.
+- [ ] **F11-T02 — Glass/Liquid Glass.** Files: `packages/kwin/effects/`, `packages/themes/`. Acciones: blur/refracción en barra/Dock/paneles; preferir blur stock antes de Better Blur; pin commit xarblu/Glass; tiers alto/bajo; reduce transparency (A9). Accept: blur/translucency configurados y toggles; blur fotónico diff 0 en nested; Better Blur/tiers en VM. Dep: F11-T01.
 - [ ] **F11-T03 — Estados, dark/light y acento.** Files: `packages/themes/`. Acciones: hover/pressed/disabled, foco, dark/light, acento en todas las superficies. Accept: matriz de estados; capturas. Dep: F3,F4.
 - [ ] **F11-T04 — Accesibilidad.** Files: `dotfiles/.config/`, `apps/`. Acciones: Orca, zoom, contraste, sticky keys, reduce motion/transparency, navegación teclado. Accept: 10 tareas sin ratón; audit. Dep: F8.
 - [ ] **F11-T05 — i18n, docs y chuleta.** Files: `docs/`, `apps/`. Acciones: dueño único i18n ki18n/.ts (F9/F10 consumen); es/en completo, textos de UI, guía de usuario, atajos. Accept: 0 cadenas sin traducir; docs revisadas. Dep: F9,F10.
