@@ -73,7 +73,7 @@ Item {
         id: popup
         visible: root.opened
         width: 248
-        height: confirmBox.visible ? 348 : 308
+        height: confirmBox.visible ? 380 : 340
         x: 8
         y: 26
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
@@ -99,8 +99,13 @@ Item {
                         id: actionModel
                         ListElement {
                             label: "Acerca de Nimbus"
-                            cmd: ""
+                            cmd: "nimbus-about"
                             glyph: "N"
+                        }
+                        ListElement {
+                            label: "Ayuda de Nimbus"
+                            cmd: "nimbus-help"
+                            glyph: "?"
                         }
                         ListElement {
                             label: "Ajustes del sistema…"

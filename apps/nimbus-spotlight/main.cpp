@@ -40,14 +40,43 @@ class Toggle : public QObject {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.nimbus.Spotlight")
 public:
-    explicit Toggle(QWindow *w, NimbusIndex *idx, QObject *parent = nullptr)
+    explicit Toggle(QQuickWindow *w, NimbusIndex *idx, QObject *parent = nullptr)
         : QObject(parent), m_win(w), m_index(idx) {}
 public Q_SLOTS:
     void toggle()
     {
         m_win->setVisible(!m_win->isVisible());
-        if (m_win->isVisible())
+        if (m_win->isVisible()) {
             m_win->requestActivate();
+            focusSearch();
+        }
+    }
+    // F6-T09: apertura directa en una pestaña (Cmd+2..4 vía KWin).
+    // Sin doble instancia: reutiliza la ventana única + setTab QML.
+    void showTab(const QString &tab)
+    {
+        if (!validTab(tab)) {
+            qWarning().noquote() << QStringLiteral("showTab: pestaña inválida '%1'").arg(tab);
+            return;
+        }
+        QMetaObject::invokeMethod(m_win, "setTab", Q_ARG(QVariant, QVariant(tab)));
+        qInfo().noquote() << QStringLiteral("spotlight-tab=%1").arg(tab);
+        m_win->setVisible(true);
+        m_win->requestActivate();
+        focusSearch();
+    }
+    void toggleTab(const QString &tab)
+    {
+        if (!validTab(tab)) {
+            qWarning().noquote() << QStringLiteral("toggleTab: pestaña inválida '%1'").arg(tab);
+            return;
+        }
+        const QString cur = m_win->property("tab").toString();
+        if (m_win->isVisible() && cur == tab) {
+            m_win->setVisible(false);
+            return;
+        }
+        showTab(tab);
     }
     // F6-T08: gancho de benchmark (solo reexpone searchLocal síncrono;
     // permite cronometrar query local en caliente vía qdbus).
@@ -57,7 +86,16 @@ public Q_SLOTS:
             m_index->searchLocal(term, QString());
     }
 private:
-    QWindow *m_win = nullptr;
+    static bool validTab(const QString &t)
+    {
+        return t == QLatin1String("apps") || t == QLatin1String("files")
+            || t == QLatin1String("actions") || t == QLatin1String("clipboard");
+    }
+    void focusSearch()
+    {
+        QMetaObject::invokeMethod(m_win, "focusSearch");
+    }
+    QQuickWindow *m_win = nullptr;
     NimbusIndex *m_index = nullptr;
 };
 

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Ayuda de Nimbus
+Comment=Guía de usuario y atajos (offline)
+Exec=nimbus-help
+Icon=nimbus-help
+Categories=System;Utility;
+X-Nimbus-AppId=org.nimbus.help

@@ -70,6 +70,8 @@ need "$REPO_ROOT/packages/kwin/scripts/nimbus-spotlight/metadata.json" "KWin scr
 need "$REPO_ROOT/packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.patch" "parche klassy-hover-plus"
 need "$REPO_ROOT/packages/shell/nimbus-bar/CMakeLists.txt" "fuente nimbus-bar"
 need "$REPO_ROOT/apps/nimbus-apps/CMakeLists.txt" "fuente nimbus-apps"
+need "$REPO_ROOT/apps/nimbus-about/CMakeLists.txt" "fuente nimbus-about"
+need "$REPO_ROOT/apps/nimbus-help/CMakeLists.txt" "fuente nimbus-help"
 need "$REPO_ROOT/apps/nimbus-spotlight/CMakeLists.txt" "fuente nimbus-spotlight"
 # Coherencia: shellprocess debe invocar lo estagiado.
 if grep -q '/usr/local/bin/nimbus-installed-setup' "$CALAMARES/modules/shellprocess-nimbus.conf" 2>/dev/null; then
@@ -149,7 +151,7 @@ echo "OK: klassy-nimbus empaquetado"
 if [ "$SKIP_APPS" -eq 1 ]; then
   echo "SKIP: compilación de apps omitida (--skip-apps); el live no traerá nimbus-bar/apps/spotlight"
 else
-  for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight"; do
+    for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight" "apps/nimbus-about" "apps/nimbus-help"; do
     name="$(basename "$app")"
     builddir="/tmp/nimbus-build-$name"
     rm -rf "$builddir"; mkdir -p "$builddir" || exit 1
@@ -186,7 +188,7 @@ for f in \
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
 done
 if [ "$SKIP_APPS" -eq 0 ]; then
-  for b in nimbus-bar nimbus-apps nimbus-spotlight; do
+  for b in nimbus-bar nimbus-apps nimbus-spotlight nimbus-about nimbus-help; do
     [ -x "$OUT/airootfs/usr/local/bin/$b" ] || { echo "ERROR: falta binario $b en staging" >&2; exit 1; }
   done
 fi

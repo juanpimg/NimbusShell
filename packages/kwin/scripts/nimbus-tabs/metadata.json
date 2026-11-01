@@ -1,0 +1,13 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Authors": [{"Email": "nimbus@nimbus.local", "Name": "NimbusShell"}],
+        "Description": "Cmd+2..4 abren Spotlight en Archivos/Acciones/Portapapeles (org.nimbus.Spotlight toggleTab; Meta+1 sigue en nimbus-apps-toggle)",
+        "Icon": "system-search",
+        "Id": "nimbus-tabs",
+        "License": "GPL-3.0-or-later",
+        "Name": "Nimbus Tabs"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}
