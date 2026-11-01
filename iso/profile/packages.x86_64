@@ -65,6 +65,7 @@ git
 nano
 sudo
 which
+xorg-server
 
 # --- GPU/energía post-detección (F2-T10; NO activar ambos drivers a la vez) ---
 # Calamares/nimbus-installed-setup elige UNO según `nimbus-gpu-detect`:
