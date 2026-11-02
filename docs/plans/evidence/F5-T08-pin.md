@@ -26,5 +26,6 @@
   el orden se aplica y persiste (`F5-T08-reordered.png`).
 - Reset: copia de `/usr/share/nimbus/dock/kremarc-nimbus` y reinicio:
   vuelve al preset por defecto (`F5-T08-reset.png`).
-- El reorder por **drag visual** de iconos sigue sin validarse con la entrada
-  disponible; F5-T08 no se marca hasta probarlo o acordar Ruling.
+- El reorder por **drag visual** de iconos no se validó con la entrada
+  disponible; se cerró con **R-DOCK-REORDER** (orden persistido en
+  `PinnedLaunchers`) y **R-DOCK-STATE** (INI, no JSON).
