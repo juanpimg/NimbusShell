@@ -11,6 +11,8 @@ BAR_BIN="/tmp/nimbus-bar-prefix/bin/nimbus-bar"
 WALLPAPER=""
 SOCKET="nimbus-bar-test"
 BAR_ARGS=""
+KWINRC=""
+PLUGIN_PATH=""
 for ((i=1; i<=$#; i++)); do
   case "${!i}" in
     --out) j=$((i+1)); OUT_DIR="${!j}" ;;
@@ -22,6 +24,9 @@ for ((i=1; i<=$#; i++)); do
     --socket) j=$((i+1)); SOCKET="${!j}" ;;
     # Argumentos del binario (p. ej. --demo-cc --open-cc --demo-media).
     --bar-args) j=$((i+1)); BAR_ARGS="${!j}" ;;
+    # F11-T02: kwinrc de prueba (Glass) y plugins extra para KWin.
+    --kwinrc) j=$((i+1)); KWINRC="${!j}" ;;
+    --plugin-path) j=$((i+1)); PLUGIN_PATH="${!j}" ;;
   esac
 done
 
@@ -69,6 +74,8 @@ PIDFILE="'"$PIDFILE"'"
 TIMEOUT="'"$TIMEOUT"'"
 BAR_BIN="'"$BAR_BIN"'"
 BAR_ARGS="'"$BAR_ARGS"'"
+KWINRC="'"$KWINRC"'"
+PLUGIN_PATH="'"$PLUGIN_PATH"'"
 WALLPAPER="'"$WALLPAPER"'"
 WAYLAND_DISPLAY="'"$WAYLAND_DISPLAY"'"
 LOG="'"$LOG"'"
@@ -82,6 +89,14 @@ export QT_QPA_PLATFORM=wayland
 export WAYLAND_DISPLAY
 export XDG_SESSION_TYPE=wayland
 export XDG_CURRENT_DESKTOP=KDE
+if [ -n "$PLUGIN_PATH" ]; then
+  export QT_PLUGIN_PATH="$PLUGIN_PATH:$QT_PLUGIN_PATH"
+fi
+if [ -n "$KWINRC" ] && [ -f "$KWINRC" ]; then
+  mkdir -p "$XDG_CONFIG_HOME"
+  cp "$KWINRC" "$XDG_CONFIG_HOME/kwinrc"
+  echo "[bar] kwinrc de prueba: $KWINRC" | tee -a "$LOG"
+fi
 trap "kill \$(jobs -p) 2>/dev/null || true" EXIT
 
 echo "[bar] arranque kwin_wayland --virtual ..." | tee -a "$LOG"
@@ -108,6 +123,9 @@ fi
 echo "[bar] efectos KWin cargados:" | tee -a "$LOG"
 qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.loadedEffects >>"$LOG" 2>&1 || true
 qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.isEffectSupported blur >>"$LOG" 2>&1 || true
+qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded glass >>"$LOG" 2>&1 || true
+qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.isEffectSupported glass >>"$LOG" 2>&1 || true
+qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect glass >>"$LOG" 2>&1 || true
 
 echo "[bar] arranque plasmashell (fondo) + kate (cliente normal) ..." | tee -a "$LOG"
 plasmashell >>"$LOG" 2>&1 &
