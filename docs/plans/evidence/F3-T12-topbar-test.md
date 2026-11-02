@@ -38,3 +38,21 @@ Evidencia: `F3-T12-topbar-out13.png`.
   (`F3-T12-about-out13.png`); menú visible en `F3-T12-menu-n-out13.png`.
 - El fix no está en out13; debe entrar en la próxima ISO.
 - Ajustes/Reloj y matriz multi-monitor siguen pendientes; F3-T12 no se marca.
+
+## Ítems del menú N (2026-11-02 09:40)
+
+Con el fix LayerOverlay del popup, en out13 (binario recompilado):
+
+- **Acerca de Nimbus** abre (`F3-T12-about-out13.png`).
+- **Ajustes del sistema** abre el KCM Nimbus, con Dock/tema/acento
+  (`F3-T12-settings-out13.png`).
+- **Reloj** abre Nimbus-clock (reloj mundial, alarmas, cronómetro, timer)
+  (`F3-T12-clock-out13.png`).
+- Menú/día/CC ya estaban en `matrix-out12/07..09`.
+
+## Gap multi-monitor de barra
+
+En la captura simultánea 2560x800, la barra Nimbus solo aparece en
+Virtual-1; Virtual-2 (Konsole) no tiene barra. macOS muestra menú/barra en
+cada display por defecto; esto impide cerrar F3-T12 en multi-monitor.
+Además, el fix LayerOverlay no está en out13; requiere nueva ISO.
