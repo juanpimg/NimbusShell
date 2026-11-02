@@ -58,25 +58,35 @@ Window {
         // fotograma intermedio. (Los hijos anclan a rightBox: sin TypeErrors.)
         try {
             var order = preset.icons ? preset.icons.order : undefined;
-            if (!Array.isArray(order) || order.length === 0)
-                return;
-            var canon = ["wifi", "bluetooth", "controlcenter", "battery", "tray", "clock"];
+            var canon = ["wifi", "bluetooth", "controlcenter", "battery", "tray", "spotlight", "clock"];
             var byId = {
                 "wifi": wifiItem,
                 "bluetooth": btItem,
                 "controlcenter": ccButton,
                 "battery": batteryItem,
                 "tray": tray,
+                "spotlight": spotlightItem,
                 "clock": clock
             };
             var seq = [];
-            for (var i = 0; i < order.length; ++i) {
-                if (byId[order[i]] && seq.indexOf(order[i]) < 0)
-                    seq.push(order[i]);
+            if (Array.isArray(order)) {
+                for (var i = 0; i < order.length; ++i) {
+                    if (byId[order[i]] && seq.indexOf(order[i]) < 0)
+                        seq.push(order[i]);
+                }
             }
+            // Los iconos que el preset no menciona se insertan en su
+            // posición canónica (no al final): Spotlight va antes del reloj
+            // (contrato §3), aunque el preset sea antiguo o no exista.
             for (var c = 0; c < canon.length; ++c) {
-                if (seq.indexOf(canon[c]) < 0 && byId[canon[c]])
-                    seq.push(canon[c]);
+                if (!byId[canon[c]] || seq.indexOf(canon[c]) >= 0)
+                    continue;
+                var pos = seq.length;
+                for (var n = c + 1; n < canon.length; ++n) {
+                    var idx = seq.indexOf(canon[n]);
+                    if (idx >= 0) { pos = idx; break; }
+                }
+                seq.splice(pos, 0, canon[c]);
             }
             for (var m = 0; m < seq.length; ++m)
                 byId[seq[m]].parent = orderHolder;
@@ -240,7 +250,8 @@ Window {
         // Batería dibujada (sin iconos externos).
         // F3-T05: botón CC propio (dos toggles, sin activos externos).
         // F3-T05: extras dibujados con geometría propia (sin activos Apple).
-        // Orden macOS: batería · Wi-Fi · Bluetooth · Spotlight · CC · reloj.
+        // Orden macOS (contrato §3): Wi-Fi · Bluetooth · CC · batería ·
+        // tray · Spotlight · reloj. applyPresetOrder lo fija en runtime.
         StatusArea {
             id: tray
             objectName: "tray"

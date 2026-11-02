@@ -106,21 +106,26 @@ if need cmake "build nimbus-bar" && need python3 "preset JSON"; then
       }
       d="$(dump default)" && chk "binding default" "$d" \
         "name=default height=24 clockFormat=ddd d MMM HH:mm" \
-        "rightBox=wifiItem:1,btItem:1,ccButton:1,batteryItem:1,tray:1,clock:1" \
+        "rightBox=wifiItem:1,btItem:1,ccButton:1,batteryItem:1,tray:1,spotlightItem:1,clock:1" \
+        "orderApplied=wifi,bluetooth,controlcenter,battery,tray,spotlight,clock" \
         "osd=280x56 timeout=1500"
       d="$(dump compact)" && chk "binding compact" "$d" \
         "name=compact height=24 clockFormat=HH:mm" \
-        "rightBox=wifiItem:1,btItem:0,ccButton:1,batteryItem:1,tray:1,clock:1"
+        "rightBox=wifiItem:1,btItem:0,ccButton:1,batteryItem:1,tray:1,spotlightItem:1,clock:1"
       d="$(dump minimal)" && chk "binding minimal" "$d" \
         "name=minimal height=20 clockFormat=HH:mm" \
-        "rightBox=wifiItem:0,btItem:0,ccButton:0,batteryItem:1,tray:1,clock:1" \
+        "rightBox=wifiItem:0,btItem:0,ccButton:0,batteryItem:1,tray:1,spotlightItem:1,clock:1" \
         "osd=240x48 timeout=1200"
       rm -f "$T/.config/nimbus-bar/preset.json"
       d="$(dump '')" && chk "fallback sin preset" "$d" \
-        "height=24 clockFormat=HH:mm" "osd=280x56 timeout=1500"
+        "height=24 clockFormat=ddd d MMM HH:mm" \
+        "rightBox=wifiItem:1,btItem:1,ccButton:1,batteryItem:1,tray:1,spotlightItem:1,clock:1" \
+        "osd=280x56 timeout=1500"
       echo '{no json' > "$T/.config/nimbus-bar/preset.json"
       d="$(dump '')" && chk "fallback corrupto" "$d" \
-        "height=24 clockFormat=HH:mm" "osd=280x56 timeout=1500"
+        "height=24 clockFormat=ddd d MMM HH:mm" \
+        "rightBox=wifiItem:1,btItem:1,ccButton:1,batteryItem:1,tray:1,spotlightItem:1,clock:1" \
+        "osd=280x56 timeout=1500"
       rm -rf "$T"
     fi
     rm -rf "$B"
