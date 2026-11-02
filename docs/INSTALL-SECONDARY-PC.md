@@ -3,13 +3,19 @@
 Objetivo: instalar la ISO de NimbusOS en el PC de pruebas y dejarlo accesible
 para desplegar/capturar sin reconstruir la ISO.
 
+> **Estado 2026-11-02:** ISO **out16 construida** y SHA verificado
+> (`de12c6d9…789b3`), arranca en UEFI hasta SDDM/Plasma. **Calamares no se
+> dibuja en QEMU**; no está validada en hardware. Sin USB: PXE por Wi-Fi y SD
+> fallaron; vía pendiente **GRUB2Win** (`docs/BOOT-WITHOUT-USB.md`).
+
 ## 1. ISO
 
-Cuando termine el build estará en el host:
+La ISO está en el host (y copiada al escritorio):
 
 ```
-~/.cache/nimbusshell-vm/share/out16/nimbusos-*.iso
+~/.cache/nimbusshell-vm/share/out16/nimbusos-2026.11.01-x86_64.iso
 ~/.cache/nimbusshell-vm/share/out16/SHA256SUMS
+~/Escritorio/nimbusos-2026.11.01-x86_64.iso
 ```
 
 Verifica el checksum antes de copiarla:
@@ -19,7 +25,8 @@ cd ~/.cache/nimbusshell-vm/share/out16
 sha256sum -c SHA256SUMS
 ```
 
-Copia a un USB con Ventoy (recomendado) o `dd` (borra el USB):
+Copia a un USB/SD con Ventoy (recomendado) o `dd` (borra el medio). Si el
+firmware no arranca desde SD (probado: no), usa USB o GRUB2Win:
 
 ```bash
 # Sustituye /dev/sdX por el USB, NO por el disco del PC
@@ -28,16 +35,18 @@ sudo dd if=nimbusos-*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 
 ## 2. Instalación en el PC secundario
 
-1. Conecta **Ethernet** (mejor que Wi-Fi para SSH) y el USB.
-2. Arranca el PC desde el USB (F12/F11/ESC según firmware; si es UEFI,
-   desactiva Secure Boot).
+1. Conecta **Ethernet** (mejor que Wi-Fi para SSH) y el medio de arranque.
+2. Arranca el PC desde USB/SD (F12/F11/ESC; UEFI, Secure Boot OFF). Si no hay
+   medio, usa GRUB2Win (ISO en `C:\nimbus.iso`, ver `BOOT-WITHOUT-USB.md`).
 3. Calamares: idioma, teclado, disco **dedicado** (borra ese disco, no el de
    tu uso diario), usuario y contraseña, hostname `nimbus-test`.
 4. Instala el grupo Nimbus por defecto (red necesaria para los paquetes).
 5. Reinicia y arranca del disco.
 
 La ISO instala Plasma 6.8, SDDM, NetworkManager, barra Nimbus, CC, menú,
-calendario, aplicaciones y `nimbus-control`.
+calendario, aplicaciones y `nimbus-control`. Si al arrancar el live no aparece
+Calamares, no sigas: es el bug de render conocido; prueba a lanzarlo con
+`QT_QPA_PLATFORM=xcb`/XWayland y documenta el resultado.
 
 ## 3. Dejarlo controlable (una vez)
 

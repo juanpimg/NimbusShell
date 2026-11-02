@@ -1,5 +1,13 @@
 # NimbusShell
 
+> **Estado 2026-11-02 — rama `plasma-migration`.** La migración a Plasma 6.8
+> está en curso; este README describe la **v1 Hyprland/MacShell**. Handoff
+> actual para sesiones limpias:
+> [`docs/SESSION-2026-11-02-HANDOFF.md`](docs/SESSION-2026-11-02-HANDOFF.md).
+> La ISO out16 y su estado están en ese documento; no se declara instalable
+> hasta validar Calamares en hardware.
+
+
 **Convierte cualquier Arch Linux instalado en el escritorio NimbusOS: Hyprland + MacShell con estética y flujo de trabajo estilo macOS.**
 
 > **English:** NimbusShell turns any installed Arch system (vanilla or derivative) into the NimbusOS desktop. Documented primarily in Spanish.

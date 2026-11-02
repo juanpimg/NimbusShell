@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# nimbus-pxe — arranca el portátil por PXE (proxy DHCP) desde el ISO out16.
+# Uso: sudo bash scripts/nimbus-pxe
+# Requisitos: portátil por Ethernet al mismo router; este PC por Wi-Fi en la
+# misma subred; Secure Boot del portátil desactivado; Network Boot activado.
+# No arranca un DHCP con pool: solo proxy DHCP (el router sigue asignando IP).
+set -u
+
+die() { printf '[pxe] ERROR: %s\n' "$*" >&2; exit 1; }
+log() { printf '[pxe] %s\n' "$*"; }
+
+[ "$(id -u)" -eq 0 ] || die "ejecuta con sudo: sudo bash scripts/nimbus-pxe"
+command -v dnsmasq >/dev/null || die "falta dnsmasq"
+command -v python3 >/dev/null || die "falta python3"
+command -v curl >/dev/null || die "falta curl"
+command -v mount >/dev/null || die "falta mount"
+
+IFACE="${NIMBUS_PXE_IFACE:-wlan0}"
+USER_HOME="$(getent passwd "${SUDO_USER:-$USER}" | cut -d: -f6)"
+iso_dir="${NIMBUS_PXE_ISO_DIR:-$USER_HOME/.cache/nimbusshell-vm/share/out16}"
+ISO="${NIMBUS_PXE_ISO:-$(ls -t "$iso_dir"/nimbusos-*.iso 2>/dev/null | head -n1)}"
+[ -n "$ISO" ] && [ -f "$ISO" ] || die "no encuentro la ISO out16 (define NIMBUS_PXE_ISO)"
+BASE=/tmp/nimbus-pxe
+TFTP="$BASE/tftp"
+MNT="$BASE/iso"
+CONF="$BASE/dnsmasq.conf"
+mkdir -p "$TFTP" "$MNT" || die "no se pudo crear $BASE"
+mountpoint -q "$MNT" || mount -o loop,ro "$ISO" "$MNT" || die "no se pudo montar $ISO"
+cleanup() {
+  [ -n "${HTTP_PID:-}" ] && kill "$HTTP_PID" 2>/dev/null || true
+  [ -n "${DNS_PID:-}" ] && kill "$DNS_PID" 2>/dev/null || true
+  mountpoint -q "$MNT" && umount "$MNT" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+IP="$(ip -4 -o addr show "$IFACE" 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1)"
+[ -n "$IP" ] || die "$IFACE no tiene IPv4; conecta este PC a la red"
+SUBNET="$(printf '%s' "$IP" | awk -F. '{print $1"."$2"."$3".0"}')"
+log "interfaz $IFACE ip $IP subred $SUBNET"
+log "ISO $ISO"
+
+# iPXE (UEFI y BIOS). Sin Secure Boot en el portátil.
+# iPXE del paquete Arch (o descarga como fallback).
+if [ -s /usr/share/ipxe/x86_64/ipxe.efi ]; then
+  cp -f /usr/share/ipxe/x86_64/ipxe.efi "$TFTP/ipxe.efi"
+else
+  log "descargando ipxe.efi"
+  curl -fsSL https://boot.ipxe.org/ipxe.efi -o "$TFTP/ipxe.efi" || die "no se pudo obtener ipxe.efi (pacman -S ipxe)"
+fi
+if [ -s /usr/share/ipxe/ipxe.pxe ]; then
+  cp -f /usr/share/ipxe/ipxe.pxe "$TFTP/undionly.kpxe"
+else
+  log "descargando undionly.kpxe"
+  curl -fsSL https://boot.ipxe.org/undionly.kpxe -o "$TFTP/undionly.kpxe" || die "no se pudo obtener undionly.kpxe (pacman -S ipxe)"
+fi
+
+cat >"$TFTP/boot.ipxe" <<EOF
+#!ipxe
+echo NimbusOS PXE: cargando kernel por HTTP...
+kernel http://$IP:8080/nimbus/boot/x86_64/vmlinuz-linux archisobasedir=nimbus archiso_http_srv=http://$IP:8080/ ip=dhcp
+initrd http://$IP:8080/nimbus/boot/x86_64/initramfs-linux.img
+boot
+EOF
+
+cat >"$CONF" <<EOF
+interface=$IFACE
+bind-interfaces
+port=0
+dhcp-range=$SUBNET,proxy
+dhcp-match=set:efi-x86_64,option:client-arch,7
+dhcp-match=set:efi-x86_64,option:client-arch,9
+dhcp-boot=tag:efi-x86_64,ipxe.efi
+dhcp-boot=tag:!efi-x86_64,undionly.kpxe
+dhcp-userclass=set:ipxe,iPXE
+dhcp-boot=tag:ipxe,boot.ipxe
+enable-tftp
+tftp-root=$TFTP
+log-dhcp
+EOF
+
+dnsmasq --test --conf-file="$CONF" >/dev/null 2>&1 || die "config dnsmasq inválida ($CONF)"
+log "sirviendo HTTP en http://$IP:8080 (ISO) y TFTP en $TFTP"
+python3 -m http.server 8080 --bind 0.0.0.0 --directory "$MNT" >/tmp/nimbus-pxe-http.log 2>&1 &
+HTTP_PID=$!
+dnsmasq --no-daemon --conf-file="$CONF" --log-facility=- >/tmp/nimbus-pxe-dns.log 2>&1 &
+DNS_PID=$!
+sleep 1
+kill -0 "$HTTP_PID" 2>/dev/null || die "HTTP no arrancó; mira /tmp/nimbus-pxe-http.log"
+kill -0 "$DNS_PID" 2>/dev/null || die "dnsmasq no arrancó; mira /tmp/nimbus-pxe-dns.log"
+
+log "LISTO. Enciende el portátil y elige Network Boot/PXE."
+log "Logs: /tmp/nimbus-pxe-dns.log y /tmp/nimbus-pxe-http.log"
+log "Ctrl+C para parar y desmontar."
+wait "$DNS_PID"

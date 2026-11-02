@@ -1,5 +1,12 @@
 # HANDOFF — continuar NimbusShell en otra sesión/agente
 
+> **2026-11-02 — Pila actual: Plasma 6.8.2.** Este documento es **histórico**
+> (Hyprland/MacShell, octubre). Para continuar hoy usa
+> [`docs/SESSION-2026-11-02-HANDOFF.md`](SESSION-2026-11-02-HANDOFF.md).
+> Los comandos Hyprland/Quickshell de abajo **no aplican** a la rama
+> `plasma-migration`.
+
+
 Lee en este orden: `AGENTS.md` (reglas) → `ESTADO.md` (foto) →
 `.agent_roadmap.md` (backlog vivo, manda lo último) →
 `docs/superpowers/plans/2026-10-28-tahoe-11.md` (plan M1-M7 + pointer lab).

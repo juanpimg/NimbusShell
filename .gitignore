@@ -1,0 +1,6 @@
+# Evidencia/iteración local (no versionar)
+/spikes/
+/tmp/
+/out/
+*.iso
+*.qcow2

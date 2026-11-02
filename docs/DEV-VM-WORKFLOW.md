@@ -5,6 +5,12 @@ Objetivo: cambiar QML/C++ de `nimbus-bar` y verlo en la VM **live** en segundos,
 sin reconstruir la ISO. La ISO completa se reserva para instalador, `greetd`/
 SDDM, drivers, servicios de arranque y cualquier cosa que deba persistir.
 
+> **Validado 2026-11-02:** `reset` (cold boot + Plasma + agente), `deploy
+> --open-cc` y `capture` PASS; binario host/guest md5 `161fb37…`; captura
+> `docs/plans/evidence/DEV-VM-LOOP.png`. La VM se paró después. No hay sshd
+> en el live: el deploy va por 9p+agente+HMP. `--qml-root` y `dev-remote`
+> complementan el loop para QML y PC instalado.
+
 ## Contrato de la VM (no cambiar sin Ruling)
 
 | Recurso | Valor |

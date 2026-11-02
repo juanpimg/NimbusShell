@@ -10,6 +10,13 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-31-plasma-migration-design.md`
 
+> **ESTADO 2026-11-02 (manda):** ledger **60/112 (54,3 %)**. Rama
+> `plasma-migration`; CI verde. UI barra/menú/CC/calendario/notificaciones
+> rediseñada y con evidencia nested; Glass validado como **spike**, no
+> empaquetado; ISO out16 construida y con SHA, pero Calamares no renderiza en
+> QEMU; PC secundario pendiente. Handoff:
+> `docs/SESSION-2026-11-02-HANDOFF.md`. No cerrar tareas sin captura/VM.
+
 ## Global Constraints
 
 - Documentación y UI en español; identificadores de código en inglés.
@@ -126,7 +133,7 @@
 - [x] **F3-T06 — Menú global Qt.** Files: `packages/shell/nimbus-bar/qml/` (GlobalMenu DBus), `dotfiles/.config/plasma/`. Acciones: widget Global Menu, appmenu Qt, R-GTK documentado. Accept: Kate/Dolphin exportan menú; Nautilus/Firefox no rompen. Dep: F3-T03.
 - [x] **F3-T07 — System tray y status items.** Files: `packages/shell/nimbus-bar/qml/` (SNI DBus). Acciones: bandeja, iconos, badges, menús; tema. Accept: fake SNI A/B aparecen, menú, unregister sin crash; apps reales (IconName/submenús) en VM F2-T08. Dep: F3-T03.
 - [x] **F3-T08 — Reloj y calendario.** Files: `packages/shell/nimbus-bar/qml/` (port MacBar). Acciones: popup calendario, eventos, zonas; i18n. Accept: abre/cierra, fechas correctas, teclado. Estado 2026-11-02: popover Tahoe 300×368, rejilla 6×7, hoy con círculo, sin puntos de evento falsos, tiempo como pie compacto; qmltestrunner 9/9 y captura nested (F3-T08-calendar-tahoe.md). Eventos reales siguen sin fuente (CalDAV/ICS): no se inventan. Dep: F3-T03.
-- [x] **F3-T09 — Notificaciones estilo macOS.** Files: `packages/themes/`, `dotfiles/.config/plasma/`. Acciones: tema de notificaciones, agrupación, DND, actions. Accept: banner+acción renderizados, DND real (Inhibit), pila 2 notifs, timeout 5s medido; clic ActionInvoked pendiente VM (sin inyector). Dep: F3-T03.
+- [x] **F3-T09 — Notificaciones estilo macOS.** Files: `packages/themes/`, `dotfiles/.config/plasma/`. Acciones: tema de notificaciones, agrupación, DND, actions. Accept: banner+acción renderizados, DND real (Inhibit), pila 2 notifs, timeout 5s medido; clic ActionInvoked pendiente VM (sin inyector). Estado 2026-11-02: banner 360 px, icono 38, radio 18 y acciones en nested (F3-T09-notifications-tahoe.md); FDO real/pila/VM pendientes. Dep: F3-T03.
 - [x] **F3-T10 — OSD volumen/brillo.** Files: `packages/shell/nimbus-bar/qml/` (OSD in-situ). Acciones: OSD Plasma tematizado; volumen/brillo se expande in-situ en la barra (contrato §3); teclas. Accept: OSD volume (70%, gap audio nested) y brillo real sysfs (100%), digestión teclas XF86 documentada; capturas; DBus+demo. Dep: F3-T03.
 - [ ] **F3-T11 — Fondo, claro/oscuro y acento.** Files: `packages/themes/`, `scripts/apply-theme`. Acciones: wallpaper NPS, switch claro/oscuro automático, acento; ventanas y panel siguen. Accept: cambio en vivo sin reiniciar; capturas. Estado: autoría+preview y wallpaper en vivo OK; panel renderiza un switch por detrás (R-F3T11-LIVE, evidencia); pendiente aislar reload o validar en VM. Dep: F3-T02.
 - [ ] **F3-T12 — Aceptación de barra superior.** Files: `tests/vm/topbar.sh`, `docs/plans/evidence/F3-T12.md`. Acciones: diff vs golden, clics en cada menú, teclado, multi-monitor; **servidor FDO de notificaciones dentro de la barra (R-NOTIF-SERVER)** para poder retirar el applet/panel stock. Estado: servidor FDO+banners/DND/timeout aprobados (12/12, 0 QML); atajos reales Meta+Espacio/W/1 capturados en out11 (`F3-T12-shortcuts.md`); menú N/calendario/CC y Dock hover/preview/menú capturados en out12 (`F7-T10-matrix-out12.md`); icono de Kate verificado como el real de Breeze (globo con ave, SVG); faltan clics de todos los menús y multi-monitor para cerrar. Accept: A1/A2 (<15% diff, 24pt, semáforos), 0 errores, evidencia. Dep: F3-T04..T11. Estado: CERRADO 2026-11-02 en out15 instalado: topbar.sh 5 PASS/0 FAIL (barra 24px, Nimbus FDO, count=2), golden_diff<0.15, captura 2560x800 con barra en Virtual-1/Virtual-2, menús About/Ajustes/Reloj y calendario/CC capturados. Evidencia F3-T12-out15-both.png, F3-T12-out15-topbar.png, F3-T12-topbar-test.md. REABIERTO: el golden de out15 era la propia captura de aceptación (diff 0.0 tautológico) y tests/golden/.gitignore excluye los PNG; falta golden independiente y clics completos.
