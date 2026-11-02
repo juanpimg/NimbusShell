@@ -18,3 +18,13 @@
   el icono **permanece** en el Dock (`F5-T08-pin-persist-closed.png`),
   por lo que el pin persiste y no depende de que la app esté viva.
 - Falta drag-reorder, reset y comprobación del JSON; F5-T08 sigue abierto.
+
+## Reorder y reset (2026-11-02 09:15)
+
+- Krema 0.12 persiste el estado en `~/.config/kremarc` (INI), **no JSON**.
+- Reorder por `PinnedLaunchers` (Dolphin primero) + reinicio de Krema:
+  el orden se aplica y persiste (`F5-T08-reordered.png`).
+- Reset: copia de `/usr/share/nimbus/dock/kremarc-nimbus` y reinicio:
+  vuelve al preset por defecto (`F5-T08-reset.png`).
+- El reorder por **drag visual** de iconos sigue sin validarse con la entrada
+  disponible; F5-T08 no se marca hasta probarlo o acordar Ruling.
