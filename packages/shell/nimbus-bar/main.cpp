@@ -259,6 +259,49 @@ int main(int argc, char *argv[])
         }
     }
 
+    // F11: blur real del compositor (ext-background-effect) detrás de las
+    // superficies layer-shell transparentes de Nimbus. El QML solo pinta
+    // tinte/rim/sombra. El binding del global Wayland y la capability blur
+    // son ASÍNCRONOS: isEffectAvailable() es false en el primer frame aunque
+    // el protocolo exista. Registramos la región siempre y reaplicamos a los
+    // 500 ms; el protocolo es double-buffered, así que hace falta un
+    // requestUpdate() para que el commit aplique la región.
+    auto enableCompositorBlur = [](QWindow *win) {
+        if (!win)
+            return;
+        // Región explícita (no vacía): con layer-shell, una región vacía
+        // significa "toda la ventana" y algunos popups degenerados podían
+        // hacer que KWin blureara el output completo.
+        const QRegion region(0, 0, qMax(1, win->width()), qMax(1, win->height()));
+        // El scrim del CC es pantalla completa: blurearlo emborronaría todo
+        // el escritorio. No es una superficie de vidrio. Se detecta por
+        // scope/título y, como red de seguridad, por geometría (el scope
+        // adjunto puede no estar resuelto cuando se itera al arrancar).
+        if (win->title().contains(QStringLiteral("scrim"), Qt::CaseInsensitive))
+            return;
+        if (QScreen *scr = win->screen()) {
+            const QSize sz = scr->geometry().size();
+            if (sz.isValid() && win->width() >= sz.width() * 9 / 10
+                && win->height() >= sz.height() * 9 / 10)
+                return;
+        }
+        if (auto *ls = LayerShellQt::Window::get(win)) {
+            const QString scope = ls->scope();
+            if (scope.contains(QStringLiteral("scrim")))
+                return;
+            fprintf(stderr, "nimbus-bar: glass scope=%s\n", qUtf8Printable(scope));
+        }
+        KWindowEffects::enableBlurBehind(win, true, region);
+        win->requestUpdate();
+        QTimer::singleShot(500, win, [win, region]() {
+            fprintf(stderr, "nimbus-bar: blur compositor activo=%d\n",
+                    KWindowEffects::isEffectAvailable(KWindowEffects::BlurBehind));
+            KWindowEffects::enableBlurBehind(win, false);
+            KWindowEffects::enableBlurBehind(win, true, region);
+            win->requestUpdate();
+        });
+    };
+
     // F3-T12 multi-monitor: una ventana layer-shell por QScreen en el mismo
     // proceso (una sola instancia, un solo NotificationServer). Visible=false
     // en Bar.qml hasta fijar screen; asi el surface nace en su salida.
@@ -279,22 +322,7 @@ int main(int argc, char *argv[])
             ls->setActivateOnShow(false);
         }
         win->setVisible(true);
-        // F11: blur real del compositor (ext-background-effect) detrás de la
-        // superficie transparente; el QML solo pinta tinte/rim/sombra.
-        // El binding del global Wayland y la capability blur son ASÍNCRONOS:
-        // isEffectAvailable() es false en el primer frame aunque el protocolo
-        // exista. Registramos la región siempre y reaplicamos cuando el
-        // manager ya está activo; el protocolo es double-buffered, así que
-        // pedimos un repintado para que el commit aplique la región.
-        KWindowEffects::enableBlurBehind(win, true);
-        win->requestUpdate();
-        QTimer::singleShot(500, win, [win]() {
-            fprintf(stderr, "nimbus-bar: blur compositor activo=%d\n",
-                    KWindowEffects::isEffectAvailable(KWindowEffects::BlurBehind));
-            KWindowEffects::enableBlurBehind(win, false);
-            KWindowEffects::enableBlurBehind(win, true);
-            win->requestUpdate();
-        });
+        enableCompositorBlur(win);
     };
     auto *primaryWin = qobject_cast<QWindow *>(engine.rootObjects().first());
     configureBar(primaryWin, QGuiApplication::primaryScreen());
@@ -313,6 +341,31 @@ int main(int argc, char *argv[])
         configureBar(w, screen);
         extraBars.append(obj);
         qInfo("nimbus-bar: barra secundaria en %s", qUtf8Printable(screen->name()));
+    }
+
+    // Ventanas layer-shell de popups creadas por Bar.qml (CC, menú, calendario,
+    // OSD, notificaciones): mismo vidrio que la barra. Se reaplica al mostrar
+    // porque el surface puede nacer recién entonces.
+    const bool glassBarOnly = qEnvironmentVariableIsSet("NIMBUS_GLASS_BAR_ONLY");
+    const QStringList glassScopes = qEnvironmentVariable("NIMBUS_GLASS_SCOPES")
+                                        .split(QLatin1Char(','), Qt::SkipEmptyParts);
+    for (QWindow *w : QGuiApplication::allWindows()) {
+        if (!w || w == primaryWin || glassBarOnly)
+            continue;
+        auto *ls = LayerShellQt::Window::get(w);
+        fprintf(stderr, "nimbus-bar: window title=%s geom=%dx%d scope=%s\n",
+                qUtf8Printable(w->title()), w->width(), w->height(),
+                ls ? qUtf8Printable(ls->scope()) : "(none)");
+        if (!ls || ls->scope() == QStringLiteral("nimbus-bar"))
+            continue;
+        if (!glassScopes.isEmpty() && !glassScopes.contains(ls->scope()))
+            continue;
+        // Allowlist: de momento solo el CC está validado. Registrar blur en
+        // otros popups ocultos (menú/calendario/tray/OSD) hacía que KWin 6.8
+        // blureara el output completo; se validarán uno a uno con captura.
+        if (ls->scope() != QStringLiteral("nimbus-cc"))
+            continue;
+        enableCompositorBlur(w);
     }
 
     bool dumpPreset = false;
