@@ -1,3 +1,6 @@
+# NimbusShell: KWin lee ~/.config/kwinrc (Plasma 6.8), no plasma/kwinrc.
+# Este fichero es la copia efectiva de dotfiles/.config/plasma/kwinrc;
+# ambos deben ser IDÉNTICOS (cmp). Lo verifica scripts/ci.sh + tests/bar/test_kwinrc.sh.
 # kwinrc Nimbus (KWin 6.8) — política CSD (F10-T06): KWin NUNCA fuerza
 # decoración SSD sobre ventanas con decoración cliente (GTK3/4 CSD, Electron
 # con --ozone-platform-hint=auto, Qt con Qt::FramelessWindowHint propio): no

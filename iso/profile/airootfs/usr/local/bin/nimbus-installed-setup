@@ -44,6 +44,28 @@ else
   log "OK: usuario destino: $TARGET_USER ($TARGET_HOME)"
 fi
 
+# 0a-bis. ydotool/uinput (F6-T06): el usuario debe estar en el grupo `input`
+# SIEMPRE, no solo cuando existe el timer de tema (antes vivía dentro de ese
+# if y no se ejecutaba en sistemas sin las unidades). Sin este grupo Pegar
+# copia pero no autopega. Idempotente: comprueba antes de llamar a usermod.
+if [ -n "${TARGET_USER:-}" ]; then
+  if getent group input >/dev/null 2>&1; then
+    if [ "$CHECK" -eq 1 ]; then
+      log "HARÍA: usermod -aG input $TARGET_USER"
+    elif id -nG "$TARGET_USER" 2>/dev/null | tr ' ' '\n' | grep -qx input; then
+      log "OK: $TARGET_USER ya está en grupo input (ydotool)"
+    elif usermod -aG input "$TARGET_USER"; then
+      log "OK: $TARGET_USER añadido al grupo input (ydotool)"
+    else
+      log "AVISO: no se pudo añadir $TARGET_USER al grupo input"
+    fi
+  else
+    log "AVISO: sin grupo input; ydotool no autopegará (revisa el paquete)"
+  fi
+else
+  log "AVISO: sin usuario destino; grupo input no aplicado"
+fi
+
 # 0b. Paquetes locales: Klassy (decoración) y Krema (Dock).
 PKGDIR="/usr/share/nimbus/pkgs"
 install_local_pkg() { # $1=nombre $2=glob
@@ -81,8 +103,29 @@ if [ -f "$DOCK_PRESET" ]; then
 else
   log "AVISO: sin preset del Dock en $DOCK_PRESET"
 fi
+# 0b-bis. kwinrc efectivo: KWin lee ~/.config/kwinrc, NO plasma/kwinrc.
+# Se copia el canónico solo si falta (nunca se pisa configuración del
+# usuario); así los scripts nimbus-*Enabled y la decoración llegan a KWin.
+for base in /etc/skel "${TARGET_HOME:-/nonexistent}"; do
+  [ -d "$base" ] || continue
+  src="$base/.config/plasma/kwinrc"
+  dst="$base/.config/kwinrc"
+  [ -f "$src" ] || continue
+  if [ -e "$dst" ]; then
+    log "OK: kwinrc efectivo ya presente: $dst"
+  elif [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: cp $src $dst"
+  else
+    install -Dm644 "$src" "$dst" \
+      && log "OK: kwinrc efectivo copiado a $dst" \
+      || log "AVISO: no se pudo copiar kwinrc a $dst"
+  fi
+done
+
 if command -v kwriteconfig6 >/dev/null 2>&1 && pacman -Q klassy-nimbus >/dev/null 2>&1; then
-  for krc in /etc/skel/.config/plasma/kwinrc ${TARGET_HOME:+"$TARGET_HOME/.config/plasma/kwinrc"}; do
+  for krc in /etc/skel/.config/kwinrc /etc/skel/.config/plasma/kwinrc \
+             ${TARGET_HOME:+"$TARGET_HOME/.config/kwinrc"} \
+             ${TARGET_HOME:+"$TARGET_HOME/.config/plasma/kwinrc"}; do
     [ -f "$krc" ] || continue
     if [ "$CHECK" -eq 1 ]; then
       log "HARÍA: kwinrc library=org.kde.klassy en $krc"
@@ -210,10 +253,7 @@ if [ -d "$THEME_UNIT_DIR" ] && [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" 
     chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/systemd" "$TARGET_HOME/.local" 2>/dev/null || true
     log "OK: nimbus-theme-auto.timer habilitado para $TARGET_USER"
     # F6-T06: autopegado con ydotool (uinput, sin root por sesión).
-    if getent group input >/dev/null 2>&1; then
-      usermod -aG input "$TARGET_USER" && log "OK: $TARGET_USER en grupo input (ydotool)" \
-        || log "AVISO: no se pudo añadir $TARGET_USER al grupo input"
-    fi
+    # El grupo input se aplica arriba (0a-bis), fuera de este bloque.
     if [ -f /usr/lib/systemd/user/ydotool.service ]; then
       ln -sfn /usr/lib/systemd/user/ydotool.service "$udir/default.target.wants/ydotool.service" || fail=1
       log "OK: ydotoold (usuario) habilitado"

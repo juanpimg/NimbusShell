@@ -25,6 +25,11 @@ done
 sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
     for f in "$REPO_ROOT/install.sh" "$REPO_ROOT"/lib/*.sh "$REPO_ROOT"/scripts/*.sh \
              "$REPO_ROOT/scripts/install-klassy-nimbus" \
+             "$REPO_ROOT"/iso/calamares/scripts/*.sh \
+             "$REPO_ROOT/iso/build-iso.sh" \
+             "$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-installed-setup" \
+             "$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-hide-panel" \
+             "$REPO_ROOT/tests/bar/test_kwinrc.sh" \
              "$REPO_ROOT/legacy/hyprland/install.sh"; do
         [ -f "$f" ] && printf '%s\n' "$f"
     done
@@ -137,6 +142,16 @@ if [ -x "$REPO_ROOT/scripts/nimbus-i18n" ]; then
         else fail "tests/i18n/test_i18n.sh (ver /tmp/opencode/ci-i18n-test.txt)"; fi
     else fail "tests/i18n/test_i18n.sh ausente o sin +x"; fi
 else fail "scripts/nimbus-i18n ausente o sin +x"; fi
+
+echo "== ci: kwinrc efectivo + panel (tests/bar/test_kwinrc.sh) =="
+if cmp -s "$REPO_ROOT/dotfiles/.config/kwinrc" "$REPO_ROOT/dotfiles/.config/plasma/kwinrc"; then
+    pass "kwinrc efectivo == plasma/kwinrc (cmp)"
+else fail "kwinrc efectivo y plasma/kwinrc divergen (cmp)"; fi
+if [ -x "$REPO_ROOT/tests/bar/test_kwinrc.sh" ]; then
+    if "$REPO_ROOT/tests/bar/test_kwinrc.sh" >/tmp/opencode/ci-kwinrc.txt 2>&1; then
+        pass "tests/bar/test_kwinrc.sh"
+    else fail "tests/bar/test_kwinrc.sh (ver /tmp/opencode/ci-kwinrc.txt)"; fi
+else fail "tests/bar/test_kwinrc.sh ausente o sin +x"; fi
 
 echo "== ci: install.sh --check (solo lectura) =="
 "$REPO_ROOT/install.sh" --check >/tmp/opencode/ci-check.txt 2>&1

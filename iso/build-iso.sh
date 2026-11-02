@@ -58,6 +58,8 @@ need "$CALAMARES/branding/nimbus/branding.desc" "branding Calamares"
 need "$CALAMARES/groups-nimbus.json" "grupos netinstall"
 need "$CALAMARES/modules/shellprocess-nimbus.conf" "módulo shellprocess-nimbus"
 need "$REPO_ROOT/dotfiles/.config/plasma/kdeglobals" "dotfiles plasma"
+need "$REPO_ROOT/dotfiles/.config/kwinrc" "dotfiles kwinrc efectivo (KWin lee ~/.config/kwinrc)"
+need "$REPO_ROOT/dotfiles/.config/autostart/nimbus-hide-panel.desktop" "autostart panel Nimbus"
 need "$REPO_ROOT/scripts/nimbus-theme" "script nimbus-theme"
 need "$REPO_ROOT/scripts/nimbus-privacy" "script nimbus-privacy"
 need "$REPO_ROOT/scripts/nimbus-flatpak-perms" "script nimbus-flatpak-perms"
@@ -232,6 +234,8 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/calamares/groups-nimbus.json" \
   "$OUT/airootfs/usr/share/nimbus/calamares/branding/nimbus/branding.desc" \
   "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
+  "$OUT/airootfs/etc/skel/.config/kwinrc" \
+  "$OUT/airootfs/etc/skel/.config/autostart/nimbus-hide-panel.desktop" \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
   "$OUT/airootfs/usr/share/sddm/themes/nimbus/Main.qml" \
   "$OUT/airootfs/usr/share/nimbus/klassy/nimbus-tahoe.klpw" \
@@ -251,6 +255,13 @@ for f in \
   ; do
   [ -f "$f" ] || { echo "ERROR: falta en staging: $f" >&2; exit 1; }
 done
+# KWin lee ~/.config/kwinrc: el efectivo debe llegar al skel idéntico al
+# canónico plasma/kwinrc (evita el FAIL kwin.scripts de la aceptación).
+cmp -s "$OUT/airootfs/etc/skel/.config/kwinrc" "$OUT/airootfs/etc/skel/.config/plasma/kwinrc" \
+  || { echo "ERROR: kwinrc efectivo y plasma/kwinrc divergen en staging" >&2; exit 1; }
+grep -q '^Exec=/usr/local/bin/nimbus-hide-panel' \
+  "$OUT/airootfs/etc/skel/.config/autostart/nimbus-hide-panel.desktop" \
+  || { echo "ERROR: autostart nimbus-hide-panel sin Exec correcto" >&2; exit 1; }
 if [ "$SKIP_APPS" -eq 0 ]; then
   for b in nimbus-bar nimbus-apps nimbus-spotlight nimbus-about nimbus-clock nimbus-help nimbus-missioncontrol nimbus-welcome; do
     [ -x "$OUT/airootfs/usr/local/bin/$b" ] || { echo "ERROR: falta binario $b en staging" >&2; exit 1; }
