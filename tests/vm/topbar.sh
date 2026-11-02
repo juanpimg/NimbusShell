@@ -13,10 +13,28 @@ BAR="$(pgrep -f '/usr/local/bin/nimbus-bar' | head -n 1 || true)"
 
 LOG="$HOME/.local/state/nimbus/bar.log"
 [ -f "$LOG" ] || LOG="$HOME/.cache/nimbus/hide-panel.log"
-if grep -q 'barHeight=24' "$HOME/.local/state/nimbus/bar.log" "$HOME/.cache/nimbus/bar.log" 2>/dev/null; then
+BHJS="$(mktemp /tmp/nimbus-bh.XXXXXX.js)"
+cat >"$BHJS" <<'JS'
+var wins = workspace.stackingOrder;
+for (var i = 0; i < wins.length; i++) {
+    var rc = String(wins[i].resourceClass);
+    if (rc.indexOf("nimbus-bar") >= 0 || rc.indexOf("nimbus_bar") >= 0)
+        print("NIMBUS_BAR_HEIGHT h=" + wins[i].height + " fh=" + wins[i].frameGeometry.height + " y=" + wins[i].y);
+}
+JS
+BHID="$(qdbus6 org.kde.KWin /Scripting org.kde.kwin.Scripting.loadScript   "$BHJS" nimbus-topbar-bh 2>/dev/null || true)"
+if [ -n "$BHID" ]; then
+  qdbus6 org.kde.KWin "/Scripting/Script$BHID" org.kde.kwin.Script.run >/dev/null 2>&1 || true
+  sleep 0.5
+fi
+BH="$(journalctl --user -u plasma-kwin_wayland --since '1 min ago' --no-pager   --grep NIMBUS_BAR_HEIGHT 2>/dev/null | tail -n 1 || true)"
+rm -f "$BHJS"
+if printf '%s' "$BH" | grep -q 'h=24'; then
+  ok "bar.height=24 (KWin geometry)"
+elif grep -q 'barHeight=24' "$HOME/.local/state/nimbus/bar.log" "$HOME/.cache/nimbus/bar.log" 2>/dev/null; then
   ok "bar.height=24 (log)"
 else
-  printf 'SKIP bar.height=24 (log ausente; validar por golden/captura)\n'
+  bad "bar.height != 24 (KWin/log): ${BH:-sin dato}"
 fi
 
 NOTIF="$(qdbus6 org.freedesktop.Notifications /org/freedesktop/Notifications \

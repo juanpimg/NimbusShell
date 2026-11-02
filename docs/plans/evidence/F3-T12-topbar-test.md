@@ -10,18 +10,17 @@
 ## Ejecución real
 ```text
 PASS bar.process pid=572
-SKIP bar.height=24 (log ausente; validar por golden/captura)
+PASS bar.height=24 (KWin geometry)  [h=24 fh=24 y=0]
 PASS notifications.server=Nimbus
 PASS screens: count=1 [Virtual-1:1280x800(prim)] mc=1280x800@0,0
 PASS captura /home/nimbus/topbar-evidence/topbar.png
-RESULT 4 PASS / 0 FAIL
+RESULT 5 PASS / 0 FAIL
 golden_diff=0.0000 (limite 0.15)
 ```
 Evidencia: `F3-T12-topbar-out13.png`.
 
 ## Límites
-- El log de la barra no conserva `barHeight=24`; la altura se confirma por
-  golden/captura, no por log.
+- La altura se mide por geometría KWin (`nimbus-bar h=24 fh=24 y=0`), no por log.
 - Capturas de menú N, calendario y Control Center ya existen
   (`matrix-out12/07..09`); faltan clics de todos los ítems (Acerca de,
   Ajustes, Reloj, bloquear/cerrar sesión) y la matriz multi-monitor final.
