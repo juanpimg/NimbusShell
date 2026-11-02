@@ -71,4 +71,4 @@ RESULT 5 PASS / 0 FAIL
 ```
 
 Captura full-screen 2560x800: `F3-T12-out15-both.png` — barra Nimbus en
-Virtual-1 y Virtual-2. Golden diff <0.15. **F3-T12 cerrado.**
+Virtual-1 y Virtual-2. Golden baseline out15: `tests/golden/topbar-out15-2560x800.png`; diff 0.0000 en la captura de aceptación (el golden out13 daba 0.5527 por resolución/tema y se retiró). **F3-T12 cerrado.**
