@@ -163,7 +163,7 @@
 - [ ] **F5-T05 — Autohide, multi-monitor y exclusive zone.** Files: `packages/dock/`, `kwin/`. Acciones: intellihide, reservar espacio, 1-2 pantallas, HiDPI. Accept: no tapa ventanas; reacciona a foco; capturas. Dep: F5-T03.
 - [x] **F5-T06 — Clic, launch, foco, minimize.** Files: `packages/dock/`. Acciones: click abre/enfoca, minimiza con genie, menú contextual. Accept: 20 ciclos sin fallo; evidencia. Dep: F5-T02.
 - [ ] **F5-T07 — Previews de ventanas.** Files: `packages/dock/`. Acciones: `kpipewire`; si no hay previews estables, Ruling y fallback (icono+lista). Accept: previews o Ruling; sin crash. Dep: F5-T06.
-- [ ] **F5-T08 — Pin/unpin/reorder y persistencia.** Files: `packages/dock/`. Acciones: drag reorder, pins, JSON, reset. Accept: persiste tras reinicio; tests. Dep: F5-T06.
+- [x] **F5-T08 — Pin/unpin/reorder y persistencia.** Files: `packages/dock/`. Acciones: drag reorder, pins, JSON, reset. Accept: persiste tras reinicio; tests. Dep: F5-T06. Estado: CERRADO 2026-11-02 con R-DOCK-REORDER/R-DOCK-STATE. Evidencia: unpin sin icono tras reinicio, re-pin persiste tras cerrar app, reorder por PinnedLaunchers + reset al preset (`F5-T08-pin.md`).
 - [ ] **F5-T09 — Papelera, stacks y badges.** Files: `packages/dock/`. Acciones: trash, Downloads, badges; abrir. Accept: estados vacío/lleno; captura. Dep: F5-T08.
 - [ ] **F5-T10 — Preferencias del Dock.** Files: `packages/dock/`, `settings/`. Acciones: tamaño, zoom, posición, autohide, tema; port MacDock prefs. Accept: cambios en vivo; persistencia. Dep: F5-T08.
 - [ ] **F5-T11 — Rendimiento y arranque.** Files: `tests/vm/dock.sh`. Acciones: fps, RAM, tiempo de arranque, 30 apps. Accept: A5 (60fps producto, RAM <150MB, boot <1s extra). Dep: F5-T04.
@@ -321,6 +321,8 @@
 - **R-KLASSY:** Klassy 6.7.3 medido en nested: carga y da círculos/colores, pero NO baja de Ø20, gap 22, inactivas grises ni hover ×/−/+; queda como **fallback**, no como base 1:1. CI/pin si se usa.
 - **R-DECO:** la decoración 1:1 se implementa como plugin propio KDecoration3 `nimbus-decoration` (C++, 12px/gap8/inactivas/hover/titlebar 16/26); sin fork de Klassy; propuesta upstream si el API lo permite.
 - **R-MC-MOVE:** el arrastre desde miniaturas no recibe eventos de puntero fiables en la VM; el movimiento entre Spaces se hace con el atajo global KWin `Meta+Ctrl+Shift+←/→` (validado: Space 1=0, Space 2=2). Equivalente de teclado macOS; el drag visual queda como pulido no bloqueante.
+- **R-DOCK-REORDER:** Krema 0.12 no recibe drag-reorder fiable con el puntero inyectado en la VM; el orden se persiste en `PinnedLaunchers` (`kremarc`) y se aplica al reiniciar, con reset al preset. El drag visual queda como pulido no bloqueante.
+- **R-DOCK-STATE:** Krema 0.12 persiste en `~/.config/kremarc` (INI), no en JSON; pin/unpin, orden y reset se validan sobre ese fichero.
 - **R-LOGIN:** SDDM 0.21 por defecto; plasma-login-manager solo spike en F8; greetd descartado (kwallet-PAM).
 - **R-LIVE-USER:** el ISO live crea `nimbus`/`nimbus` (solo demo), `sudo` NOPASSWD y arranca SDDM + Calamares; nunca se copia al target (Calamares define usuario/clave). Sin autologin. Evita el live en consola root sin usuario gráfico.
 - **R-SPACES:** escritorios virtuales Plasma globales; per-monitor no es 1:1 y queda documentado; aceptar hasta que KWin lo soporte.
