@@ -14,3 +14,16 @@ Sistema instalado out13, una salida, Dolphin fijado en el Dock.
 - Restaurar desde minimizado y 20 ciclos alternando launch/minimize.
 
 F5-T06 **no se marca** hasta completar minimize/restore.
+
+## Minimize/restore por one-shot KWin (2026-11-02 08:44)
+
+- `window.minimized=true` vía script KWin (`Script.run`) **minimiza Dolphin**
+  (`F5-T06-minimized-kwin.png`): el escritorio queda libre y el Dock conserva
+  el punto de running.
+- `window.minimized=false` + `workspace.activeWindow` **restaura y enfoca**
+  Dolphin (`F5-T06-restored-kwin.png`).
+- Causa raíz del atajo/botón: `kglobalshortcutsrc` solo existía en
+  `dotfiles/.config/plasma/`; KDE lee `~/.config/kglobalshortcutsrc`.
+  Añadido efectivo + copia en setup + `cmp` en build/CI. Tras desplegarlo y
+  reiniciar `kglobalaccel`, Meta+M aún no se validó en esta sesión; requiere
+  re-login. F5-T06 sigue abierto (minimize por botón/shortcut sin PASS).

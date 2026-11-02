@@ -16,6 +16,8 @@ KWINRC="$REPO_ROOT/dotfiles/.config/kwinrc"
 KWINRC_PLASMA="$REPO_ROOT/dotfiles/.config/plasma/kwinrc"
 KDEGLOBALS="$REPO_ROOT/dotfiles/.config/kdeglobals"
 KDEGLOBALS_PLASMA="$REPO_ROOT/dotfiles/.config/plasma/kdeglobals"
+KGSHORTCUTS="$REPO_ROOT/dotfiles/.config/kglobalshortcutsrc"
+KGSHORTCUTS_PLASMA="$REPO_ROOT/dotfiles/.config/plasma/kglobalshortcutsrc"
 SETUP="$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-installed-setup"
 HIDE="$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-hide-panel"
 BUILD_ISO="$REPO_ROOT/iso/build-iso.sh"
@@ -57,6 +59,11 @@ if [ -f "$KDEGLOBALS" ] && [ -f "$KDEGLOBALS_PLASMA" ]; then
     fi
 else
     fail "falta dotfiles/.config/kdeglobals o plasma/kdeglobals"
+fi
+if [ -f "$KGSHORTCUTS" ] && [ -f "$KGSHORTCUTS_PLASMA" ] && cmp -s "$KGSHORTCUTS" "$KGSHORTCUTS_PLASMA"; then
+    pass "kglobalshortcutsrc efectivo == plasma (cmp)"
+else
+    fail "kglobalshortcutsrc efectivo ausente o divergente"
 fi
 if grep -qx 'ColorScheme=NimbusTahoe' "$KDEGLOBALS" 2>/dev/null; then
     pass "kdeglobals efectivo: ColorScheme=NimbusTahoe"

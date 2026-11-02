@@ -121,6 +121,24 @@ for base in /etc/skel "${TARGET_HOME:-/nonexistent}"; do
       || log "AVISO: no se pudo copiar kwinrc a $dst"
   fi
 done
+# 0b-quater. kglobalshortcutsrc efectivo: KDE/KWin leen
+# ~/.config/kglobalshortcutsrc (Meta+M, etc.), no plasma/kglobalshortcutsrc.
+for base in /etc/skel "${TARGET_HOME:-/nonexistent}"; do
+  [ -d "$base" ] || continue
+  src="$base/.config/plasma/kglobalshortcutsrc"
+  dst="$base/.config/kglobalshortcutsrc"
+  [ -f "$src" ] || continue
+  if [ -e "$dst" ]; then
+    log "OK: kglobalshortcutsrc efectivo ya presente: $dst"
+  elif [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: cp $src $dst"
+  else
+    install -Dm644 "$src" "$dst" \
+      && log "OK: kglobalshortcutsrc efectivo copiado a $dst" \
+      || log "AVISO: no se pudo copiar kglobalshortcutsrc a $dst"
+  fi
+done
+
 # 0b-ter. kdeglobals efectivo: KDE lee ~/.config/kdeglobals, NO
 # plasma/kdeglobals. Sin esta copia el ColorScheme NimbusTahoe no se aplica
 # (FAIL theme.scheme/theme.accent de la aceptación out10). Solo si falta.

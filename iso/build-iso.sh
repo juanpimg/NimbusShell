@@ -73,6 +73,7 @@ need "$CALAMARES/groups-nimbus.json" "grupos netinstall"
 need "$CALAMARES/modules/shellprocess-nimbus.conf" "módulo shellprocess-nimbus"
 need "$REPO_ROOT/dotfiles/.config/plasma/kdeglobals" "dotfiles plasma"
 need "$REPO_ROOT/dotfiles/.config/kdeglobals" "dotfiles kdeglobals efectivo (KDE lee ~/.config/kdeglobals)"
+need "$REPO_ROOT/dotfiles/.config/kglobalshortcutsrc" "dotfiles kglobalshortcutsrc efectivo"
 need "$REPO_ROOT/dotfiles/.config/kwinrc" "dotfiles kwinrc efectivo (KWin lee ~/.config/kwinrc)"
 need "$REPO_ROOT/dotfiles/.config/autostart/nimbus-hide-panel.desktop" "autostart panel Nimbus"
 need "$REPO_ROOT/scripts/nimbus-theme" "script nimbus-theme"
@@ -259,6 +260,7 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/calamares/branding/nimbus/branding.desc" \
   "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
   "$OUT/airootfs/etc/skel/.config/kdeglobals" \
+  "$OUT/airootfs/etc/skel/.config/kglobalshortcutsrc" \
   "$OUT/airootfs/etc/skel/.config/kwinrc" \
   "$OUT/airootfs/etc/skel/.config/autostart/nimbus-hide-panel.desktop" \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
@@ -287,6 +289,8 @@ cmp -s "$OUT/airootfs/etc/skel/.config/kwinrc" "$OUT/airootfs/etc/skel/.config/p
 # KDE lee ~/.config/kdeglobals: debe ser idéntico al canónico plasma.
 cmp -s "$OUT/airootfs/etc/skel/.config/kdeglobals" "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
   || { echo "ERROR: kdeglobals efectivo y plasma/kdeglobals divergen en staging" >&2; exit 1; }
+cmp -s "$OUT/airootfs/etc/skel/.config/kglobalshortcutsrc" "$OUT/airootfs/etc/skel/.config/plasma/kglobalshortcutsrc" \
+  || { echo "ERROR: kglobalshortcutsrc efectivo y plasma divergen en staging" >&2; exit 1; }
 # R-LIVE-USER: live con usuario + SDDM + Calamares; nunca en el target.
 [ -L "$OUT/airootfs/etc/systemd/system/display-manager.service" ] \
   && [ "$(readlink "$OUT/airootfs/etc/systemd/system/display-manager.service")" = "/usr/lib/systemd/system/sddm.service" ] \
