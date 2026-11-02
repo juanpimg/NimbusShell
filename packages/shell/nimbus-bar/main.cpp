@@ -4,6 +4,7 @@
 #include <QGuiApplication>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QImage>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -116,6 +117,7 @@ int main(int argc, char *argv[])
     double demoOsdValue = 0.7;
     int trayOpenMenu = -1;
     QString customAccent; // F11-T03: --accent <hex> → NimbusTokens.accentCustom
+    QString qmlRoot; // --qml-root DIR: Bar.qml desde disco (iterar sin rebuild)
     for (int i = 1; i < argc; ++i) {
         const QString a = QString::fromLocal8Bit(argv[i]);
         if (a == QStringLiteral("--demo-menu"))
@@ -166,6 +168,37 @@ int main(int argc, char *argv[])
             customAccent = QString::fromLocal8Bit(argv[++i]);
         else if (a.startsWith(QStringLiteral("--accent=")))
             customAccent = a.mid(QStringLiteral("--accent=").size());
+        else if (a == QStringLiteral("--qml-root")) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "nimbus-bar: --qml-root requiere un directorio "
+                        "(ejemplo: --qml-root packages/shell/nimbus-bar/qml)\n");
+                return 1;
+            }
+            qmlRoot = QString::fromLocal8Bit(argv[++i]);
+        } else if (a.startsWith(QStringLiteral("--qml-root=")))
+            qmlRoot = a.mid(QStringLiteral("--qml-root=").size());
+    }
+
+    // --qml-root DIR: carga DIR/Bar.qml en vez de qrc:/Bar.qml para iterar
+    // QML editando y reiniciando la barra (sin cmake). El `import "."` del
+    // QML resuelve NimbusTokens.qml/qmldir del mismo DIR; el resto del QML
+    // es idéntico al empaquetado. Sin flag se mantiene qrc:/Bar.qml.
+    QUrl rootUrl(QStringLiteral("qrc:/Bar.qml"));
+    if (!qmlRoot.isEmpty()) {
+        const QFileInfo barQml(qmlRoot + QStringLiteral("/Bar.qml"));
+        if (!barQml.isFile() || !barQml.isReadable()) {
+            fprintf(stderr, "nimbus-bar: --qml-root: falta %s o no es legible "
+                    "(se espera DIR/Bar.qml; ejemplo: --qml-root "
+                    "packages/shell/nimbus-bar/qml)\n",
+                    qUtf8Printable(barQml.absoluteFilePath()));
+            return 1;
+        }
+        qmlRoot = barQml.absolutePath();
+        rootUrl = QUrl::fromLocalFile(barQml.absoluteFilePath());
+        fprintf(stderr, "nimbus-bar: qml-root=%s\n", qUtf8Printable(qmlRoot));
+        if (!QFileInfo::exists(qmlRoot + QStringLiteral("/qmldir")))
+            fprintf(stderr, "nimbus-bar: aviso: sin qmldir en %s; import \".\" "
+                    "no resolverá NimbusTokens\n", qUtf8Printable(qmlRoot));
     }
     if (demoOsd && demoOsdKind != QStringLiteral("volume")
         && demoOsdKind != QStringLiteral("brightness")) {
@@ -238,9 +271,10 @@ int main(int argc, char *argv[])
                          for (const auto &e : w)
                              qWarning().noquote() << e.toString();
                      });
-    engine.load(QStringLiteral("qrc:/Bar.qml"));
+    engine.load(rootUrl);
     if (engine.rootObjects().isEmpty()) {
-        qWarning("nimbus-bar: fallo al cargar qrc:/Bar.qml");
+        qWarning("nimbus-bar: fallo al cargar %s",
+                 qUtf8Printable(rootUrl.toString()));
         return 1;
     }
     qInfo().noquote() << QStringLiteral("nimbus-bar: demoMenu=%1 logActions=%2 barHeight=%3")
@@ -327,7 +361,7 @@ int main(int argc, char *argv[])
     auto *primaryWin = qobject_cast<QWindow *>(engine.rootObjects().first());
     configureBar(primaryWin, QGuiApplication::primaryScreen());
     QList<QObject *> extraBars;
-    QQmlComponent barComponent(&engine, QUrl(QStringLiteral("qrc:/Bar.qml")));
+    QQmlComponent barComponent(&engine, rootUrl);
     for (QScreen *screen : QGuiApplication::screens()) {
         if (screen == QGuiApplication::primaryScreen())
             continue;
