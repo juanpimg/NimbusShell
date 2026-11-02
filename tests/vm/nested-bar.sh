@@ -10,6 +10,7 @@ TIMEOUT=60
 BAR_BIN="/tmp/nimbus-bar-prefix/bin/nimbus-bar"
 WALLPAPER=""
 SOCKET="nimbus-bar-test"
+BAR_ARGS=""
 for ((i=1; i<=$#; i++)); do
   case "${!i}" in
     --out) j=$((i+1)); OUT_DIR="${!j}" ;;
@@ -19,6 +20,8 @@ for ((i=1; i<=$#; i++)); do
     --wallpaper) j=$((i+1)); WALLPAPER="${!j}" ;;
     # Socket único: permite dos harness en paralelo sin matarse.
     --socket) j=$((i+1)); SOCKET="${!j}" ;;
+    # Argumentos del binario (p. ej. --demo-cc --open-cc --demo-media).
+    --bar-args) j=$((i+1)); BAR_ARGS="${!j}" ;;
   esac
 done
 
@@ -65,6 +68,7 @@ OUT_ABS="'"$OUT_ABS"'"
 PIDFILE="'"$PIDFILE"'"
 TIMEOUT="'"$TIMEOUT"'"
 BAR_BIN="'"$BAR_BIN"'"
+BAR_ARGS="'"$BAR_ARGS"'"
 WALLPAPER="'"$WALLPAPER"'"
 WAYLAND_DISPLAY="'"$WAYLAND_DISPLAY"'"
 LOG="'"$LOG"'"
@@ -184,7 +188,8 @@ echo "[bar] probe ANTES de la barra (foco) ..." | tee -a "$LOG"
 run_probe "active"
 
 echo "[bar] arranque nimbus-bar ..." | tee -a "$LOG"
-"$BAR_BIN" >>"$LOG" 2>&1 &
+# shellcheck disable=SC2086  # BAR_ARGS es una lista deliberada
+"$BAR_BIN" $BAR_ARGS >>"$LOG" 2>&1 &
 BAR_PID=$!
 echo "$BAR_PID" >> "$PIDFILE"
 sleep 4
