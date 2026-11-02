@@ -127,42 +127,42 @@
     <context>
         <name>Bar</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="306" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="311" />
             <source>Batería </source>
             <translation>Battery </translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="373" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="387" />
             <source>Bluetooth</source>
             <translation>Bluetooth</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="247" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="457" />
             <source>Centro de control</source>
             <translation>Control Center</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="150" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="199" />
             <source>N</source>
             <translation>N</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="444" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="525" />
             <source>Reloj</source>
             <translation>Clock</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="406" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="424" />
             <source>Spotlight</source>
             <translation>Spotlight</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="340" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="350" />
             <source>Wi-Fi</source>
             <translation>Wi-Fi</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="98" />
+            <location filename="packages/shell/nimbus-bar/qml/Bar.qml" line="114" />
             <source>nimbus-bar</source>
             <translation>nimbus-bar</translation>
         </message>
@@ -288,37 +288,47 @@
     <context>
         <name>BarControlCenter</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="158" />
-            <source>BT</source>
-            <translation>BT</translation>
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="688" />
+            <source>Batería</source>
+            <translation>Battery</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="228" />
-            <source>Batería </source>
-            <translation>Battery </translation>
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="444" />
+            <source>Bluetooth</source>
+            <translation>Bluetooth</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="165" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="796" />
+            <source>Enfoque</source>
+            <translation>Focus</translation>
+        </message>
+        <message>
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="502" />
             <source>No molestar</source>
             <translation>Do Not Disturb</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="172" />
-            <source>Oscuro</source>
-            <translation>Dark</translation>
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="831" />
+            <source>Pantalla</source>
+            <translation>Display</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="151" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="911" />
+            <source>Sonido</source>
+            <translation>Sound</translation>
+        </message>
+        <message>
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="386" />
             <source>Wi-Fi</source>
             <translation>Wi-Fi</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="130" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="327" />
             <source>nimbus-cc</source>
             <translation>nimbus-cc</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="105" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="303" />
             <source>nimbus-cc-scrim</source>
             <translation>nimbus-cc-scrim</translation>
         </message>
@@ -344,52 +354,57 @@
     <context>
         <name>BarMenu</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="101" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="103" />
             <source>Acerca de Nimbus</source>
             <translation>About Nimbus</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="111" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="118" />
             <source>Ajustes del sistema…</source>
             <translation>System Settings…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="136" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="143" />
             <source>Apagar…</source>
             <translation>Shut Down…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="106" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="108" />
             <source>Ayuda de Nimbus</source>
             <translation>Nimbus Help</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="121" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="128" />
             <source>Bloquear</source>
             <translation>Lock</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="126" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="133" />
             <source>Cerrar sesión</source>
             <translation>Log Out</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="116" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="123" />
             <source>Dormir</source>
             <translation>Sleep</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="223" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="230" />
             <source>No</source>
             <translation>No</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="131" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="138" />
             <source>Reiniciar…</source>
             <translation>Restart…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="244" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="113" />
+            <source>Reloj</source>
+            <translation>Clock</translation>
+        </message>
+        <message>
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="251" />
             <source>Sí</source>
             <translation>Yes</translation>
         </message>
@@ -404,7 +419,7 @@
             <translation>nimbus-menu-scrim</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="206" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="213" />
             <source>¿</source>
             <translation>¿</translation>
         </message>
@@ -1529,7 +1544,7 @@
             <translation>Open</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="604" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="607" />
             <source>Acciones</source>
             <translation>Actions</translation>
         </message>
@@ -1539,52 +1554,52 @@
             <translation>Files</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="769" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="772" />
             <source>A–L elige · Tab navega · Ctrl+Tab=KRunner · Esc cierra</source>
             <translation>A–L picks · Tab moves · Ctrl+Tab=KRunner · Esc closes</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="254" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="257" />
             <source>Buscar</source>
             <translation>Search</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="656" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="659" />
             <source>Buscar en KRunner</source>
             <translation>Search in KRunner</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="667" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="670" />
             <source>Buscar en KRunner (Ctrl+Tab)</source>
             <translation>Search in KRunner (Ctrl+Tab)</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="260" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="263" />
             <source>Buscar en Spotlight</source>
             <translation>Search in Spotlight</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="271" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="274" />
             <source>Campo de búsqueda Spotlight</source>
             <translation>Spotlight search field</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="398" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="401" />
             <source>Categoría de emoji</source>
             <translation>Emoji category</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="609" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="612" />
             <source>Copiar</source>
             <translation>Copy</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="351" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="354" />
             <source>Emoji</source>
             <translation>Emoji</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="412" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="415" />
             <source>Enter: copiar y cerrar</source>
             <translation>Enter: copy and close</translation>
         </message>
@@ -1594,22 +1609,22 @@
             <translation>Type to search with KRunner</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="272" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="275" />
             <source>Escribe para buscar. Flechas arriba y abajo cambian la selección. Tab recorre los controles. Control Tab usa KRunner. Escape cierra.</source>
             <translation>Type to search. Up and down arrows change the selection. Tab moves through controls. Control Tab uses KRunner. Escape closes.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="399" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="402" />
             <source>Filtra los emoji por categoría</source>
             <translation>Filter emoji by category</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="448" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="451" />
             <source>Flechas arriba y abajo para elegir. Teclas A a L saltan al resultado. Enter abre. Tab sigue a las acciones.</source>
             <translation>Up and down arrows pick. Keys A to L jump to results. Enter opens. Tab moves to actions.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="351" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="354" />
             <source>Historial</source>
             <translation>History</translation>
         </message>
@@ -1619,7 +1634,7 @@
             <translation>Latency: </translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="504" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="507" />
             <source>Motor </source>
             <translation>Engine </translation>
         </message>
@@ -1629,17 +1644,17 @@
             <translation>Engine: </translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="690" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="693" />
             <source>Motor: KRunner (fallback)</source>
             <translation>Engine: KRunner (fallback)</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="609" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="612" />
             <source>Pegar</source>
             <translation>Paste</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="720" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="723" />
             <source>Pestañas de búsqueda</source>
             <translation>Search tabs</translation>
         </message>
@@ -1649,27 +1664,27 @@
             <translation>Clipboard</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="626" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="629" />
             <source>Pulsa Enter para </source>
             <translation>Press Enter to </translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="747" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="750" />
             <source>Pulsa Enter para mostrar esta pestaña</source>
             <translation>Press Enter to show this tab</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="367" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="370" />
             <source>Pulsa Enter para mostrar esta vista del portapapeles</source>
             <translation>Press Enter to show this clipboard view</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="657" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="660" />
             <source>Pulsa Enter para repetir la búsqueda con el motor KRunner. Atajo Control Tab.</source>
             <translation>Press Enter to repeat the search with the KRunner engine. Control Tab shortcut.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="447" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="450" />
             <source>Resultados</source>
             <translation>Results</translation>
         </message>
@@ -1689,22 +1704,22 @@
             <translation>Spotlight</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="397" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="400" />
             <source>Todas</source>
             <translation>All</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="366" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="369" />
             <source>Vista Emoji</source>
             <translation>Emoji view</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="366" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="369" />
             <source>Vista Historial</source>
             <translation>History view</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="346" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="349" />
             <source>Vistas del portapapeles</source>
             <translation>Clipboard views</translation>
         </message>
@@ -1749,12 +1764,12 @@
             <translation>travel</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="319" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="322" />
             <source>…</source>
             <translation>…</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="252" />
+            <location filename="apps/nimbus-spotlight/qml/Spotlight.qml" line="255" />
             <source>🔍</source>
             <translation>🔍</translation>
         </message>
