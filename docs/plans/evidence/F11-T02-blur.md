@@ -68,10 +68,27 @@ Secuencia que funciona:
 3. El protocolo es double-buffered: la región solo se aplica en el siguiente
    `wl_surface.commit`. Sin repintado, el efecto queda pendiente y no se ve.
 
+## Extensión al Control Center (2026-11-02)
+
+El mismo backend se aplica al popup del CC (`scope nimbus-cc`): sobre el
+damero, el patrón queda promediado dentro del panel y nítido fuera
+(`F3-T05-tahoe-cc-blur-checker.png`, `docs/plans/evidence/F3-T05-tahoe-cc.md`).
+
+Dos trampas nuevas:
+
+- **Scrim**: el CC tiene una ventana full-screen para cerrar al clic. Si se
+  blurea, se emborrona/oscurece todo el escritorio. Se descarta por
+  scope/título y por geometría (≥90 % de la pantalla).
+- **Popups ocultos**: registrar blur en menú/calendario/OSD/notificaciones
+  ocultos hacía que KWin 6.8 blureara el output completo. De momento solo
+  están en la allowlist barra + CC; el resto se valida uno a uno.
+
 ## Límites y siguientes pasos
 
 - Probado solo en nested; falta la **VM instalada** (out15/out16) y medir fps
   con `QSG_RENDER_TIMING=1` (llvmpipe y GPU).
+- El CC **sí tiene blur** de fondo; menú/calendario/OSD/notificaciones aún no.
+- Sin refracción/lensing: el blur stock solo aproxima la primera capa.
 - Falta **Reduce Transparency** (A9): con blur desactivado la superficie debe
   quedar opaca y legible.
 - Falta **refracción real**: integrar `4v3ngR/kwin-effects-glass` para Plasma

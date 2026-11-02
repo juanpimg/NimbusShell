@@ -1,4 +1,4 @@
-# F3-T05 — Control Center Tahoe (worktree `plasma/f-cc-tahoe`, 2026-11-02)
+# F3-T05 — Control Center Tahoe (2026-11-02)
 
 ## Resultado
 
@@ -29,37 +29,65 @@ Además se corrigieron tres bugs funcionales del CC anterior:
 3. **Sliders**: el ancho se calcula contra el `Row` con id (el `parent.width`
    dentro del `Slider` daba 0 y la pista/knob no se dibujaban).
 
+## Blur real del compositor (primera capa de Liquid Glass)
+
+`main.cpp` aplica `KWindowEffects::enableBlurBehind()` a la barra y al popup
+del CC (scope `nimbus-cc`) con región explícita. En KWin 6.8 Wayland usa
+`ext-background-effect-v1`; el binding/capability es asíncrono y la región es
+double-buffered, así que se registra al arrancar, se reaplica a los 500 ms y se
+pide `requestUpdate()`.
+
+- Damero de 16 px: dentro del CC el patrón queda promediado (blur); fuera
+  sigue nítido. Evidencia `F3-T05-tahoe-cc-blur-checker.png` y recorte
+  `...-crop.png`.
+- Se descarta el **scrim** full-screen del CC (si se blurea, oscurece/
+  emborrona todo el escritorio) y se comprueba la geometría como red de
+  seguridad.
+- **Allowlist**: de momento solo barra + CC. Registrar blur en el resto de
+  popups ocultos (menú/calendario/tray/OSD/notificaciones) hacía que KWin 6.8
+  blureara el output completo; se validarán uno a uno con captura antes de
+  añadirlos. Esto **no es** Liquid Glass completo: falta refracción/lensing,
+  dispersión y rim/specular (Glass, F11-T02).
+
 ## Verificación
 
 - `qmllint packages/shell/nimbus-bar/qml/ControlCenter.qml` → rc 0.
-- `cmake -S packages/shell/nimbus-bar -B /tmp/cc-build2 -G Ninja` + build →
-  PASS.
-- Captura nested real (KWin 6.8.2 virtual 1280×800, wallpaper Nimbus
-  `sequoia-dark.jpg`, socket aislado `nimbus-cc-review3`):
+- `cmake -S packages/shell/nimbus-bar -B /tmp/barblur2 -G Ninja` + build →
+  PASS. `bash tests/bar/test_presets.sh` → VERDE.
+- Capturas nested reales (KWin 6.8.2 virtual 1280×800, socket aislado):
 
 ```bash
+# visual con wallpaper Nimbus
 bash tests/vm/nested-bar.sh \
-  --bin /tmp/cc-build2/nimbus-bar \
-  --out spikes/cc-review3 --timeout 30 \
+  --bin /tmp/barblur2/nimbus-bar \
+  --out spikes/cc-final --timeout 30 \
   --wallpaper packages/themes/nimbus-tahoe/wallpapers/sequoia-dark.jpg \
-  --socket nimbus-cc-review3 --bar-args "--open-cc"
+  --socket nimbus-cc-final --bar-args "--open-cc"
+
+# prueba de blur sobre damero de alto contraste
+bash tests/vm/nested-bar.sh \
+  --bin /tmp/barblur2/nimbus-bar \
+  --out spikes/cc-blur-final --timeout 30 \
+  --wallpaper /tmp/opencode/checker-1280x800.png \
+  --socket nimbus-cc-blur-final --bar-args "--open-cc"
 ```
 
-- `F3-T05-tahoe-cc.png`: captura completa 1280×800.
-- `F3-T05-tahoe-cc-crop.png`: recorte del panel.
+- `F3-T05-tahoe-cc.png` / `-crop.png`: captura final con wallpaper.
+- `F3-T05-tahoe-cc-blur-checker.png` / `-crop.png`: damero + blur real.
 - Medición: panel en x=924..1268 (344 px de contenido), y=32..460; margen
   derecho 12 px; solape con la ventana de Kate correcto (capa Top).
 - Estados reales en nested: Wi-Fi **Activado**, Bluetooth **Activado**,
-  batería 79 %,sliders con pista/fill/knob visibles.
+  batería 79 %, sliders con pista/fill/knob visibles.
+- Log: `nimbus-bar: glass scope=nimbus-cc` y
+  `nimbus-bar: blur compositor activo=1`.
 
 ## Límites (no cerrar F3-T05 todavía)
 
-- **No hay blur/refracción real en el CC**: las cápsulas son tinte alfa +
-  hairline; el blur de compositor ya funciona en la barra (F11-T02) y hay que
-  extenderlo a las ventanas layer-shell del CC/menús/notificaciones.
 - La fila “dos círculos + Enfoque” es una aproximación: Tahoe usa dos círculos
   pequeños bajo el reproductor y una cápsula Focus ancha en la fila siguiente.
-  Falta Stage Manager / Screen Mirroring.
+  Falta Stage Manager / Screen Mirroring; el panel es más ancho que los 292 pt
+  de referencia.
+- Sin refracción real (solo blur de fondo); sin Reduce Transparency.
 - `--demo-cc` no inyecta estados falsos (Wi-Fi/BT off); para la captura de
   estados “on” se usó `--open-cc` con las lecturas reales del host nested.
 - Sin validación en la VM instalada (out15/out16).
