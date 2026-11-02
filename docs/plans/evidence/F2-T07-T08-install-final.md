@@ -93,3 +93,14 @@ aparecieron tres fallos de instalación, ya corregidos en el repo:
 Capturas de las páginas reales en español: `spikes/f2-install/` (locale
 Europe/Madrid, teclado ES, arranque GRUB, particiones, usuarios, netinstall,
 resumen). La ISO final se reconstruye con todo y se repite el E2E limpio.
+
+## Cierre out11 (2026-11-02 03:56)
+
+- E2E limpio sobre disco/NVRAM nuevos con ISO out11
+  `a926cec9a34f47738fa343f051ca5f33290308b3a89e46b5f5edb4dac8ea7526`.
+- Calamares (branding Nimbus, español, teclado ES, borrar disco, Plasma)
+  completó `All done`; GRUB UEFI arrancó el target sin pasos manuales.
+- Primer login con SDDM Nimbus, capa Nimbus completa y aceptación
+  **25 PASS / 0 FAIL / 1 SKIP**. Ver `F2-T08-out11-25pass.md`.
+- El live sigue arrancando en consola root sin usuario gráfico (workaround
+  documentado); gap de UX pendiente para la próxima ISO.

@@ -172,3 +172,27 @@ Pendiente para el cierre definitivo: reconstruir ISO con estos fixes
 (`out11`) y repetir el E2E limpio sin despliegue manual; el live actual
 arranca en consola root y no trae usuario gráfico (workaround documentado:
 crear `nimbus` y `systemctl start sddm`; gap de UX del live, no del target).
+
+## Cierre definitivo: ISO out11 limpia (2026-11-02 03:56)
+
+- ISO: `a926cec9a34f47738fa343f051ca5f33290308b3a89e46b5f5edb4dac8ea7526`.
+- Instalación Calamares sobre disco y NVRAM nuevos; sin parches manuales en
+  el target (solo se creó el usuario live porque el ISO live arranca en
+  consola root; ver gap abajo).
+- Primer boot UEFI: **3.25 s** (`systemd-analyze`: 714 ms kernel + 2.539 s
+  userspace; `sddm ActiveEnterTimestampMonotonic=3251089`).
+- Primer login: tema NimbusTahoe oscuro, barra Nimbus, Dock Krema, panel
+  stock `hiding=autohide`, `nimbus-bar` dueño de
+  `org.freedesktop.Notifications`, `sudo` operativo para `nimbus`.
+- Aceptación final: **25 PASS / 0 FAIL / 1 SKIP — PASS**
+  (`F2-T08-out11-25pass.png/.json/.md`). `shortcuts.real` queda SKIP
+  porque no se pasó `--with-shortcuts`.
+- `journalctl -p3 -b`: solo `virtio_tdx: TDX not supported by the host
+  platform` (VM) — 0 errores críticos.
+- Capturas: `36-out11-installed-sddm.png` (SDDM Nimbus instalado),
+  `F2-T08-out11-25pass.png` (tabla).
+
+Gap de UX del live (no del target): el ISO arranca en consola root y no
+crea usuario gráfico; workaround `setup-live.sh` (useradd+chpasswd+sddm).
+Queda abierto para la siguiente ISO: usuario live + SDDM habilitado, para
+que el instalador se abra sin pasos manuales.

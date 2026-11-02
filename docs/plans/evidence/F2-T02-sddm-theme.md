@@ -89,3 +89,14 @@ Controls (placeholder, botón, selector cíclico `plasma`, energía OK).
 - LÍMITE: sin `sddm-greeter-qt6 --test-mode` ni Xvfb en el host; pendiente
   validación real en VM (F2-T08): `[Theme] Current=nimbus` + foto de
   pantalla del greeter.
+
+## Validación en sistema instalado out11 (2026-11-02)
+
+- SDDM Nimbus renderiza en el primer boot del target instalado por
+  Calamares (`36-out11-installed-sddm.png`): reloj, fondo NPS, tarjeta,
+  usuario `nimbus`, sesión Plasma (Wayland), Reiniciar/Apagar.
+- `systemd-analyze`: `graphical.target reached after 2.537 s in userspace`;
+  `sddm ActiveEnterTimestampMonotonic=3251089` (3.25 s desde boot).
+- Login manual `nimbus` -> Plasma Wayland; tema NimbusTahoe aplicado.
+- Sin errores QML: el journal de SDDM no muestra fallos del tema; solo
+  `virtio_tdx` (VM).
