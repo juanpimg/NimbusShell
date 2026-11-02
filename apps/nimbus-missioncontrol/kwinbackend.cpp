@@ -384,6 +384,29 @@ void KWinBackend::moveWindowToDesktop(const QString &winId, const QString &deskI
     runOneshotScript(js, QStringLiteral("nimbus-mc-mv-%1").arg(++m_dumpSeq));
 }
 
+void KWinBackend::moveWindowToDesktopAtCursor(const QString &winId)
+{
+    // F7-T10: sin Drag/Drop QML. Usa workspace.cursorPos y Window.desktops
+    // (propiedad read-write de KWin 6). Mapea la fila de Spaces: margen 24,
+    // tile 180 + spacing 12; el clamp evita índices fuera de rango.
+    const QString js = QStringLiteral(
+        "var target = '%1';\n"
+        "var wins = workspace.stackingOrder;\n"
+        "var ds = workspace.desktops;\n"
+        "var pos = workspace.cursorPos;\n"
+        "var idx = Math.floor((pos.x - 24) / 192);\n"
+        "if (idx < 0) idx = 0;\n"
+        "if (idx >= ds.length) idx = ds.length - 1;\n"
+        "for (var i = 0; i < wins.length; i++) {\n"
+        "  if (String(wins[i].internalId) === target) {\n"
+        "    wins[i].desktops = [ds[idx]];\n"
+        "    print('NIMBUS_MOVE_CURSOR ' + target + ' -> ' + ds[idx].name);\n"
+        "    break;\n"
+        "  }\n"
+        "}\n").arg(winId);
+    runOneshotScript(js, QStringLiteral("nimbus-mc-mvcursor-%1").arg(++m_dumpSeq));
+}
+
 void KWinBackend::createSpace()
 {
     // R-SPACES: crea "Escritorio N" real vía VirtualDesktopManager.

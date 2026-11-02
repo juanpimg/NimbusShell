@@ -44,6 +44,19 @@ public Q_SLOTS:
     int desktopCount() const { return m_backend->desktops().size(); }
     int openLatencyMs() const { return m_backend->openLatencyMs(); }
     QString activateFirst() { return m_backend->activateFirst(); }
+    QString moveFirstAtCursor()
+    {
+        for (const auto &w : m_backend->windows()) {
+            const QVariantMap m = w.toMap();
+            const QString id = m.value("id").toString();
+            if (!id.isEmpty()) {
+                m_backend->moveWindowToDesktopAtCursor(id);
+                return m.value("caption").toString();
+            }
+        }
+        return QStringLiteral("sin-ventanas");
+    }
+    void moveWindowAtCursor(const QString &id) { m_backend->moveWindowToDesktopAtCursor(id); }
     QString moveFirstTo(int deskIndex) { return m_backend->moveFirstTo(deskIndex); }
     void createSpace() { m_backend->createSpace(); }
     void ensureSpaces(int n) { m_backend->ensureSpaces(n); }

@@ -40,6 +40,7 @@ public:
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void activateWindow(const QString &winId);
     Q_INVOKABLE void moveWindowToDesktop(const QString &winId, const QString &deskId);
+    Q_INVOKABLE void moveWindowToDesktopAtCursor(const QString &winId);
     Q_INVOKABLE void setCurrentDesktopById(const QString &deskId);
     Q_INVOKABLE void setCurrentDesktopByIndex(int idx);
     Q_INVOKABLE void toggleExpose();
