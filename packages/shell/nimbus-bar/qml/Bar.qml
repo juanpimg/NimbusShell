@@ -91,8 +91,7 @@ Window {
     property string clockFormat: pStr("clock", "format", "ddd d MMM HH:mm")
     width: Screen.width
     height: pNum("bar", "height", 24)
-    visible: true
-    visibility: Window.Windowed
+    visible: false
     flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
     color: "transparent"
     title: "nimbus-bar"

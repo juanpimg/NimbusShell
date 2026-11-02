@@ -258,11 +258,15 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Refuerzo en C++ de los mismos valores declarados en Bar.qml
-    // (anclas/arriba, exclusiveZone = altura del preset, capa Top,
-    // sin teclado, scope). F3-T13: barHeight sale del preset (24 sin preset).
-    if (auto *win = qobject_cast<QWindow *>(engine.rootObjects().first())) {
+    // F3-T12 multi-monitor: una ventana layer-shell por QScreen en el mismo
+    // proceso (una sola instancia, un solo NotificationServer). Visible=false
+    // en Bar.qml hasta fijar screen; asi el surface nace en su salida.
+    auto configureBar = [&](QWindow *win, QScreen *screen) {
+        if (!win || !screen)
+            return;
+        win->setScreen(screen);
         if (auto *ls = LayerShellQt::Window::get(win)) {
+            ls->setScreen(screen);
             ls->setAnchors({LayerShellQt::Window::AnchorTop,
                             LayerShellQt::Window::AnchorLeft,
                             LayerShellQt::Window::AnchorRight});
@@ -273,6 +277,25 @@ int main(int argc, char *argv[])
             ls->setScope(QStringLiteral("nimbus-bar"));
             ls->setActivateOnShow(false);
         }
+        win->setVisible(true);
+    };
+    auto *primaryWin = qobject_cast<QWindow *>(engine.rootObjects().first());
+    configureBar(primaryWin, QGuiApplication::primaryScreen());
+    QList<QObject *> extraBars;
+    QQmlComponent barComponent(&engine, QUrl(QStringLiteral("qrc:/Bar.qml")));
+    for (QScreen *screen : QGuiApplication::screens()) {
+        if (screen == QGuiApplication::primaryScreen())
+            continue;
+        QObject *obj = barComponent.create();
+        if (!obj) {
+            qWarning("nimbus-bar: no se pudo crear barra para %s",
+                     qUtf8Printable(screen->name()));
+            continue;
+        }
+        auto *w = qobject_cast<QWindow *>(obj);
+        configureBar(w, screen);
+        extraBars.append(obj);
+        qInfo("nimbus-bar: barra secundaria en %s", qUtf8Printable(screen->name()));
     }
 
     bool dumpPreset = false;
