@@ -527,8 +527,10 @@ int main(int argc, char *argv[])
             notifServer.Notify(
                 QStringLiteral("Nimbus"), 0, QString(),
                 QStringLiteral("Reunión"),
-                QStringLiteral("En 5 minutos"), QStringList(),
-                QVariantMap(), 5000);
+                QStringLiteral("En 5 minutos"),
+                QStringList{QStringLiteral("default"), QStringLiteral("Abrir"),
+                            QStringLiteral("snooze"), QStringLiteral("Posponer")},
+                QVariantMap(), 60000);
         });
     }
 

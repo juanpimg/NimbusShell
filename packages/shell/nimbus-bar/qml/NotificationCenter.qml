@@ -44,8 +44,8 @@ Item {
     Window {
         id: popup
         visible: root.shown.length > 0
-        width: root.bannerWidth + 4
-        height: col.height + 4
+        width: root.bannerWidth + 8
+        height: col.height + 8
         x: Screen.width - width - root.marginRight
         y: root.topOffset
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
@@ -61,8 +61,8 @@ Item {
         LayerShellQt.Window.activateOnShow: false
         Column {
             id: col
-            x: 2
-            y: 2
+            x: 4
+            y: 4
             width: root.bannerWidth
             spacing: 8
             Repeater {
@@ -73,8 +73,8 @@ Item {
                     width: root.bannerWidth
                     // Altura implícita por contenido (sin valores mágicos
                     // fuera de tokens/spacing).
-                    height: inner.height + 20
-                    radius: 12
+                    height: inner.height + 24
+                    radius: 18
                     color: NimbusTokens.popupBg(NimbusTokens.dark)
                     border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
                     border.width: 1
@@ -94,9 +94,9 @@ Item {
                     }
                     Column {
                         id: inner
-                        x: 10
-                        y: 10
-                        width: parent.width - 20
+                        x: 12
+                        y: 12
+                        width: parent.width - 24
                         spacing: 6
                         Row {
                             width: parent.width
@@ -104,8 +104,8 @@ Item {
                             // Icono: imagen si hay file://, si no badge
                             // propio con la inicial de la app.
                             Item {
-                                width: 28
-                                height: 28
+                                width: 38
+                                height: 38
                                 anchors.verticalCenter: parent.verticalCenter
                                 Image {
                                     anchors.fill: parent
@@ -116,21 +116,21 @@ Item {
                                 }
                                 Rectangle {
                                     anchors.fill: parent
-                                    radius: 7
+                                    radius: 9
                                     color: NimbusTokens.accentColor(NimbusTokens.dark)
                                     visible: (modelData.iconSource || "") === ""
                                     Text {
                                         anchors.centerIn: parent
                                         text: (modelData.app || "?").charAt(0).toUpperCase()
                                         font.family: NimbusTokens.fontFamily
-                                        font.pixelSize: 14
+                                        font.pixelSize: 18
                                         font.weight: 700
                                         color: "white"
                                     }
                                 }
                             }
                             Column {
-                                width: parent.width - 28 - 8 - 24
+                                width: parent.width - 38 - 8 - 24
                                 spacing: 1
                                 Text {
                                     width: parent.width
