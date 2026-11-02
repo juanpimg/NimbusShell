@@ -111,7 +111,9 @@ referencia y en implementaciones:
 
 ## Siguiente paso
 
-Empaquetar Glass para la ISO (PKGBUILD/vendoring, licencia GPL y atribución),
-activar `glassEnabled`/desactivar blur stock por defecto, aplicarlo a menús,
-notificaciones y Dock, y validar en la VM instalada con fps y Reduce
-Transparency. Hasta entonces, este spike no cierra F11-T02.
+Empaquetar Glass para la ISO: receta en `packaging/glass/PKGBUILD` (pin
+`1edd1cd`, GPL-3.0-or-later) y guía en `packaging/glass/README.md`. Falta
+compilarla en la ISO, activar `glassEnabled`/desactivar blur stock por
+defecto, aplicarlo a menús, notificaciones y Dock, y validar en la VM
+instalada con fps y Reduce Transparency. Hasta entonces, este spike no cierra
+F11-T02.

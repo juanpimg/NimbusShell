@@ -95,9 +95,12 @@ bash tests/vm/nested-bar.sh \
 
 ## Límites y siguiente paso
 
-- **No hay empaquetado**: esto es un spike en `/tmp`; la ISO aún no lleva
-  Glass. Siguiente: PKGBUILD/vendoring GPL, instalar en el staging, activar
-  `glassEnabled` y desactivar blur stock por defecto, y verificar en VM.
+- **Empaquetado preparado, no probado en ISO**: `packaging/glass/PKGBUILD`
+  (pin `1edd1cd`, GPL-3.0-or-later) y `packaging/glass/README.md` con el
+  kwinrc y la verificación. Falta compilarlo en la ISO, instalar en el
+  staging, activar `glassEnabled`, desactivar blur stock por defecto y
+  verificar en la VM. No se cambió `dotfiles/.config/kwinrc` todavía: hacerlo
+  sin el paquete instalado dejaría la barra/CC sin blur.
 - Falta **Reduce Transparency** y la medición de fps (llvmpipe/GPU).
 - F11-T02 **no se cierra**: falta ISO/VM, menús/Dock/notificaciones y el
   criterio de fps.
