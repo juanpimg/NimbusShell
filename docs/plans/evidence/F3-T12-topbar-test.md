@@ -56,3 +56,19 @@ En la captura simultánea 2560x800, la barra Nimbus solo aparece en
 Virtual-1; Virtual-2 (Konsole) no tiene barra. macOS muestra menú/barra en
 cada display por defecto; esto impide cerrar F3-T12 en multi-monitor.
 Además, el fix LayerOverlay no está en out13; requiere nueva ISO.
+
+## Cierre E2E out15 (2026-11-02 10:41)
+
+Instalación limpia de out15 (`3b71a5f8…`) y segunda salida VirtIO:
+
+```text
+PASS bar.process pid=586
+PASS bar.height=24 (KWin geometry)
+PASS notifications.server=Nimbus
+PASS screens: count=2 [Virtual-1:1280x800(prim) Virtual-2:1280x800]
+PASS captura /home/nimbus/topbar-evidence/topbar.png
+RESULT 5 PASS / 0 FAIL
+```
+
+Captura full-screen 2560x800: `F3-T12-out15-both.png` — barra Nimbus en
+Virtual-1 y Virtual-2. Golden diff <0.15. **F3-T12 cerrado.**
