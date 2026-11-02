@@ -6,16 +6,18 @@
 #     destino: al parar, el guest vuelve al estado de la ISO.
 #   - 3G RAM, VNC 127.0.0.1:5908, HMP unix:$VM_DIR/dev-vm.sock,
 #     SSH hostfwd tcp::2228-:22, 9p hostshare=$VM_DIR/share, nombre nimbus-dev.
+#   - El live arranca a tty1 como root (autologin). Puede que NO haya sshd ni
+#     Quickshell: el loop es 9p + HMP. El 9p se monta DENTRO del guest en /mnt.
 #   - Subcomandos: start|stop|status|deploy|capture|reset|doctor.
-#   - deploy compila packages/shell/nimbus-bar en el HOST (/tmp/nimbus-dev-build),
-#     publica el binario en $SHARE/dev/nimbus-bar y solo declara éxito si el
-#     guest devuelve DEPLOY_OK con md5sum host==guest. Si no hay SSH deja el
-#     artefacto + $SHARE/dev/deploy.sh para ejecutarlo por 9p/consola.
-#   - capture usa HMP screendump (hmp.py/ppm2png.py) a out/dev-<ts>.png;
-#     alternativa SSH con spectacle si HMP no responde.
+#   - start: QEMU + tecleo por HMP (tests/vm/hmp-type.py) para montar 9p,
+#     arrancar share/dev/agent.sh y startplasma-wayland (idempotente).
+#   - deploy: build host en /tmp/nimbus-dev-build, copia a share/dev/nimbus-bar,
+#     escribe share/dev/args y espera deployed.md5 == md5 host. agent.sh vigila
+#     el binario/args y relanza la barra. SSH queda como fallback (VM instalada).
+#   - capture: screendump HMP (hmp.py/ppm2png.py) → out/dev-<ts>.png.
 #   - reset = stop + start (snapshot descarta cambios); NUNCA borra ISO/share.
 #   - Guardrails: sin root, set -u (sin set -e ciego), idempotente. Solo se
-#     señaliza el PID de $PIDFILE, verificado como nimbus-dev en /proc.
+#     señaliza el PID de la VM propia (PIDFILE o VNC 5908 verificado en /proc).
 #     NUNCA pkill -f ni se toca out15 (PID 299775, VNC 5907, SSH 2227,
 #     target.sock).
 #
@@ -35,29 +37,49 @@ OUT_DIR="${NIMBUS_DEV_OUT:-$REPO_ROOT/out}"
 BUILD_DIR="${NIMBUS_DEV_BUILD:-/tmp/nimbus-dev-build}"
 HMP_PY="${NIMBUS_DEV_HMP_PY:-$VM_DIR/hmp.py}"
 PPM2PNG="${NIMBUS_DEV_PPM2PNG:-$VM_DIR/ppm2png.py}"
+TYPE_HELPER="${NIMBUS_DEV_TYPE_HELPER:-$REPO_ROOT/tests/vm/hmp-type.py}"
 VNC_DISPLAY="${NIMBUS_DEV_VNC_DISPLAY:-8}"
 VNC_PORT=$((5900 + VNC_DISPLAY))
 SSH_PORT="${NIMBUS_DEV_SSH_PORT:-2228}"
 SSH_USER="${NIMBUS_DEV_SSH_USER:-nimbus}"
 SSH_PASS="${NIMBUS_DEV_SSH_PASS:-nimbus}"
 SSH_TIMEOUT="${NIMBUS_DEV_SSH_TIMEOUT:-45}"
-GUEST_WAYLAND_DISPLAY="${NIMBUS_DEV_GUEST_WAYLAND_DISPLAY:-wayland-0}"
+BOOT_WAIT="${NIMBUS_DEV_BOOT_WAIT:-15}"
+USE_OVMF="${NIMBUS_DEV_OVMF:-0}"
+OVMF_CODE="${NIMBUS_DEV_OVMF_CODE:-/usr/share/edk2/x64/OVMF_CODE.4m.fd}"
+OVMF_VARS_TEMPLATE="${NIMBUS_DEV_OVMF_VARS_TEMPLATE:-/usr/share/edk2/x64/OVMF_VARS.4m.fd}"
+OVMF_VARS="${NIMBUS_DEV_OVMF_VARS:-$VM_DIR/dev-OVMF_VARS.fd}"
+TTY_TRIES="${NIMBUS_DEV_TTY_TRIES:-12}"
+DEPLOY_TIMEOUT="${NIMBUS_DEV_DEPLOY_TIMEOUT:-60}"
+RENDER_WAIT="${NIMBUS_DEV_RENDER_WAIT:-3}"
+AGENT_WAIT="${NIMBUS_DEV_AGENT_WAIT:-60}"
+TRANSPORT="${NIMBUS_DEV_TRANSPORT:-9p}"
 VM_NAME="nimbus-dev"
+GUEST_SHARE="/mnt"
 OUT15_PID=299775
 OUT15_VNC=5907
 OUT15_SSH=2227
+
+# Ficheros del loop en el 9p (host y guest comparten el mismo sitio).
+AGENT_SH="$SHARE/dev/agent.sh"
+ARGS_FILE="$SHARE/dev/args"
+DEPLOYED_MD5="$SHARE/dev/deployed.md5"
+BAR_PID_FILE="$SHARE/dev/bar.pid"
+AGENT_LOG="$SHARE/dev/agent.log"
+BAR_LOG="$SHARE/dev/bar.log"
+AGENT_HEARTBEAT="$SHARE/dev/agent.heartbeat"
 
 usage() {
   cat <<'EOF'
 Uso: scripts/dev-vm <subcomando> [opciones]
 
-  start              arranca la VM live (idempotente; no toca una VM ajena)
-  stop               para SOLO la VM de este PIDFILE (HMP quit → TERM → KILL)
-  status             estado, puertos y PIDs (no modifica nada)
-  deploy             build host + copia a 9p + instala/reinicia en el guest
+  start              arranca/adopta la VM live, monta 9p y lanza agente+Plasma
+  stop               para SOLO la VM propia (HMP quit → TERM → KILL)
+  status             estado, puertos, agente y artefacto (no modifica nada)
+  deploy [args...]   build host + 9p + args; espera deployed.md5 del agente
   capture [fichero]  screendump HMP → out/dev-<ts>.png (o ruta indicada)
   reset              stop + start (snapshot descarta cambios del guest)
-  doctor             comprueba qemu, ISO, helpers, puertos, RAM y out15
+  doctor             qemu, ISO, helpers, 9p /mnt, SSH ausente, RAM y out15
 
 Variables útiles (los valores por defecto son el contrato):
   NIMBUS_VM_DIR        ~/.cache/nimbusshell-vm
@@ -67,8 +89,9 @@ Variables útiles (los valores por defecto son el contrato):
   NIMBUS_DEV_BUILD     /tmp/nimbus-dev-build
   NIMBUS_DEV_VNC_DISPLAY 8   (5908; no usar 7 = out15)
   NIMBUS_DEV_SSH_PORT  2228  (no usar 2227 = out15)
-  NIMBUS_DEV_SSH_USER  nimbus
-  NIMBUS_DEV_SSH_PASS  nimbus (credencial del live; solo si no hay clave)
+  NIMBUS_DEV_TRANSPORT 9p|ssh (ssh = fallback para VM instalada con sshd)
+  NIMBUS_DEV_DEPLOY_TIMEOUT 60 (s)
+  NIMBUS_DEV_BOOT_WAIT      15 (s antes de teclear tras arrancar QEMU)
 EOF
 }
 
@@ -80,7 +103,7 @@ die() {
 }
 
 ensure_user() {
-  [ "$(id -u)" -eq 0 ] && die "no ejecutes dev-vm como root (QEMU y el 9p son del usuario; el live no necesita root en el host)"
+  [ "$(id -u)" -eq 0 ] && die "no ejecutes dev-vm como root (QEMU y el 9p son del usuario del host)"
   return 0
 }
 
@@ -128,6 +151,22 @@ running_pid() {
   printf '%s\n' "$pid"
 }
 
+# VM ya viva pero sin PIDFILE (p. ej. la arrancó el verifier). Solo se adopta
+# si el dueño de VNC 5908 es exactamente nimbus-dev con nuestro socket HMP.
+find_ours_pid() {
+  local pid
+  pid="$(port_pid "$VNC_PORT" || true)"
+  [ -n "$pid" ] || return 1
+  pid_is_ours "$pid" || return 1
+  printf '%s\n' "$pid"
+}
+
+adopt_pid() {
+  local pid="$1"
+  mkdir -p "$STATE_DIR" || die "no se pudo crear $STATE_DIR"
+  printf '%s\n' "$pid" >"$PIDFILE" || die "no se pudo escribir $PIDFILE"
+}
+
 # --- sondas de red (solo lectura) -------------------------------------------
 
 port_free() { # port [host]
@@ -167,25 +206,317 @@ finally:
 PY
 }
 
+# sshd del guest (el live NO lo trae; 2228 es solo hostfwd).
+ssh_banner() {
+  python3 - "$SSH_PORT" <<'PY' >/dev/null 2>&1
+import socket, sys
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(1.5)
+try:
+    s.connect(("127.0.0.1", int(sys.argv[1])))
+    data = s.recv(4)
+except OSError:
+    sys.exit(1)
+finally:
+    s.close()
+sys.exit(0 if data.startswith(b"SSH-") else 1)
+PY
+}
+
+# --- tecleo por HMP ---------------------------------------------------------
+
+hmp_cmd() {
+  [ -f "$HMP_PY" ] || die "falta $HMP_PY (helper HMP)"
+  python3 "$HMP_PY" "$HMP_SOCK" "$@"
+}
+
+guest_key() {
+  [ -f "$TYPE_HELPER" ] || die "falta $TYPE_HELPER (helper de tecleo)"
+  python3 "$TYPE_HELPER" "$HMP_SOCK" --key "$1"
+}
+
+guest_type() {
+  [ -f "$TYPE_HELPER" ] || die "falta $TYPE_HELPER (helper de tecleo)"
+  python3 "$TYPE_HELPER" "$HMP_SOCK" "$1"
+}
+
+guest_line() {
+  guest_type "$1
+"
+}
+
+agent_alive() {
+  local now mtime
+  [ -f "$AGENT_HEARTBEAT" ] || return 1
+  now="$(date +%s)"
+  mtime="$(stat -c %Y "$AGENT_HEARTBEAT" 2>/dev/null || echo 0)"
+  [ $((now - mtime)) -le 10 ]
+}
+
+agent_md5() {
+  [ -f "$DEPLOYED_MD5" ] || return 1
+  head -n1 "$DEPLOYED_MD5" 2>/dev/null | tr -dc '0-9a-f'
+}
+
+# --- agente guest (se genera en el 9p) --------------------------------------
+
+write_guest_agent() {
+  mkdir -p "$SHARE/dev" || die "no se pudo crear $SHARE/dev"
+  cat >"$AGENT_SH" <<'AGENT'
+#!/bin/sh
+# agent.sh — generado por scripts/dev-vm. Loop live root, sin SSH ni systemctl.
+# Monta/espera el 9p en /mnt (lo monta dev-vm start), espera Wayland de root,
+# lanza nimbus-bar con share/dev/args y vigila el md5 del binario + args.
+set -u
+DIR=/mnt/dev
+BIN=$DIR/nimbus-bar
+LOG=$DIR/agent.log
+BAR_LOG=$DIR/bar.log
+ARGS_FILE=$DIR/args
+BAR_PID=$DIR/bar.pid
+DEPLOYED=$DIR/deployed.md5
+HEART=$DIR/agent.heartbeat
+LOCK=$DIR/agent.lock
+BUS=/run/user/0/bus
+
+mkdir -p "$DIR" 2>/dev/null || true
+exec 9>"$LOCK"
+if ! flock -n 9; then
+  echo "$(date -Is) agent: ya hay otro agente; salgo" >>"$LOG"
+  exit 0
+fi
+: >"$LOG"
+log() { echo "$(date -Is) agent: $*" >>"$LOG"; }
+log "inicio (pid $$)"
+touch "$HEART"
+
+wait_wayland() {
+  local tries=0 way=""
+  while [ "$tries" -lt 180 ]; do
+    touch "$HEART"
+    way=$(ls -d /run/user/0/wayland-* 2>/dev/null | head -n1)
+    [ -S "$BUS" ] && [ -n "$way" ] && break
+    sleep 1
+    tries=$((tries + 1))
+  done
+  [ -S "$BUS" ] && [ -n "$way" ] || return 1
+  WAYLAND_DISPLAY=$(basename "$way")
+  export WAYLAND_DISPLAY
+  export XDG_RUNTIME_DIR=/run/user/0
+  export DBUS_SESSION_BUS_ADDRESS="unix:path=$BUS"
+  export QT_QPA_PLATFORM=wayland
+  log "wayland listo: $way"
+  return 0
+}
+
+kill_bar_pid() {
+  [ -f "$BAR_PID" ] || return 0
+  local p cmd
+  p=$(cat "$BAR_PID" 2>/dev/null || true)
+  case "$p" in ''|*[!0-9]*) return 0 ;; esac
+  [ -d "/proc/$p" ] || return 0
+  cmd=$(tr '\0' ' ' <"/proc/$p/cmdline" 2>/dev/null || true)
+  case "$cmd" in
+    *"$BIN"*)
+      kill "$p" 2>/dev/null || true
+      sleep 0.3
+      kill -9 "$p" 2>/dev/null || true
+      ;;
+  esac
+  return 0
+}
+
+# Cierra barras lanzadas a mano desde este mismo binario (p. ej. el verifier),
+# solo si el cmdline empieza exactamente por $BIN. No usa pkill -f.
+kill_stray_bars() {
+  local d p cmd
+  for d in /proc/[0-9]*; do
+    [ -r "$d/cmdline" ] || continue
+    cmd=$(tr '\0' ' ' <"$d/cmdline" 2>/dev/null || true)
+    case "$cmd" in
+      "$BIN"|"$BIN "*)
+        p=${d#/proc/}
+        [ "$p" = "$$" ] && continue
+        kill "$p" 2>/dev/null || true
+        ;;
+    esac
+  done
+  sleep 0.4
+  for d in /proc/[0-9]*; do
+    [ -r "$d/cmdline" ] || continue
+    cmd=$(tr '\0' ' ' <"$d/cmdline" 2>/dev/null || true)
+    case "$cmd" in
+      "$BIN"|"$BIN "*)
+        p=${d#/proc/}
+        [ "$p" = "$$" ] && continue
+        kill -9 "$p" 2>/dev/null || true
+        ;;
+    esac
+  done
+  return 0
+}
+
+state_hash() {
+  {
+    md5sum "$BIN" 2>/dev/null | awk '{print $1}'
+    cat "$ARGS_FILE" 2>/dev/null || true
+  } | md5sum | awk '{print $1}'
+}
+
+start_bar() {
+  local args md5 bp
+  kill_bar_pid
+  kill_stray_bars
+  args=""
+  [ -f "$ARGS_FILE" ] && args=$(cat "$ARGS_FILE" 2>/dev/null || true)
+  set -f
+  # shellcheck disable=SC2086
+  set -- $args
+  set +f
+  : >"$BAR_LOG"
+  "$BIN" "$@" >>"$BAR_LOG" 2>&1 &
+  bp=$!
+  echo "$bp" >"$BAR_PID"
+  md5=$(md5sum "$BIN" | awk '{print $1}')
+  echo "$md5" >"$DEPLOYED"
+  log "bar lanzada pid=$bp args=[$args] md5=$md5"
+  touch "$HEART"
+}
+
+wait_binary() {
+  local tries=0
+  while [ "$tries" -lt 120 ]; do
+    [ -x "$BIN" ] && return 0
+    touch "$HEART"
+    sleep 1
+    tries=$((tries + 1))
+  done
+  return 1
+}
+
+if ! wait_wayland; then
+  log "ERROR: sin bus/Wayland de root tras 180s"
+  exit 1
+fi
+if ! wait_binary; then
+  log "ERROR: no aparece $BIN ejecutable en el 9p"
+  exit 1
+fi
+
+start_bar
+last=$(state_hash)
+while :; do
+  touch "$HEART"
+  now=$(state_hash)
+  if [ "$now" != "$last" ]; then
+    log "cambio de binario/args; reinicio"
+    start_bar
+    last=$(state_hash)
+  elif [ -f "$BAR_PID" ]; then
+    bp=$(cat "$BAR_PID" 2>/dev/null || true)
+    case "$bp" in
+      ''|*[!0-9]*) : ;;
+      *)
+        if ! kill -0 "$bp" 2>/dev/null; then
+          log "bar (pid $bp) murió; relanzo"
+          start_bar
+          last=$(state_hash)
+        fi
+        ;;
+    esac
+  fi
+  sleep 1
+done
+AGENT
+  chmod 755 "$AGENT_SH" || die "no se pudo hacer ejecutable $AGENT_SH"
+}
+
+ensure_args() {
+  if [ ! -f "$ARGS_FILE" ]; then
+    : >"$ARGS_FILE" || die "no se pudo crear $ARGS_FILE"
+  fi
+}
+
+# Pide a tty1/Konsole (root) montar /mnt y escribir un centinela. Reintenta
+# porque tras el boot las teclas pueden llegar antes que el login shell.
+guest_shell_ready() {
+  local tries=0
+  rm -f "$SHARE/dev/tty.ready"
+  while [ "$tries" -lt "$TTY_TRIES" ]; do
+    guest_key ctrl-u
+    # tty1 puede estar en keymap es/latam; se pasa a US antes de símbolos.
+    guest_line "loadkeys us"
+    guest_line "mountpoint -q $GUEST_SHARE || mount -t 9p -o trans=virtio,version=9p2000.L hostshare $GUEST_SHARE"
+    guest_line "printf ready > $GUEST_SHARE/dev/tty.ready"
+    sleep 1
+    [ -f "$SHARE/dev/tty.ready" ] && return 0
+    tries=$((tries + 1))
+  done
+  return 1
+}
+
+wait_agent_up() {
+  local tries=0 timeout="$1"
+  while [ "$tries" -lt "$timeout" ]; do
+    if agent_alive && [ -f "$BAR_PID_FILE" ] && [ -s "$BAR_LOG" ]; then
+      return 0
+    fi
+    sleep 1
+    tries=$((tries + 1))
+  done
+  return 1
+}
+
+ensure_guest_loop() {
+  hmp_alive || die "HMP $HMP_SOCK no responde; no puedo teclear en el guest"
+  write_guest_agent
+  ensure_args
+  if agent_alive; then
+    info "agente guest ya vivo (heartbeat reciente); no se teclea"
+    return 0
+  fi
+  guest_shell_ready || die "no pude teclear en tty1/Konsole para montar 9p en $GUEST_SHARE. Manual: mount -t 9p -o trans=virtio,version=9p2000.L hostshare /mnt && setsid sh /mnt/dev/agent.sh >/mnt/dev/agent.out 2>&1 &"
+  info "9p montado en $GUEST_SHARE; lanzando agente y Plasma"
+  guest_line "setsid sh $GUEST_SHARE/dev/agent.sh >$GUEST_SHARE/dev/agent.out 2>&1 </dev/null &"
+  guest_line "pgrep -x plasmashell >/dev/null || (startplasma-wayland >$GUEST_SHARE/dev/plasma.log 2>&1 &)"
+  if wait_agent_up "$AGENT_WAIT"; then
+    info "agente vivo: $(agent_md5 2>/dev/null || echo 'md5 pendiente')"
+    return 0
+  fi
+  warn "el agente no confirmó en ${AGENT_WAIT}s. Revisa $AGENT_LOG y $BAR_LOG"
+  tail -n 20 "$AGENT_LOG" 2>/dev/null >&2 || true
+  return 1
+}
+
 # --- start / stop / status ------------------------------------------------
 
 cmd_start() {
   ensure_user
   need_cmd qemu-system-x86_64
+  need_cmd setsid
   need_cmd python3
   need_file "$ISO" "ISO live"
+  need_file "$HMP_PY" "helper HMP"
+  need_file "$PPM2PNG" "helper PPM→PNG"
+  need_file "$TYPE_HELPER" "helper de tecleo HMP"
   [ -r "$ISO" ] || die "la ISO no es legible: $ISO"
   [ -r /dev/kvm ] && [ -w /dev/kvm ] || die "/dev/kvm no es accesible; añade tu usuario al grupo kvm y reinicia sesión"
-  mkdir -p "$STATE_DIR" "$SHARE" || die "no se pudo crear $STATE_DIR o $SHARE"
+  mkdir -p "$STATE_DIR" "$SHARE/dev" || die "no se pudo crear $STATE_DIR o $SHARE/dev"
 
   local pid
   if pid="$(running_pid)"; then
-    info "dev-vm ya está arrancada (PID $pid); nada que hacer"
+    info "dev-vm ya está arrancada (PID $pid); aseguro agente"
+    ensure_guest_loop || return 1
     return 0
   fi
-
+  if pid="$(find_ours_pid)"; then
+    adopt_pid "$pid"
+    info "adoptada VM nimbus-dev ya viva (PID $pid); aseguro agente"
+    ensure_guest_loop || return 1
+    return 0
+  fi
   if hmp_alive; then
-    die "HMP $HMP_SOCK está vivo pero no es de este PIDFILE (otra VM/agente). No se toca: usa otra máquina o espera a que termine"
+    die "HMP $HMP_SOCK está vivo pero no es de una VM nimbus-dev nuestra (otra VM/agente). No se toca"
   fi
   if [ -e "$HMP_SOCK" ]; then
     warn "socket HMP viejo sin listener: se elimina ($HMP_SOCK)"
@@ -204,9 +535,20 @@ cmd_start() {
     fi
   done
 
+  local -a fw_args=()
+  if [ "$USE_OVMF" = "1" ] && [ -f "$OVMF_CODE" ]; then
+    if [ ! -f "$OVMF_VARS" ] && [ -f "$OVMF_VARS_TEMPLATE" ]; then
+      cp "$OVMF_VARS_TEMPLATE" "$OVMF_VARS" || die "no se pudo crear $OVMF_VARS"
+    fi
+    if [ -f "$OVMF_VARS" ]; then
+      fw_args=(-drive "if=pflash,format=raw,readonly=on,file=$OVMF_CODE" \
+               -drive "if=pflash,format=raw,file=$OVMF_VARS")
+    fi
+  fi
+
   : >"$QEMU_LOG" || die "no se pudo escribir $QEMU_LOG"
   info "arrancando $VM_NAME: ISO=$ISO VNC=:$VNC_PORT SSH=$SSH_PORT HMP=$HMP_SOCK"
-  nohup qemu-system-x86_64 \
+  setsid qemu-system-x86_64 "${fw_args[@]}" \
     -machine q35,accel=kvm -cpu host -smp 4 -m 3G \
     -cdrom "$ISO" -boot order=d -snapshot \
     -display none -vnc "127.0.0.1:$VNC_DISPLAY" \
@@ -234,18 +576,19 @@ cmd_start() {
     rm -f "$PIDFILE"
     exit 1
   fi
-  if hmp_alive; then
-    info "dev-vm arrancada (PID $pid). VNC 127.0.0.1:$VNC_PORT · SSH :$SSH_PORT · HMP $HMP_SOCK"
-  else
-    warn "proceso vivo (PID $pid) pero HMP aún no responde; mira $QEMU_LOG"
-  fi
+  hmp_alive || die "QEMU vivo (PID $pid) pero HMP no responde; mira $QEMU_LOG"
+  info "HMP listo; esperando ${BOOT_WAIT}s a que el live llegue a tty1"
+  sleep "$BOOT_WAIT"
+  ensure_guest_loop || die "VM arrancada pero sin agente. Manual: monta 9p en /mnt y ejecuta setsid sh /mnt/dev/agent.sh"
+  info "dev-vm lista (PID $pid). VNC 127.0.0.1:$VNC_PORT · HMP $HMP_SOCK · 9p $GUEST_SHARE"
 }
 
 cmd_stop() {
   ensure_user
   local pid
-  if ! pid="$(read_pid)"; then
-    info "no hay VM dev-vm arrancada por este script; nada que parar"
+  pid="$(running_pid)" || pid="$(find_ours_pid || true)"
+  if [ -z "$pid" ]; then
+    info "no hay VM dev-vm propia arrancada; nada que parar"
     return 0
   fi
   if ! pid_alive "$pid"; then
@@ -254,8 +597,9 @@ cmd_stop() {
     return 0
   fi
   if ! pid_is_ours "$pid"; then
-    die "el PID $pid del PIDFILE no es $VM_NAME en $HMP_SOCK; no se señala (revisa $PIDFILE)"
+    die "el PID $pid no es $VM_NAME en $HMP_SOCK; no se señala"
   fi
+  [ -f "$PIDFILE" ] || adopt_pid "$pid"
 
   info "parando $VM_NAME (PID $pid) por HMP"
   if hmp_alive && [ -f "$HMP_PY" ]; then
@@ -283,19 +627,21 @@ cmd_stop() {
     kill -KILL "$pid" 2>/dev/null || true
     sleep 0.5
   fi
-  rm -f "$PIDFILE"
+  rm -f "$PIDFILE" "$SHARE/dev/agent.heartbeat" "$SHARE/dev/bar.pid" \
+        "$SHARE/dev/deployed.md5" "$SHARE/dev/tty.ready"
   [ -S "$HMP_SOCK" ] && rm -f "$HMP_SOCK"
   [ -S "$SERIAL_SOCK" ] && rm -f "$SERIAL_SOCK"
-  info "dev-vm parada"
+  info "dev-vm parada (ISO y $SHARE intactos)"
 }
 
 cmd_status() {
-  local pid="" running="no" owner
-  pid="$(running_pid)" && running="sí"
-  printf 'VM:          %s (%s)\n' "$VM_NAME" "$running"
-  printf 'PIDFILE:     %s%s\n' "$PIDFILE" "${pid:+ (PID $pid)}"
+  local pid="" running="no" owner md5
+  pid="$(running_pid)" || pid="$(find_ours_pid || true)"
+  [ -n "$pid" ] && running="sí"
+  printf 'VM:          %s (%s)%s\n' "$VM_NAME" "$running" "$([ -n "$pid" ] && echo " PID $pid")"
+  printf 'PIDFILE:     %s\n' "$PIDFILE"
   printf 'ISO:         %s%s\n' "$ISO" "$([ -f "$ISO" ] && echo ' [OK]' || echo ' [FALTA]')"
-  printf 'share 9p:    %s%s\n' "$SHARE" "$([ -d "$SHARE" ] && echo ' [OK]' || echo ' [FALTA]')"
+  printf 'share 9p:    %s (guest %s)\n' "$SHARE" "$GUEST_SHARE"
   printf 'VNC:         127.0.0.1:%s' "$VNC_PORT"
   owner="$(port_pid "$VNC_PORT" || true)"
   if [ -n "$owner" ]; then
@@ -305,7 +651,7 @@ cmd_status() {
   printf 'SSH:         127.0.0.1:%s' "$SSH_PORT"
   owner="$(port_pid "$SSH_PORT" || true)"
   if [ -n "$owner" ]; then
-    if [ "$owner" = "$pid" ]; then printf ' (PID %s, dev-vm)' "$owner"; else printf ' (PID %s, AJENA: no se toca)' "$owner"; fi
+    if [ "$owner" = "$pid" ]; then printf ' (hostfwd)'; else printf ' (PID %s, AJENA: no se toca)' "$owner"; fi
   fi
   printf '\n'
   printf 'HMP:         %s' "$HMP_SOCK"
@@ -313,6 +659,10 @@ cmd_status() {
     if [ -n "$pid" ]; then printf ' [vivo, dev-vm]'; else printf ' [vivo, AJENO: no se toca]'; fi
   elif [ -e "$HMP_SOCK" ]; then printf ' [viejo]'; else printf ' [ausente]'; fi
   printf '\n'
+  printf 'sshd guest:  %s\n' "$(ssh_banner && echo 'SSH-*' || echo 'ausente (live: 9p+HMP)')"
+  printf 'agente:      %s\n' "$(agent_alive && echo "vivo (heartbeat) md5 $(agent_md5 2>/dev/null || echo '?')" || echo 'parado/sin heartbeat')"
+  printf 'bar.pid:     %s\n' "$([ -f "$BAR_PID_FILE" ] && cat "$BAR_PID_FILE" || echo 'ausente')"
+  printf 'deployed:    %s\n' "$(agent_md5 2>/dev/null || echo 'ausente')"
   printf 'out:         %s\n' "$OUT_DIR"
   if [ "$running" = "sí" ]; then
     return 0
@@ -320,7 +670,7 @@ cmd_status() {
   return 3
 }
 
-# --- SSH no interactivo (askpass; no exige sshpass) -------------------------
+# --- SSH opcional (solo fallback para VM instalada con sshd) ----------------
 
 ssh_guest() {
   local remote_cmd="$1" askpass rc
@@ -344,53 +694,26 @@ ASKPASS
   return "$rc"
 }
 
-ssh_ready() {
-  port_free "$SSH_PORT" "127.0.0.1" && return 1
-  return 0
-}
-
-guest_mount() {
-  cat <<'EOF'
-set -u
-sudo -n mkdir -p /mnt/hostshare || { echo "ERROR: sudo -n mkdir falló (¿live sin NOPASSWD?)" >&2; exit 1; }
-if ! mountpoint -q /mnt/hostshare; then
-  sudo -n mount -t 9p -o trans=virtio,version=9p2000.L hostshare /mnt/hostshare \
-    || { echo "ERROR: no se pudo montar 9p hostshare en /mnt/hostshare" >&2; exit 1; }
-fi
-EOF
+deploy_ssh_fallback() {
+  local md5="$1" out rc
+  ssh_banner || return 1
+  info "fallback SSH a VM instalada ($SSH_USER@127.0.0.1:$SSH_PORT)"
+  out="$(ssh_guest "cat > /tmp/nimbus-bar.new && sudo -n install -m 0755 /tmp/nimbus-bar.new /usr/local/bin/nimbus-bar \
+    && sudo -n md5sum /usr/local/bin/nimbus-bar \
+    && systemctl --user restart nimbus-bar \
+    && systemctl --user is-active --quiet nimbus-bar \
+    && echo DEPLOY_OK" 2>&1 <"$SHARE/dev/nimbus-bar")"
+  rc=$?
+  printf '%s\n' "$out"
+  if [ "$rc" -eq 0 ] && printf '%s\n' "$out" | grep -Fq "DEPLOY_OK" \
+     && printf '%s\n' "$out" | grep -Fq "$md5"; then
+    info "DEPLOY OK por SSH (md5 $md5)"
+    return 0
+  fi
+  return 1
 }
 
 # --- deploy ----------------------------------------------------------------
-
-write_guest_deploy() {
-  local md5="$1" dest="$SHARE/dev/deploy.sh"
-  cat >"$dest" <<EOF
-#!/bin/sh
-# deploy.sh — generado por scripts/dev-vm. Ejecutar EN EL GUEST (live: nimbus).
-# Instala el binario desde el 9p y reinicia el servicio; exige md5 host==guest.
-set -u
-SRC=/mnt/hostshare/dev/nimbus-bar
-DEST=/usr/local/bin/nimbus-bar
-EXPECTED_MD5=$md5
-[ -f "\$SRC" ] || { echo "ERROR: falta \$SRC; monta 9p hostshare en /mnt/hostshare" >&2; exit 2; }
-GOT_SRC="\$(md5sum "\$SRC" | awk '{print \$1}')"
-[ "\$GOT_SRC" = "\$EXPECTED_MD5" ] || { echo "ERROR: md5 del 9p (\$GOT_SRC) != host (\$EXPECTED_MD5)" >&2; exit 1; }
-sudo -n install -m 0755 "\$SRC" "\$DEST" || { echo "ERROR: sudo -n install falló; ¿sesión live sin NOPASSWD?" >&2; exit 1; }
-GOT="\$(md5sum "\$DEST" | awk '{print \$1}')"
-[ "\$GOT" = "\$EXPECTED_MD5" ] || { echo "ERROR: md5 guest (\$GOT) != host (\$EXPECTED_MD5)" >&2; exit 1; }
-export XDG_RUNTIME_DIR="\${XDG_RUNTIME_DIR:-/run/user/\$(id -u)}"
-export DBUS_SESSION_BUS_ADDRESS="\${DBUS_SESSION_BUS_ADDRESS:-unix:path=\$XDG_RUNTIME_DIR/bus}"
-if systemctl --user restart nimbus-bar 2>/dev/null; then
-  systemctl --user is-active --quiet nimbus-bar \
-    || { echo "ERROR: servicio nimbus-bar no activo; mira ~/.local/state/nimbus/bar.log" >&2; exit 1; }
-else
-  echo "ERROR: systemctl --user restart nimbus-bar falló; mira systemctl --user status nimbus-bar y ~/.local/state/nimbus/bar.log" >&2
-  exit 1
-fi
-echo "DEPLOY_OK md5=\$GOT"
-EOF
-  chmod 755 "$dest" || die "no se pudo hacer ejecutable $dest"
-}
 
 cmd_deploy() {
   ensure_user
@@ -400,11 +723,12 @@ cmd_deploy() {
   need_file "$REPO_ROOT/packages/shell/nimbus-bar/CMakeLists.txt" "fuente nimbus-bar"
   mkdir -p "$SHARE/dev" || die "no se pudo crear $SHARE/dev"
   mkdir -p "$BUILD_DIR" || die "no se pudo crear $BUILD_DIR"
+  write_guest_agent
 
   info "configurando build host en $BUILD_DIR"
   cmake -S "$REPO_ROOT/packages/shell/nimbus-bar" -B "$BUILD_DIR" \
     -DCMAKE_BUILD_TYPE=Release >/dev/null \
-    || die "cmake configure falló; revisa que Qt6 y LayerShellQt estén instalados (rm -rf $BUILD_DIR si cambió de fuente)"
+    || die "cmake configure falló; revisa Qt6/LayerShellQt (rm -rf $BUILD_DIR si cambió de fuente)"
   info "compilando nimbus-bar"
   local jobs
   jobs="$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)"
@@ -416,42 +740,44 @@ cmd_deploy() {
                    "$BUILD_DIR/packages/shell/nimbus-bar/nimbus-bar"; do
     if [ -x "$candidate" ]; then bin="$candidate"; break; fi
   done
-  [ -n "$bin" ] || die "build OK pero no encuentro el binario en $BUILD_DIR (buscado nimbus-bar, bin/nimbus-bar)"
+  [ -n "$bin" ] || die "build OK pero no encuentro el binario en $BUILD_DIR"
   install -m 0755 "$bin" "$SHARE/dev/nimbus-bar" \
     || die "no se pudo copiar el binario a $SHARE/dev/nimbus-bar"
+  printf '%s' "$*" >"$ARGS_FILE" || die "no se pudo escribir $ARGS_FILE"
   local md5
   md5="$(md5sum "$SHARE/dev/nimbus-bar" | awk '{print $1}')"
-  write_guest_deploy "$md5"
-  info "artefacto listo: $SHARE/dev/nimbus-bar (md5 $md5)"
-  info "script guest:    $SHARE/dev/deploy.sh"
+  info "artefacto: $SHARE/dev/nimbus-bar (md5 $md5)"
+  info "args:      [$*]"
 
-  local own
-  if ! own="$(running_pid)"; then
-    if ssh_ready; then
-      warn "SSH :$SSH_PORT responde pero no hay dev-vm propia en $PIDFILE;"
-      warn "NO se despliega para no escribir en otra VM/agente. Arranca con: scripts/dev-vm start"
-    else
-      warn "SSH no escucha en 127.0.0.1:$SSH_PORT: NO se ha desplegado en el guest."
-      warn "En el guest: sudo mkdir -p /mnt/hostshare && sudo mount -t 9p -o trans=virtio,version=9p2000.L hostshare /mnt/hostshare && sh /mnt/hostshare/dev/deploy.sh"
-      warn "O por consola/VNC: misma orden; el script exige md5 y hace systemctl --user restart nimbus-bar."
+  if [ "$TRANSPORT" = "ssh" ]; then
+    deploy_ssh_fallback "$md5" || die "fallback SSH falló (¿sshd/servicio?)"
+    return 0
+  fi
+
+  if ! agent_alive; then
+    warn "agente guest no vivo; ejecuta 'scripts/dev-vm start' para montar 9p y lanzarlo"
+  fi
+  local deadline
+  deadline=$((SECONDS + DEPLOY_TIMEOUT))
+  while [ "$SECONDS" -lt "$deadline" ]; do
+    if agent_alive && [ "$(agent_md5 2>/dev/null || true)" = "$md5" ] \
+       && [ -f "$BAR_PID_FILE" ] && grep -Fq "bar lanzada" "$AGENT_LOG" 2>/dev/null; then
+      sleep "$RENDER_WAIT"
+      info "DEPLOY OK 9p: deployed.md5=$md5, bar.pid=$(cat "$BAR_PID_FILE"), args=[$*]"
+      return 0
     fi
-    return 3
-  fi
-  info "dev-vm propia viva (PID $own)"
+    sleep 0.5
+  done
 
-  info "desplegando por SSH ($SSH_USER@127.0.0.1:$SSH_PORT)"
-  local out rc
-  out="$(ssh_guest "$(guest_mount)
-sh /mnt/hostshare/dev/deploy.sh" 2>&1)"
-  rc=$?
-  printf '%s\n' "$out"
-  if [ "$rc" -ne 0 ] || ! printf '%s\n' "$out" | grep -Fq "DEPLOY_OK" \
-     || ! printf '%s\n' "$out" | grep -Fq "md5=$md5"; then
-    warn "el guest NO confirmó DEPLOY_OK con md5=$md5 (rc=$rc)."
-    warn "El artefacto y $SHARE/dev/deploy.sh siguen disponibles; ejecútalo por 9p/consola."
-    return 3
+  warn "timeout ${DEPLOY_TIMEOUT}s esperando deployed.md5=$md5"
+  [ -f "$AGENT_LOG" ] && tail -n 15 "$AGENT_LOG" >&2
+  [ -f "$BAR_LOG" ] && tail -n 15 "$BAR_LOG" >&2
+  if ssh_banner; then
+    warn "sshd presente; probando fallback SSH"
+    deploy_ssh_fallback "$md5" && return 0
   fi
-  info "DEPLOY OK: md5 host==guest ($md5) y servicio nimbus-bar reiniciado"
+  warn "NO desplegado en la barra. ¿start? ¿agente/Plasma? Revisa $AGENT_LOG"
+  return 3
 }
 
 # --- capture ---------------------------------------------------------------
@@ -466,25 +792,12 @@ capture_hmp() {
   [ -s "$out" ]
 }
 
-capture_ssh() {
-  local out="$1" name guest remote
-  name="dev-ssh-$(date +%Y%m%dT%H%M%S).png"
-  guest="/mnt/hostshare/dev/$name"
-  remote="$(guest_mount)
-mkdir -p /mnt/hostshare/dev
-export XDG_RUNTIME_DIR=/run/user/\$(id -u)
-export WAYLAND_DISPLAY=$GUEST_WAYLAND_DISPLAY
-spectacle -b -n -o '$guest' || { echo 'ERROR: spectacle falló en el guest' >&2; exit 1; }
-test -s '$guest' || { echo 'ERROR: spectacle no generó $guest' >&2; exit 1; }"
-  ssh_guest "$remote" >/dev/null 2>&1 || return 1
-  cp "$SHARE/dev/$name" "$out" || return 1
-  rm -f "$SHARE/dev/$name"
-  [ -s "$out" ]
-}
-
 cmd_capture() {
   ensure_user
   need_cmd python3
+  need_file "$HMP_PY" "helper HMP"
+  need_file "$PPM2PNG" "helper PPM→PNG"
+  hmp_alive || die "HMP $HMP_SOCK no responde; arranca la VM con 'scripts/dev-vm start'"
   local out="${1:-$OUT_DIR/dev-$(date +%Y%m%dT%H%M%S).png}"
   case "$out" in
     /*) ;;
@@ -492,34 +805,25 @@ cmd_capture() {
     *) out="$OUT_DIR/$out" ;;
   esac
   mkdir -p "$(dirname "$out")" || die "no se pudo crear el directorio de $out"
-
   local ppm
   ppm="$(mktemp "${TMPDIR:-/tmp}/nimbus-dev-shot.XXXXXX.ppm")" \
     || die "no se pudo crear el PPM temporal"
-  if hmp_alive && capture_hmp "$out" "$ppm"; then
+  if capture_hmp "$out" "$ppm"; then
     rm -f "$ppm"
     info "captura HMP: $out ($(wc -c <"$out") bytes)"
     return 0
   fi
   rm -f "$ppm"
-
-  if ssh_ready; then
-    warn "HMP no respondió; probando captura SSH con spectacle"
-    if capture_ssh "$out"; then
-      info "captura SSH (spectacle): $out ($(wc -c <"$out") bytes)"
-      return 0
-    fi
-    warn "spectacle por SSH tampoco funcionó (¿instalado y sesión Wayland activa?)"
-  fi
-  die "sin captura: HMP $HMP_SOCK no responde y SSH :$SSH_PORT no está disponible. Arranca la VM con 'scripts/dev-vm start' o revisa 'scripts/dev-vm doctor'"
+  die "fallo el screendump HMP (¿VM viva?); no se genera captura vacía"
 }
 
 # --- reset -----------------------------------------------------------------
 
 cmd_reset() {
   ensure_user
-  info "reset: parando (si es nuestra) y arrancando de nuevo; la ISO y $SHARE no se tocan"
+  info "reset: parando VM propia y arrancando de nuevo (ISO y $SHARE intactos)"
   cmd_stop
+  sleep 1
   cmd_start
 }
 
@@ -538,18 +842,17 @@ doctor_cmd() { # bin descripción
   if command -v "$1" >/dev/null 2>&1; then d_ok "$2: $1"; else d_bad "$2: falta '$1' en PATH"; fi
 }
 
-doctor_port() { # port label host
-  local port="$1" label="$2" host="$3" owner="" own=""
-  own="$(running_pid || true)"
+doctor_port() { # port label host own_pid
+  local port="$1" label="$2" host="$3" own="$4" owner=""
   if port_free "$port" "$host"; then
     d_ok "$label :$port libre"
     return 0
   fi
   owner="$(port_pid "$port" || true)"
   if [ -n "$own" ] && [ "$owner" = "$own" ]; then
-    d_ok "$label :$port en uso por dev-vm (PID $own, ya arrancada)"
+    d_ok "$label :$port en uso por dev-vm (PID $own)"
   elif [ -n "$owner" ]; then
-    d_block "$label :$port OCUPADO por PID $owner (otra VM/agente); dev-vm no lo mata. Espera o cambia el puerto"
+    d_block "$label :$port OCUPADO por PID $owner (otra VM/agente); dev-vm no lo mata"
   else
     d_block "$label :$port OCUPADO por un proceso no identificable; dev-vm no lo mata"
   fi
@@ -557,8 +860,12 @@ doctor_port() { # port label host
 
 cmd_doctor() {
   printf '== dev-vm doctor (solo lectura; no arranca la VM) ==\n'
-  printf 'Contrato: VNC :%s · SSH :%s · HMP %s · ISO %s\n' \
-    "$VNC_PORT" "$SSH_PORT" "$HMP_SOCK" "$ISO"
+  printf 'Contrato: VNC :%s · SSH :%s · HMP %s · 9p guest %s · ISO %s\n' \
+    "$VNC_PORT" "$SSH_PORT" "$HMP_SOCK" "$GUEST_SHARE" "$ISO"
+
+  local own=""
+  own="$(running_pid || true)"
+  [ -n "$own" ] || own="$(find_ours_pid || true)"
 
   printf '\n[host]\n'
   if [ "$(id -u)" -eq 0 ]; then d_warn "estás como root (dev-vm debe correr como usuario)"; else d_ok "usuario no root"; fi
@@ -566,22 +873,18 @@ cmd_doctor() {
      || [ "$HMP_SOCK" = "$VM_DIR/target.sock" ]; then
     d_bad "la configuración invade out15 (VNC $OUT15_VNC / SSH $OUT15_SSH / target.sock)"
   else
-    d_ok "no usa VNC $OUT15_VNC, SSH $OUT15_SSH ni target.sock (out15 intacta por contrato)"
+    d_ok "no usa VNC $OUT15_VNC, SSH $OUT15_SSH ni target.sock (out15 intacta)"
   fi
 
   printf '\n[dependencias]\n'
   doctor_cmd qemu-system-x86_64 "QEMU"
-  doctor_cmd python3 "Python (sondas/HMP)"
+  doctor_cmd python3 "Python (HMP/tecleo)"
   doctor_cmd cmake "CMake (deploy host)"
   doctor_cmd md5sum "md5sum (deploy)"
-  doctor_cmd ssh "SSH (deploy/captura alternativa)"
+  doctor_cmd ssh "SSH (solo fallback instalada)"
   doctor_cmd setsid "setsid (SSH askpass)"
-  doctor_cmd timeout "timeout (evita SSH colgado)"
-  if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
-    d_ok "/dev/kvm accesible"
-  else
-    d_bad "/dev/kvm no accesible; añade tu usuario al grupo kvm y reinicia sesión"
-  fi
+  doctor_cmd timeout "timeout (SSH acotado)"
+  if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then d_ok "/dev/kvm accesible"; else d_bad "/dev/kvm no accesible (grupo kvm)"; fi
 
   printf '\n[activos]\n'
   if [ -f "$ISO" ] && [ -r "$ISO" ] && [ -s "$ISO" ]; then
@@ -589,21 +892,25 @@ cmd_doctor() {
   else
     d_bad "ISO live ausente/ilegible: $ISO"
   fi
-  if [ -d "$SHARE" ]; then
-    d_ok "share 9p: $SHARE"
-    if [ -w "$SHARE" ]; then d_ok "share escribible (deploy)"; else d_bad "share no escribible: $SHARE"; fi
-    if [ -d "$SHARE/dev" ] && [ -x "$SHARE/dev/nimbus-bar" ]; then
-      d_ok "artefacto previo: $SHARE/dev/nimbus-bar"
-    else
-      d_warn "sin artefacto previo en $SHARE/dev/nimbus-bar (normal antes del primer deploy)"
-    fi
+  if [ -d "$SHARE" ] && [ -w "$SHARE" ]; then
+    d_ok "share 9p host: $SHARE (escribible)"
   else
-    d_bad "share 9p ausente: $SHARE"
+    d_bad "share 9p ausente/no escribible: $SHARE"
   fi
-  if [ -f "$HMP_PY" ] && [ -f "$PPM2PNG" ]; then
-    d_ok "helpers HMP: $HMP_PY + $PPM2PNG"
+  if [ -f "$AGENT_SH" ] && [ -x "$AGENT_SH" ]; then
+    d_ok "agente generado: $AGENT_SH"
   else
-    d_bad "faltan helpers hmp.py/ppm2png.py en $VM_DIR (cópialos del harness; capture los necesita)"
+    d_warn "agent.sh aún no generado (start/deploy lo escribe)"
+  fi
+  if [ -f "$SHARE/dev/nimbus-bar" ]; then
+    d_ok "artefacto: $SHARE/dev/nimbus-bar (md5 $(md5sum "$SHARE/dev/nimbus-bar" | awk '{print $1}'))"
+  else
+    d_warn "sin artefacto en $SHARE/dev/nimbus-bar (normal antes del primer deploy)"
+  fi
+  if [ -f "$HMP_PY" ] && [ -f "$PPM2PNG" ] && [ -f "$TYPE_HELPER" ]; then
+    d_ok "helpers HMP/tecleo: $HMP_PY + $PPM2PNG + $TYPE_HELPER"
+  else
+    d_bad "faltan helpers: $HMP_PY / $PPM2PNG / $TYPE_HELPER"
   fi
   if [ -f "$REPO_ROOT/packages/shell/nimbus-bar/CMakeLists.txt" ]; then
     d_ok "fuente nimbus-bar presente"
@@ -611,51 +918,53 @@ cmd_doctor() {
     d_bad "falta packages/shell/nimbus-bar/CMakeLists.txt"
   fi
 
+  printf '\n[live root / 9p / SSH]\n'
+  d_ok "live root: autologin tty1 + startplasma-wayland (sin systemd user)"
+  if agent_alive; then
+    d_ok "9p montado en $GUEST_SHARE (agente vivo, deployed.md5 $(agent_md5 2>/dev/null || echo '?'))"
+  elif [ -f "$AGENT_LOG" ]; then
+    d_warn "9p $GUEST_SHARE montado en el último arranque; start lo remonta y relanza el agente"
+  else
+    d_ok "9p $GUEST_SHARE pendiente de montar; start lo hace por HMP"
+  fi
+  if ssh_banner; then
+    d_ok "sshd presente en :$SSH_PORT (fallback VM instalada disponible)"
+  else
+    d_ok "sin sshd en :$SSH_PORT (live: loop 9p+HMP, no es fallo)"
+  fi
+
   printf '\n[RAM]\n'
-  if [ -r /proc/meminfo ]; then
-    local ram_kb min_kb warn_kb
+  if [ -n "$own" ]; then
+    d_ok "VM dev-vm ya arrancada (PID $own); 3G ya reservados"
+  elif [ -r /proc/meminfo ]; then
+    local ram_kb min_kb
     ram_kb="$(awk '/^MemAvailable:/{print $2}' /proc/meminfo)"
     min_kb=$((3 * 1024 * 1024))
-    warn_kb=$((3500 * 1024))
     if [ -n "$ram_kb" ] && [ "$ram_kb" -ge "$min_kb" ]; then
-      if [ "$ram_kb" -lt "$warn_kb" ]; then
-        d_warn "RAM disponible justa: $(awk -v k="$ram_kb" 'BEGIN{printf "%.1f GiB", k/1048576}') para una VM de 3G; cierra apps si QEMU no arranca"
-      else
-        d_ok "RAM disponible: $(awk -v k="$ram_kb" 'BEGIN{printf "%.1f GiB", k/1048576}') (VM 3G + margen)"
-      fi
+      d_ok "RAM disponible: $(awk -v k="$ram_kb" 'BEGIN{printf "%.1f GiB", k/1048576}')"
     else
-      d_block "RAM disponible insuficiente: $(awk -v k="${ram_kb:-0}" 'BEGIN{printf "%.1f GiB", k/1048576}'); libera memoria o para otra VM (la VM pide 3G)"
+      d_block "RAM disponible insuficiente: $(awk -v k="${ram_kb:-0}" 'BEGIN{printf "%.1f GiB", k/1048576}'); libera memoria (VM pide 3G)"
     fi
   else
-    d_bad "no se puede leer /proc/meminfo para comprobar RAM"
+    d_bad "no se puede leer /proc/meminfo"
   fi
 
   printf '\n[puertos y sockets]\n'
-  doctor_port "$VNC_PORT" "VNC" "127.0.0.1"
-  doctor_port "$SSH_PORT" "SSH" "0.0.0.0"
+  doctor_port "$VNC_PORT" "VNC" "127.0.0.1" "$own"
+  doctor_port "$SSH_PORT" "SSH hostfwd" "0.0.0.0" "$own"
   if hmp_alive; then
-    local own
-    own="$(running_pid || true)"
-    if [ -n "$own" ]; then
-      d_ok "HMP vivo y pertenece a dev-vm (PID $own)"
-    else
-      d_block "HMP $HMP_SOCK vivo sin PIDFILE propio (otra VM/agente); dev-vm no lo toca"
-    fi
+    if [ -n "$own" ]; then d_ok "HMP vivo y pertenece a dev-vm (PID $own)"; else d_block "HMP $HMP_SOCK vivo sin VM propia (otra VM/agente); no se toca"; fi
   elif [ -e "$HMP_SOCK" ]; then
-    d_warn "HMP $HMP_SOCK existe sin listener (socket viejo); start lo limpiará"
+    d_warn "HMP $HMP_SOCK existe sin listener (viejo); start lo limpia"
   else
     d_ok "HMP $HMP_SOCK libre"
   fi
-  local own
-  if own="$(running_pid)"; then
-    d_ok "dev-vm ya arrancada (PID $own)"
+  if [ -n "$own" ]; then
+    d_ok "dev-vm viva (PID $own)"
   elif [ -f "$PIDFILE" ]; then
-    d_warn "PIDFILE $PIDFILE sin proceso $VM_NAME vivo (obsoleto; stop lo limpia)"
+    d_warn "PIDFILE $PIDFILE obsoleto (stop lo limpia)"
   else
-    d_ok "sin VM dev-vm propia arrancada"
-  fi
-  if [ -e "$SERIAL_SOCK" ]; then
-    d_warn "serial $SERIAL_SOCK existe (viejo o en uso); start fallará si hay otra VM viva"
+    d_ok "sin VM dev-vm arrancada"
   fi
 
   printf '\n[out15 — no se toca]\n'
@@ -663,17 +972,17 @@ cmd_doctor() {
     local cmdline
     cmdline="$(tr '\0' ' ' <"/proc/$OUT15_PID/cmdline" 2>/dev/null || true)"
     case "$cmdline" in
-      *"nimbus-target"*|*"target.sock"*) d_ok "out15 viva (PID $OUT15_PID, nimbus-target); dev-vm no la señala" ;;
-      *) d_warn "PID $OUT15_PID vivo pero no parece out15 (cmdline inesperada); dev-vm no lo toca" ;;
+      *"nimbus-target"*|*"target.sock"*) d_ok "out15 viva (PID $OUT15_PID); dev-vm no la señala" ;;
+      *) d_warn "PID $OUT15_PID vivo pero no parece out15; dev-vm no lo toca" ;;
     esac
     if [ "$(port_pid "$OUT15_VNC" || true)" = "$OUT15_PID" ] \
        && [ "$(port_pid "$OUT15_SSH" || true)" = "$OUT15_PID" ]; then
       d_ok "out15 conserva VNC :$OUT15_VNC y SSH :$OUT15_SSH"
     else
-      d_warn "out15 no aparece como dueña de :$OUT15_VNC y :$OUT15_SSH (¿reconfigurada?); dev-vm sigue sin tocarla"
+      d_warn "out15 no aparece como dueña de :$OUT15_VNC y :$OUT15_SSH; dev-vm sigue sin tocarla"
     fi
   else
-    d_ok "out15 (PID $OUT15_PID) no está corriendo; dev-vm no la toca igualmente"
+    d_ok "out15 (PID $OUT15_PID) no está corriendo; dev-vm no la toca"
   fi
 
   printf '\n[resultado]\n'
@@ -683,11 +992,10 @@ cmd_doctor() {
     return 1
   fi
   if [ "$doctor_block" -gt 0 ]; then
-    printf '  LISTO con BLOQUEOS: %d aviso(s), %d bloqueo(s); start esperará a que se liberen\n' \
-      "$doctor_warn" "$doctor_block"
+    printf '  LISTO con BLOQUEOS: %d aviso(s), %d bloqueo(s)\n' "$doctor_warn" "$doctor_block"
     return 2
   fi
-  printf '  PASS: %d aviso(s); start puede arrancar la VM\n' "$doctor_warn"
+  printf '  PASS: %d aviso(s); start puede arrancar/adoptar la VM\n' "$doctor_warn"
   return 0
 }
 

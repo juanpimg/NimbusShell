@@ -1,98 +1,93 @@
-# DEV-VM-WORKFLOW — iterar la UI sin reconstruir la ISO
+# DEV-VM-WORKFLOW — loop live sin SSH (9p + HMP)
 
 Fecha: 2026-11-02. Herramienta: `scripts/dev-vm` (bash, sin root en el host).
-Objetivo: cambiar QML/C++ de `nimbus-bar`, verlo en una VM **live** en segundos,
-y reservar la ISO completa solo para lo que de verdad la necesita.
+Objetivo: cambiar QML/C++ de `nimbus-bar` y verlo en la VM **live** en segundos,
+sin reconstruir la ISO. La ISO completa se reserva para instalador, `greetd`/
+SDDM, drivers, servicios de arranque y cualquier cosa que deba persistir.
 
 ## Contrato de la VM (no cambiar sin Ruling)
 
 | Recurso | Valor |
 |---|---|
 | ISO live | `~/.cache/nimbusshell-vm/share/nimbusos.iso` |
-| Disco destino | **ninguno** (`-snapshot`, el guest se descarta al parar) |
-| RAM / CPU | 3G / 4 vCPU, `-machine q35,accel=kvm -cpu host` |
+| Disco destino | **ninguno** (`-snapshot`; el guest se descarta al parar) |
+| RAM / CPU | 3G / 4 vCPU, `q35,accel=kvm`, SeaBIOS (OVMF opcional con `NIMBUS_DEV_OVMF=1`) |
 | Pantalla | VNC `127.0.0.1:5908` (`-display none`) |
 | Monitor | HMP unix `~/.cache/nimbusshell-vm/dev-vm.sock` |
-| SSH | `nimbus@127.0.0.1:2228` (solo loopback) |
-| 9p | `hostshare` = `~/.cache/nimbusshell-vm/share` |
+| SSH hostfwd | `127.0.0.1:2228` (solo hostfwd; el live **no trae sshd**) |
+| 9p | `hostshare` = `~/.cache/nimbusshell-vm/share`, montado en el guest en **`/mnt`** |
 | Nombre QEMU | `nimbus-dev` |
-| Estado propio | `~/.cache/nimbusshell-vm/dev-vm-state/pid` |
+| Estado host | `~/.cache/nimbusshell-vm/dev-vm-state/pid` |
 
-La VM `out15` (PID 299775, VNC 5907, SSH 2227, `target.sock`) es **intocable**.
-`dev-vm` solo señaliza el PID de su `dev-vm-state/pid`, comprobado contra
-`/proc/<pid>/cmdline` (`-name nimbus-dev` + su socket HMP). Nunca usa
-`pkill -f`. Si el puerto o el socket están ocupados por otro proceso, se
-detiene con un mensaje accionable; no mata nada ajeno.
+El live arranca a **tty1 como root (autologin)**. Plasma 6.8.2 se lanza con
+`startplasma-wayland` (sin systemd user service). No hay Quickshell: la barra
+es el binario `nimbus-bar`.
 
-Credenciales del live: `nimbus` / `nimbus` (solo live; el instalado no las
-hereda). `deploy` usa SSH con `SSH_ASKPASS` (no exige `sshpass`); se puede
-sobrescribir con `NIMBUS_DEV_SSH_PASS` / `NIMBUS_DEV_SSH_USER`.
+`out15` (PID 299775, VNC 5907, SSH 2227, `target.sock`) es **intocable**.
+`dev-vm` solo señaliza el PID de su VM, verificado en `/proc` (`-name
+nimbus-dev` + su socket HMP), o adopta una VM ya viva cuyo dueño de VNC 5908
+sea exactamente esa combinación. Nunca usa `pkill -f` ni mata puertos ajenos.
 
-## Bucle rápido (segundos) vs. lento (ISO)
-
-**Rápido — no reconstruye ISO:**
+## Bucle rápido (segundos)
 
 ```bash
-scripts/dev-vm start                  # VM live con -snapshot (idempotente)
-scripts/dev-vm deploy                 # build host + 9p + install/restart guest
-scripts/dev-vm capture                # out/dev-<ts>.png por HMP screendump
-scripts/dev-vm status                 # PIDs/puertos (no modifica nada)
-scripts/dev-vm reset                  # stop + start: snapshot limpio
+scripts/dev-vm start                 # arranca/adopta, monta 9p /mnt, agente + Plasma
+scripts/dev-vm deploy --open-cc      # build host + 9p + args; espera deployed.md5
+scripts/dev-vm capture docs/plans/evidence/mi.png
+scripts/dev-vm status
 scripts/dev-vm stop
+scripts/dev-vm reset                 # stop + start (snapshot limpio)
 ```
 
-`deploy` hace, en este orden:
+`start`:
+
+1. Arranca QEMU (o adopta el PID 5908 si ya está viva).
+2. Espera HMP y teclea en tty1 cada segundo hasta que el shell root responde.
+3. Ejecuta `loadkeys us` (el keymap por defecto del live puede ser es/latam),
+   monta `hostshare` en `/mnt` y escribe un centinela `share/dev/tty.ready`.
+4. Lanza `setsid sh /mnt/dev/agent.sh` y, si no corre, `startplasma-wayland`.
+5. Espera heartbeat del agente y `bar.pid`.
+
+`agent.sh` (lo genera `scripts/dev-vm` en el 9p):
+
+- Espera `/run/user/0/bus` y `/run/user/0/wayland-*`.
+- Lee `share/dev/args` y lanza `nimbus-bar` con esos flags.
+- Vigila el md5 del binario **y el contenido de `args`**; al cambiar, mata su
+  barra (solo PID/cmdline exactos) y relanza.
+- Escribe `share/dev/deployed.md5`, `bar.pid`, `agent.heartbeat`, `agent.log`
+  y `bar.log`. Sin systemctl (live root, sin servicio).
+
+`deploy`:
 
 1. `cmake -S packages/shell/nimbus-bar -B /tmp/nimbus-dev-build` + build.
 2. Copia el binario a `~/.cache/nimbusshell-vm/share/dev/nimbus-bar`.
-3. Genera `~/.cache/nimbusshell-vm/share/dev/deploy.sh` con el md5 esperado.
-4. Si SSH :2228 responde, monta el 9p en `/mnt/hostshare`, instala en
-   `/usr/local/bin/nimbus-bar` y hace `systemctl --user restart nimbus-bar`.
-5. **Solo declara éxito** si el guest imprime `DEPLOY_OK md5=<host>` y el
-   md5 de `/usr/local/bin/nimbus-bar` coincide con el del host. Copiar no es
-   desplegar.
+3. Escribe los flags recibidos en `share/dev/args` (p. ej. `--open-cc`).
+4. Espera (timeout 60 s) a que `agent.heartbeat` esté fresco y
+   `deployed.md5` coincida con el md5 host; exige `bar.pid` y `bar lanzada`
+   en `agent.log`. **Copiar no es desplegar:** sin `deployed.md5` no hay OK.
 
-`deploy` solo escribe por SSH si la VM propia está viva en su PIDFILE; si el
-puerto :2228 responde pero no hay `start` de este script, se niega para no
-desplegar en la VM de otro agente. Si SSH no está disponible, deja el artefacto
-y el script y sale con código 3 (no desplegado). En el guest (consola/VNC):
+Si el agente no está vivo, `deploy` avisa y espera; ejecuta antes `start`.
+Con `NIMBUS_DEV_TRANSPORT=ssh` (VM instalada con sshd) se usa el fallback
+`install` + `systemctl --user restart nimbus-bar`; en el live no aplica.
+
+## Captura
 
 ```bash
-sudo mkdir -p /mnt/hostshare
-sudo mount -t 9p -o trans=virtio,version=9p2000.L hostshare /mnt/hostshare
-sh /mnt/hostshare/dev/deploy.sh      # exige md5 y reinicia nimbus-bar
+scripts/dev-vm capture                                  # out/dev-<ts>.png
+scripts/dev-vm capture docs/plans/evidence/DEV-VM-LOOP.png
 ```
 
-**Lento — ISO completa** (solo cuando el cambio no se puede probar en live):
+Usa HMP `screendump` + `hmp.py`/`ppm2png.py`. Si HMP no responde, falla con
+mensaje accionable; no genera una captura vacía. La ruta con `/` se interpreta
+relativa al repo; un nombre suelto va a `out/`.
 
-- instalador Calamares, particionado, `greetd`/SDDM, drivers, `mkarchiso`,
-  paquetes del sistema, servicios de arranque, o cualquier cosa que deba
-  sobrevivir a un reinicio. Para eso: `iso/build-iso.sh` y el flujo de
-  aceptación instalada; no es este documento.
+## Glass una vez por arranque
 
-## Captura y evidencia
-
-`capture` usa el HMP y los helpers del harness
-(`~/.cache/nimbusshell-vm/hmp.py` y `ppm2png.py`). Salida por defecto:
-`out/dev-<YYYYmmddTHHMMSS>.png` (en la worktree; `out/` no se commitea).
+Glass es un plugin binario de KWin (no va dentro de `nimbus-bar`) y el snapshot
+lo descarta al parar. En el host, con la receta/pin de
+`docs/plans/evidence/F11-T02-glass-spike.md`:
 
 ```bash
-scripts/dev-vm capture                       # out/dev-....png
-scripts/dev-vm capture docs/plans/evidence/mi-captura.png
-```
-
-Si el HMP no responde pero SSH :2228 está arriba, intenta la alternativa
-`spectacle -b -n -o` dentro del guest y copia el PNG por el 9p. Si tampoco,
-falla con la pista de `doctor` (no genera una captura vacía "de mentira").
-
-## Desplegar Glass una vez en el guest
-
-Glass es un plugin binario de KWin, no va dentro de `nimbus-bar`; se instala
-una vez **por arranque del live** (el snapshot lo descarta). En el host, con
-el pin/receta de `docs/plans/evidence/F11-T02-glass-spike.md`:
-
-```bash
-# ECM + plugin en prefijos temporales (no toca /usr del host)
 git clone --depth 1 https://invent.kde.org/frameworks/extra-cmake-modules /tmp/ecm-src
 cmake -S /tmp/ecm-src -B /tmp/ecm-src/build -G Ninja \
   -DCMAKE_INSTALL_PREFIX=/tmp/ecm-prefix -DBUILD_TESTING=OFF
@@ -104,83 +99,67 @@ cmake -S /tmp/kwin-glass -B /tmp/kwin-glass/build -G Ninja \
   -DCMAKE_PREFIX_PATH=/tmp/ecm-prefix
 cmake --build /tmp/kwin-glass/build -j"$(nproc)"
 cmake --install /tmp/kwin-glass/build
-```
-
-Publica los `.so` en el 9p y instálalos en el guest:
-
-```bash
 mkdir -p ~/.cache/nimbusshell-vm/share/dev/glass
 cp -a /tmp/glass-prefix/lib/plugins/kwin/effects/plugins/glass.so \
       /tmp/glass-prefix/lib/plugins/kwin/effects/configs/kwin_glass_config.so \
       ~/.cache/nimbusshell-vm/share/dev/glass/
 ```
 
-En el guest (consola/VNC o SSH):
+En tty1/Konsole del guest (root):
 
 ```bash
-sudo install -Dm755 /mnt/hostshare/dev/glass/glass.so \
+sudo install -Dm755 /mnt/dev/glass/glass.so \
   /usr/lib/qt6/plugins/kwin/effects/plugins/glass.so
-sudo install -Dm755 /mnt/hostshare/dev/glass/kwin_glass_config.so \
+sudo install -Dm755 /mnt/dev/glass/kwin_glass_config.so \
   /usr/lib/qt6/plugins/kwin/effects/configs/kwin_glass_config.so
-# kwinrc: blur/translucency stock OFF, glass ON; grupo [Effect-blurplus]
 kwriteconfig6 --file kwinrc --group Plugins --key blurEnabled false
 kwriteconfig6 --file kwinrc --group Plugins --key translucencyEnabled false
 kwriteconfig6 --file kwinrc --group Plugins --key glassEnabled true
-# Refracción suave ya validada en el spike:
 kwriteconfig6 --file kwinrc --group Effect-blurplus --key RefractionStrength 6.0
 kwriteconfig6 --file kwinrc --group Effect-blurplus --key PhysicallyBasedRefraction true
 qdbus6 org.kde.KWin /Effects reconfigureEffect glass 2>/dev/null || true
 ```
 
 Si el efecto no aparece, reinicia la sesión/VM (snapshot): KWin solo carga
-plugins nuevos al arrancar. Verifica en `journalctl --user -u
-plasma-kwin_wayland` y en `kwinrc` que `glassEnabled=true`.
+plugins nuevos al arrancar. Verifica `journalctl --user -u plasma-kwin_wayland`
+y `kwinrc` (`glassEnabled=true`).
 
 ## Paralelismo sin pisarse
 
-- **Host build + guest capture**: el build CMake corre en el host y la
-  captura habla con QEMU por HMP; se pueden lanzar a la vez (CPU vs. VM).
-  No ejecutes dos `deploy` a la vez sobre el mismo `share/dev/`: el artefacto
-  y `deploy.sh` son únicos.
-- **Dos agentes**: los valores por defecto (5908/2228/dev-vm.sock) son de
-  **una** VM. Para una segunda, usa overrides y un `STATE_DIR` distinto:
-  `NIMBUS_DEV_VNC_DISPLAY=18 NIMBUS_DEV_SSH_PORT=2238
-  NIMBUS_DEV_HMP_SOCK=/tmp/opencode/dev-vm-b.sock
-  NIMBUS_DEV_STATE_DIR=/tmp/opencode/dev-vm-b`. Nunca 5907/2227 ni
-  `target.sock` (out15).
-- `doctor` es de solo lectura y se puede correr en paralelo; informa
-  `[BLOQ]` si otro agente tiene los puertos/socket y no toca nada.
+- **Host build + guest capture**: el build CMake corre en el host y `capture`
+  habla con QEMU por HMP; pueden solaparse. No lances dos `deploy` a la vez
+  sobre el mismo `share/dev` (artefacto/args únicos).
+- **Dos agentes**: los defaults 5908/2228/dev-vm.sock son de **una** VM. Para
+  una segunda usa overrides y `NIMBUS_DEV_STATE_DIR` distinto; nunca 5907/2227
+  ni `target.sock`.
+- `doctor` es de solo lectura y se puede correr en paralelo.
 
 ## Riesgos conocidos (y cómo los trata el script)
 
-- **Snapshot**: cualquier cambio del guest (binario en `/usr/local/bin`,
-  plugins, configuración) se pierde al `stop`/`reset`. El 9p sí persiste;
-  por eso `deploy` y Glass viven en `share/dev/` y se reaplican por arranque.
-- **9p y permisos**: se monta con `security_model=none`; el guest escribe
-  como el usuario del host. `sudo` en el guest para instalar en `/usr/local`
-  es obligatorio. Si el share no es escribible o el montaje falla, `deploy`
-  lo dice y no simula éxito.
-- **SSH ausente**: el live puede no tener SSH listo (red/servicio). `deploy`
-  publica igualmente el artefacto y `deploy.sh`, sale 3 y explica la orden
-  manual; no hay `DEPLOY_OK` sin verificación real.
-- **`sudo -n`**: el live trae NOPASSWD; en un sistema instalado puede pedir
-  clave y el script guest falla con mensaje (no se queda colgado).
-- **RAM**: la VM pide 3G. `doctor` avisa si `MemAvailable` es justo; con
-  varias VMs/ISO a la vez puede no arrancar.
-- **VNC/SSH solo loopback**: VNC en `127.0.0.1:5908` y hostfwd SSH en
-  `127.0.0.1:2228`; no se expone en la LAN.
-- **Nunca matar por patrón**: `stop` verifica `/proc/<pid>/cmdline`; si el
-  PIDFILE no es de `nimbus-dev` con su socket, se niega. `doctor` informa de
-  los PID ajenos sin señalizarlos.
+- **Snapshot**: binario, plugin Glass y configuración del guest se pierden al
+  `stop`/`reset`. `share/dev` persiste; el agente reaplica el binario y Glass
+  se reinstala una vez por arranque.
+- **9p y root**: el guest monta `hostshare` en `/mnt` (root). Los ficheros del
+  share se escriben como el usuario del host; el binario debe ser ejecutable.
+- **Sin SSH**: el live no trae sshd; el loop es 9p + HMP. `doctor` lo detecta
+  y **no lo trata como fallo**. SSH solo es fallback de una VM instalada.
+- **Keymap de tty1**: el live puede arrancar en es/latam; `start` teclea
+  `loadkeys us` antes de los símbolos (`/`, `-`, `=`, `|`). Sin eso, el
+  comando de montaje se corrompe (ver evidencia).
+- **Foco del teclado HMP**: `start` teclea en el shell de tty1 tras el boot.
+  Si Plasma ya está corriendo y el agente murió, el foco puede estar en una
+  ventana; en ese caso usa el comando manual que imprime el error.
+- **Rendimiento**: la barra loguea `blur compositor activo=0` en esta VM
+  (Glass/blur no activo); no es fallo del loop.
+- **VNC/SSH solo loopback**: VNC 5908 y hostfwd 2228 en `127.0.0.1`.
 
 ## Diagnóstico
 
 ```bash
-scripts/dev-vm doctor        # qemu, ISO, helpers, RAM, puertos, out15
-scripts/dev-vm status        # 0 si corre; 3 si está parada
-scripts/dev-vm stop          # idempotente: sin PIDFILE propio, no hace nada
+scripts/dev-vm doctor    # PASS / BLOQ / FALTA (no arranca nada)
+scripts/dev-vm status    # 0 si la VM propia corre; 3 si está parada
+scripts/dev-vm stop      # idempotente; solo toca su PID verificado
 ```
 
-Códigos: `doctor` 0 = listo, 1 = falta algo, 2 = listo pero bloqueado por
-otra VM/agente (puertos/socket); `deploy` 0 = verificado, 3 = artefacto
-publicado pero no desplegado/confirmado.
+Códigos: `doctor` 0 = listo, 1 = falta algo, 2 = bloqueado por otra VM/
+puertos; `deploy` 0 = verificado por `deployed.md5`, 3 = timeout/fallo.
