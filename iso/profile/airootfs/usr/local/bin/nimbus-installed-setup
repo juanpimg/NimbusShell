@@ -265,6 +265,45 @@ else
   log "AVISO: sin unidades de tema o sin home; timer de tema omitido"
 fi
 
+# 4c. Barra Nimbus (F3-T03): unidad de usuario habilitada y permisos de
+# arranque. La unidad vive en /etc/skel; el paso 1 ya la copia, pero aquí se
+# asegura también para homes preexistentes (upgrade) y se enlaza en
+# plasma-workspace.target.wants (la unidad es WantedBy=plasma-workspace;
+# default.target.wants NO la arrancaría en orden con plasmashell). Sin
+# daemon-reload en chroot: el user manager lee los wants al login.
+# Single-instance (org.nimbus.Bar) hace inocuo que además corra el
+# autostart nimbus-bar.desktop como fallback no-systemd.
+BAR_UNIT_SRC="/etc/skel/.config/systemd/user/nimbus-bar.service"
+if [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" ]; then
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: habilitar nimbus-bar.service en $TARGET_HOME/.config/systemd/user"
+  elif [ -f "$BAR_UNIT_SRC" ]; then
+    udir="$TARGET_HOME/.config/systemd/user"
+    mkdir -p "$udir/plasma-workspace.target.wants"
+    install -Dm644 "$BAR_UNIT_SRC" "$udir/nimbus-bar.service" || fail=1
+    ln -sfn ../nimbus-bar.service "$udir/plasma-workspace.target.wants/nimbus-bar.service" || fail=1
+    chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/systemd" 2>/dev/null || true
+    log "OK: nimbus-bar.service habilitado (plasma-workspace.target.wants)"
+  else
+    log "AVISO: falta $BAR_UNIT_SRC; nimbus-bar.service no habilitado"
+  fi
+fi
+
+# Permisos de arranque: el autostart de la barra debe ser ejecutable por la
+# sesión (755), en skel y en el home destino. El env script nimbus-bar.sh ya
+# no lanza nada (solo comentarios de variables): queda 644.
+for f in /etc/skel/.config/plasma-workspace/env/nimbus-bar.sh \
+         /etc/skel/.config/autostart/nimbus-bar.desktop \
+         ${TARGET_HOME:+"$TARGET_HOME/.config/plasma-workspace/env/nimbus-bar.sh"} \
+         ${TARGET_HOME:+"$TARGET_HOME/.config/autostart/nimbus-bar.desktop"}; do
+  [ -f "$f" ] || continue
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: chmod 755 $f"
+  else
+    chmod 755 "$f" && log "OK: 755 $f" || { log "AVISO: no se pudo chmod 755 $f"; fail=1; }
+  fi
+done
+
 # 5. Telemetría off: default de sistema (sin tocar homes).
 FEEDBACK="/etc/xdg/PlasmaUserFeedback"
 if [ -f "$FEEDBACK" ] && grep -q '^\s*FeedbackLevel=0' "$FEEDBACK" 2>/dev/null; then

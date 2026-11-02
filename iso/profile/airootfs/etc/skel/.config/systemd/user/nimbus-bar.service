@@ -1,0 +1,31 @@
+[Unit]
+# F3-T03: barra superior Nimbus. Arranca con la sesion Plasma, despues de
+# KWin y antes de plasmashell stock, para intentar poseer
+# org.freedesktop.Notifications antes que el panel stock.
+# Type=simple a proposito (review F3-T03): el registro del nombre FDO es
+# no fatal dentro de nimbus-bar, asi que no se depende de el para el estado
+# de la unidad (un Type=dbus + BusName entraria en bucle de Restart si el
+# nombre esta tomado, y retrasaria a plasmashell via Before=).
+# Aviso (riesgo, KDE): al poseer el nombre, el applet/historial/DND de
+# plasmashell deja de funcionar; si el daemon muere nadie re-registra
+# (mitigado con Restart=on-failure). Escape: nimbus-bar-start
+# --no-notifications (barra sin nombre FDO).
+# Solo aplica con arranque systemd (default Plasma 6).
+# Fallback no-systemd: autostart nimbus-bar.desktop (unico; el env script
+# de Plasma NO lanza procesos: antes de Wayland daba `Failed to create
+# wl_display`). Single-instance org.nimbus.Bar hace inocuo que servicio y
+# autostart coincidan.
+Description=Nimbus Bar (barra superior 24 pt)
+Documentation=file:/usr/share/nimbus/bar/README.md
+PartOf=plasma-workspace.target
+After=plasma-kwin_wayland.service
+Before=plasma-plasmashell.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/nimbus-bar-start
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=plasma-workspace.target

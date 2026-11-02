@@ -53,6 +53,10 @@ need "$PROFILE/profiledef.sh" "profiledef.sh"
 need "$PROFILE/packages.x86_64" "packages.x86_64"
 need "$PROFILE/pacman.conf" "pacman.conf"
 need "$PROFILE/airootfs/usr/local/bin/nimbus-installed-setup" "nimbus-installed-setup"
+need "$PROFILE/airootfs/usr/local/bin/nimbus-bar-start" "nimbus-bar-start"
+need "$PROFILE/airootfs/usr/local/bin/nimbus-hide-panel" "nimbus-hide-panel"
+need "$PROFILE/airootfs/etc/skel/.config/systemd/user/nimbus-bar.service" "unidad nimbus-bar"
+need "$PROFILE/airootfs/etc/skel/.config/autostart/nimbus-bar.desktop" "autostart nimbus-bar"
 need "$CALAMARES/settings.conf" "settings Calamares"
 need "$CALAMARES/branding/nimbus/branding.desc" "branding Calamares"
 need "$CALAMARES/groups-nimbus.json" "grupos netinstall"
@@ -230,6 +234,9 @@ echo "OK: KCM Nimbus construido e instalado (/usr)"
 # 6. Verificación del staging antes de mkarchiso.
 for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" \
+  "$OUT/airootfs/usr/local/bin/nimbus-bar-start" \
+  "$OUT/airootfs/etc/skel/.config/systemd/user/nimbus-bar.service" \
+  "$OUT/airootfs/etc/skel/.config/autostart/nimbus-bar.desktop" \
   "$OUT/airootfs/usr/share/nimbus/calamares/settings.conf" \
   "$OUT/airootfs/usr/share/nimbus/calamares/groups-nimbus.json" \
   "$OUT/airootfs/usr/share/nimbus/calamares/branding/nimbus/branding.desc" \

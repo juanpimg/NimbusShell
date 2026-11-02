@@ -87,6 +87,26 @@ int main(int argc, char *argv[])
     app.setApplicationName(QStringLiteral("nimbus-bar"));
     app.setOrganizationName(QStringLiteral("nimbus"));
 
+    // F3-T03: single-instance por nombre de bus. systemd (nimbus-bar.service),
+    // el env script y el autostart .desktop pueden coincidir en el login; solo
+    // la primera instancia posee org.nimbus.Bar y las demás salen 0. Sin bus
+    // de sesión (nested/offscreen/CI) se permite el arranque (single-instance
+    // desactivado, se avisa). No toca org.freedesktop.Notifications: ese
+    // registro sigue siendo no fatal y puede perderlo contra plasmashell.
+    {
+        QDBusConnection sessionBus = QDBusConnection::sessionBus();
+        if (sessionBus.isConnected()) {
+            if (!sessionBus.registerService(QStringLiteral("org.nimbus.Bar"))) {
+                fprintf(stderr, "nimbus-bar: org.nimbus.Bar ya registrado "
+                        "(instancia viva) — salgo 0\n");
+                return 0;
+            }
+        } else {
+            fprintf(stderr, "nimbus-bar: sin bus de sesión; single-instance "
+                    "desactivado en este arranque\n");
+        }
+    }
+
     bool demoMenu = false, demoCC = false, openCC = false, logQuery = false, logActions = false,
          demoCalendar = false, demoAppmenu = false, logAppmenu = false, demoTray = false,
          demoOsd = false, wantNotif = true, demoNotif = false, demoMedia = false,
