@@ -1,0 +1,2 @@
+laplacian mean/stdev con blur: (7.2, 15.27)
+laplacian mean/stdev sin barra: (33.78, 81.15)

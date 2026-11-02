@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <LayerShellQt/Shell>
 #include <LayerShellQt/Window>
+#include <KWindowEffects>
 #include "commandrunner.h"
 #include "appmenumodel.h"
 #include "statusnotifiermodel.h"
@@ -278,6 +279,22 @@ int main(int argc, char *argv[])
             ls->setActivateOnShow(false);
         }
         win->setVisible(true);
+        // F11: blur real del compositor (ext-background-effect) detrás de la
+        // superficie transparente; el QML solo pinta tinte/rim/sombra.
+        // El binding del global Wayland y la capability blur son ASÍNCRONOS:
+        // isEffectAvailable() es false en el primer frame aunque el protocolo
+        // exista. Registramos la región siempre y reaplicamos cuando el
+        // manager ya está activo; el protocolo es double-buffered, así que
+        // pedimos un repintado para que el commit aplique la región.
+        KWindowEffects::enableBlurBehind(win, true);
+        win->requestUpdate();
+        QTimer::singleShot(500, win, [win]() {
+            fprintf(stderr, "nimbus-bar: blur compositor activo=%d\n",
+                    KWindowEffects::isEffectAvailable(KWindowEffects::BlurBehind));
+            KWindowEffects::enableBlurBehind(win, false);
+            KWindowEffects::enableBlurBehind(win, true);
+            win->requestUpdate();
+        });
     };
     auto *primaryWin = qobject_cast<QWindow *>(engine.rootObjects().first());
     configureBar(primaryWin, QGuiApplication::primaryScreen());

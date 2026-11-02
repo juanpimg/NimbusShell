@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Gui Qml Quick DBus Network)
 find_package(LayerShellQt REQUIRED)
+find_package(KF6WindowSystem REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(DBUS1 REQUIRED IMPORTED_TARGET dbus-1)
 
@@ -27,6 +28,7 @@ target_link_libraries(nimbus-bar PRIVATE
   Qt6::Quick
   Qt6::DBus
   Qt6::Network
+  KF6::WindowSystem
   PkgConfig::DBUS1
   LayerShellQt::Interface
 )

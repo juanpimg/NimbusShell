@@ -8,11 +8,17 @@ set -u
 OUT_DIR="spikes/nested"
 TIMEOUT=60
 BAR_BIN="/tmp/nimbus-bar-prefix/bin/nimbus-bar"
+WALLPAPER=""
+SOCKET="nimbus-bar-test"
 for ((i=1; i<=$#; i++)); do
   case "${!i}" in
     --out) j=$((i+1)); OUT_DIR="${!j}" ;;
     --timeout) j=$((i+1)); TIMEOUT="${!j}" ;;
     --bin) j=$((i+1)); BAR_BIN="${!j}" ;;
+    # F11-T02: fondo de alto contraste para probar blur de verdad.
+    --wallpaper) j=$((i+1)); WALLPAPER="${!j}" ;;
+    # Socket único: permite dos harness en paralelo sin matarse.
+    --socket) j=$((i+1)); SOCKET="${!j}" ;;
   esac
 done
 
@@ -32,7 +38,7 @@ mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
 NESTED_HOME="$BASE_TMP/home"
 mkdir -p "$NESTED_HOME/.config"
 export QT_QPA_PLATFORM=wayland
-export WAYLAND_DISPLAY="nimbus-bar-test"
+export WAYLAND_DISPLAY="$SOCKET"
 LOG="$OUT_ABS/nested-bar.log"
 : > "$LOG"
 
@@ -45,8 +51,8 @@ cleanup() {
     sleep 1
     for p in $(cat "$PIDFILE" 2>/dev/null); do kill -9 "$p" 2>/dev/null || true; done
   fi
-  # shellcheck disable=SC2009
-  ps -eo pid,args | grep "[k]win_wayland --virtual.*nimbus-bar-test" | awk "{print \$1}" | xargs -r kill 2>/dev/null || true
+  # Solo se matan los PID de ESTA ejecución (ver PIDFILE). Nunca por patrón:
+  # dos harness concurrentes en worktrees distintas se mataban entre sí.
   rm -rf "$BASE_TMP" || echo "[bar] WARN: no se pudo borrar $BASE_TMP" >&2
 }
 trap cleanup EXIT INT TERM
@@ -59,6 +65,7 @@ OUT_ABS="'"$OUT_ABS"'"
 PIDFILE="'"$PIDFILE"'"
 TIMEOUT="'"$TIMEOUT"'"
 BAR_BIN="'"$BAR_BIN"'"
+WALLPAPER="'"$WALLPAPER"'"
 WAYLAND_DISPLAY="'"$WAYLAND_DISPLAY"'"
 LOG="'"$LOG"'"
 export HOME="'"$NESTED_HOME"'"
@@ -76,6 +83,7 @@ trap "kill \$(jobs -p) 2>/dev/null || true" EXIT
 echo "[bar] arranque kwin_wayland --virtual ..." | tee -a "$LOG"
 kwin_wayland --virtual --width 1280 --height 800 --no-lockscreen --socket "$WAYLAND_DISPLAY" --xwayland >>"$LOG" 2>&1 &
 KWIN_PID=$!
+echo "$KWIN_PID" >> "$PIDFILE"
 
 for ((i=0; i<TIMEOUT*2; i++)); do
   [ -e "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ] && break
@@ -88,13 +96,35 @@ if [ ! -e "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; then
 fi
 echo "[bar] socket OK" | tee -a "$LOG"
 sleep 2
+# Diagnóstico F11-T02: ¿el compositor anuncia blur al cliente?
+if command -v wayland-info >/dev/null 2>&1; then
+  echo "[bar] globals wayland (blur):" | tee -a "$LOG"
+  wayland-info 2>/dev/null | grep -iE "background_effect|blur|contrast" | tee -a "$LOG"
+fi
+echo "[bar] efectos KWin cargados:" | tee -a "$LOG"
+qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.loadedEffects >>"$LOG" 2>&1 || true
+qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.isEffectSupported blur >>"$LOG" 2>&1 || true
 
 echo "[bar] arranque plasmashell (fondo) + kate (cliente normal) ..." | tee -a "$LOG"
 plasmashell >>"$LOG" 2>&1 &
 PLASMA_PID=$!
+echo "$PLASMA_PID" >> "$PIDFILE"
 kate >>"$LOG" 2>&1 &
 KATE_PID=$!
+echo "$KATE_PID" >> "$PIDFILE"
 sleep 10
+
+if [ -n "$WALLPAPER" ]; then
+  if [ -f "$WALLPAPER" ]; then
+    echo "[bar] fondo de alto contraste: $WALLPAPER" | tee -a "$LOG"
+    plasma-apply-wallpaperimage "$WALLPAPER" >>"$LOG" 2>&1 \
+      && echo "[bar] wallpaper OK" | tee -a "$LOG" \
+      || echo "[bar] WARN: wallpaper fallo" | tee -a "$LOG"
+    sleep 3
+  else
+    echo "[bar] WARN: --wallpaper no existe: $WALLPAPER" | tee -a "$LOG"
+  fi
+fi
 
 PROBE_JS="$OUT_ABS/probe.js"
 PROBE_MONLOG="$OUT_ABS/probe-dbus.log"
@@ -104,6 +134,7 @@ PROBE_MONLOG="$OUT_ABS/probe-dbus.log"
 # captura solo interface org.nimbus.Probe.
 dbus-monitor "type='method_call',interface='org.nimbus.Probe'" >>"$PROBE_MONLOG" 2>&1 &
 MON_PID=$!
+echo "$MON_PID" >> "$PIDFILE"
 sleep 1
 
 write_probe() {
@@ -155,6 +186,7 @@ run_probe "active"
 echo "[bar] arranque nimbus-bar ..." | tee -a "$LOG"
 "$BAR_BIN" >>"$LOG" 2>&1 &
 BAR_PID=$!
+echo "$BAR_PID" >> "$PIDFILE"
 sleep 4
 if kill -0 $BAR_PID 2>/dev/null; then echo "[bar] nimbus-bar VIVO pid=$BAR_PID" | tee -a "$LOG";
 else echo "[bar] ERROR: nimbus-bar muerto" | tee -a "$LOG"; fi
@@ -191,7 +223,6 @@ echo "[bar] resultados sonda:" | tee -a "$LOG"
 grep -a "string \"NIMBUS" "$PROBE_MONLOG" | tee -a "$LOG"
 
 ls -la "$OUT_ABS"/f3-bar*.png >>"$LOG" 2>&1
-echo "$KWIN_PID $PLASMA_PID $KATE_PID" > "$PIDFILE"
 echo "[bar] FIN." | tee -a "$LOG"
 ' >>"$LOG" 2>&1
 RC=$?

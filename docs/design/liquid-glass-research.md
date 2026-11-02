@@ -75,8 +75,27 @@ referencia y en implementaciones:
 - Referencia Tahoe estudiada: captura pública de Six Colors
   (`tahoe-control-center-6c.png`, no se commiteará por ser material ajeno).
 
+## Resultado del spike de blur (2026-11-02)
+
+- **Blur real conseguido en nested** con KWin 6.8.2 + layer-shell:
+  `KWindowEffects::enableBlurBehind` + `ext-background-effect-v1`. Evidencia
+  `docs/plans/evidence/F11-T02-blur.md` (damero 16 px promediado bajo la
+  barra; laplaciano 15,27 vs 81,15 sin barra). No es un gradiente.
+- **Trampa**: `isEffectAvailable(BlurBehind)` es false en el primer frame
+  (binding/capability asíncronos). Hay que registrar la región siempre y
+  reaplicar a los ~500 ms; el protocolo es double-buffered, así que hace falta
+  `requestUpdate()` para que el commit aplique la región.
+- El global `ext_background_effect_manager_v1` está anunciado y el efecto
+  `blur` de KWin está cargado; no hace falta `org_kde_kwin_blur` (legado).
+- **Esto es solo la primera capa** (backdrop blur). Para Liquid Glass faltan
+  refracción/lensing, dispersión, rim/specular y tinte adaptativo: se
+  consiguen con Glass (efecto de compositor) o no se consiguen.
+
 ## Siguiente paso
 
-Spike controlado: compilar Glass para KWin 6.8 en la VM de build, activarlo
-en una sesión de prueba y capturar barra/menú/CC antes/después. Si el efecto
-no es estable, Ruling y fallback `MultiEffect` (sin llamarlo Liquid Glass).
+Compilar `kwin-effects-glass` contra KWin 6.8 e instalarlo en un prefijo
+temporal para un spike nested (sin tocar el host): activar `glassEnabled`,
+desactivar `blurEnabled` y capturar barra/CC sobre el mismo damero. Si la
+refracción no es estable o rompe la barra, Ruling y fallback: blur stock +
+capas QML (sin llamarlo Liquid Glass). Después, portar a la ISO y medir fps en
+la VM instalada.
