@@ -105,17 +105,16 @@ scripts/dev-remote deploy      # build + rsync + restart + md5
 scripts/dev-remote capture     # grim + scp a docs/plans/evidence/
 ```
 
-(Hasta que exista el script, los comandos manuales son:
+`scripts/dev-remote doctor` comprueba SSH, servicio, `grim` y `rsync`.
+Los comandos manuales equivalentes son:
 
 ```bash
-rsync -av /tmp/nimbus-bar-dev/nimbus-bar nimbus-test:/tmp/nimbus-bar
-ssh nimbus-test 'sudo install -m755 /tmp/nimbus-bar /usr/local/bin/nimbus-bar && \
-  systemctl --user restart nimbus-bar && \
-  md5sum /usr/local/bin/nimbus-bar'
+rsync -av /tmp/nimbus-remote-build/nimbus-bar nimbus-test:/tmp/nimbus-bar.new
+ssh nimbus-test 'sudo install -m755 /tmp/nimbus-bar.new /usr/local/bin/nimbus-bar && \
+  systemctl --user restart nimbus-bar && md5sum /usr/local/bin/nimbus-bar'
 ssh nimbus-test 'grim /tmp/nimbus-shot.png'
 scp nimbus-test:/tmp/nimbus-shot.png docs/plans/evidence/
 ```
-)
 
 ## 7. Energía y recuperación
 

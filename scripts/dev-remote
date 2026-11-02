@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# dev-remote — despliegue/captura en el PC de pruebas por SSH.
+# Requisitos en el host: ssh, rsync, cmake, ninja.
+# Requisitos en el PC: sshd, rsync, grim, servicio user nimbus-bar.
+# Uso: scripts/dev-remote <deploy|capture|restart|status|doctor|ssh> [args]
+# Variables: NIMBUS_REMOTE_HOST (def. nimbus-test), NIMBUS_REMOTE_KEY
+#            (def. ~/.ssh/nimbus_control), NIMBUS_REMOTE_BIN.
+set -u
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+HOST="${NIMBUS_REMOTE_HOST:-nimbus-test}"
+KEY="${NIMBUS_REMOTE_KEY:-$HOME/.ssh/nimbus_control}"
+REMOTE_BIN="${NIMBUS_REMOTE_BIN:-/usr/local/bin/nimbus-bar}"
+BUILD_DIR="${NIMBUS_REMOTE_BUILD:-/tmp/nimbus-remote-build}"
+OUT_DIR="${NIMBUS_REMOTE_OUT:-$REPO_ROOT/out}"
+SSH=(ssh -i "$KEY" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=8 "$HOST")
+
+info() { printf '[dev-remote] %s\n' "$*"; }
+die() { printf '[dev-remote] ERROR: %s\n' "$*" >&2; exit 1; }
+
+need_host() {
+  command -v ssh >/dev/null 2>&1 || die "falta ssh"
+  [ -f "$KEY" ] || die "falta la clave $KEY (genera/instala nimbus-control en el PC)"
+  "${SSH[@]}" true >/dev/null 2>&1 || die "no puedo conectar a $HOST con $KEY; revisa ~/.ssh/config, IP y nimbus-control"
+}
+
+cmd_doctor() {
+  need_host
+  printf 'host:   %s\n' "$HOST"
+  printf 'clave:  %s\n' "$KEY"
+  "${SSH[@]}" 'printf "guest:  "; hostnamectl --static 2>/dev/null || hostname;
+    printf "user:   "; id -un;
+    printf "bar:    "; systemctl --user is-active nimbus-bar 2>/dev/null || true;
+    printf "grim:   "; command -v grim || echo FALTA;
+    printf "rsync:  "; command -v rsync || echo FALTA;
+    printf "md5:    "; md5sum /usr/local/bin/nimbus-bar 2>/dev/null || echo FALTA'
+}
+
+cmd_deploy() {
+  need_host
+  command -v cmake >/dev/null 2>&1 || die "falta cmake en el host"
+  command -v rsync >/dev/null 2>&1 || die "falta rsync en el host"
+  mkdir -p "$BUILD_DIR" "$OUT_DIR" || die "no se pudo crear build/out"
+  info "build host en $BUILD_DIR"
+  cmake -S "$REPO_ROOT/packages/shell/nimbus-bar" -B "$BUILD_DIR" \
+    -G Ninja -DCMAKE_BUILD_TYPE=Release >/dev/null \
+    || die "cmake configure falló"
+  cmake --build "$BUILD_DIR" -j"$(nproc 2>/dev/null || echo 4)" \
+    || die "build falló"
+  local bin="$BUILD_DIR/nimbus-bar"
+  [ -x "$bin" ] || die "no existe $bin"
+  local local_md5
+  local_md5="$(md5sum "$bin" | awk '{print $1}')"
+  info "publicando $bin (md5 $local_md5) en $HOST"
+  rsync -az -e "ssh -i '$KEY' -o StrictHostKeyChecking=accept-new" \
+    "$bin" "$HOST:/tmp/nimbus-bar.new" || die "rsync falló"
+  local out
+  out="$("${SSH[@]}" "set -u
+    sudo install -m 0755 /tmp/nimbus-bar.new '$REMOTE_BIN' || exit 1
+    got=\$(md5sum '$REMOTE_BIN' | awk '{print \$1}')
+    [ \"\$got\" = '$local_md5' ] || { echo \"MD5_MISMATCH guest=\$got host=$local_md5\" >&2; exit 2; }
+    systemctl --user restart nimbus-bar || exit 3
+    systemctl --user is-active --quiet nimbus-bar || exit 4
+    echo \"DEPLOY_OK md5=\$got\"" 2>&1)" || { printf '%s\n' "$out"; die "deploy remoto falló"; }
+  printf '%s\n' "$out"
+  info "deploy verificado en $HOST"
+}
+
+cmd_capture() {
+  need_host
+  local out="${1:-$OUT_DIR/remote-$(date +%Y%m%dT%H%M%S).png}"
+  mkdir -p "$(dirname "$out")" || die "no se pudo crear $(dirname "$out")"
+  "${SSH[@]}" 'command -v grim >/dev/null || { echo "FALTA grim; instala grim en el PC" >&2; exit 1; }
+    grim /tmp/nimbus-shot.png && test -s /tmp/nimbus-shot.png' \
+    || die "grim falló en el PC"
+  scp -q -i "$KEY" -o StrictHostKeyChecking=accept-new \
+    "$HOST:/tmp/nimbus-shot.png" "$out" || die "scp falló"
+  info "captura: $out ($(wc -c <"$out") bytes)"
+}
+
+cmd_restart() {
+  need_host
+  "${SSH[@]}" 'systemctl --user restart nimbus-bar && systemctl --user is-active nimbus-bar' \
+    || die "restart de nimbus-bar falló"
+  info "nimbus-bar reiniciada"
+}
+
+cmd_status() {
+  need_host
+  "${SSH[@]}" 'systemctl --user status nimbus-bar --no-pager -n 5 2>&1 | head -n 12; echo; pgrep -a nimbus-bar || true'
+}
+
+cmd_ssh() {
+  need_host
+  exec "${SSH[@]}" "$@"
+}
+
+cmd="${1:-doctor}"
+[ $# -gt 0 ] && shift
+case "$cmd" in
+  deploy) cmd_deploy "$@" ;;
+  capture) cmd_capture "$@" ;;
+  restart) cmd_restart "$@" ;;
+  status) cmd_status "$@" ;;
+  doctor) cmd_doctor "$@" ;;
+  ssh) cmd_ssh "$@" ;;
+  -h|--help|help)
+    sed -n '2,9p' "$0"
+    ;;
+  *) die "subcomando desconocido: $cmd (deploy|capture|restart|status|doctor|ssh)" ;;
+esac
