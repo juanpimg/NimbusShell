@@ -1,0 +1,11 @@
+nimbus-bar: qml-root=/home/jp/Escritorio/Proyectos/NimbusShell-qmlroot/packages/shell/nimbus-bar/qml
+[bar] nimbus-bar VIVO pid=13301
+[bar] nimbus-bar VIVO pid=13301
+[bar] f3-bar-24.png OK
+[bar] f3-bar-24.png OK
+   string "NIMBUS win caption= class=nimbus-bar type=0 layer=3 geom=0,0,1280,24"
+   string "NIMBUS win caption= class=nimbus-bar type=0 layer=3 geom=0,24,1280,730"
+   string "NIMBUS win caption= class=nimbus-bar type=0 layer=3 geom=976,24,304,450"
+   string "NIMBUS win caption= class=nimbus-bar type=0 layer=3 geom=0,0,1280,24"
+   string "NIMBUS win caption= class=nimbus-bar type=0 layer=3 geom=0,24,1280,730"
+   string "NIMBUS win caption= class=nimbus-bar type=0 layer=3 geom=976,24,304,450"

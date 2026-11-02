@@ -1,0 +1,13 @@
+== qml-root: build ==
+  [OK] build nimbus-bar
+  [OK] copia con NimbusTokens.qml + qmldir
+== qml-root: carga desde disco ==
+  [OK] sin flag sigue en qrc (--dump-preset)
+  [OK] --qml-root /home/jp/Escritorio/Proyectos/NimbusShell-qmlroot/packages/shell/nimbus-bar/qml (--dump-preset)
+  [OK] log qml-root=<dir>
+  [OK] --qml-root=DIR (copia: import "." resuelve NimbusTokens)
+== qml-root: negativos ==
+  [OK] DIR inexistente → exit != 0 con mensaje (1)
+  [OK] --qml-root sin valor → exit != 0 con uso (1)
+== qml-root: resultado ==
+  [OK] 0 fallos
