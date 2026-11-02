@@ -42,6 +42,13 @@ TestCase {
     function test_header() {
         compare(cal.monthName(9), "octubre");
     }
+    function test_today() {
+        cal.shownMonth = 0; cal.shownYear = 2025;
+        cal.today();
+        var d = new Date();
+        compare(cal.shownMonth, d.getMonth());
+        compare(cal.shownYear, d.getFullYear());
+    }
     function test_open_close() {
         // Esc (Shortcut) y clic-fuera (scrim) llaman a close(): mismo camino.
         compare(cal.opened, false);

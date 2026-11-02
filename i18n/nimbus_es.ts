@@ -175,6 +175,11 @@
             <translation>D</translation>
         </message>
         <message>
+            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="301" />
+            <source>Hoy</source>
+            <translation>Hoy</translation>
+        </message>
+        <message>
             <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="0" />
             <source>J</source>
             <translation>J</translation>
@@ -250,12 +255,12 @@
             <translation>mayo</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="90" />
+            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="105" />
             <source>nimbus-cal</source>
             <translation>nimbus-cal</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="65" />
+            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="77" />
             <source>nimbus-cal-scrim</source>
             <translation>nimbus-cal-scrim</translation>
         </message>
@@ -275,12 +280,12 @@
             <translation>septiembre</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="121" />
+            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="143" />
             <source>‹</source>
             <translation>‹</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="156" />
+            <location filename="packages/shell/nimbus-bar/qml/Calendar.qml" line="204" />
             <source>›</source>
             <translation>›</translation>
         </message>

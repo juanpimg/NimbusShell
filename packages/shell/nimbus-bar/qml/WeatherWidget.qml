@@ -1,15 +1,20 @@
 // WeatherWidget.qml — F10-T01 Tiempo en Calendar.qml (no en la barra de 24px).
-// Ciudad, temp actual, condición, min/max y 3 días. Iconos dibujados propios
-// (Canvas: sol/nube/lluvia/nieve/tormenta). Offline honesto: «—» si no hay
-// caché ni red.
+// Pie compacto del popover: ciudad, temp actual, condición, min/max y 3 días.
+// Iconos dibujados propios (Canvas: sol/nube/lluvia/nieve/tormenta). Offline
+// honesto: «—» si no hay caché ni red.
 import QtQuick
 
 Column {
     id: root
+
     width: parent ? parent.width : 260
-    spacing: 4
+    spacing: 3
     objectName: "calWeather"
     property var model: (typeof weather !== "undefined") ? weather : null
+    // El Canvas dibuja en un lienzo lógico de 36 px y se escala al tamaño
+    // compacto del pie (28 px) sin duplicar coordenadas.
+    readonly property real canvasSize: 36
+
     function glyphFor(code) {
         if (code < 0)
             return "—";
@@ -25,6 +30,7 @@ Column {
             return "nieve";
         return "tormenta";
     }
+
     Rectangle {
         width: parent.width
         height: 1
@@ -32,16 +38,21 @@ Column {
     }
     Row {
         width: parent.width
-        spacing: 10
+        height: 28
+        spacing: 8
+
         Canvas {
             id: glyph
-            width: 36
-            height: 36
+
+            width: 28
+            height: 28
             property string kind: root.glyphFor(root.model ? root.model.condCode : -1)
             onKindChanged: requestPaint()
             onPaint: {
                 var ctx = getContext("2d");
+                ctx.save();
                 ctx.clearRect(0, 0, width, height);
+                ctx.scale(width / root.canvasSize, height / root.canvasSize);
                 ctx.fillStyle = "#FFD60A";
                 ctx.strokeStyle = "#8E8E93";
                 ctx.lineWidth = 1.5;
@@ -103,20 +114,25 @@ Column {
                     ctx.font = "16px sans-serif";
                     ctx.fillText("—", 13, 24);
                 }
+                ctx.restore();
             }
         }
         Column {
-            spacing: 1
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 0
+
             Text {
                 text: (root.model ? root.model.city : "—") + " · " + (root.model ? root.model.temp : "—")
-                font.pixelSize: 15
-                font.weight: 700
+                font.family: NimbusTokens.fontFamily
+                font.pixelSize: NimbusTokens.type.t13.size
+                font.weight: NimbusTokens.type.t15.weightEmph
                 color: NimbusTokens.colors(NimbusTokens.dark).label
                 objectName: "wxHead"
             }
             Text {
                 text: (root.model ? root.model.cond : "—") + " · " + (root.model ? root.model.minMax : "—") + ((root.model && root.model.stale) ? qsTr(" (caché)") : "")
-                font.pixelSize: 11
+                font.family: NimbusTokens.fontFamily
+                font.pixelSize: NimbusTokens.type.t11.size
                 color: NimbusTokens.subText(NimbusTokens.dark)
                 objectName: "wxSub"
             }
@@ -124,20 +140,25 @@ Column {
     }
     Row {
         width: parent.width
-        spacing: 6
+        spacing: 8
+
         Repeater {
             model: root.model ? root.model.days : []
+
             delegate: Column {
-                width: (root.width - 12) / 3
-                spacing: 1
+                width: (root.width - 16) / 3
+                spacing: 0
+
                 Text {
                     text: modelData.d
-                    font.pixelSize: 10
+                    font.family: NimbusTokens.fontFamily
+                    font.pixelSize: NimbusTokens.type.t11.size
                     color: NimbusTokens.faintText(NimbusTokens.dark)
                 }
                 Text {
                     text: modelData.mx + " " + modelData.mn
-                    font.pixelSize: 11
+                    font.family: NimbusTokens.fontFamily
+                    font.pixelSize: NimbusTokens.type.t11.size
                     color: NimbusTokens.colors(NimbusTokens.dark).label
                 }
             }
