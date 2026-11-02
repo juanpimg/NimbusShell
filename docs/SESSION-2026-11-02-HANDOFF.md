@@ -6,7 +6,7 @@
 
 ## 0. TL;DR
 
-- Rama de trabajo: **`plasma-migration`** (incluye `main`; 402 commits).
+- Rama de trabajo: **`plasma-migration`** (incluye `main`; historia completa).
   `main` local es ancestro y se puede fast-forward antes de publicar.
 - Remoto: `https://github.com/juanpimg/NimbusShell.git`.
 - Ledger real: **60/112 (54,3 %)**; **no inflar**. Ver

@@ -1,0 +1,16 @@
+menuentry "NimbusOS ISO (UUID)" {
+    set isofile="/nimbus.iso"
+    search --no-floppy --file --set=root $isofile
+    probe -u $root --set=isouuid
+    loopback loop $isofile
+    linux (loop)/nimbus/boot/x86_64/vmlinuz-linux archisobasedir=nimbus img_dev=/dev/disk/by-uuid/$isouuid img_loop=$isofile
+    initrd (loop)/nimbus/boot/x86_64/initramfs-linux.img
+}
+
+menuentry "NimbusOS ISO (etiqueta Windows)" {
+    set isofile="/nimbus.iso"
+    search --no-floppy --file --set=root $isofile
+    loopback loop $isofile
+    linux (loop)/nimbus/boot/x86_64/vmlinuz-linux archisobasedir=nimbus img_dev=/dev/disk/by-label/Windows img_loop=$isofile
+    initrd (loop)/nimbus/boot/x86_64/initramfs-linux.img
+}

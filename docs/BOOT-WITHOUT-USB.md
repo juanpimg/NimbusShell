@@ -40,7 +40,7 @@ python3 -m http.server 8081 --bind 0.0.0.0
 3. Secure Boot **OFF**; BitLocker de C: **desactivado o suspendido**
    (`manage-bde -status C:`; `manage-bde -protectors -disable C: -rebootcount 1`).
 4. `Manage Boot Menu → Add a New Entry → Custom` y pegar
-   [`grub-nimbus.txt`](../../grub-nimbus.txt) (o
+   [`grub-nimbus.txt`](grub-nimbus.txt) (o
    `http://192.168.1.225:8081/grub-nimbus.txt`).
 5. La entrada `NimbusOS ISO (UUID)` usa `search` + `probe -u` para pasar
    `img_dev=/dev/disk/by-uuid/$isouuid` e `img_loop=/nimbus.iso`; la segunda
