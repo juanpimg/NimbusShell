@@ -36,7 +36,7 @@ como historia en `docs/legacy/` y en `docs/HANDOFF.md`.
 ## 2. Entorno de trabajo
 
 - Host: Arch/Plasma 6.8.2, KWin 6.8.2, Qt 6.12, 20 CPU, 15 GiB RAM.
-- Repo: `/home/jp/Escritorio/Proyectos/NimbusShell-migration`.
+- Repo canónico: `/home/jp/Escritorio/Proyectos/NimbusShell` (único; worktrees antiguos limpiados).
 - QEMU/KVM cache: `~/.cache/nimbusshell-vm/`:
   - `share/nimbusos.iso` → ISO out8; `share/out16/` ISO nueva.
   - `target-disk.qcow2` (out15 instalada, no tocar), `target.sock`,
@@ -203,7 +203,7 @@ scripts/dev-remote capture
 ## 9. Comandos de arranque de una sesión limpia
 
 ```bash
-cd /home/jp/Escritorio/Proyectos/NimbusShell-migration
+cd /home/jp/Escritorio/Proyectos/NimbusShell
 git status --short
 git log --oneline -5
 scripts/ci.sh

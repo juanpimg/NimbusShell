@@ -4,3 +4,5 @@
 /out/
 *.iso
 *.qcow2
+
+/archive/
