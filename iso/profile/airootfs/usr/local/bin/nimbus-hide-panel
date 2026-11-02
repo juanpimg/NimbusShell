@@ -5,19 +5,20 @@
 # Por qué así:
 #  - KWin/Plasma 6.8 NO leen ~/.config/plasma/kwinrc; el panel vive en
 #    plasma-org.kde.plasma.desktop-appletsrc y se controla por scripting.
-#  - `evaluateScript` devuelve el valor de su última expresión. El script
-#    anterior terminaba en `forEach(...)` (undefined) y qdbus imprimía vacío
-#    con exit 0: parecía éxito aunque `panels()` aún no existiera. Aquí se
-#    consulta `panels().length` primero y se devuelve el número de paneles
-#    tocados; solo entonces se considera éxito.
+#  - `evaluateScript` SOLO imprime lo que el script pasa a `print()`; una
+#    expresión final (forEach/undefined) devuelve vacío con exit 0 y parecía
+#    éxito aunque no se hubiera aplicado nada. Medido en la VM (Plasma 6.8.2):
+#    `print(panels().length)` -> 1 y `print(panels()[0].hiding)` -> autohide.
+#  - La propiedad real del panel es `hiding` (none|autohide|dodgewindows|
+#    windowsgobelow). `visibilityMode`/`visible` no son la API de scripting de
+#    Plasma 6 y por eso el panel seguía visible.
 #  - Si el shell aún no está listo (login lento, plasmashell reiniciándose),
 #    se reintenta hasta 30 s (NIMBUS_HIDE_PANEL_TIMEOUT) y se deja rastro en
 #    el log. El autostart es la red de seguridad: un fallo no aborta la sesión.
 #
-# PENDIENTE 6.8: eliminar el panel de forma permanente (`panel.remove()`) si
-# la API de scripting lo expone; hoy no se usa porque en Plasma 6.8 no está
-# garantizado y borraría configuración del usuario. Criterio de aceptación:
-# el panel queda no visible/auto-hide tras login.
+# PENDIENTE 6.8: eliminar el panel de forma permanente (`panel.remove()`); la
+# API lo expone, pero borraría configuración del usuario. Criterio de
+# aceptación: el panel queda no visible/auto-hide tras login.
 set -u
 
 LOG_DIR="${XDG_CACHE_HOME:-${HOME:-/tmp}/.cache}/nimbus"
@@ -40,11 +41,18 @@ QDBUS=(qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScrip
 # Devuelve un entero no negativo o vacío (qdbus ausente, error o basura).
 eval_count() {
     local out=""
-    out="$(timeout 5 "${QDBUS[@]}" 'panels().length' 2>/dev/null || true)"
+    out="$(timeout 5 "${QDBUS[@]}" 'print(panels().length);' 2>/dev/null || true)"
+    out="$(printf '%s' "$out" | tr -d '[:space:]')"
     case "$out" in
         ''|*[!0-9]*) printf '' ;;
         *) printf '%s' "$out" ;;
     esac
+}
+
+# Devuelve los modos de ocultado reales, p. ej. "autohide" o "none,autohide".
+eval_hiding() {
+    timeout 5 "${QDBUS[@]}" \
+        'print(panels().map(function(p){return p.hiding;}).join(","));' 2>/dev/null || true
 }
 
 i=0
@@ -57,19 +65,25 @@ while [ "$i" -lt "$ATTEMPTS" ]; do
     elif [ "$count" -eq 0 ]; then
         last="panels() vacío (plasmashell aún sin paneles)"
     else
-        # Se devuelve el número de paneles tocados: así qdbus no imprime vacío
-        # y un fallo de la API se detecta como exit != 0 o salida no numérica.
+        # `hiding` es la API real de Plasma 6; print() hace que qdbus devuelva
+        # el valor (sin print, evaluateScript imprime vacío con exit 0).
         if out="$(timeout 5 "${QDBUS[@]}" \
-            'var n = 0; panels().forEach(function(p){ p.visibilityMode = 1; p.visible = false; n++; }); n;' \
+            'panels().forEach(function(p){ p.hiding = "autohide"; }); print(panels().length);' \
             2>&1)"; then
+            out="$(printf '%s' "$out" | tr -d '[:space:]')"
             case "$out" in
                 ''|*[!0-9]*) last="evaluateScript devolvió «$out» (se esperaba número)" ;;
                 *)
-                    if [ "$out" -gt 0 ]; then
-                        log "OK: $out panel(es) -> visibilityMode=1, visible=false (intento $i/$ATTEMPTS)"
-                        exit 0
-                    fi
-                    last="paneles detectados pero 0 modificados"
+                    hiding="$(eval_hiding | tr -d '[:space:]')"
+                    case "$hiding" in
+                        autohide|autohide,*|*,autohide|*,autohide,*)
+                            log "OK: $out panel(es) -> hiding=$hiding (intento $i/$ATTEMPTS)"
+                            exit 0
+                            ;;
+                        *)
+                            last="hiding real «${hiding:-vacío}» tras aplicar autohide"
+                            ;;
+                    esac
                     ;;
             esac
         else
@@ -83,11 +97,13 @@ while [ "$i" -lt "$ATTEMPTS" ]; do
     sleep 0.5
 done
 
-if [ -n "$last" ] && [ "${last#panels\(\) vacío}" != "$last" ]; then
-    # Sin paneles no hay nada que ocultar (o el shell no los expone): no es
-    # un error de la sesión, pero queda registrado para la aceptación.
-    log "AVISO: sin paneles tras ${TIMEOUT}s ($last); nada que ocultar"
-    exit 0
-fi
+case "$last" in
+    *"panels()"*|*"sin respuesta"*)
+        # Sin paneles o sin bus no hay nada que ocultar y no debe romper la
+        # sesión; queda registrado para la aceptación.
+        log "AVISO: sin panel que ocultar tras ${TIMEOUT}s ($last)"
+        exit 0
+        ;;
+esac
 log "ERROR: no se pudo ocultar el panel tras ${TIMEOUT}s ($last)"
 exit 1

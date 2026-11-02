@@ -400,51 +400,49 @@ fi
 # ---------------------------------------------------------------------------
 # Panel stock (en vivo) + barra Nimbus
 # ---------------------------------------------------------------------------
-PANEL_JS='var r=[]; panels().forEach(function(p){r.push(p.visible+":"+p.visibilityMode);}); r.join(",");'
+PANEL_LEN_JS='print(panels().length);'
+PANEL_HIDING_JS='print(panels().map(function(p){return p.hiding;}).join(","));'
 if ! command -v qdbus6 >/dev/null 2>&1; then
   add_check FAIL "panel.stock" "sin qdbus6; no se puede consultar plasmashell"
 else
   PANEL_RAW="$(qdbus6 org.kde.plasmashell /PlasmaShell \
-    org.kde.PlasmaShell.evaluateScript "$PANEL_JS" 2>&1)"
+    org.kde.PlasmaShell.evaluateScript "$PANEL_LEN_JS" 2>&1)"
   PANEL_RC=$?
-  if [ "$PANEL_RC" -ne 0 ]; then
-    add_check FAIL "panel.stock" "evaluateScript rc=$PANEL_RC: $(printf '%s' "$PANEL_RAW" | head -n 1)"
-  else
-    PANEL_CLEAN="$(printf '%s' "$PANEL_RAW" | tr -d '"' | tail -n 1)"
-    PANEL_COUNT=0
-    PANEL_BAD=""
-    PANEL_GOOD=1
-    if [ -n "$PANEL_CLEAN" ]; then
-      IFS=',' read -r -a PANEL_ITEMS <<< "$PANEL_CLEAN"
-      for item in "${PANEL_ITEMS[@]}"; do
-        item="$(printf '%s' "$item" | tr -d ' ')"
-        [ -n "$item" ] || continue
-        case "$item" in
-          *:*) ;;
-          *) PANEL_GOOD=0; PANEL_BAD="$PANEL_BAD formato=$item"; continue ;;
-        esac
-        vis="${item%%:*}"
-        mode="${item##*:}"
-        PANEL_COUNT=$((PANEL_COUNT + 1))
-        if [ "$vis" != "false" ] && [ "$vis" != "0" ]; then
-          PANEL_GOOD=0
-          PANEL_BAD="$PANEL_BAD visible=$vis"
-        fi
-        if [ "$mode" != "1" ]; then
-          PANEL_GOOD=0
-          PANEL_BAD="$PANEL_BAD visibilityMode=$mode"
-        fi
-      done
-    fi
-    if [ "$PANEL_COUNT" -eq 0 ]; then
-      add_check FAIL "panel.stock" "plasmashell no devolvió paneles ('$PANEL_CLEAN')"
-    elif [ "$PANEL_GOOD" -eq 1 ]; then
-      add_check PASS "panel.stock" "paneles=$PANEL_COUNT visible=false visibilityMode=1"
-    else
+  PANEL_CLEAN="$(printf '%s' "$PANEL_RAW" | tr -d '"' | tr -d '[:space:]' | tail -n 1)"
+  case "$PANEL_CLEAN" in
+    ''|*[!0-9]*)
       add_check FAIL "panel.stock" \
-        "paneles=$PANEL_COUNT; esperado visible=false/visibilityMode=1;$PANEL_BAD"
-    fi
-  fi
+        "evaluateScript rc=$PANEL_RC sin número de paneles ('$(printf '%s' "$PANEL_RAW" | head -n 1)')" ;;
+    0)
+      add_check PASS "panel.stock" "sin panel stock (0 paneles)" ;;
+    *)
+      HIDING_RAW="$(qdbus6 org.kde.plasmashell /PlasmaShell \
+        org.kde.PlasmaShell.evaluateScript "$PANEL_HIDING_JS" 2>&1)"
+      HIDING_RC=$?
+      HIDING_CLEAN="$(printf '%s' "$HIDING_RAW" | tr -d '"' | tr -d '[:space:]' | tail -n 1)"
+      if [ "$HIDING_RC" -ne 0 ] || [ -z "$HIDING_CLEAN" ]; then
+        add_check FAIL "panel.stock" \
+          "paneles=$PANEL_CLEAN pero hiding rc=$HIDING_RC ('$(printf '%s' "$HIDING_RAW" | head -n 1)')"
+      else
+        PANEL_GOOD=1
+        PANEL_BAD=""
+        IFS=',' read -r -a PANEL_MODES <<< "$HIDING_CLEAN"
+        for mode in "${PANEL_MODES[@]}"; do
+          case "$mode" in
+            autohide|dodgewindows|windowsgobelow) ;;
+            *) PANEL_GOOD=0; PANEL_BAD="$PANEL_BAD $mode" ;;
+          esac
+        done
+        if [ "$PANEL_GOOD" -eq 1 ]; then
+          add_check PASS "panel.stock" \
+            "paneles=$PANEL_CLEAN hiding=$HIDING_CLEAN (fuera de vista/auto-hide)"
+        else
+          add_check FAIL "panel.stock" \
+            "paneles=$PANEL_CLEAN hiding=$HIDING_CLEAN; modos visibles:$PANEL_BAD"
+        fi
+      fi
+      ;;
+  esac
 fi
 
 BAR_PIDS="$(find_pid '/usr/local/bin/nimbus-bar')"

@@ -7,7 +7,7 @@
 #   2. iso/build-iso.sh exige/stagea el kwinrc efectivo y el autostart.
 #   3. nimbus-installed-setup copia plasma/kwinrc -> .config/kwinrc si falta,
 #      fija Klassy en ambos y aplica el grupo input fuera del timer de tema.
-#   4. nimbus-hide-panel: detecta paneles por panels().length, reintenta,
+#   4. nimbus-hide-panel: detecta paneles por print(panels().length), reintenta,
 #      loguea y devuelve error real si evaluateScript falla.
 set -u
 
@@ -104,7 +104,18 @@ else
 last=""
 for a in "$@"; do last="$a"; done
 case "$last" in
-    'panels().length')
+    *'p.hiding = "autohide"'*)
+        if [ "${NIMBUS_FAKE_APPLY_RC:-0}" -ne 0 ]; then
+            printf 'script error\n' >&2
+        else
+            printf '%s\n' "${NIMBUS_FAKE_APPLY_OUT:-1}"
+        fi
+        exit "${NIMBUS_FAKE_APPLY_RC:-0}"
+        ;;
+    *'p.hiding'*)
+        printf '%s\n' "${NIMBUS_FAKE_HIDING:-autohide}"
+        ;;
+    *'panels().length'*)
         n=0
         [ -f "$NIMBUS_FAKE_STATE" ] && n="$(cat "$NIMBUS_FAKE_STATE")"
         if [ "${n:-0}" -lt "${NIMBUS_FAKE_PANELS_AT:-0}" ]; then
@@ -113,14 +124,6 @@ case "$last" in
         else
             printf '%s\n' "${NIMBUS_FAKE_COUNT:-1}"
         fi
-        ;;
-    *visibilityMode*)
-        if [ "${NIMBUS_FAKE_APPLY_RC:-0}" -ne 0 ]; then
-            printf 'script error\n' >&2
-        else
-            printf '%s\n' "${NIMBUS_FAKE_APPLY_OUT:-1}"
-        fi
-        exit "${NIMBUS_FAKE_APPLY_RC:-0}"
         ;;
     *) printf '0\n' ;;
 esac
@@ -133,10 +136,10 @@ FAKE
     }
     rm -f "$T/state"
     if run_hide 3 NIMBUS_FAKE_PANELS_AT=2 NIMBUS_FAKE_COUNT=1 >"$T/out1" 2>&1; then
-        if grep -q 'OK: 1 panel(es) -> visibilityMode=1' "$T/home/.cache/nimbus/hide-panel.log" 2>/dev/null; then
-            pass "panel: reintenta hasta panels()>0 y aplica auto-hide"
+        if grep -q 'OK: 1 panel(es) -> hiding=autohide' "$T/home/.cache/nimbus/hide-panel.log" 2>/dev/null; then
+            pass "panel: reintenta hasta panels()>0 y aplica hiding=autohide"
         else
-            fail "panel: no loguea el éxito de auto-hide"
+            fail "panel: no loguea el éxito de hiding=autohide"
         fi
     else
         fail "panel: exit != 0 con paneles disponibles ($(tr '\n' '|' <"$T/out1"))"
@@ -144,7 +147,7 @@ FAKE
 
     rm -f "$T/state" "$T/home/.cache/nimbus/hide-panel.log"
     if run_hide 1 NIMBUS_FAKE_PANELS_AT=999 NIMBUS_FAKE_COUNT=0 >"$T/out2" 2>&1; then
-        grep -q 'AVISO: sin paneles' "$T/home/.cache/nimbus/hide-panel.log" 2>/dev/null \
+        grep -q 'AVISO: sin panel que ocultar' "$T/home/.cache/nimbus/hide-panel.log" 2>/dev/null \
             && pass "panel: sin paneles tras timeout -> AVISO y exit 0" \
             || fail "panel: exit 0 sin paneles pero sin AVISO en el log"
     else
@@ -159,6 +162,16 @@ FAKE
         grep -q 'ERROR: no se pudo ocultar el panel' "$T/home/.cache/nimbus/hide-panel.log" 2>/dev/null \
             && pass "panel: evaluateScript con error -> ERROR y exit 1" \
             || fail "panel: exit 1 sin ERROR en el log"
+    fi
+
+    rm -f "$T/state" "$T/home/.cache/nimbus/hide-panel.log"
+    if run_hide 1 NIMBUS_FAKE_PANELS_AT=0 NIMBUS_FAKE_COUNT=1 \
+        NIMBUS_FAKE_HIDING=none >"$T/out4" 2>&1; then
+        fail "panel: exit 0 aunque hiding sigue en none (falso positivo)"
+    else
+        grep -q 'hiding real «none»' "$T/home/.cache/nimbus/hide-panel.log" 2>/dev/null \
+            && pass "panel: verifica el estado real (hiding=none -> ERROR)" \
+            || fail "panel: no registra que hiding sigue en none"
     fi
 fi
 

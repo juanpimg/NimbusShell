@@ -88,3 +88,45 @@ la caché 9p) en la sesión `nimbus` del sistema out8:
 
 Pendiente para cerrar: reconstruir la ISO con todo (`out9`), repetir el E2E
 limpio y la aceptación; confirmar persistencia del panel y shortcuts reales.
+
+## Aceptación corregida del panel (2026-11-02 01:50)
+
+Diagnóstico en la VM con DBus real:
+
+```text
+$ qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \
+    'print(panels().length)'          -> 1
+$ ... evaluateScript 'print(panels()[0].hiding)' -> autohide
+```
+
+Causa del falso FAIL anterior: `evaluateScript` **solo** devuelve lo que el
+script pasa a `print()`; la expresión final `forEach(...)`/`panels().length`
+produce salida vacía con exit 0. La propiedad correcta en Plasma 6.8 es
+`hiding` (`autohide`), no `visibilityMode`/`visible`.
+
+Correcciones verificadas:
+
+- `nimbus-hide-panel`: aplica `p.hiding = "autohide"` y **verifica**
+  `print(panels().map(...hiding...))`; log `OK: N panel(es) -> hiding=autohide`.
+  Medido en la VM: `/tmp/hide-panel2` -> exit 0 y log con `hiding=autohide`.
+- Arnés: `panel.stock` consulta `print(panels().length)` y
+  `print(panels().map(p=>p.hiding))`; PASS con
+  `paneles=1 hiding=autohide (fuera de vista/auto-hide)`.
+- Tests: `test_kwinrc.sh` cubre `hiding=autohide`, fallo de `evaluateScript`
+  y estado real `hiding=none`; `test_autostart.sh` actualizado.
+  `tests/acceptance/test_installed_acceptance.sh`: 18/18; CI verde.
+
+Aceptación real repetida (misma VM, sesión `nimbus`):
+
+- **24 PASS / 1 FAIL / 1 SKIP** (`acceptance4`).
+- PASS: sesión, SDDM, skel, paquetes, `kwin.scripts` (5 scripts activos),
+  tema/acento, `panel.stock` (`hiding=autohide`), barra, notificaciones Nimbus,
+  DBus Spotlight/Apps/MissionControl, KCM, ydotool.
+- FAIL: `ydotool.input-group` — `usermod -aG input` se aplicó **después** de
+  iniciar esta sesión; requiere re-login. En la ISO final el alta ocurre antes
+  del primer login.
+- SKIP: `shortcuts.real` (sin `--with-shortcuts`).
+
+Evidencia: `F2-T08-acceptance-24pass.png` (tabla en la VM),
+`F2-T08-acceptance-24pass.json` y `.md` (subidos desde el guest por HTTP POST,
+porque 9p no propaga escrituras del guest al host).

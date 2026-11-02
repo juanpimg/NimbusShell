@@ -66,7 +66,13 @@ cat >"$BIN/qdbus6" <<'EOF'
 set -u
 state="${FAKE_STATE:?}"
 if [ "${1:-}" = "org.kde.plasmashell" ]; then
-  printf '%s\n' "${FAKE_PANEL_STATE:-false:1}"
+  last=""
+  for a in "$@"; do last="$a"; done
+  case "$last" in
+    *'print(panels().length);'*) printf '%s\n' "${FAKE_PANEL_COUNT:-1}" ;;
+    *'p.hiding'*) printf '%s\n' "${FAKE_PANEL_HIDING:-autohide}" ;;
+    *) printf '%s\n' "${FAKE_PANEL_STATE:-autohide}" ;;
+  esac
   exit 0
 fi
 if [ "${1:-}" = "org.freedesktop.Notifications" ]; then

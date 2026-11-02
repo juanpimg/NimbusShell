@@ -3,7 +3,7 @@
 # Sin host: fakes qdbus6/pgrep/systemctl en PATH, HOME temporal, sin root/red.
 # Cubre: start idempotente (sin instancia / con instancia), single-instance
 # por org.nimbus.Bar (fake qdbus6 que simula nombre tomado), hide-panel llama
-# a evaluateScript con `visibilityMode = 1` y exit 0 sin panel, unidad con
+# a evaluateScript con `hiding = "autohide"` y exit 0 sin panel, unidad con
 # Type=dbus/BusName/orden Plasma, y permisos en installed-setup.
 # Salta (exit 0) lo que necesite herramienta ausente; falla ante regresión.
 set -u
@@ -181,8 +181,9 @@ case "${QDBUS_MODE:-ok}" in
     exit 0 ;;
   *) # ok
     case "$*" in
+      *'p.hiding = "autohide"'*) echo 1 ;;
+      *'p.hiding'*) echo autohide ;;
       *'panels().length'*) echo 1 ;;
-      *'visibilityMode = 1'*) exit 0 ;;
       *evaluateScript*) exit 0 ;;
       *) exit 0 ;;
     esac
@@ -191,20 +192,20 @@ esac
 EOF
 chmod 755 "$H3/qdbus6"
 run_hide() { # run_hide <home> <mode>
-  HOME="$1" XDG_STATE_HOME="$1/.local/state" QDBUS_MODE="$2" \
-    QDBUS_CALLS="$1/calls" NIMBUS_HIDE_PANEL_DELAY=0.01 \
-    NIMBUS_HIDE_PANEL_ATTEMPTS=3 PATH="$H3:$FAKEDIR:$PATH" "$HIDE"
+  HOME="$1" XDG_CACHE_HOME="$1/.cache" XDG_STATE_HOME="$1/.local/state" QDBUS_MODE="$2" \
+    QDBUS_CALLS="$1/calls" NIMBUS_HIDE_PANEL_TIMEOUT=1 \
+    PATH="$H3:$FAKEDIR:$PATH" "$HIDE"
   echo "RC=$?"
 }
 : >"$T/calls"
 out="$(run_hide "$T" ok)"
 [ "${out##*RC=}" = "0" ] && pass "hide-panel ok rc 0" || fail "hide-panel ok rc ($out)"
-grep -q 'visibilityMode = 1' "$T/calls" \
-  && pass "hide-panel llama evaluateScript con visibilityMode = 1" \
+grep -q 'p.hiding = "autohide"' "$T/calls" \
+  && pass "hide-panel llama evaluateScript con hiding = autohide" \
   || fail "hide-panel llama evaluateScript ($(cat "$T/calls"))"
 out="$(run_hide "$T" nopanel)"
 [ "${out##*RC=}" = "0" ] && pass "hide-panel sin panel rc 0" || fail "hide-panel sin panel ($out)"
-grep -q "sin paneles" "$T/.local/state/nimbus/hide-panel.log" \
+grep -q "sin panel que ocultar" "$T/.cache/nimbus/hide-panel.log" \
   && pass "hide-panel sin panel lo loguea" || fail "hide-panel sin panel lo loguea"
 out="$(run_hide "$T" down)"
 [ "${out##*RC=}" = "0" ] && pass "hide-panel sin bus rc 0" || fail "hide-panel sin bus ($out)"
