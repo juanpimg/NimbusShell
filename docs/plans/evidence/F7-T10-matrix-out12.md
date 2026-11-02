@@ -66,3 +66,14 @@ Esta matriz **no cierra** F7-T10 (drag falla y falta multi-monitor), ni
 F3-T12 (faltan clics de todos los menús/multi-monitor), ni las tareas F5 de
 zoom/previews/launch (hacen falta métricas y 20 ciclos). Se usa como
 evidencia de avance, no como PASS global.
+
+### Corrección (2026-11-02 06:20)
+
+El supuesto bug del icono de Kate **no era tal**: el SVG
+`/usr/share/icons/breeze/apps/48/kate.svg` del ISO, renderizado con
+`rsvg-convert`, es el globo azul con el ave blanca que muestra Krema. La
+etiqueta «Kate» y la apertura de Kate eran correctas. Se elimina ese gap.
+
+El drag entre Spaces sigue **abierto**: se probaron `drag.target` y
+`Drag.active`/`Drag.hotSpot`; el `DropArea` no persiste el movimiento. No se
+declara PASS.
