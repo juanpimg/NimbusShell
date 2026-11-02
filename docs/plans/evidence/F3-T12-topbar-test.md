@@ -25,3 +25,16 @@ Evidencia: `F3-T12-topbar-out13.png`.
   (`matrix-out12/07..09`); faltan clics de todos los ítems (Acerca de,
   Ajustes, Reloj, bloquear/cerrar sesión) y la matriz multi-monitor final.
 - F3-T12 **no se marca**.
+
+## Fix de clic en menú N (2026-11-02 09:35)
+
+- Síntoma: los ítems del menú N cerraban el popup sin ejecutar la acción
+  (Acerca/Ajustes).
+- Causa: scrim fullscreen y popup compartían `LayerTop`; el scrim recibía el
+  clic y solo hacía `close()`.
+- Fix en `packages/shell/nimbus-bar/qml/Menu.qml`: popup en
+  `LayerShellQt.Window.LayerOverlay`.
+- Validado con binario recompilado en out13: **Acerca de Nimbus abre**
+  (`F3-T12-about-out13.png`); menú visible en `F3-T12-menu-n-out13.png`.
+- El fix no está en out13; debe entrar en la próxima ISO.
+- Ajustes/Reloj y matriz multi-monitor siguen pendientes; F3-T12 no se marca.

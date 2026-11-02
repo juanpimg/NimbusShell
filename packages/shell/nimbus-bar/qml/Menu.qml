@@ -79,7 +79,9 @@ Item {
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
         color: "transparent"
         title: "nimbus-menu"
-        LayerShellQt.Window.layer: LayerShellQt.Window.LayerTop
+        // popup por ENCIMA del scrim (Top); si ambos son Top, el scrim
+        // fullscreen puede recibir el clic y cerrar sin ejecutar la accion.
+        LayerShellQt.Window.layer: LayerShellQt.Window.LayerOverlay
         LayerShellQt.Window.exclusionZone: 0
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityNone
         LayerShellQt.Window.scope: "nimbus-menu"
