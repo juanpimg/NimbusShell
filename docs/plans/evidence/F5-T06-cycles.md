@@ -27,3 +27,16 @@ F5-T06 **no se marca** hasta completar minimize/restore.
   Añadido efectivo + copia en setup + `cmp` en build/CI. Tras desplegarlo y
   reiniciar `kglobalaccel`, Meta+M aún no se validó en esta sesión; requiere
   re-login. F5-T06 sigue abierto (minimize por botón/shortcut sin PASS).
+
+## KGlobalAccel y kglobalshortcutsrc (2026-11-02 08:57)
+
+Tras añadir `~/.config/kglobalshortcutsrc` efectivo y reiniciar sesión:
+
+- `qdbus6 org.kde.kglobalaccel /component/kwin \
+   org.kde.kglobalaccel.Component.invokeShortcut "Window Minimize"`
+  **minimiza Dolphin** (`F5-T06-minimized-kgaccel.png`).
+- Click en el icono del Dock **restaura y enfoca** Dolphin
+  (`F5-T06-restored-dock.png`).
+- El botón amarillo y la tecla Meta+M por VNC no se pudieron inyectar de
+  forma fiable; la **acción global** de minimizar sí funciona. F5-T06 sigue
+  abierto hasta validar el botón/tecla física y la animación genie.
