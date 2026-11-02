@@ -358,12 +358,31 @@ int main(int argc, char *argv[])
                 ls ? qUtf8Printable(ls->scope()) : "(none)");
         if (!ls || ls->scope() == QStringLiteral("nimbus-bar"))
             continue;
+        // F3-T04: sin anchors, KWin asigna al popup del menú toda el área
+        // disponible (1280x730) y su fondo oscuro tapa el escritorio. El
+        // menú se ancla arriba-izquierda con su tamaño QML (248x372).
+        if (ls->scope() == QStringLiteral("nimbus-menu")) {
+            ls->setAnchors({LayerShellQt::Window::AnchorTop,
+                            LayerShellQt::Window::AnchorLeft});
+            ls->setMargins(QMargins(8, 26, 0, 0));
+        }
         if (!glassScopes.isEmpty() && !glassScopes.contains(ls->scope()))
             continue;
         // Allowlist: de momento solo el CC está validado. Registrar blur en
         // otros popups ocultos (menú/calendario/tray/OSD) hacía que KWin 6.8
         // blureara el output completo; se validarán uno a uno con captura.
-        if (ls->scope() != QStringLiteral("nimbus-cc"))
+        // Allowlist de superficies de vidrio propias. Los scrims full-screen
+        // se descartan dentro de enableCompositorBlur (título/geometría).
+        static const QStringList kNimbusGlassScopes = {
+            QStringLiteral("nimbus-cc"),
+            QStringLiteral("nimbus-menu"),
+            QStringLiteral("nimbus-cal"),
+            QStringLiteral("nimbus-notifications"),
+            QStringLiteral("nimbus-osd"),
+            QStringLiteral("nimbus-tray-menu"),
+            QStringLiteral("nimbus-globalmenu"),
+        };
+        if (!kNimbusGlassScopes.contains(ls->scope()))
             continue;
         enableCompositorBlur(w);
     }

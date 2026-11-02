@@ -187,6 +187,15 @@ try {
         var k3 = findKate();
         if (k3) { k3.setMaximize(false, false); rep("NIMBUS restore-ok"); }
         else rep("NIMBUS restore-FAIL");
+    } else if (MODE == "windows") {
+        var all = workspace.windowList();
+        for (var wi = 0; wi < all.length; wi++) {
+            var ww = all[wi];
+            var g = ww.frameGeometry;
+            rep("NIMBUS win caption=" + ww.caption + " class=" + ww.resourceClass
+                + " type=" + ww.windowType + " layer=" + ww.layer
+                + " geom=" + g.x + "," + g.y + "," + g.width + "," + g.height);
+        }
     }
 } catch (err) { rep("NIMBUS " + MODE + "-ERR " + err); }
 EOF
@@ -213,10 +222,14 @@ echo "$BAR_PID" >> "$PIDFILE"
 sleep 4
 if kill -0 $BAR_PID 2>/dev/null; then echo "[bar] nimbus-bar VIVO pid=$BAR_PID" | tee -a "$LOG";
 else echo "[bar] ERROR: nimbus-bar muerto" | tee -a "$LOG"; fi
+echo "[bar] efectos KWin ACTIVOS tras abrir UI:" | tee -a "$LOG"
+qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.activeEffects >>"$LOG" 2>&1 || true
 
 echo "[bar] probe DESPUES de la barra (foco) ..." | tee -a "$LOG"
 run_probe "active"
 
+echo "[bar] probe ventanas KWin ..." | tee -a "$LOG"
+run_probe "windows"
 echo "[bar] captura CON barra (kate flotante) ..." | tee -a "$LOG"
 spectacle -b -n -o "$OUT_ABS/f3-bar-24.png" >>"$LOG" 2>&1 \
   && echo "[bar] f3-bar-24.png OK" | tee -a "$LOG" \

@@ -298,22 +298,17 @@
             <translation>Bluetooth</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="796" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="502" />
             <source>Enfoque</source>
             <translation>Focus</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="502" />
-            <source>No molestar</source>
-            <translation>Do Not Disturb</translation>
-        </message>
-        <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="831" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="790" />
             <source>Pantalla</source>
             <translation>Display</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="911" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="870" />
             <source>Sonido</source>
             <translation>Sound</translation>
         </message>
@@ -354,72 +349,72 @@
     <context>
         <name>BarMenu</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="103" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="232" />
             <source>Acerca de Nimbus</source>
             <translation>About Nimbus</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="118" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="250" />
             <source>Ajustes del sistema…</source>
             <translation>System Settings…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="143" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="280" />
             <source>Apagar…</source>
             <translation>Shut Down…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="108" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="238" />
             <source>Ayuda de Nimbus</source>
             <translation>Nimbus Help</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="128" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="262" />
             <source>Bloquear</source>
             <translation>Lock</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="133" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="268" />
             <source>Cerrar sesión</source>
             <translation>Log Out</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="123" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="256" />
             <source>Dormir</source>
             <translation>Sleep</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="230" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="388" />
             <source>No</source>
             <translation>No</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="138" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="274" />
             <source>Reiniciar…</source>
             <translation>Restart…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="113" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="244" />
             <source>Reloj</source>
             <translation>Clock</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="251" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="409" />
             <source>Sí</source>
             <translation>Yes</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="81" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="204" />
             <source>nimbus-menu</source>
             <translation>nimbus-menu</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="55" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="178" />
             <source>nimbus-menu-scrim</source>
             <translation>nimbus-menu-scrim</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="213" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="371" />
             <source>¿</source>
             <translation>¿</translation>
         </message>

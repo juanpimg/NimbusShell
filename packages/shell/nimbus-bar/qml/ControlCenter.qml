@@ -104,8 +104,8 @@ Item {
 
     // ── Geometría medida (F3-T05) ────────────────────────────────────────
     // Panel ~360 px; rejilla 2×166 con gap 12; sliders 344×64.
-    readonly property int panelW: 356
-    readonly property int contentW: 344
+    readonly property int panelW: 304
+    readonly property int contentW: 292
     readonly property int gap: 12
     readonly property int cellW: (contentW - gap) / 2
     readonly property int capsuleH: 64
@@ -469,12 +469,12 @@ Item {
                         }
                     }
 
-                    // No molestar / AirDrop
+                    // Enfoque (DND); macOS usa "Focus" en el CC.
                     GlassCapsule {
                         width: root.cellW
                         height: root.capsuleH
                         focusRing: dndArea.activeFocus
-                        objectName: "ccTile:No molestar"
+                        objectName: "ccTile:Enfoque"
                         Row {
                             anchors.fill: parent
                             anchors.leftMargin: 12
@@ -499,7 +499,7 @@ Item {
                                 width: parent.width - 44
                                 spacing: 1
                                 Text {
-                                    text: "No molestar"
+                                    text: "Enfoque"
                                     width: parent.width
                                     elide: Text.ElideRight
                                     font.family: NimbusTokens.fontFamily
@@ -539,17 +539,17 @@ Item {
                         objectName: "ccMedia"
                         Column {
                             anchors.fill: parent
-                            anchors.margins: 10
+                            anchors.margins: 8
                             spacing: 0
                             Item {
                                 width: parent.width
                                 height: 70
                                 Row {
                                     anchors.fill: parent
-                                    spacing: 8
+                                    spacing: 6
                                     Rectangle {
-                                        width: 40
-                                        height: 40
+                                        width: 32
+                                        height: 32
                                         radius: 8
                                         anchors.verticalCenter: parent.verticalCenter
                                         color: Qt.rgba(1, 1, 1, 0.12)
@@ -571,7 +571,7 @@ Item {
                                         }
                                     }
                                     Column {
-                                        width: parent.width - 48
+                                        width: parent.width - 38
                                         anchors.verticalCenter: parent.verticalCenter
                                         spacing: 1
                                         Text {
@@ -585,7 +585,7 @@ Item {
                                             objectName: "ccMediaTitle"
                                         }
                                         Text {
-                                            text: mpris.hasPlayer ? mpris.artist : "Sin reproducción"
+                                            text: mpris.hasPlayer ? mpris.artist : "Sin música"
                                             width: parent.width
                                             elide: Text.ElideRight
                                             font.family: NimbusTokens.fontFamily
@@ -698,27 +698,27 @@ Item {
 
                     Row {
                         width: root.cellW
-                        height: root.capsuleH
-                        spacing: 8
+                        height: 64
+                        spacing: 12
 
                         // Modo oscuro (botón circular)
                         GlassCapsule {
-                            width: 48
-                            height: 48
-                            cornerRadius: 24
+                            width: 64
+                            height: 64
+                            cornerRadius: 32
                             anchors.verticalCenter: parent.verticalCenter
                             focusRing: darkArea.activeFocus
                             objectName: "ccDark"
                             Rectangle {
                                 anchors.centerIn: parent
-                                width: 30
-                                height: 30
-                                radius: 15
+                                width: 38
+                                height: 38
+                                radius: 19
                                 color: root.darkOn ? root.badgeOn : root.badgeOff
                                 Glyph {
                                     anchors.centerIn: parent
-                                    width: 17
-                                    height: 17
+                                    width: 21
+                                    height: 21
                                     kind: "moon"
                                     stroke: root.darkOn ? root.accent : root.textMain
                                 }
@@ -735,9 +735,9 @@ Item {
 
                         // Batería (botón circular; pulsa para refrescar)
                         GlassCapsule {
-                            width: 48
-                            height: 48
-                            cornerRadius: 24
+                            width: 64
+                            height: 64
+                            cornerRadius: 32
                             anchors.verticalCenter: parent.verticalCenter
                             focusRing: battArea.activeFocus
                             objectName: "ccBatteryBtn"
@@ -745,8 +745,8 @@ Item {
                                 anchors.centerIn: parent
                                 spacing: 1
                                 Glyph {
-                                    width: 24
-                                    height: 13
+                                    width: 34
+                                    height: 18
                                     kind: "battery"
                                     level: root.battLevel
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -755,7 +755,7 @@ Item {
                                     text: root.batt === "" || root.batt === "—" ? "—" : root.batt
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: 9
+                                    font.pixelSize: 10
                                     color: root.textSub
                                 }
                             }
@@ -766,47 +766,6 @@ Item {
                                 activeFocusOnTab: true
                                 onClicked: root.refresh()
                                 Keys.onReturnPressed: root.refresh()
-                            }
-                        }
-
-                        // Enfoque / No molestar
-                        GlassCapsule {
-                            width: root.cellW - 48 * 2 - 16
-                            height: root.capsuleH
-                            focusRing: focusArea.activeFocus
-                            objectName: "ccFocus"
-                            Column {
-                                anchors.centerIn: parent
-                                spacing: 3
-                                Rectangle {
-                                    width: 26
-                                    height: 26
-                                    radius: 13
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    color: root.dndOn ? root.badgeOn : root.badgeOff
-                                    Glyph {
-                                        anchors.centerIn: parent
-                                        width: 15
-                                        height: 15
-                                        kind: "moon"
-                                        stroke: root.dndOn ? root.accent : root.textMain
-                                    }
-                                }
-                                Text {
-                                    text: "Enfoque"
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: 10
-                                    color: root.textMain
-                                }
-                            }
-                            MouseArea {
-                                id: focusArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                activeFocusOnTab: true
-                                onClicked: root.flip("dnd")
-                                Keys.onReturnPressed: root.flip("dnd")
                             }
                         }
                     }

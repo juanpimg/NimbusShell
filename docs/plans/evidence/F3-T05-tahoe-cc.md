@@ -5,12 +5,14 @@
 Rediseño completo de `ControlCenter.qml` como panel flotante de **cápsulas de
 vidrio independientes**, sin rectángulo opaco exterior:
 
-- Panel de 356 px (contenido 344) anclado arriba-derecha, 8 px bajo la barra.
-- Rejilla de 2 columnas de 166 px con gap 12.
-- Cápsulas de 166×64, radio 28; sliders de 344×96, radio 26.
-- Columna izquierda: Wi-Fi, Bluetooth, No molestar.
-- Columna derecha: módulo grande Ahora suena + batería, y fila de dos círculos
-  (modo oscuro, batería) + cápsula Enfoque.
+- Panel de 304 px (contenido 292, la medida ~292 pt de macOS) anclado
+  arriba-derecha, 8 px bajo la barra.
+- Rejilla de 2 columnas de 140 px con gap 12.
+- Cápsulas de 140×64, radio 28; sliders de 292×96, radio 26.
+- Columna izquierda: Wi-Fi, Bluetooth, Enfoque (DND; antes “No molestar”).
+- Columna derecha: módulo grande Ahora suena + batería, y fila de dos
+  círculos de 64 px (modo oscuro, batería). Se eliminó la cápsula “Enfoque”
+  duplicada que repetía el mismo DND.
 - Ancho completo: Pantalla y Sonido (etiqueta + slider).
 - Iconos dibujados con Canvas (Wi-Fi, Bluetooth, luna, batería, sol, altavoz,
   nota, play/pausa/prev/next). Sin letras ni activos Apple.
@@ -60,22 +62,30 @@ pide `requestUpdate()`.
 # visual con wallpaper Nimbus
 bash tests/vm/nested-bar.sh \
   --bin /tmp/barblur2/nimbus-bar \
-  --out spikes/cc-final --timeout 30 \
+  --out spikes/cc-292b --timeout 30 \
   --wallpaper packages/themes/nimbus-tahoe/wallpapers/sequoia-dark.jpg \
-  --socket nimbus-cc-final --bar-args "--open-cc"
+  --socket nimbus-cc-292b \
+  --kwinrc /tmp/opencode/glass-kwinrc-subtle \
+  --plugin-path /tmp/glass-prefix/lib/plugins \
+  --bar-args "--open-cc"
 
 # prueba de blur sobre damero de alto contraste
 bash tests/vm/nested-bar.sh \
   --bin /tmp/barblur2/nimbus-bar \
-  --out spikes/cc-blur-final --timeout 30 \
+  --out spikes/final-checker --timeout 30 \
   --wallpaper /tmp/opencode/checker-1280x800.png \
-  --socket nimbus-cc-blur-final --bar-args "--open-cc"
+  --socket nimbus-final-checker \
+  --kwinrc /tmp/opencode/glass-kwinrc-subtle \
+  --plugin-path /tmp/glass-prefix/lib/plugins \
+  --bar-args "--open-cc --demo-menu"
 ```
 
 - `F3-T05-tahoe-cc.png` / `-crop.png`: captura final con wallpaper.
 - `F3-T05-tahoe-cc-blur-checker.png` / `-crop.png`: damero + blur real.
-- Medición: panel en x=924..1268 (344 px de contenido), y=32..460; margen
-  derecho 12 px; solape con la ventana de Kate correcto (capa Top).
+- Medición: ventana 304×450 en x=976..1280, y=24..474; contenido 292 px
+  (x=976..1268), margen derecho 12 px; solape con Kate correcto (capa Top).
+- El media module usa artwork 32 px y textos “Ahora suena” / “Sin música”
+  para que no haya elisión a 292 px.
 - Estados reales en nested: Wi-Fi **Activado**, Bluetooth **Activado**,
   batería 79 %, sliders con pista/fill/knob visibles.
 - Log: `nimbus-bar: glass scope=nimbus-cc` y
@@ -83,10 +93,11 @@ bash tests/vm/nested-bar.sh \
 
 ## Límites (no cerrar F3-T05 todavía)
 
-- La fila “dos círculos + Enfoque” es una aproximación: Tahoe usa dos círculos
-  pequeños bajo el reproductor y una cápsula Focus ancha en la fila siguiente.
-  Falta Stage Manager / Screen Mirroring; el panel es más ancho que los 292 pt
-  de referencia.
+- Adaptación funcional: Tahoe pone AirDrop a la izquierda y Stage Manager /
+  Screen Mirroring bajo el reproductor, con Focus ancho en la fila siguiente.
+  Nimbus usa Enfoque (DND) a la izquierda y dos círculos funcionales
+  (modo oscuro, batería) bajo el reproductor; no hay controles de relleno.
+  Falta AirDrop/Stage Manager reales.
 - Sin refracción real (solo blur de fondo); sin Reduce Transparency.
 - `--demo-cc` no inyecta estados falsos (Wi-Fi/BT off); para la captura de
   estados “on” se usó `--open-cc` con las lecturas reales del host nested.

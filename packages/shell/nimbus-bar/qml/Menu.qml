@@ -43,6 +43,129 @@ Item {
         }
     }
 
+    // Iconos de línea del menú (Canvas; sin activos Apple ni fuentes de iconos).
+    component MenuGlyph: Canvas {
+        id: mg
+        property string kind: "info"
+        property color stroke: "#FFFFFF"
+        width: 13
+        height: 13
+        onKindChanged: requestPaint()
+        onStrokeChanged: requestPaint()
+        Component.onCompleted: requestPaint()
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            var w = width;
+            var h = height;
+            var cx = w / 2;
+            var cy = h / 2;
+            ctx.strokeStyle = mg.stroke;
+            ctx.fillStyle = mg.stroke;
+            ctx.lineWidth = 1.5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            if (kind === "logo") {
+                ctx.beginPath();
+                ctx.moveTo(w * 0.30, h * 0.82);
+                ctx.lineTo(w * 0.30, h * 0.18);
+                ctx.lineTo(w * 0.70, h * 0.82);
+                ctx.lineTo(w * 0.70, h * 0.18);
+                ctx.stroke();
+            } else if (kind === "info") {
+                ctx.beginPath();
+                ctx.arc(cx, cy, w * 0.38, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(cx, h * 0.34, 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(cx, h * 0.46);
+                ctx.lineTo(cx, h * 0.72);
+                ctx.stroke();
+            } else if (kind === "help") {
+                ctx.beginPath();
+                ctx.arc(cx, cy, w * 0.38, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(cx, h * 0.40, w * 0.15, Math.PI * 0.85, Math.PI * 2.15);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx, h * 0.55);
+                ctx.lineTo(cx, h * 0.62);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(cx, h * 0.74, 0.8, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (kind === "clock") {
+                ctx.beginPath();
+                ctx.arc(cx, cy, w * 0.38, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx, h * 0.30);
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(w * 0.66, h * 0.58);
+                ctx.stroke();
+            } else if (kind === "gear") {
+                ctx.beginPath();
+                ctx.arc(cx, cy, w * 0.30, 0, Math.PI * 2);
+                ctx.stroke();
+                for (var i = 0; i < 6; ++i) {
+                    var a = i * Math.PI / 3;
+                    ctx.beginPath();
+                    ctx.moveTo(cx + Math.cos(a) * w * 0.33, cy + Math.sin(a) * h * 0.33);
+                    ctx.lineTo(cx + Math.cos(a) * w * 0.44, cy + Math.sin(a) * h * 0.44);
+                    ctx.stroke();
+                }
+                ctx.beginPath();
+                ctx.arc(cx, cy, w * 0.08, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (kind === "moon") {
+                ctx.beginPath();
+                ctx.moveTo(w * 0.68, h * 0.20);
+                ctx.quadraticCurveTo(w * 0.22, h * 0.50, w * 0.68, h * 0.80);
+                ctx.quadraticCurveTo(w * 0.48, h * 0.50, w * 0.68, h * 0.20);
+                ctx.stroke();
+            } else if (kind === "lock") {
+                ctx.beginPath();
+                ctx.roundedRect(w * 0.24, h * 0.42, w * 0.52, h * 0.38, 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(cx, h * 0.42, w * 0.20, Math.PI, Math.PI * 2);
+                ctx.stroke();
+            } else if (kind === "logout") {
+                ctx.beginPath();
+                ctx.roundedRect(w * 0.20, h * 0.18, w * 0.38, h * 0.64, 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(w * 0.52, h * 0.50);
+                ctx.lineTo(w * 0.82, h * 0.50);
+                ctx.moveTo(w * 0.70, h * 0.38);
+                ctx.lineTo(w * 0.82, h * 0.50);
+                ctx.lineTo(w * 0.70, h * 0.62);
+                ctx.stroke();
+            } else if (kind === "restart") {
+                ctx.beginPath();
+                ctx.arc(cx, cy, w * 0.36, Math.PI * 0.35, Math.PI * 1.75);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(w * 0.74, h * 0.30);
+                ctx.lineTo(w * 0.84, h * 0.46);
+                ctx.lineTo(w * 0.66, h * 0.46);
+                ctx.stroke();
+            } else if (kind === "power") {
+                ctx.beginPath();
+                ctx.arc(cx, h * 0.55, w * 0.34, Math.PI * 0.75, Math.PI * 2.25);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(cx, h * 0.16);
+                ctx.lineTo(cx, h * 0.52);
+                ctx.stroke();
+            }
+        }
+    }
+
     Window {
         id: scrim
         visible: root.opened
@@ -73,7 +196,7 @@ Item {
         id: popup
         visible: root.opened
         width: 248
-        height: confirmBox.visible ? 412 : 372
+        height: menuColumn.implicitHeight + 12
         x: 8
         y: 26
         flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
@@ -89,10 +212,16 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: 10
-            color: NimbusTokens.popupBg(NimbusTokens.dark)
+            // F11-T02: alpha de vidrio; el 0.94 denso del token tapaba el
+            // blur/refracción de Glass. El texto sigue legible sobre el tinte.
+            color: {
+                var c = NimbusTokens.popupBg(NimbusTokens.dark);
+                return Qt.rgba(c.r, c.g, c.b, 0.64);
+            }
             border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             Column {
+                id: menuColumn
                 anchors.fill: parent
                 anchors.margins: 6
                 Repeater {
@@ -102,60 +231,62 @@ Item {
                         ListElement {
                             label: "Acerca de Nimbus"
                             cmd: "nimbus-about"
-                            glyph: "N"
+                            icon: "logo"
+                            group: 0
                         }
                         ListElement {
                             label: "Ayuda de Nimbus"
                             cmd: "nimbus-help"
-                            glyph: "?"
+                            icon: "help"
+                            group: 1
                         }
                         ListElement {
                             label: "Reloj"
                             cmd: "nimbus-clock"
-                            glyph: "◷"
+                            icon: "clock"
+                            group: 2
                         }
                         ListElement {
                             label: "Ajustes del sistema…"
                             cmd: "systemsettings kcm_nimbus"
-                            glyph: "S"
+                            icon: "gear"
+                            group: 3
                         }
                         ListElement {
                             label: "Dormir"
                             cmd: "systemctl suspend"
-                            glyph: "Z"
+                            icon: "moon"
+                            group: 4
                         }
                         ListElement {
                             label: "Bloquear"
                             cmd: "loginctl lock-session"
-                            glyph: "L"
+                            icon: "lock"
+                            group: 4
                         }
                         ListElement {
                             label: "Cerrar sesión"
                             cmd: "loginctl terminate-session"
-                            glyph: "C"
+                            icon: "logout"
+                            group: 4
                         }
                         ListElement {
                             label: "Reiniciar…"
                             cmd: "systemctl reboot"
-                            glyph: "R"
+                            icon: "restart"
+                            group: 5
                         }
                         ListElement {
                             label: "Apagar…"
                             cmd: "systemctl poweroff"
-                            glyph: "O"
+                            icon: "power"
+                            group: 5
                         }
                     }
-                    delegate: Rectangle {
+                    delegate: Item {
                         width: rows.parent.width
-                        height: 32
-                        radius: 6
-                        // F11-T03: hover = selected accent (macOS), pressed =
-                        // iluminación interna, foco = anillo 2px [HIG §2.5].
-                        property bool sel: rowHover.containsMouse
-                        color: rowHover.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : sel ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
-                        border.color: NimbusTokens.accentColor(NimbusTokens.dark)
-                        border.width: rowHover.activeFocus ? NimbusTokens.states.focusRingPx : 0
-                        objectName: "menuItem:" + label
+                        height: 28 + (separatorVisible ? 7 : 0)
+                        property bool separatorVisible: index > 0 && model.group !== actionModel.get(index - 1).group
                         function activateRow() {
                             if (model.label === "Reiniciar…" || model.label === "Apagar…")
                                 root.askConfirm(model.cmd, model.label);
@@ -164,29 +295,56 @@ Item {
                             else
                                 root.close();
                         }
-                        Row {
-                            anchors.fill: parent
-                            anchors.leftMargin: 8
-                            spacing: 10
+                        Rectangle {
+                            visible: parent.separatorVisible
+                            anchors.top: parent.top
+                            anchors.topMargin: 3
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            height: 1
+                            color: NimbusTokens.popupBorder(NimbusTokens.dark)
+                        }
+                        Rectangle {
+                            id: rowBg
+                            anchors.top: parent.top
+                            anchors.topMargin: parent.separatorVisible ? 7 : 0
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            height: 28
+                            radius: 6
+                            // F11-T03: hover = selected accent (macOS), pressed =
+                            // iluminación interna, foco = anillo 2px [HIG §2.5].
+                            property bool sel: rowHover.containsMouse
+                            color: rowHover.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : sel ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
+                            border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+                            border.width: rowHover.activeFocus ? NimbusTokens.states.focusRingPx : 0
+                            objectName: "menuItem:" + model.label
                             Rectangle {
-                                width: 20
-                                height: 20
-                                radius: 10
+                                width: 16
+                                height: 16
+                                radius: 8
+                                anchors.left: parent.left
+                                anchors.leftMargin: 6
                                 anchors.verticalCenter: parent.verticalCenter
-                                color: parent.parent.sel ? Qt.rgba(1, 1, 1, 0.25) : NimbusTokens.hoverFill(NimbusTokens.dark)
-                                Text {
+                                color: parent.sel ? Qt.rgba(1, 1, 1, 0.25) : NimbusTokens.hoverFill(NimbusTokens.dark)
+                                MenuGlyph {
                                     anchors.centerIn: parent
-                                    text: glyph
-                                    font.pixelSize: 11
-                                    font.weight: 700
-                                    color: parent.parent.parent.sel ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
+                                    width: 13
+                                    height: 13
+                                    kind: model.icon
+                                    stroke: parent.parent.sel ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                                 }
                             }
                             Text {
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                anchors.right: parent.right
+                                anchors.rightMargin: 8
                                 anchors.verticalCenter: parent.verticalCenter
-                                text: label
+                                text: model.label
+                                elide: Text.ElideRight
                                 font.pixelSize: 13
-                                color: parent.parent.sel ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
+                                color: parent.sel ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                             }
                         }
                         MouseArea {

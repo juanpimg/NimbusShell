@@ -241,7 +241,9 @@ QtObject {
         return isDark ? Qt.rgba(0, 0, 0, 0.55) : Qt.rgba(1, 1, 1, 0.55);
     }
     function popupBg(isDark) {
-        return isDark ? Qt.rgba(0.13, 0.13, 0.15, 0.94) : Qt.rgba(0.97, 0.97, 0.98, 0.92);
+        // F11-T02: superficie de vidrio; el alfa denso 0.94 tapaba el
+        // blur/refracción de Glass. 0.66 mantiene contraste sobre fondo rico.
+        return isDark ? Qt.rgba(0.13, 0.13, 0.15, 0.66) : Qt.rgba(0.97, 0.97, 0.98, 0.72);
     }
     function popupBorder(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(0, 0, 0, 0.1);
