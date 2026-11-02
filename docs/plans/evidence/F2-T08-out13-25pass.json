@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-02T06:00:32Z",
+  "hostname": "nimbusos",
+  "user": "nimbus",
+  "session": {
+    "type": "wayland",
+    "desktop": "KDE",
+    "wayland": true,
+    "plasma": true
+  },
+  "out": "/home/nimbus/aceptacion9",
+  "checks": [
+    {
+      "id": "session.wayland",
+      "status": "PASS",
+      "detail": "type=wayland WAYLAND_DISPLAY=wayland-1",
+      "artifacts": []
+    },
+    {
+      "id": "session.plasma",
+      "status": "PASS",
+      "detail": "XDG_CURRENT_DESKTOP=KDE plasmashell_pid=1042",
+      "artifacts": []
+    },
+    {
+      "id": "user.identity",
+      "status": "PASS",
+      "detail": "usuario=nimbus uid=1000 HOME=/home/nimbus",
+      "artifacts": []
+    },
+    {
+      "id": "host.hostname",
+      "status": "PASS",
+      "detail": "hostname=nimbusos",
+      "artifacts": []
+    },
+    {
+      "id": "sddm.enabled",
+      "status": "PASS",
+      "detail": "systemctl is-enabled sddm = enabled",
+      "artifacts": []
+    },
+    {
+      "id": "skel.plasma-env",
+      "status": "PASS",
+      "detail": "/home/nimbus/.config/plasma-workspace/env/nimbus-bar.sh (ejecutable)",
+      "artifacts": []
+    },
+    {
+      "id": "skel.autostart",
+      "status": "PASS",
+      "detail": "krema, hide-panel y theme-init presentes en /home/nimbus/.config/autostart",
+      "artifacts": []
+    },
+    {
+      "id": "skel.kwinrc",
+      "status": "PASS",
+      "detail": "/home/nimbus/.config/kwinrc",
+      "artifacts": []
+    },
+    {
+      "id": "skel.kdeglobals",
+      "status": "PASS",
+      "detail": "/home/nimbus/.config/kdeglobals",
+      "artifacts": []
+    },
+    {
+      "id": "skel.klassyrc",
+      "status": "PASS",
+      "detail": "/home/nimbus/.config/klassy/klassyrc",
+      "artifacts": []
+    },
+    {
+      "id": "skel.kremarc",
+      "status": "PASS",
+      "detail": "/home/nimbus/.config/kremarc",
+      "artifacts": []
+    },
+    {
+      "id": "packages.klassy-nimbus",
+      "status": "PASS",
+      "detail": "klassy-nimbus 6.7.3-1",
+      "artifacts": []
+    },
+    {
+      "id": "packages.krema",
+      "status": "PASS",
+      "detail": "krema 0.12.0-1",
+      "artifacts": []
+    },
+    {
+      "id": "kwin.scripts",
+      "status": "PASS",
+      "detail": "activos: nimbus-spotlight nimbus-apps-toggle nimbus-tabs nimbus-mc nimbus-zoom",
+      "artifacts": []
+    },
+    {
+      "id": "theme.scheme",
+      "status": "PASS",
+      "detail": "ColorScheme=NimbusTahoe",
+      "artifacts": []
+    },
+    {
+      "id": "theme.accent",
+      "status": "PASS",
+      "detail": "Colors:Window/DecorationFocus=10,132,255",
+      "artifacts": []
+    },
+    {
+      "id": "panel.stock",
+      "status": "PASS",
+      "detail": "paneles=1 hiding=autohide (fuera de vista/auto-hide)",
+      "artifacts": []
+    },
+    {
+      "id": "bar.process",
+      "status": "PASS",
+      "detail": "nimbus-bar vivo (pid 582,599)",
+      "artifacts": []
+    },
+    {
+      "id": "notifications.server",
+      "status": "PASS",
+      "detail": "Nimbus: Nimbus/NimbusOS/1.0/1.2",
+      "artifacts": []
+    },
+    {
+      "id": "dbus.spotlight",
+      "status": "PASS",
+      "detail": "Spotlight: activado por DBus (pid 1709)",
+      "artifacts": []
+    },
+    {
+      "id": "dbus.apps",
+      "status": "PASS",
+      "detail": "Apps: activado por DBus (pid 1740)",
+      "artifacts": []
+    },
+    {
+      "id": "dbus.missioncontrol",
+      "status": "PASS",
+      "detail": "Mission Control: activado por DBus (pid 1776)",
+      "artifacts": []
+    },
+    {
+      "id": "kcm.nimbus",
+      "status": "PASS",
+      "detail": "plugin + desktop + kpackage presentes",
+      "artifacts": []
+    },
+    {
+      "id": "ydotool.binary",
+      "status": "PASS",
+      "detail": "/usr/bin/ydotool",
+      "artifacts": []
+    },
+    {
+      "id": "ydotool.input-group",
+      "status": "PASS",
+      "detail": "grupos=nimbus network video storage optical input audio wheel",
+      "artifacts": []
+    },
+    {
+      "id": "shortcuts.real",
+      "status": "SKIP",
+      "detail": "no solicitado; usar --with-shortcuts (ydotool + spectacle, sin layout)",
+      "artifacts": []
+    }
+  ],
+  "summary": {
+    "PASS": 25,
+    "FAIL": 0,
+    "SKIP": 1
+  },
+  "verdict": "PASS"
+}
