@@ -136,7 +136,7 @@ echo "OK: skel estagiado ($(cd "$OUT/airootfs/etc/skel" && find . -type f | wc -
 mkdir -p "$OUT/airootfs/usr/local/bin"
 for s in nimbus-theme nimbus-privacy nimbus-flatpak-perms apply-theme \
          nimbus-updates nimbus-layout nimbus-a11y nimbus-bar-preset \
-         nimbus-keys; do
+         nimbus-keys nimbus-control; do
   cp -a "$REPO_ROOT/scripts/$s" "$OUT/airootfs/usr/local/bin/$s" || exit 1
   chmod 755 "$OUT/airootfs/usr/local/bin/$s" || exit 1
 done

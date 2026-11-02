@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# nimbus-control — deja el PC de pruebas controlable por SSH (test-only).
+# Uso: sudo nimbus-control [usuario]
+#   - instala/activa openssh y abre firewalld
+#   - añade la clave pública de control al usuario (por defecto SUDO_USER)
+#   - NOPASSWD en sudoers para ese usuario (máquina de pruebas)
+#   - autologin SDDM a Plasma para que la barra/CC estén vivos tras reiniciar
+#   - imprime la IP y el comando SSH
+# Idempotente. No toca otros usuarios ni claves ajenas.
+set -u
+
+KEY='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFlEPcjUA2vk/9vuY1D5sg5EDrkdiI7LGtiuRw41Y++u nimbus-control'
+
+die() { printf '[nimbus-control] ERROR: %s\n' "$*" >&2; exit 1; }
+log() { printf '[nimbus-control] %s\n' "$*"; }
+
+[ "$(id -u)" -eq 0 ] || die "ejecuta con sudo: sudo nimbus-control [usuario]"
+TARGET_USER="${1:-${SUDO_USER:-}}"
+[ -n "$TARGET_USER" ] || die "falta usuario: sudo nimbus-control <usuario>"
+[ "$TARGET_USER" != "root" ] || die "no configures root para SSH; usa tu usuario"
+id "$TARGET_USER" >/dev/null 2>&1 || die "el usuario '$TARGET_USER' no existe"
+TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+TARGET_GROUP="$(id -gn "$TARGET_USER")"
+[ -d "$TARGET_HOME" ] || die "home inexistente: $TARGET_HOME"
+
+# 1. OpenSSH (el ISO ya lo trae; si no, se instala).
+if ! command -v sshd >/dev/null 2>&1; then
+  log "instalando openssh"
+  pacman -S --needed --noconfirm openssh || die "no se pudo instalar openssh (¿sin red?)"
+fi
+systemctl enable --now sshd >/dev/null 2>&1 || die "no se pudo activar sshd"
+log "sshd activo"
+
+# 2. Firewall: permitir SSH si firewalld está presente.
+if command -v firewall-cmd >/dev/null 2>&1; then
+  firewall-cmd --permanent --add-service=ssh >/dev/null 2>&1 || true
+  firewall-cmd --reload >/dev/null 2>&1 || true
+  log "firewalld: servicio ssh permitido"
+fi
+
+# 3. Clave pública de control (idempotente).
+install -d -m 700 -o "$TARGET_USER" -g "$TARGET_GROUP" "$TARGET_HOME/.ssh" \
+  || die "no se pudo crear $TARGET_HOME/.ssh"
+touch "$TARGET_HOME/.ssh/authorized_keys" || die "no se pudo crear authorized_keys"
+chown "$TARGET_USER:$TARGET_GROUP" "$TARGET_HOME/.ssh/authorized_keys"
+chmod 600 "$TARGET_HOME/.ssh/authorized_keys"
+if ! grep -qF "$KEY" "$TARGET_HOME/.ssh/authorized_keys"; then
+  printf '%s\n' "$KEY" >>"$TARGET_HOME/.ssh/authorized_keys"
+  log "clave de control añadida a $TARGET_USER"
+else
+  log "clave de control ya presente"
+fi
+
+# 4. NOPASSWD para la máquina de pruebas (validado con visudo).
+SUDOERS="/etc/sudoers.d/10-nimbus-control"
+printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$TARGET_USER" >"$SUDOERS" \
+  || die "no se pudo escribir $SUDOERS"
+chmod 440 "$SUDOERS"
+if ! visudo -cf "$SUDOERS" >/dev/null 2>&1; then
+  rm -f "$SUDOERS"
+  die "sudoers inválido; se ha revertido $SUDOERS"
+fi
+log "sudo sin contraseña para $TARGET_USER (test-only)"
+
+# 5. Autologin SDDM a Plasma (la barra/CC necesitan sesión gráfica).
+SDDM_DIR="/etc/sddm.conf.d"
+mkdir -p "$SDDM_DIR"
+cat >"$SDDM_DIR/20-nimbus-control.conf" <<EOF
+[Autologin]
+User=$TARGET_USER
+Session=plasma.desktop
+Relogin=false
+EOF
+chmod 644 "$SDDM_DIR/20-nimbus-control.conf"
+log "autologin SDDM: $TARGET_USER / plasma.desktop"
+
+# 6. Datos para conectar desde el host.
+IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+printf '\n'
+log "PC listo. Desde el host:"
+printf '  ssh -i ~/.ssh/nimbus_control %s@%s\n' "$TARGET_USER" "${IP:-<IP>}"
+printf '  (usuario %s, IP %s; si cambia, mira el router o "ip -4 addr")\n' \
+  "$TARGET_USER" "${IP:-?}"

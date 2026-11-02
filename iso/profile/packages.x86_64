@@ -26,6 +26,9 @@ layer-shell-qt
 power-profiles-daemon
 powerdevil
 
+# --- control remoto del banco de pruebas ---
+openssh
+
 # --- runtime Nimbus (bar/apps/spotlight; F2-ISO) ---
 # layer-shell-qt y krunner (arriba) cubren el dock/bar y el backend KRunner
 # (KF6::Runner vive en el paquete `krunner`, sin paquete kf6-krunner aparte).
