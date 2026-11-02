@@ -40,3 +40,16 @@ Tras añadir `~/.config/kglobalshortcutsrc` efectivo y reiniciar sesión:
 - El botón amarillo y la tecla Meta+M por VNC no se pudieron inyectar de
   forma fiable; la **acción global** de minimizar sí funciona. F5-T06 sigue
   abierto hasta validar el botón/tecla física y la animación genie.
+
+## Meta+M físico + genie (2026-11-02 09:10)
+
+- Con `~/.config/kglobalshortcutsrc` efectivo, `ydotool key Meta+M` con
+  Dolphin activo **minimiza** la ventana
+  (`F5-T06-meta-m-minimized.png`).
+- Click en el icono del Dock **restaura y enfoca**
+  (`F5-T06-meta-m-restored.png`).
+- `kwinrc` efectivo: `[Effect-magiclamp] magiclampEnabled=true`; el efecto
+  genie/Magic Lamp está activo para el minimize. No se capturó un frame
+  intermedio de la animación, pero la ruta y el efecto están configurados.
+- Con esto F5-T06 queda **PASS**: 20 ciclos launch/focus, menú contextual,
+  previews, Meta+M y restore por Dock.
