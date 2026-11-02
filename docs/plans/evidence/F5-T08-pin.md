@@ -8,3 +8,13 @@
   sigue en el Dock (`F5-T08-persist-restart.png`).
 - Falta cerrar la app y confirmar que no queda icono, re-pin y reorder; por eso
   F5-T08 **no se marca**.
+
+## Cierre, re-pin y persistencia (2026-11-02 09:08)
+
+- Tras unpin + reinicio de Krema, Dolphin desaparece del Dock.
+- Se relanza Dolphin, clic derecho en el icono de app -> **Pin to Dock**
+  (`F5-T08-pin-menu.png`).
+- Se reinicia Krema y se cierra Dolphin con un one-shot KWin:
+  el icono **permanece** en el Dock (`F5-T08-pin-persist-closed.png`),
+  por lo que el pin persiste y no depende de que la app esté viva.
+- Falta drag-reorder, reset y comprobación del JSON; F5-T08 sigue abierto.
