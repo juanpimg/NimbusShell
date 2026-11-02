@@ -91,11 +91,27 @@ referencia y en implementaciones:
   refracción/lensing, dispersión, rim/specular y tinte adaptativo: se
   consiguen con Glass (efecto de compositor) o no se consiguen.
 
+## Resultado del spike de Glass (2026-11-02)
+
+- **Refracción real conseguida en nested**: `4v3ngR/kwin-effects-glass`
+  compila contra KWin 6.8.2 (`GLASS_KWIN_68`) y KWin lo carga
+  (`loadedEffects: glass`). Sobre damero, los bordes de las cápsulas del CC y
+  la barra curvan el fondo (Snell) además de blurearlo. Evidencia
+  `docs/plans/evidence/F11-T02-glass-spike.md` (`glass-vs-blur.png`,
+  `refraction-zoom.png`).
+- **Trampa de forma**: el rim/glow de Glass se aplica al **borde de la
+  ventana layer-shell**, no a cada cápsula QML. Con una ventana para todo el
+  CC sale un borde exterior blanco; se atenúa con
+  `RimSpecular/RimGlow/EdgeLighting=false`. Refracción por cápsula exigiría
+  una ventana por cápsula.
+- **Build**: ECM y Glass se instalan en prefijos `/tmp` (sin tocar `/usr`);
+  configuración en `[Effect-blurplus]`. GPL-3.0.
+- **Estado**: barra + CC con blur/refracción; menú/calendario/OSD/
+  notificaciones y Dock (Krema) pendientes.
+
 ## Siguiente paso
 
-Compilar `kwin-effects-glass` contra KWin 6.8 e instalarlo en un prefijo
-temporal para un spike nested (sin tocar el host): activar `glassEnabled`,
-desactivar `blurEnabled` y capturar barra/CC sobre el mismo damero. Si la
-refracción no es estable o rompe la barra, Ruling y fallback: blur stock +
-capas QML (sin llamarlo Liquid Glass). Después, portar a la ISO y medir fps en
-la VM instalada.
+Empaquetar Glass para la ISO (PKGBUILD/vendoring, licencia GPL y atribución),
+activar `glassEnabled`/desactivar blur stock por defecto, aplicarlo a menús,
+notificaciones y Dock, y validar en la VM instalada con fps y Reduce
+Transparency. Hasta entonces, este spike no cierra F11-T02.
