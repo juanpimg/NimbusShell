@@ -212,7 +212,7 @@ out="$(run_hide "$T" down)"
 
 # --- 4. unidad systemd de usuario ---
 echo "== autostart: nimbus-bar.service =="
-for key in 'Type=simple' \
+for key in 'Type=notify' 'NotifyAccess=all' 'TimeoutStartSec=12' \
            'PartOf=plasma-workspace.target' 'After=plasma-kwin_wayland.service' \
            'Before=plasma-plasmashell.service' 'WantedBy=plasma-workspace.target' \
            'ExecStart=/usr/local/bin/nimbus-bar-start' 'Restart=on-failure'; do
@@ -223,6 +223,12 @@ if grep -q '^Type=dbus' "$UNIT" || grep -q '^BusName=' "$UNIT"; then
 else
   pass "unidad: sin Type=dbus/BusName"
 fi
+grep -q 'systemd-notify --ready' "$START" \
+  && pass "wrapper: systemd-notify --ready tras adquirir FDO" \
+  || fail "wrapper: falta systemd-notify --ready"
+grep -q 'org.freedesktop.Notifications' "$START" \
+  && pass "wrapper: espera org.freedesktop.Notifications" \
+  || fail "wrapper: no espera org.freedesktop.Notifications"
 [ -f "$AIROOTFS/etc/skel/.config/autostart/nimbus-bar.desktop" ] \
   && pass "fallback autostart nimbus-bar.desktop" || fail "falta nimbus-bar.desktop"
 grep -q 'nimbus-bar-start' "$AIROOTFS/etc/skel/.config/autostart/nimbus-bar.desktop" \

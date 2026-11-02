@@ -130,3 +130,45 @@ Aceptación real repetida (misma VM, sesión `nimbus`):
 Evidencia: `F2-T08-acceptance-24pass.png` (tabla en la VM),
 `F2-T08-acceptance-24pass.json` y `.md` (subidos desde el guest por HTTP POST,
 porque 9p no propaga escrituras del guest al host).
+
+## E2E limpio out10 y cierre de gaps (2026-11-02 03:13)
+
+Instalación Calamares completa sobre disco/NVRAM nuevos (ISO out10,
+`cc08b2bd…`), primer boot UEFI, SDDM Nimbus y login `nimbus`.
+
+Aceptación inicial: **22 PASS / 3 FAIL / 1 SKIP**. Fallos y causa raíz:
+
+1. `theme.scheme`/`theme.accent`: KDE lee `~/.config/kdeglobals`, pero el
+   skel solo traía `~/.config/plasma/kdeglobals`. Además `~/.config` quedó
+   **root:root** porque `nimbus-installed-setup` corre como root y crea
+   directorios con `install -Dm644`; el usuario no podía escribir su tema.
+2. `notifications.server`: la barra registraba `org.freedesktop.Notifications`
+   después de que plasmashell arrancara (Type=simple no espera al nombre).
+3. `ydotool.input-group`: el `usermod` se aplicó después del login de la
+   sesión de prueba; en una instalación limpia ya estaba activo (PASS).
+
+Fixes verificados en la misma VM:
+
+- `dotfiles/.config/kdeglobals` (copia byte a byte de `plasma/kdeglobals`,
+  `cmp` en CI) + setup copia al path efectivo si falta + build-iso lo exige.
+- `nimbus-installed-setup` hace `chown -R $TARGET_USER:$TARGET_GROUP` de
+  `.config/.local/.cache/.icons` (nunca ficheros personales).
+- `nimbus-bar.service` pasa a `Type=notify` + `NotifyAccess=all`; el wrapper
+  lanza la barra, espera a que `busctl --user status
+  org.freedesktop.Notifications` tenga el PID de `nimbus-bar` y envía
+  `systemd-notify --ready`. Si el nombre está tomado, notifica igualmente
+  tras 5 s (sin bucle de Restart).
+- Evidencia real: `busctl --user status org.freedesktop.Notifications` ->
+  `Comm=nimbus-bar`, `UserUnit=nimbus-bar.service`; `notify-send` muestra el
+  banner Nimbus (`35-out10-fdo-nimbus-bar.png`).
+- Tema oscuro aplicado tras el chown (`ColorScheme=NimbusTahoe`).
+
+Aceptación final sobre el sistema instalado (con fixes desplegados):
+**25 PASS / 0 FAIL / 1 SKIP — VEREDICTO PASS**
+(`F2-T08-out10-25pass.png/.json/.md`). El SKIP es `shortcuts.real`, que exige
+`--with-shortcuts` + `ydotool`/`spectacle`.
+
+Pendiente para el cierre definitivo: reconstruir ISO con estos fixes
+(`out11`) y repetir el E2E limpio sin despliegue manual; el live actual
+arranca en consola root y no trae usuario gráfico (workaround documentado:
+crear `nimbus` y `systemctl start sddm`; gap de UX del live, no del target).

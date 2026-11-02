@@ -2,10 +2,12 @@
 # F3-T03: barra superior Nimbus. Arranca con la sesion Plasma, despues de
 # KWin y antes de plasmashell stock, para intentar poseer
 # org.freedesktop.Notifications antes que el panel stock.
-# Type=simple a proposito (review F3-T03): el registro del nombre FDO es
-# no fatal dentro de nimbus-bar, asi que no se depende de el para el estado
-# de la unidad (un Type=dbus + BusName entraria en bucle de Restart si el
-# nombre esta tomado, y retrasaria a plasmashell via Before=).
+# Type=notify (review F3, out10): el wrapper lanza la barra y envia
+# READY=1 solo cuando org.freedesktop.Notifications ya tiene como dueno el
+# PID de nimbus-bar. Con Type=simple/Before= plasmashell arrancaba antes de
+# que la barra registrara el nombre y el banner lo servia KDE. No se usa
+# Type=dbus: si el nombre esta tomado, entraria en bucle de Restart; aqui el
+# wrapper notifica READY igualmente tras 5 s y la barra sigue viva sin FDO.
 # Aviso (riesgo, KDE): al poseer el nombre, el applet/historial/DND de
 # plasmashell deja de funcionar; si el daemon muere nadie re-registra
 # (mitigado con Restart=on-failure). Escape: nimbus-bar-start
@@ -22,7 +24,9 @@ After=plasma-kwin_wayland.service
 Before=plasma-plasmashell.service
 
 [Service]
-Type=simple
+Type=notify
+NotifyAccess=all
+TimeoutStartSec=12
 ExecStart=/usr/local/bin/nimbus-bar-start
 Restart=on-failure
 RestartSec=2

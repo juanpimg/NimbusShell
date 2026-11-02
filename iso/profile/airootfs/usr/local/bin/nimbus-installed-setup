@@ -121,6 +121,24 @@ for base in /etc/skel "${TARGET_HOME:-/nonexistent}"; do
       || log "AVISO: no se pudo copiar kwinrc a $dst"
   fi
 done
+# 0b-ter. kdeglobals efectivo: KDE lee ~/.config/kdeglobals, NO
+# plasma/kdeglobals. Sin esta copia el ColorScheme NimbusTahoe no se aplica
+# (FAIL theme.scheme/theme.accent de la aceptación out10). Solo si falta.
+for base in /etc/skel "${TARGET_HOME:-/nonexistent}"; do
+  [ -d "$base" ] || continue
+  src="$base/.config/plasma/kdeglobals"
+  dst="$base/.config/kdeglobals"
+  [ -f "$src" ] || continue
+  if [ -e "$dst" ]; then
+    log "OK: kdeglobals efectivo ya presente: $dst"
+  elif [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: cp $src $dst"
+  else
+    install -Dm644 "$src" "$dst" \
+      && log "OK: kdeglobals efectivo copiado a $dst" \
+      || log "AVISO: no se pudo copiar kdeglobals a $dst"
+  fi
+done
 
 if command -v kwriteconfig6 >/dev/null 2>&1 && pacman -Q klassy-nimbus >/dev/null 2>&1; then
   for krc in /etc/skel/.config/kwinrc /etc/skel/.config/plasma/kwinrc \
@@ -366,6 +384,24 @@ done
 for f in /etc/locale.conf /etc/vconsole.conf /etc/locale.gen; do
   [ -f "$f" ] && log "OK: existe $f" || log "AVISO: falta $f (lo fijan los módulos locale/keyboard)"
 done
+
+# 7b. Propiedad del home: este script corre como root y los install -Dm644
+# crean .config/.local root:root; sin chown el usuario no puede guardar tema,
+# kwinrc, kdeglobals ni ajustes (bug real del E2E out10). Solo se tocan los
+# directorios de configuración, nunca ficheros personales del usuario.
+if [ -n "${TARGET_USER:-}" ] && [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" ]; then
+  target_group="$(id -gn "$TARGET_USER" 2>/dev/null || printf '%s' "$TARGET_USER")"
+  for d in "$TARGET_HOME/.config" "$TARGET_HOME/.local" "$TARGET_HOME/.cache" "$TARGET_HOME/.icons"; do
+    [ -d "$d" ] || continue
+    if [ "$CHECK" -eq 1 ]; then
+      log "HARÍA: chown -R $TARGET_USER:$target_group $d"
+    elif chown -R "$TARGET_USER:$target_group" "$d" 2>/dev/null; then
+      log "OK: propiedad $TARGET_USER:$target_group en $d"
+    else
+      log "AVISO: no se pudo chown $d"
+    fi
+  done
+fi
 
 # 8. Limpieza de cachés (solo sistema, nunca homes).
 if [ "$CHECK" -eq 1 ]; then

@@ -14,6 +14,8 @@ set -u
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 KWINRC="$REPO_ROOT/dotfiles/.config/kwinrc"
 KWINRC_PLASMA="$REPO_ROOT/dotfiles/.config/plasma/kwinrc"
+KDEGLOBALS="$REPO_ROOT/dotfiles/.config/kdeglobals"
+KDEGLOBALS_PLASMA="$REPO_ROOT/dotfiles/.config/plasma/kdeglobals"
 SETUP="$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-installed-setup"
 HIDE="$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-hide-panel"
 BUILD_ISO="$REPO_ROOT/iso/build-iso.sh"
@@ -47,12 +49,31 @@ if grep -q "KWin lee ~/.config/kwinrc" "$KWINRC" 2>/dev/null; then
 else
     fail "kwinrc efectivo sin cabecera 'KWin lee ~/.config/kwinrc'"
 fi
+if [ -f "$KDEGLOBALS" ] && [ -f "$KDEGLOBALS_PLASMA" ]; then
+    if cmp -s "$KDEGLOBALS" "$KDEGLOBALS_PLASMA"; then
+        pass "dotfiles/.config/kdeglobals == plasma/kdeglobals (cmp)"
+    else
+        fail "kdeglobals efectivo y plasma/kdeglobals divergen (cmp)"
+    fi
+else
+    fail "falta dotfiles/.config/kdeglobals o plasma/kdeglobals"
+fi
+if grep -qx 'ColorScheme=NimbusTahoe' "$KDEGLOBALS" 2>/dev/null; then
+    pass "kdeglobals efectivo: ColorScheme=NimbusTahoe"
+else
+    fail "kdeglobals efectivo sin ColorScheme=NimbusTahoe (tema no se aplica)"
+fi
 
 echo "== build-iso / skel =="
 if grep -q 'dotfiles/.config/kwinrc' "$BUILD_ISO"; then
     pass "build-iso exige dotfiles/.config/kwinrc"
 else
     fail "build-iso no exige dotfiles/.config/kwinrc"
+fi
+if grep -q 'dotfiles/.config/kdeglobals' "$BUILD_ISO"; then
+    pass "build-iso exige dotfiles/.config/kdeglobals"
+else
+    fail "build-iso no exige dotfiles/.config/kdeglobals"
 fi
 if grep -q 'cmp -s "$OUT/airootfs/etc/skel/.config/kwinrc"' "$BUILD_ISO"; then
     pass "build-iso verifica kwinrc efectivo en el staging (cmp)"
@@ -71,6 +92,11 @@ if grep -q 'dst="$base/.config/kwinrc"' "$SETUP" &&
     pass "setup copia plasma/kwinrc -> .config/kwinrc si falta"
 else
     fail "setup no copia el kwinrc efectivo"
+fi
+if grep -q 'dst="$base/.config/kdeglobals"' "$SETUP"; then
+    pass "setup copia plasma/kdeglobals -> .config/kdeglobals si falta"
+else
+    fail "setup no copia el kdeglobals efectivo"
 fi
 if grep -q 'for krc in /etc/skel/.config/kwinrc /etc/skel/.config/plasma/kwinrc' "$SETUP"; then
     pass "setup fija Klassy en kwinrc efectivo y plasma"

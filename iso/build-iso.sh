@@ -62,6 +62,7 @@ need "$CALAMARES/branding/nimbus/branding.desc" "branding Calamares"
 need "$CALAMARES/groups-nimbus.json" "grupos netinstall"
 need "$CALAMARES/modules/shellprocess-nimbus.conf" "módulo shellprocess-nimbus"
 need "$REPO_ROOT/dotfiles/.config/plasma/kdeglobals" "dotfiles plasma"
+need "$REPO_ROOT/dotfiles/.config/kdeglobals" "dotfiles kdeglobals efectivo (KDE lee ~/.config/kdeglobals)"
 need "$REPO_ROOT/dotfiles/.config/kwinrc" "dotfiles kwinrc efectivo (KWin lee ~/.config/kwinrc)"
 need "$REPO_ROOT/dotfiles/.config/autostart/nimbus-hide-panel.desktop" "autostart panel Nimbus"
 need "$REPO_ROOT/scripts/nimbus-theme" "script nimbus-theme"
@@ -241,6 +242,7 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/calamares/groups-nimbus.json" \
   "$OUT/airootfs/usr/share/nimbus/calamares/branding/nimbus/branding.desc" \
   "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
+  "$OUT/airootfs/etc/skel/.config/kdeglobals" \
   "$OUT/airootfs/etc/skel/.config/kwinrc" \
   "$OUT/airootfs/etc/skel/.config/autostart/nimbus-hide-panel.desktop" \
   "$OUT/airootfs/usr/local/bin/nimbus-theme" \
@@ -266,6 +268,9 @@ done
 # canónico plasma/kwinrc (evita el FAIL kwin.scripts de la aceptación).
 cmp -s "$OUT/airootfs/etc/skel/.config/kwinrc" "$OUT/airootfs/etc/skel/.config/plasma/kwinrc" \
   || { echo "ERROR: kwinrc efectivo y plasma/kwinrc divergen en staging" >&2; exit 1; }
+# KDE lee ~/.config/kdeglobals: debe ser idéntico al canónico plasma.
+cmp -s "$OUT/airootfs/etc/skel/.config/kdeglobals" "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
+  || { echo "ERROR: kdeglobals efectivo y plasma/kdeglobals divergen en staging" >&2; exit 1; }
 grep -q '^Exec=/usr/local/bin/nimbus-hide-panel' \
   "$OUT/airootfs/etc/skel/.config/autostart/nimbus-hide-panel.desktop" \
   || { echo "ERROR: autostart nimbus-hide-panel sin Exec correcto" >&2; exit 1; }

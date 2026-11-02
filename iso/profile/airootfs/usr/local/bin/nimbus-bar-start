@@ -61,6 +61,34 @@ if [ -n "${WAYLAND_DISPLAY:-}" ]; then
     fi
 fi
 
+if [ -n "${INVOCATION_ID:-}" ] && [ -n "${NOTIFY_SOCKET:-}" ]; then
+    # Type=notify (review F3): systemd no debe considerar arrancada la unit
+    # hasta que la barra posea org.freedesktop.Notifications; si no, gana
+    # plasmashell y el banner lo sirve KDE. Se notifica READY con el nombre
+    # ya adquirido (o tras 5 s, para no bloquear el login si está tomado).
+    log "systemd notify: lanzando $BIN y esperando org.freedesktop.Notifications"
+    "$BIN" "$@" >>"$LOG" 2>&1 &
+    bar_pid=$!
+    owner=""
+    tries=0
+    while [ "$tries" -lt 50 ]; do
+        owner="$(busctl --user status org.freedesktop.Notifications 2>/dev/null \
+            | awk -F= '/^PID=/{print $2; exit}')"
+        [ "${owner:-}" = "$bar_pid" ] && break
+        kill -0 "$bar_pid" 2>/dev/null || break
+        sleep 0.1
+        tries=$((tries + 1))
+    done
+    if [ "${owner:-}" = "$bar_pid" ]; then
+        log "org.freedesktop.Notifications propio (pid $bar_pid); READY"
+    else
+        log "AVISO: nombre FDO no propio tras 5 s (owner=${owner:-ninguno}); READY igualmente"
+    fi
+    systemd-notify --ready 2>/dev/null || true
+    wait "$bar_pid"
+    exit $?
+fi
+
 if [ -n "${INVOCATION_ID:-}" ]; then
     log "systemd (INVOCATION_ID=$INVOCATION_ID): exec en primer plano $BIN $*"
     exec "$BIN" "$@"
