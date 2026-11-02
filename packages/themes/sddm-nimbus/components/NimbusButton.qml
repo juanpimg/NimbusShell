@@ -16,7 +16,7 @@ Item {
     property int radius: 10
     property bool flat: false
 
-    signal clicked()
+    signal clicked
 
     implicitWidth: 280
     implicitHeight: 36
@@ -52,5 +52,4 @@ Item {
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()
     }
-
 }

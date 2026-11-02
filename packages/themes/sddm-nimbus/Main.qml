@@ -83,7 +83,6 @@ Rectangle {
                     font.family: NimbusTokens.fontFamily
                     font.pixelSize: 28
                 }
-
             }
 
             Text {
@@ -114,13 +113,14 @@ Rectangle {
                 Component.onCompleted: {
                     // UserModel (SDDM 0.21): NameRole=UserRole+1, RealNameRole=+2.
                     var arr = [];
-                    for (var i = 0; i < userModel.count; i++) arr.push({
-                        "name": userModel.data(userModel.index(i, 0), Qt.UserRole + 1),
-                        "realName": userModel.data(userModel.index(i, 0), Qt.UserRole + 2)
-                    })
+                    for (var i = 0; i < userModel.count; i++)
+                        arr.push({
+                            "name": userModel.data(userModel.index(i, 0), Qt.UserRole + 1),
+                            "realName": userModel.data(userModel.index(i, 0), Qt.UserRole + 2)
+                        });
                     users = arr;
                 }
-                onUserSelected: function(i) {
+                onUserSelected: function (i) {
                     userModel.lastIndex = i;
                 }
             }
@@ -186,12 +186,11 @@ Rectangle {
                     anchors.fill: parent
                     acceptedButtons: Qt.NoButton
                     cursorShape: Qt.IBeamCursor
-                    onPressed: function(mouse) {
+                    onPressed: function (mouse) {
                         mouse.accepted = false;
                         pwInput.forceActiveFocus();
                     }
                 }
-
             }
 
             Text {
@@ -227,25 +226,24 @@ Rectangle {
                 textColor: NimbusTokens.colors(true).label
                 Component.onCompleted: {
                     var s = [];
-                    for (var i = 0; i < sessionModel.count; i++) s.push({
-                        "name": sessionModel.data(sessionModel.index(i, 0), Qt.UserRole + 4)
-                    })
+                    for (var i = 0; i < sessionModel.count; i++)
+                        s.push({
+                            "name": sessionModel.data(sessionModel.index(i, 0), Qt.UserRole + 4)
+                        });
                     sessions = s;
                     sessionIndex = sessionModel.lastIndex;
                 }
-                onSessionSelected: function(i) {
+                onSessionSelected: function (i) {
                     sessionModel.lastIndex = i;
                 }
-                onPowerRequested: function(action) {
+                onPowerRequested: function (action) {
                     if (action === "reboot")
                         sddm.reboot();
                     else
                         sddm.powerOff();
                 }
             }
-
         }
-
     }
 
     Connections {
@@ -261,5 +259,4 @@ Rectangle {
 
         target: sddm
     }
-
 }

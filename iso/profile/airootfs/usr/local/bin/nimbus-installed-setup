@@ -173,9 +173,9 @@ else
 fi
 
 # 2. SDDM: Current=nimbus.
-# Tema del greeter: Breeze hasta que el tema Nimbus quede validado en VM
-# (el tema Nimbus daba pantalla negra en SDDM Wayland; bug abierto F2-T02).
-SDDM_THEME="breeze"
+# Tema del greeter: Nimbus validado en VM con sddm-greeter-qt6 --test-mode
+# (QtVersion=6 + sin QtQuick.Controls; F2-T02).
+SDDM_THEME="nimbus"
 SDDM_CONF="/etc/sddm.conf.d/10-nimbus.conf"
 if [ -f "$SDDM_CONF" ] && grep -q '^\s*Current=nimbus' "$SDDM_CONF" 2>/dev/null; then
   log "OK: SDDM Current=nimbus (ya estaba)"

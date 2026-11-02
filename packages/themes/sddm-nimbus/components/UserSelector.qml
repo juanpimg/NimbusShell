@@ -50,7 +50,6 @@ ColumnLayout {
                         font.family: root.fontFamily
                         font.pixelSize: 15
                     }
-
                 }
 
                 Text {
@@ -61,7 +60,6 @@ ColumnLayout {
                     font.pixelSize: 15
                     elide: Text.ElideRight
                 }
-
             }
 
             MouseArea {
@@ -74,9 +72,6 @@ ColumnLayout {
                     root.userSelected(index);
                 }
             }
-
         }
-
     }
-
 }

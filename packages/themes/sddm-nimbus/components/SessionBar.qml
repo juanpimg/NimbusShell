@@ -57,7 +57,6 @@ ColumnLayout {
                     }
                 }
             }
-
         }
 
         // Selector de teclado (clic = siguiente; oculto si no hay layouts).
@@ -88,12 +87,9 @@ ColumnLayout {
                 onClicked: {
                     if (root.keyboards.length > 1)
                         root.keyboardIndex = (root.keyboardIndex + 1) % root.keyboards.length;
-
                 }
             }
-
         }
-
     }
 
     RowLayout {
@@ -119,7 +115,5 @@ ColumnLayout {
             implicitHeight: 30
             onClicked: root.powerRequested("poweroff")
         }
-
     }
-
 }
