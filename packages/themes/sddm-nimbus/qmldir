@@ -3,3 +3,4 @@ singleton NimbusTokens 1.0 NimbusTokens.qml
 LoginClock 1.0 components/LoginClock.qml
 UserSelector 1.0 components/UserSelector.qml
 SessionBar 1.0 components/SessionBar.qml
+NimbusButton 1.0 components/NimbusButton.qml

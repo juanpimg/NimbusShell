@@ -1,17 +1,15 @@
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 
 // LoginClock — reloj + fecha del login (F2-T02). Sin dependencias SDDM.
 Item {
     id: root
+
     property bool clock24h: true
     property string textColor: "#FFFFFF"
     property string subColor: "#EBEBF5"
     property real subAlpha: 0.6
     property string fontFamily: "Inter"
-    implicitWidth: clockLabel.implicitWidth
-    implicitHeight: layout.implicitHeight
 
     function tick() {
         var d = new Date();
@@ -22,6 +20,7 @@ Item {
             h = h % 12;
             if (h === 0)
                 h = 12;
+
             clockLabel.text = h + ":" + ("0" + m).slice(-2) + ap;
         } else {
             clockLabel.text = ("0" + h).slice(-2) + ":" + ("0" + m).slice(-2);
@@ -31,26 +30,35 @@ Item {
         dateLabel.text = days[d.getDay()] + ", " + d.getDate() + " de " + months[d.getMonth()];
     }
 
+    implicitWidth: clockLabel.implicitWidth
+    implicitHeight: layout.implicitHeight
+
     ColumnLayout {
         id: layout
+
         anchors.centerIn: parent
         spacing: 4
+
         Text {
             id: clockLabel
+
             Layout.alignment: Qt.AlignHCenter
             color: root.textColor
             font.family: root.fontFamily
             font.pixelSize: 76
             font.weight: Font.DemiBold
         }
+
         Text {
             id: dateLabel
+
             Layout.alignment: Qt.AlignHCenter
             color: root.subColor
             opacity: root.subAlpha
             font.family: root.fontFamily
             font.pixelSize: 17
         }
+
     }
 
     Timer {
@@ -60,4 +68,5 @@ Item {
         triggeredOnStart: true
         onTriggered: root.tick()
     }
+
 }

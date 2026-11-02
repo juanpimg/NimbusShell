@@ -1,58 +1,125 @@
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 
-// SessionBar — selector de sesión + teclado/idioma + apagar/reiniciar (F2-T02).
+// SessionBar — selector de sesión + teclado + apagar/reiniciar (F2-T02).
 // `sessions`/`keyboards` inyectables para preview; en SDDM real vienen de
-// sessionModel / keyboard layouts del daemon.
-RowLayout {
+// sessionModel / layouts del daemon.
+// Sin QtQuick.Controls: los ComboBox se sustituyen por selectores cíclicos
+// (clic = siguiente opción) y los botones por NimbusButton. El `ComboBox`/
+// `Button` de Controls rompía la carga en el greeter real.
+ColumnLayout {
     id: root
+
     property var sessions: []
     property var keyboards: []
     property int sessionIndex: 0
     property int keyboardIndex: 0
     property string textColor: "#FFFFFF"
     property string fontFamily: "Inter"
+
     signal sessionSelected(int index)
     signal powerRequested(string action)
+
     spacing: 8
 
-    ComboBox {
-        id: sessionBox
-        Layout.preferredWidth: 180
-        model: root.sessions
-        textRole: "name"
-        currentIndex: root.sessionIndex
-        font.family: root.fontFamily
-        font.pixelSize: 13
-        onActivated: function (i) {
-            root.sessionIndex = i;
-            root.sessionSelected(i);
+    RowLayout {
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 8
+
+        // Selector de sesión (clic = siguiente).
+        Rectangle {
+            Layout.preferredWidth: 168
+            Layout.preferredHeight: 32
+            radius: 8
+            color: "#1C1C1E"
+            opacity: 0.9
+            border.color: "#38383A"
+            border.width: 1
+
+            Text {
+                anchors.centerIn: parent
+                width: parent.width - 16
+                text: root.sessions.length > 0 ? (root.sessions[Math.min(root.sessionIndex, root.sessions.length - 1)].name || "") : ""
+                color: "white"
+                font.family: root.fontFamily
+                font.pixelSize: 13
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    if (root.sessions.length > 1) {
+                        root.sessionIndex = (root.sessionIndex + 1) % root.sessions.length;
+                        root.sessionSelected(root.sessionIndex);
+                    }
+                }
+            }
+
         }
-    }
-    ComboBox {
-        id: kbBox
-        Layout.preferredWidth: 110
-        model: root.keyboards
-        currentIndex: root.keyboardIndex
-        font.family: root.fontFamily
-        font.pixelSize: 13
-        onActivated: function (i) {
-            root.keyboardIndex = i;
+
+        // Selector de teclado (clic = siguiente; oculto si no hay layouts).
+        Rectangle {
+            Layout.preferredWidth: 104
+            Layout.preferredHeight: 32
+            visible: root.keyboards.length > 0
+            radius: 8
+            color: "#1C1C1E"
+            opacity: 0.9
+            border.color: "#38383A"
+            border.width: 1
+
+            Text {
+                anchors.centerIn: parent
+                width: parent.width - 16
+                text: root.keyboards.length > 0 ? String(root.keyboards[Math.min(root.keyboardIndex, root.keyboards.length - 1)]) : ""
+                color: "white"
+                font.family: root.fontFamily
+                font.pixelSize: 13
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    if (root.keyboards.length > 1)
+                        root.keyboardIndex = (root.keyboardIndex + 1) % root.keyboards.length;
+
+                }
+            }
+
         }
+
     }
-    Button {
-        text: "Reiniciar"
-        font.family: root.fontFamily
-        font.pixelSize: 13
-        flat: true
-        onClicked: root.powerRequested("reboot")
+
+    RowLayout {
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 8
+
+        NimbusButton {
+            text: "Reiniciar"
+            fontFamily: root.fontFamily
+            fontSize: 13
+            flat: true
+            implicitWidth: 90
+            implicitHeight: 30
+            onClicked: root.powerRequested("reboot")
+        }
+
+        NimbusButton {
+            text: "Apagar"
+            fontFamily: root.fontFamily
+            fontSize: 13
+            flat: true
+            implicitWidth: 90
+            implicitHeight: 30
+            onClicked: root.powerRequested("poweroff")
+        }
+
     }
-    Button {
-        text: "Apagar"
-        font.family: root.fontFamily
-        font.pixelSize: 13
-        flat: true
-        onClicked: root.powerRequested("poweroff")
-    }
+
 }
