@@ -58,7 +58,6 @@ Item {
             font.family: root.fontFamily
             font.pixelSize: 17
         }
-
     }
 
     Timer {
@@ -68,5 +67,4 @@ Item {
         triggeredOnStart: true
         onTriggered: root.tick()
     }
-
 }
