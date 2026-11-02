@@ -13,6 +13,7 @@ AIROOTFS="$REPO_ROOT/iso/profile/airootfs"
 START="$AIROOTFS/usr/local/bin/nimbus-bar-start"
 HIDE="$AIROOTFS/usr/local/bin/nimbus-hide-panel"
 UNIT="$AIROOTFS/etc/skel/.config/systemd/user/nimbus-bar.service"
+YDO_UNIT="$AIROOTFS/etc/skel/.config/systemd/user/ydotoold.service"
 SETUP="$AIROOTFS/usr/local/bin/nimbus-installed-setup"
 FAILS=0
 
@@ -229,6 +230,13 @@ grep -q 'systemd-notify --ready' "$START" \
 grep -q 'org.freedesktop.Notifications' "$START" \
   && pass "wrapper: espera org.freedesktop.Notifications" \
   || fail "wrapper: no espera org.freedesktop.Notifications"
+if [ -f "$YDO_UNIT" ] \
+   && grep -qF 'ExecStart=/usr/bin/ydotoold --socket-path=%t/.ydotool_socket' "$YDO_UNIT" \
+   && grep -qF 'WantedBy=plasma-workspace.target' "$YDO_UNIT"; then
+  pass "ydotoold: unidad de usuario con socket en %t"
+else
+  fail "ydotoold: falta unidad/socket de usuario"
+fi
 [ -f "$AIROOTFS/etc/skel/.config/autostart/nimbus-bar.desktop" ] \
   && pass "fallback autostart nimbus-bar.desktop" || fail "falta nimbus-bar.desktop"
 grep -q 'nimbus-bar-start' "$AIROOTFS/etc/skel/.config/autostart/nimbus-bar.desktop" \
@@ -253,6 +261,12 @@ else
 fi
 grep -q 'nimbus-bar.desktop' "$SETUP" && pass "setup asegura 755 autostart" \
   || fail "setup: 755 autostart"
+if grep -q 'ydotoold.service' "$SETUP" &&
+   grep -q 'ydotoold.service.*plasma-workspace.target.wants\|plasma-workspace.target.wants/ydotoold.service' "$SETUP"; then
+  pass "setup habilita ydotoold.service en plasma-workspace"
+else
+  fail "setup no habilita ydotoold.service"
+fi
 
 # --- 6. qmllint de la barra (sin regresión QML) ---
 echo "== autostart: qmllint =="

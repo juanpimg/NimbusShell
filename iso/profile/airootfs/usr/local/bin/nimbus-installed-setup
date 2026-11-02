@@ -307,6 +307,25 @@ if [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" ]; then
   fi
 fi
 
+# 4c-bis. ydotoold (F6-T06): servicio de USUARIO para que el socket sea del
+# usuario y ydotool pueda inyectar atajos sin sudo. Sin esta unidad el
+# cliente falla con "Permission denied" en /run/user/UID/.ydotool_socket.
+YDO_UNIT_SRC="/etc/skel/.config/systemd/user/ydotoold.service"
+if [ -n "${TARGET_HOME:-}" ] && [ -d "$TARGET_HOME" ]; then
+  if [ "$CHECK" -eq 1 ]; then
+    log "HARÍA: habilitar ydotoold.service en $TARGET_HOME/.config/systemd/user"
+  elif [ -f "$YDO_UNIT_SRC" ]; then
+    udir="$TARGET_HOME/.config/systemd/user"
+    mkdir -p "$udir/plasma-workspace.target.wants"
+    install -Dm644 "$YDO_UNIT_SRC" "$udir/ydotoold.service" || fail=1
+    ln -sfn ../ydotoold.service "$udir/plasma-workspace.target.wants/ydotoold.service" || fail=1
+    chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/systemd" 2>/dev/null || true
+    log "OK: ydotoold.service habilitado (plasma-workspace.target.wants)"
+  else
+    log "AVISO: falta $YDO_UNIT_SRC; ydotoold.service no habilitado"
+  fi
+fi
+
 # Permisos de arranque: el autostart de la barra debe ser ejecutable por la
 # sesión (755), en skel y en el home destino. El env script nimbus-bar.sh ya
 # no lanza nada (solo comentarios de variables): queda 644.

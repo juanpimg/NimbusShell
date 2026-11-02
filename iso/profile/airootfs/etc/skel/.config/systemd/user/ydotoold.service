@@ -1,0 +1,18 @@
+[Unit]
+# F6-T06/F3-T12: ydotoold permite inyectar atajos (Spotlight, Mission
+# Control, Apps) sin root. Va como servicio de USUARIO: el socket queda en
+# %t (XDG_RUNTIME_DIR) y es del usuario, no root:root (lección out11).
+# Necesita /dev/uinput, accesible por el grupo input.
+Description=ydotoold (uinput para atajos Nimbus)
+Documentation=man:ydotoold(1)
+PartOf=plasma-workspace.target
+After=plasma-kwin_wayland.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ydotoold --socket-path=%t/.ydotool_socket --socket-perm=0600
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=plasma-workspace.target

@@ -56,6 +56,7 @@ need "$PROFILE/airootfs/usr/local/bin/nimbus-installed-setup" "nimbus-installed-
 need "$PROFILE/airootfs/usr/local/bin/nimbus-bar-start" "nimbus-bar-start"
 need "$PROFILE/airootfs/usr/local/bin/nimbus-hide-panel" "nimbus-hide-panel"
 need "$PROFILE/airootfs/etc/skel/.config/systemd/user/nimbus-bar.service" "unidad nimbus-bar"
+need "$PROFILE/airootfs/etc/skel/.config/systemd/user/ydotoold.service" "unidad ydotoold"
 need "$PROFILE/airootfs/etc/skel/.config/autostart/nimbus-bar.desktop" "autostart nimbus-bar"
 need "$CALAMARES/settings.conf" "settings Calamares"
 need "$CALAMARES/branding/nimbus/branding.desc" "branding Calamares"
@@ -237,6 +238,7 @@ for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" \
   "$OUT/airootfs/usr/local/bin/nimbus-bar-start" \
   "$OUT/airootfs/etc/skel/.config/systemd/user/nimbus-bar.service" \
+  "$OUT/airootfs/etc/skel/.config/systemd/user/ydotoold.service" \
   "$OUT/airootfs/etc/skel/.config/autostart/nimbus-bar.desktop" \
   "$OUT/airootfs/usr/share/nimbus/calamares/settings.conf" \
   "$OUT/airootfs/usr/share/nimbus/calamares/groups-nimbus.json" \
