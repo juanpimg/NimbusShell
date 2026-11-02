@@ -19,6 +19,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QStandardPaths>
 #include <QTemporaryFile>
 #include <QTimer>
 #include <poll.h>
@@ -185,7 +186,7 @@ void KWinBackend::requestWindowsViaScript()
         "for (var k = 0; k < wds.length; k++)\n"
         "  ds.push({id: String(wds[k].id), name: String(wds[k].name || ('Desktop ' + (k+1))), index: k+1});\n"
         "var cur = ''; try { cur = String(workspace.currentDesktop.id); } catch (e) {}\n"
-        "var wins = workspace.windowList();\n"
+        "var wins = workspace.stackingOrder;\n"
         "var out = [];\n"
         "for (var i = 0; i < wins.length; i++) {\n"
         "  var w = wins[i];\n"
@@ -210,7 +211,16 @@ void KWinBackend::requestWindowsViaScript()
 
 void KWinBackend::runOneshotScript(const QString &js, const QString &tag)
 {
-    QString path = QStringLiteral("/tmp/opencode/%1.js").arg(tag);
+    // RuntimeLocation (/run/user/UID) o tmp; NO /tmp/opencode (no existe en
+    // un sistema instalado: el fallo silencioso dejaba MC sin refresh ni
+    // activación; reproducido en out12). mkpath garantiza el directorio.
+    QString dir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+    if (dir.isEmpty())
+        dir = QDir::tempPath();
+    dir += QStringLiteral("/nimbus-mc");
+    if (!QDir().mkpath(dir))
+        return;
+    QString path = QStringLiteral("%1/%2.js").arg(dir, tag);
     QFile f(path);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
         return;
@@ -222,8 +232,21 @@ void KWinBackend::runOneshotScript(const QString &js, const QString &tag)
                              QDBusConnection::sessionBus());
     if (!scripting.isValid())
         return;
-    scripting.call(QStringLiteral("loadScript"), scriptingPath(path), tag);
-    scripting.call(QStringLiteral("start"));
+    // loadScript devuelve el id; Script<id>.run evalúa SOLO ese script y la
+    // llamada DBus espera al resultado. `start()` re-ejecuta todos los
+    // scripts cargados (incluidos one-shots viejos) y causaba activaciones
+    // perdidas (F7-T10, VM out12).
+    const QDBusReply<int> loaded = scripting.call(
+        QStringLiteral("loadScript"), scriptingPath(path), tag);
+    if (!loaded.isValid() || loaded.value() < 0)
+        return;
+    QDBusInterface script(
+        QStringLiteral("org.kde.KWin"),
+        QStringLiteral("/Scripting/Script%1").arg(loaded.value()),
+        QStringLiteral("org.kde.kwin.Script"),
+        QDBusConnection::sessionBus());
+    if (script.isValid())
+        script.call(QStringLiteral("run"));
     QTimer::singleShot(1200, this, [tag]() {
         QDBusInterface sc(QStringLiteral("org.kde.KWin"),
                           QStringLiteral("/Scripting"),
@@ -318,11 +341,9 @@ void KWinBackend::activateWindow(const QString &winId)
     // Activa ventana (y su escritorio) vía one-shot.
     const QString js = QStringLiteral(
         "var target = '%1';\n"
-        "var wins = workspace.windowList();\n"
+        "var wins = workspace.stackingOrder;\n"
         "for (var i = 0; i < wins.length; i++) {\n"
         "  if (String(wins[i].internalId) === target) {\n"
-        "    var ds = wins[i].desktops;\n"
-        "    if (ds && ds.length > 0) workspace.currentDesktop = ds[0];\n"
         "    wins[i].minimized = false;\n"
         "    workspace.activeWindow = wins[i];\n"
         "    break;\n"
@@ -348,7 +369,7 @@ void KWinBackend::moveWindowToDesktop(const QString &winId, const QString &deskI
 {
     const QString js = QStringLiteral(
         "var target = '%1', desk = '%2';\n"
-        "var wins = workspace.windowList();\n"
+        "var wins = workspace.stackingOrder;\n"
         "var ds = workspace.desktops;\n"
         "var dd = null;\n"
         "for (var i = 0; i < ds.length; i++) {\n"

@@ -128,6 +128,14 @@ ApplicationWindow {
         onClicked: root.visible = false
     }
 
+    // F7-T10: ocultar el overlay ANTES de activar. Si se activa primero,
+    // KWin devuelve el foco a la ventana anterior al desmapear el overlay y
+    // la activación se pierde (reproducido en out12). Script.run es síncrono.
+    function activateAndClose(winId) {
+        root.visible = false;
+        backend.activateWindow(winId);
+    }
+
     // Teclado vía Shortcut (Keys no se adjunta a Window, solo a Item).
     // F7-T10: la lógica vive en ui*() para que selftestKey la ejercite.
     function uiEsc() {
@@ -135,8 +143,7 @@ ApplicationWindow {
     }
     function uiEnter() {
         if (root.visibleWins.length > 0)
-            backend.activateWindow(root.visibleWins[root.selIndex].id);
-        root.visible = false;
+            root.activateAndClose(root.visibleWins[root.selIndex].id);
     }
     function uiRight() {
         var n = root.visibleWins.length;
@@ -444,8 +451,7 @@ ApplicationWindow {
                                             drag.target: parent
                                             onClicked: {
                                                 root.selIndex = modelData.fi;
-                                                backend.activateWindow(modelData.id);
-                                                root.visible = false;
+                                                root.activateAndClose(modelData.id);
                                             }
                                             onPressed: root.dragWinId = modelData.id
                                             onReleased: root.dragWinId = ""
