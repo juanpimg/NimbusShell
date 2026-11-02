@@ -153,6 +153,13 @@ if [ -x "$REPO_ROOT/tests/bar/test_kwinrc.sh" ]; then
     else fail "tests/bar/test_kwinrc.sh (ver /tmp/opencode/ci-kwinrc.txt)"; fi
 else fail "tests/bar/test_kwinrc.sh ausente o sin +x"; fi
 
+echo "== ci: live user + SDDM (tests/live/test_live_user.sh) =="
+if [ -x "$REPO_ROOT/tests/live/test_live_user.sh" ]; then
+    if "$REPO_ROOT/tests/live/test_live_user.sh" >/tmp/opencode/ci-live-user.txt 2>&1; then
+        pass "tests/live/test_live_user.sh"
+    else fail "tests/live/test_live_user.sh (ver /tmp/opencode/ci-live-user.txt)"; fi
+else fail "tests/live/test_live_user.sh ausente o sin +x"; fi
+
 echo "== ci: install.sh --check (solo lectura) =="
 "$REPO_ROOT/install.sh" --check >/tmp/opencode/ci-check.txt 2>&1
 rc=$?

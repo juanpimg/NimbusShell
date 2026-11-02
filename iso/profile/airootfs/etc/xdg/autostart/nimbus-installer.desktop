@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Instalar NimbusOS
+Comment=Asistente de instalación de NimbusOS
+Exec=/usr/local/bin/nimbus-live-installer
+Icon=calamares
+Terminal=false
+OnlyShowIn=KDE;

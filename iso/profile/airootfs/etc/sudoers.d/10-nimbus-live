@@ -1,0 +1,2 @@
+# R-LIVE-USER: solo entorno live; el target instalado no hereda este fichero.
+nimbus ALL=(ALL) NOPASSWD: ALL

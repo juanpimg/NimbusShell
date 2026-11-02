@@ -53,6 +53,15 @@ need "$PROFILE/profiledef.sh" "profiledef.sh"
 need "$PROFILE/packages.x86_64" "packages.x86_64"
 need "$PROFILE/pacman.conf" "pacman.conf"
 need "$PROFILE/airootfs/usr/local/bin/nimbus-installed-setup" "nimbus-installed-setup"
+need "$PROFILE/airootfs/usr/local/bin/nimbus-live-user" "nimbus-live-user (live)"
+need "$PROFILE/airootfs/usr/local/bin/nimbus-live-installer" "nimbus-live-installer (live)"
+need "$PROFILE/airootfs/etc/systemd/system/nimbus-live-user.service" "unidad nimbus-live-user"
+need "$PROFILE/airootfs/etc/sudoers.d/10-nimbus-live" "sudoers live NOPASSWD"
+need "$PROFILE/airootfs/etc/xdg/autostart/nimbus-installer.desktop" "autostart Calamares live"
+[ -L "$PROFILE/airootfs/etc/systemd/system/display-manager.service" ] \
+  || { echo "ERROR: falta symlink display-manager.service -> sddm" >&2; fail=1; }
+[ -L "$PROFILE/airootfs/etc/systemd/system/multi-user.target.wants/nimbus-live-user.service" ] \
+  || { echo "ERROR: falta enable de nimbus-live-user en multi-user.target.wants" >&2; fail=1; }
 need "$PROFILE/airootfs/usr/local/bin/nimbus-bar-start" "nimbus-bar-start"
 need "$PROFILE/airootfs/usr/local/bin/nimbus-hide-panel" "nimbus-hide-panel"
 need "$PROFILE/airootfs/etc/skel/.config/systemd/user/nimbus-bar.service" "unidad nimbus-bar"
@@ -236,6 +245,11 @@ echo "OK: KCM Nimbus construido e instalado (/usr)"
 # 6. Verificación del staging antes de mkarchiso.
 for f in \
   "$OUT/airootfs/usr/local/bin/nimbus-installed-setup" \
+  "$OUT/airootfs/usr/local/bin/nimbus-live-user" \
+  "$OUT/airootfs/usr/local/bin/nimbus-live-installer" \
+  "$OUT/airootfs/etc/systemd/system/nimbus-live-user.service" \
+  "$OUT/airootfs/etc/sudoers.d/10-nimbus-live" \
+  "$OUT/airootfs/etc/xdg/autostart/nimbus-installer.desktop" \
   "$OUT/airootfs/usr/local/bin/nimbus-bar-start" \
   "$OUT/airootfs/etc/skel/.config/systemd/user/nimbus-bar.service" \
   "$OUT/airootfs/etc/skel/.config/systemd/user/ydotoold.service" \
@@ -273,6 +287,21 @@ cmp -s "$OUT/airootfs/etc/skel/.config/kwinrc" "$OUT/airootfs/etc/skel/.config/p
 # KDE lee ~/.config/kdeglobals: debe ser idéntico al canónico plasma.
 cmp -s "$OUT/airootfs/etc/skel/.config/kdeglobals" "$OUT/airootfs/etc/skel/.config/plasma/kdeglobals" \
   || { echo "ERROR: kdeglobals efectivo y plasma/kdeglobals divergen en staging" >&2; exit 1; }
+# R-LIVE-USER: live con usuario + SDDM + Calamares; nunca en el target.
+[ -L "$OUT/airootfs/etc/systemd/system/display-manager.service" ] \
+  && [ "$(readlink "$OUT/airootfs/etc/systemd/system/display-manager.service")" = "/usr/lib/systemd/system/sddm.service" ] \
+  || { echo "ERROR: display-manager.service no apunta a sddm" >&2; exit 1; }
+[ -L "$OUT/airootfs/etc/systemd/system/multi-user.target.wants/nimbus-live-user.service" ] \
+  || { echo "ERROR: nimbus-live-user no está enabled" >&2; exit 1; }
+grep -q '^nimbus ALL=(ALL) NOPASSWD: ALL' \
+  "$OUT/airootfs/etc/sudoers.d/10-nimbus-live" \
+  || { echo "ERROR: sudoers live sin NOPASSWD" >&2; exit 1; }
+grep -q '^Exec=/usr/local/bin/nimbus-live-installer' \
+  "$OUT/airootfs/etc/xdg/autostart/nimbus-installer.desktop" \
+  || { echo "ERROR: autostart del instalador live incorrecto" >&2; exit 1; }
+bash -n "$OUT/airootfs/usr/local/bin/nimbus-live-user" \
+  "$OUT/airootfs/usr/local/bin/nimbus-live-installer" \
+  || { echo "ERROR: scripts live no pasan bash -n" >&2; exit 1; }
 grep -q '^Exec=/usr/local/bin/nimbus-hide-panel' \
   "$OUT/airootfs/etc/skel/.config/autostart/nimbus-hide-panel.desktop" \
   || { echo "ERROR: autostart nimbus-hide-panel sin Exec correcto" >&2; exit 1; }

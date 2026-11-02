@@ -1,0 +1,24 @@
+#!/bin/bash
+# nimbus-live-user — crea el usuario grafico del live (solo ISO live).
+# R-LIVE-USER: credencial de demo nimbus/nimbus valida SOLO en el entorno
+# live; el sistema instalado crea su usuario en Calamares y no hereda este
+# fichero ni el sudoers NOPASSWD. Se ejecuta como root antes de SDDM.
+set -u
+
+USER_NAME="nimbus"
+
+if ! id "$USER_NAME" >/dev/null 2>&1; then
+    useradd -m -G wheel,input -s /bin/bash "$USER_NAME" \
+        || { echo "ERROR: no se pudo crear $USER_NAME" >&2; exit 1; }
+fi
+usermod -aG wheel,input "$USER_NAME" >/dev/null 2>&1 || true
+printf '%s:%s\n' "$USER_NAME" "$USER_NAME" | chpasswd \
+    || { echo "ERROR: no se pudo fijar la clave live" >&2; exit 1; }
+
+HOME_DIR="$(getent passwd "$USER_NAME" | cut -d: -f6)"
+if [ -n "$HOME_DIR" ] && [ -d "$HOME_DIR" ]; then
+    chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR" 2>/dev/null || true
+fi
+
+echo "nimbus-live-user: $USER_NAME listo (login live)" >/dev/tty1 2>/dev/null || true
+exit 0

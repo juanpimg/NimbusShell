@@ -1,0 +1,13 @@
+[Unit]
+# R-LIVE-USER: crea nimbus/nimbus solo en el live y arranca antes de SDDM.
+Description=NimbusOS live user (instalador)
+After=systemd-user-sessions.service
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/nimbus-live-user
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

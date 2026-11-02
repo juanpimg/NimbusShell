@@ -321,6 +321,7 @@
 - **R-KLASSY:** Klassy 6.7.3 medido en nested: carga y da círculos/colores, pero NO baja de Ø20, gap 22, inactivas grises ni hover ×/−/+; queda como **fallback**, no como base 1:1. CI/pin si se usa.
 - **R-DECO:** la decoración 1:1 se implementa como plugin propio KDecoration3 `nimbus-decoration` (C++, 12px/gap8/inactivas/hover/titlebar 16/26); sin fork de Klassy; propuesta upstream si el API lo permite.
 - **R-LOGIN:** SDDM 0.21 por defecto; plasma-login-manager solo spike en F8; greetd descartado (kwallet-PAM).
+- **R-LIVE-USER:** el ISO live crea `nimbus`/`nimbus` (solo demo), `sudo` NOPASSWD y arranca SDDM + Calamares; nunca se copia al target (Calamares define usuario/clave). Sin autologin. Evita el live en consola root sin usuario gráfico.
 - **R-SPACES:** escritorios virtuales Plasma globales; per-monitor no es 1:1 y queda documentado; aceptar hasta que KWin lo soporte.
 - **R-I18N:** ki18n/.ts es la única fuente; I18n.js de MacShell solo como origen de cadenas a portar.
 - **R-KRUNNER:** KRunner `FreeFloating` + skin; sin API fullscreen oficial; overlay layer-shell solo opcional.

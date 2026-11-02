@@ -1,0 +1,17 @@
+#!/bin/bash
+# nimbus-live-installer — lanza Calamares como root sobre la sesion Wayland
+# del live. R-LIVE-USER: solo se usa en el ISO live (sudo NOPASSWD live);
+# el target instalado no lleva ni este script ni el sudoers.
+set -u
+
+export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
+
+exec sudo env \
+    WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
+    XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+    DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS" \
+    XDG_SESSION_TYPE=wayland \
+    QT_QPA_PLATFORM=wayland \
+    /usr/local/bin/calamares
