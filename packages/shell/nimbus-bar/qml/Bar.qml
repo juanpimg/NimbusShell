@@ -21,8 +21,7 @@ Window {
         try {
             return JSON.parse(barPresetJson);
         } catch (e) {
-            return {
-            };
+            return {};
         }
     }
     // Ganchos de diagnóstico (verificación --dump-preset, F3-T13).
@@ -77,7 +76,6 @@ Window {
                 for (var i = 0; i < order.length; ++i) {
                     if (byId[order[i]] && seq.indexOf(order[i]) < 0)
                         seq.push(order[i]);
-
                 }
             }
             // Los iconos que el preset no menciona se insertan en su
@@ -97,8 +95,10 @@ Window {
                 }
                 seq.splice(pos, 0, canon[c]);
             }
-            for (var m = 0; m < seq.length; ++m) byId[seq[m]].parent = orderHolder
-            for (var b = 0; b < seq.length; ++b) byId[seq[b]].parent = rightBox
+            for (var m = 0; m < seq.length; ++m)
+                byId[seq[m]].parent = orderHolder;
+            for (var b = 0; b < seq.length; ++b)
+                byId[seq[b]].parent = rightBox;
             presetOrderApplied = seq.join(",");
         } catch (e) {
             presetOrderError = "" + e;
@@ -136,7 +136,6 @@ Window {
 
         if (demoOsd)
             osd.show(demoOsdKind, demoOsdValue);
-
     }
 
     // Holder invisible para applyPresetOrder: re-anexar un hijo a su
@@ -213,7 +212,6 @@ Window {
                 onClicked: appleMenu.toggle()
                 Keys.onReturnPressed: appleMenu.toggle()
             }
-
         }
 
         Text {
@@ -236,7 +234,6 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             demo: demoAppmenu
         }
-
     }
 
     // F3-T04: menú Apple (popup layer-shell propio en Menu.qml).
@@ -340,7 +337,6 @@ Window {
                 radius: 1.5
                 color: battery.charging ? NimbusTokens.accentColor(NimbusTokens.dark) : NimbusTokens.colors(NimbusTokens.dark).label
             }
-
         }
 
         Item {
@@ -378,7 +374,6 @@ Window {
                 anchors.fill: parent
                 onClicked: cc.toggle()
             }
-
         }
 
         Item {
@@ -417,7 +412,6 @@ Window {
                 anchors.fill: parent
                 onClicked: cc.toggle()
             }
-
         }
 
         Item {
@@ -451,7 +445,6 @@ Window {
                 onClicked: runner.run("qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle")
                 Keys.onReturnPressed: runner.run("qdbus6 org.nimbus.Spotlight /Spotlight org.nimbus.Spotlight.toggle")
             }
-
         }
 
         Item {
@@ -491,7 +484,6 @@ Window {
                         radius: 3
                         color: NimbusTokens.accentColor(NimbusTokens.dark)
                     }
-
                 }
 
                 Rectangle {
@@ -508,9 +500,7 @@ Window {
                         radius: 3
                         color: NimbusTokens.accentColor(NimbusTokens.dark)
                     }
-
                 }
-
             }
 
             MouseArea {
@@ -521,7 +511,6 @@ Window {
                 onClicked: cc.toggle()
                 Keys.onReturnPressed: cc.toggle()
             }
-
         }
         // F3-T07: system tray SNI (antes del reloj).
 
@@ -563,9 +552,6 @@ Window {
                 triggeredOnStart: true
                 onTriggered: clock.text = Qt.formatDateTime(new Date(), clockFormat)
             }
-
         }
-
     }
-
 }
