@@ -8,14 +8,21 @@
     "marginRight": 12,
     "spacingLeft": 8,
     "spacingRight": 12,
-    "bgAlpha": 0.55,
-    "hairlineAlpha": 0.6
+    "bgAlpha": 0.18,
+    "hairlineAlpha": 0.25
   },
   "clock": {
     "format": "ddd d MMM HH:mm"
   },
   "icons": {
-    "order": ["wifi", "bluetooth", "controlcenter", "battery", "tray", "clock"],
+    "order": [
+      "wifi",
+      "bluetooth",
+      "controlcenter",
+      "battery",
+      "tray",
+      "clock"
+    ],
     "hidden": []
   },
   "osd": {
@@ -25,6 +32,9 @@
   },
   "glass": {
     "tint": "dark",
-    "blurPxEq": [15, 25]
+    "blurPxEq": [
+      15,
+      25
+    ]
   }
 }

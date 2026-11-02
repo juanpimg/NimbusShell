@@ -238,7 +238,7 @@ QtObject {
     // los rgba que antes iban cableados en cada popup (sin valores mágicos
     // fuera del singleton). Fondo popover: elevated + alfa denso [MEDIDO].
     function barBg(isDark) {
-        return isDark ? Qt.rgba(0, 0, 0, 0.55) : Qt.rgba(1, 1, 1, 0.55);
+        return isDark ? Qt.rgba(0, 0, 0, 0.18) : Qt.rgba(1, 1, 1, 0.55);
     }
     function popupBg(isDark) {
         // F11-T02: superficie de vidrio; el alfa denso 0.94 tapaba el
@@ -249,7 +249,7 @@ QtObject {
         return isDark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(0, 0, 0, 0.1);
     }
     function hairline(isDark) {
-        return isDark ? Qt.rgba(0.22, 0.22, 0.23, 0.6) : Qt.rgba(0.78, 0.78, 0.78, 0.29);
+        return isDark ? Qt.rgba(0.22, 0.22, 0.23, 0.25) : Qt.rgba(0.78, 0.78, 0.78, 0.2);
     }
     function hoverFill(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, states.hoverAlpha) : Qt.rgba(0, 0, 0, 0.06);
