@@ -1,0 +1,53 @@
+count=2 [Virtual-1:1280x800(prim) Virtual-2:1280x800] mc=1280x800@0,0
+[01;32mOutput: [0;0m1 Virtual-2 a13ab24e-01f6-4bbf-86b3-6db30c8fa2e1
+	[01;32menabled[0;0m
+	[01;32mconnected[0;0m
+	[01;32mpriority 1[0;0m
+	[01;33mUnknown[0;0m
+	[01;33mreplication source:[0;0m0
+	[01;34mModes: [0;0m 1:[01;32m1280x800@74.99*[0;0m!  2:5120x2160@50.00  3:4096x2160@50.00  4:3840x2160@60.00  5:3840x2160@59.94  6:3840x2160@50.00  7:1920x1440@60.00  8:2560x1080@50.00  9:1856x1392@59.99  10:1792x1344@60.00  11:2048x1152@60.00  12:1920x1200@59.88  13:1920x1080@60.00  14:1920x1080@50.00  15:1600x1200@60.00  16:1680x1050@59.95  17:1400x1050@59.98  18:1280x1024@60.02  19:1440x900@59.89  20:1280x960@60.00  21:1360x768@60.01  22:1280x768@59.87  23:1024x768@60.00  24:800x600@60.32  25:640x480@60.00  26:640x480@59.94 
+[01;33m	Custom modes:[0;0m None
+[01;33m	Geometry: [0;0m1280,0 1280x800
+[01;33m	Scale: [0;0m1
+[01;33m	Rotation: [0;0m1
+[01;33m	Overscan: [0;0m0
+[01;33m	Vrr: [0;0mincapable
+[01;33m	RgbRange: [0;0munknown
+[01;33m	HDR: [0;0mincapable
+[01;33m	Wide Color Gamut: [0;0mincapable
+[01;33m	ICC profile: [0;0mnone
+[01;33m	Color profile source: [0;0msRGB
+[01;33m	Color power preference: [0;0mprefer efficiency and performance
+[01;33m	Brightness control: [0;0msupported, set to 100% and dimming to 100%
+[01;33m	Color resolution: unknown
+[01;33m	Allow EDR: [0;0munsupported
+[01;33m	Sharpness control: [0;0munsupported
+[01;33m	Automatic brightness: [0;0munsupported
+[01;33m	Auto Rotate Policy: [0;0mincapable
+[01;33m	Adaptive backlight modulation: [0;0munsupported
+[01;32mOutput: [0;0m2 Virtual-1 7b03838a-120c-4f55-8bd1-9fefe6cbdfb6
+	[01;32menabled[0;0m
+	[01;32mconnected[0;0m
+	[01;32mpriority 0[0;0m
+	[01;33mUnknown[0;0m
+	[01;33mreplication source:[0;0m0
+	[01;34mModes: [0;0m 27:[01;32m1280x800@74.99*[0;0m!  28:1920x1440@60.00  29:2560x1080@50.00  30:1856x1392@59.99  31:1792x1344@60.00  32:2048x1152@60.00  33:1920x1200@59.88  34:1920x1080@60.00  35:1920x1080@50.00  36:1600x1200@60.00  37:1680x1050@59.95  38:1400x1050@59.98  39:1280x1024@60.02  40:1440x900@59.89  41:1280x960@60.00  42:1360x768@60.01  43:1280x768@59.87  44:1024x768@60.00  45:800x600@60.32  46:640x480@60.00  47:640x480@59.94 
+[01;33m	Custom modes:[0;0m None
+[01;33m	Geometry: [0;0m0,0 1280x800
+[01;33m	Scale: [0;0m1
+[01;33m	Rotation: [0;0m1
+[01;33m	Overscan: [0;0m0
+[01;33m	Vrr: [0;0mincapable
+[01;33m	RgbRange: [0;0munknown
+[01;33m	HDR: [0;0mincapable
+[01;33m	Wide Color Gamut: [0;0mincapable
+[01;33m	ICC profile: [0;0mnone
+[01;33m	Color profile source: [0;0msRGB
+[01;33m	Color power preference: [0;0mprefer efficiency and performance
+[01;33m	Brightness control: [0;0msupported, set to 100% and dimming to 100%
+[01;33m	Color resolution: unknown
+[01;33m	Allow EDR: [0;0munsupported
+[01;33m	Sharpness control: [0;0munsupported
+[01;33m	Automatic brightness: [0;0munsupported
+[01;33m	Auto Rotate Policy: [0;0mincapable
+[01;33m	Adaptive backlight modulation: [0;0munsupported
