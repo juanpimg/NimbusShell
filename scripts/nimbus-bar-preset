@@ -50,6 +50,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PRESET_DIR="$REPO_ROOT/packages/shell/nimbus-bar/presets"
 PINS_FILE="$REPO_ROOT/packages/shell/nimbus-bar/pins.txt"
 # Sistema instalado: presets versionados en /usr/share/nimbus/bar.
+[ -d "$PRESET_DIR" ] || PRESET_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nimbus/bar/presets"
+[ -f "$PINS_FILE" ] || PINS_FILE="${XDG_DATA_HOME:-$HOME/.local/share}/nimbus/bar/pins.txt"
 [ -d "$PRESET_DIR" ] || PRESET_DIR="/usr/share/nimbus/bar/presets"
 [ -f "$PINS_FILE" ] || PINS_FILE="/usr/share/nimbus/bar/pins.txt"
 

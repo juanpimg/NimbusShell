@@ -37,8 +37,10 @@ completo de aplicaciones propias, módulo KCM con 6 páginas y demostración en 
 - **Tema Tahoe aplicado por el instalador:** color schemes NimbusTahoe/Light,
   Kvantum, decoración Aurorae `MacTahoeLiquidKde-Dark/Light` y fondo NPS.
 - **Instalador:** despliega paquetes, dotfiles, tema, scripts/efectos KWin,
-  preset del Dock y apps de script (`nimbus-hw`, migradores, backup,
-  bug-report) en `~/.local/bin`.
+  preset del Dock, apps de script (`nimbus-hw`, migradores, backup,
+  bug-report) y herramientas de usuario (`nimbus-theme`, `nimbus-dock`,
+  `nimbus-updates`…) en `~/.local/bin`, con sus recursos en
+  `~/.local/share/nimbus/`.
 - **Ajustes del Sistema (KCM):** 6 páginas integradas en System Settings.
 - **Traducciones:** 367 cadenas en español e inglés sin pendientes.
 - **Demostración en Vídeo:** MP4 H.264, GIF y 11 fotogramas en `out/videos/`.

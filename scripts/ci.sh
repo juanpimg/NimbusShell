@@ -361,7 +361,7 @@ else fail "apps categories/parse (ver /tmp/opencode/ci-apps-*.txt)"; fi
 echo "== ci: apps deploy (tests/apps/test_apps_deploy.sh) =="
 if [ -x "$REPO_ROOT/tests/apps/test_apps_deploy.sh" ]; then
     if "$REPO_ROOT/tests/apps/test_apps_deploy.sh" >/tmp/opencode/ci-apps-deploy.txt 2>&1; then
-        pass "tests/apps/test_apps_deploy.sh (12/12 ok)"
+        pass "tests/apps/test_apps_deploy.sh (28/28 ok)"
     else fail "tests/apps/test_apps_deploy.sh (ver /tmp/opencode/ci-apps-deploy.txt)"; fi
 else fail "tests/apps/test_apps_deploy.sh ausente o sin +x"; fi
 

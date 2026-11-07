@@ -21,6 +21,7 @@ set -u
 HOME_DIR="${HOME:-}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CANONICAL_PRESET="$REPO_ROOT/packages/dock/kremarc-nimbus"
+[ -f "$CANONICAL_PRESET" ] || CANONICAL_PRESET="${XDG_DATA_HOME:-$HOME/.local/share}/nimbus/dock/kremarc-nimbus"
 [ -f "$CANONICAL_PRESET" ] || CANONICAL_PRESET="/usr/share/nimbus/dock/kremarc-nimbus"
 
 ACTION="dump"

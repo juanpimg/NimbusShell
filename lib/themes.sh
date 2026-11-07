@@ -13,6 +13,8 @@ SOUNDS_SRC="${SOUNDS_SRC:-$REPO_ROOT/packages/themes/sounds-nimbus}"
 SOUNDS_DST="${SOUNDS_DST:-${XDG_DATA_HOME:-$HOME/.local/share}/sounds/Nimbus}"
 THEME_APPLY="${THEME_APPLY:-$REPO_ROOT/scripts/apply-theme}"
 THEME_STAMP="${THEME_STAMP:-$HOME/.config/nimbus-theme-applied}"
+THEME_RES_SRC="${THEME_RES_SRC:-$REPO_ROOT/packages/themes/nimbus-tahoe}"
+THEME_RES_DST="${THEME_RES_DST:-${XDG_DATA_HOME:-$HOME/.local/share}/nimbus/themes/nimbus-tahoe}"
 
 theme_variant() { # stdout: variante aplicada por el usuario (dark por defecto)
     if [ -f "$THEME_STAMP" ]; then
@@ -50,6 +52,11 @@ themes_deploy() {
             echo "    sonidos instalados ($(ls "$SOUNDS_DST/stereo"/*.oga | wc -l) .oga)"
         fi
     fi
+    # Recursos del tema para scripts de usuario (nimbus-theme/apply-theme).
+    if [ -d "$THEME_RES_SRC" ]; then
+        mkdir -p "$THEME_RES_DST"
+        cp -a "$THEME_RES_SRC/." "$THEME_RES_DST/"
+    fi
     # F2-T04 — tema Tahoe: color scheme, Kvantum y decoración Aurorae.
     # Respeta la variante si el usuario ya lo aplicó (stamp presente).
     echo "-- tema Tahoe (color scheme, Kvantum, decoración)..."
@@ -75,6 +82,9 @@ themes_check() {
         nimbus_ok "$SOUNDS_DST (tema de sonido Nimbus)"
     else nimbus_fail "$SOUNDS_DST ausente o distinto (paso de sonidos en la instalación)"; fi
     echo "-- tema Tahoe:"
+    if [ ! -f "$THEME_RES_DST/kdeglobals" ]; then
+        nimbus_fail "faltan recursos del tema en $THEME_RES_DST (paso de temas)"
+    fi
     if [ ! -x "$THEME_APPLY" ]; then
         nimbus_fail "falta $THEME_APPLY (repo incompleto)"
     elif [ ! -f "$THEME_STAMP" ]; then

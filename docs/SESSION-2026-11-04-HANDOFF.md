@@ -160,8 +160,10 @@ El desarrollo principal de la UI, la barra, el dock, los shaders y todas las apl
   este handoff); `git status` limpio.
 - `scripts/apply-theme` ya aplica la decoración **Aurorae** canónica
   (`MacTahoeLiquidKde-Dark/Light`), no Klassy, y `install.sh` lo ejecuta.
-- `lib/apps.sh` despliega las apps de script en `~/.local/bin` y verifica que
-  sean 1:1; las apps GUI quedan como `[PENDIENTE]` hasta que la ISO las compile.
+- `lib/apps.sh` despliega las apps de script y las herramientas de usuario
+  (`nimbus-theme`, `nimbus-dock`, `nimbus-updates`…) en `~/.local/bin`, con sus
+  recursos en `~/.local/share/nimbus/`, y verifica que sean 1:1; las apps GUI
+  quedan como `[PENDIENTE]` hasta que la ISO las compile.
 - CI incorpora `tests/apps/test_apps_deploy.sh` y
   `tests/docs/test_docs_consistency.sh`.
 - **Deuda conocida:** binarios GUI (ISO/dev, F12-T03), skel de NimbusOS

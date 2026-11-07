@@ -34,9 +34,14 @@
   variante si ya existe `~/.config/nimbus-theme-applied`.
 - `scripts/nimbus-theme` también cambia la decoración Aurorae al alternar
   claro/oscuro (antes solo cambiaba color scheme y fondo).
-- `lib/apps.sh` despliega las 7 apps de script en `~/.local/bin` (1:1, con
-  `cmp`), instala el desktop de bug-report y marca los binarios GUI como
-  `[PENDIENTE]` con la orden de compilación.
+- El instalador despliega las herramientas de usuario y sus recursos en
+  `~/.local/share/nimbus/`; `nimbus-theme` ya encuentra el tema, y el autostart
+  `nimbus-theme-init.desktop` aplica la variante al entrar.
+- `lib/apps.sh` despliega las 7 apps de script y 12 herramientas de usuario
+  (`nimbus-theme`, `nimbus-dock`, `nimbus-updates`, `nimbus-layout`…) en
+  `~/.local/bin` (1:1, con `cmp`), instala sus recursos de barra/dock y el
+  desktop de bug-report, y marca los binarios GUI como `[PENDIENTE]` con la
+  orden de compilación.
 - `tests/vm/nimbus-hw-check.sh` usa `/tmp/opencode` por defecto; solo escribe
   en `spikes/` con `--out` explícito.
 - Nuevos gates: `tests/apps/test_apps_deploy.sh` y
@@ -63,7 +68,7 @@ $ bash tests/theme/test_nimbus_theme.sh
 Resultado: 14 ok, 0 fallos
 
 $ bash tests/apps/test_apps_deploy.sh
-Resultado: 12 ok, 0 fallos
+Resultado: 28 ok, 0 fallos
 
 $ bash tests/docs/test_docs_consistency.sh
 Resultado: 14 ok, 0 fallos

@@ -59,6 +59,11 @@ Para el perfil histórico Hyprland: `./install.sh --profile=legacy-hypr`.
 - **Apps de script** en `~/.local/bin`: `nimbus-hw`, `nimbus-gpu-detect`,
   `nimbus-gpu-setup`, `nimbus-migrate-desktop`, `nimbus-migrate-hyprland`,
   `nimbus-backup` y `nimbus-bug-report`.
+- **Herramientas de usuario** en `~/.local/bin`: `nimbus-theme`, `apply-theme`,
+  `nimbus-dock`, `nimbus-trash`, `nimbus-updates`, `nimbus-a11y`,
+  `nimbus-layout`, `nimbus-keys`, `nimbus-privacy`, `nimbus-flatpak-perms`,
+  `nimbus-bar-preset` y `nimbus-control`, con sus presets de barra/dock en
+  `~/.local/share/nimbus/`.
 - **Sonidos y marca:** tema de sonido Nimbus y logo propio N.
 
 Los **binarios GUI** (`nimbus-bar`, `nimbus-about`, `nimbus-apps`, `nimbus-clock`,
