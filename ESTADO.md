@@ -54,7 +54,7 @@ completo de aplicaciones propias, módulo KCM con 6 páginas y demostración en 
   ISO offline final, auditoría de licencias/Secure Boot y soak test de 8 h.
 - **F13-T01:** contribuciones upstream (Klassy, Krema, KWin effects).
 - **NimbusOS Plasma:** rama publicada `origin/plasma-migration` (commit
-  `38318d7`) con perfil Plasma real (`--check-only` y `verify-plasma.sh`
+  `54563c7`) con perfil Plasma real (`--check-only` y `verify-plasma.sh`
   verdes), skel desde NimbusShell, SDDM, barra/apps/KCM y 127 paquetes;
   pendiente de ISO real/F12. `main` sigue Hyprland estable.
   Ver [`docs/architecture/PRODUCT-MODEL.md`](docs/architecture/PRODUCT-MODEL.md)
