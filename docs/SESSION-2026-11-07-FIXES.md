@@ -22,13 +22,14 @@
 
 ## Qué se hizo
 
-- **4 commits de consolidación** del trabajo del 4-nov (`3ed89aa` UI/temas/apps,
-  `1bbd1f3` tests/CI/evidencia, `49d2874` fixes de scripts, `6c72354`
-  docs/handoff/ledger) y **3 commits de reparación** (`bdac1bc` tema/apps/CI,
-  `0f9f741` docs, `1ab924f` apps de la ISO en `/usr/local/bin`).
+- **4 commits de consolidación** del trabajo del 4-nov (UI/temas/apps,
+  tests/CI/evidencia, fixes de scripts y docs/handoff/ledger) y **varios
+  commits de reparación** (tema/apps/CI, docs, apps de la ISO en
+  `/usr/local/bin` y test de `themes_deploy`). Ver `git log --oneline`.
 - `scripts/apply-theme` ahora copia y aplica la decoración Aurorae de la
   variante (`Dark`/`Light`), valida `library`/`theme` en `kwinrc` y revierte
-  también el tema copiado.
+  también el tema copiado. `NIMBUS_NO_LIVE=1` evita tocar el fondo de la
+  sesión real durante los tests.
 - `lib/themes.sh` ejecuta `apply-theme` en instalación nueva y respeta la
   variante si ya existe `~/.config/nimbus-theme-applied`.
 - `lib/apps.sh` despliega las 7 apps de script en `~/.local/bin` (1:1, con
@@ -48,10 +49,13 @@ $ scripts/nimbus-progress
 Total: 103/112 (93.0%)
 
 $ ./scripts/ci.sh
-CI VERDE.   # 39 grupos; incluye apps deploy y docs consistency
+CI VERDE.   # 40 grupos; incluye tema, apps deploy y docs consistency
 
 $ bash tests/theme/test_apply_theme.sh
 PASS: test_apply_theme.sh completado con éxito.
+
+$ bash tests/theme/test_themes_deploy.sh
+Resultado: 14 ok, 0 fallos
 
 $ bash tests/apps/test_apps_deploy.sh
 Resultado: 12 ok, 0 fallos

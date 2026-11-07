@@ -63,6 +63,7 @@ sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
              "$REPO_ROOT/tests/hw/test_hw.sh" \
              "$REPO_ROOT/tests/qml/test_qml_suite.sh" \
              "$REPO_ROOT/tests/theme/test_apply_theme.sh" \
+             "$REPO_ROOT/tests/theme/test_themes_deploy.sh" \
              "$REPO_ROOT/tests/windows/test_drag_doubleclick.sh" \
              "$REPO_ROOT/tests/vm/windows.sh" \
              "$REPO_ROOT/tests/vm/dock.sh" \
@@ -238,6 +239,13 @@ if [ -x "$REPO_ROOT/tests/theme/test_apply_theme.sh" ]; then
         pass "tests/theme/test_apply_theme.sh"
     else fail "tests/theme/test_apply_theme.sh (ver /tmp/opencode/ci-theme.txt)"; fi
 else fail "tests/theme/test_apply_theme.sh ausente o sin +x"; fi
+
+echo "== ci: theme deploy integration (tests/theme/test_themes_deploy.sh) =="
+if [ -x "$REPO_ROOT/tests/theme/test_themes_deploy.sh" ]; then
+    if "$REPO_ROOT/tests/theme/test_themes_deploy.sh" >/tmp/opencode/ci-themes-deploy.txt 2>&1; then
+        pass "tests/theme/test_themes_deploy.sh (14/14 ok)"
+    else fail "tests/theme/test_themes_deploy.sh (ver /tmp/opencode/ci-themes-deploy.txt)"; fi
+else fail "tests/theme/test_themes_deploy.sh ausente o sin +x"; fi
 
 echo "== ci: window drag and doubleclick (tests/windows/test_drag_doubleclick.sh) =="
 if [ -x "$REPO_ROOT/tests/windows/test_drag_doubleclick.sh" ]; then

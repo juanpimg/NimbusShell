@@ -63,6 +63,7 @@
 - `tests/bar/test_presets.sh` — presets/binding/orden.
 - `tests/bar/test_qml_root.sh` — `--qml-root`.
 - `tests/theme/test_apply_theme.sh` — tema, variantes, Aurorae y revert.
+- `tests/theme/test_themes_deploy.sh` — `themes_deploy`/`themes_check` con HOME temporal.
 - `tests/apps/test_apps_deploy.sh` — apps de script 1:1 en `~/.local/bin`.
 - `tests/docs/test_docs_consistency.sh` — handoff y ledger sin drift.
 - `tests/qml/tst_calendar.qml` — calendario (9/9).

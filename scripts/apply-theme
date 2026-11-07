@@ -164,7 +164,9 @@ if [ "$WP_NAME" != "sequoia-light.jpg" ] && [ -f "$THEME/wallpapers/sequoia-ligh
   cp -a "$(readlink -f "$THEME/wallpapers/sequoia-light.jpg")" "$HOME/.local/share/wallpapers/nimbus/contents/images/sequoia-light.jpg"
 fi
 
-if command -v plasma-apply-wallpaperimage >/dev/null 2>&1; then
+if [ "${NIMBUS_NO_LIVE:-0}" = "1" ]; then
+  echo "AVISO: NIMBUS_NO_LIVE=1; wallpaper copiado pero no aplicado en vivo." >&2
+elif command -v plasma-apply-wallpaperimage >/dev/null 2>&1; then
   plasma-apply-wallpaperimage "$WP_DST" >/dev/null 2>&1 || \
     echo "AVISO: plasma-apply-wallpaperimage falló; wallpaper copiado pero no aplicado." >&2
 fi

@@ -5,6 +5,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+export NIMBUS_NO_LIVE=1
 TMP_HOME="$(mktemp -d /tmp/nimbus-theme-test-XXXXXX)"
 trap 'rm -rf "$TMP_HOME"' EXIT
 
