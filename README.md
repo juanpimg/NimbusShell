@@ -86,7 +86,11 @@ del Dock están en su sitio, y si las apps de script están desplegadas 1:1.
 - Exit `1` = hay drift (con detalle `[FALTA]`).
 - Exit `2` = precondición (root, sin `pacman`, repo incompleto o argumento desconocido).
 
-Úsalo antes de instalar y para auditar después.
+Úsalo antes de instalar y para auditar después. Nota: `--check` compara contra
+los dotfiles canónicos; tras personalizar tema/atajos o tras el cambio
+automático de variante (`nimbus-theme`) puede mostrar drift en
+`kdeglobals`/`kwinrc`. Es esperado: re-ejecutar el instalador hace backup y
+restaura los canónicos.
 
 ## Desinstalación / restaurar backup
 
@@ -107,6 +111,12 @@ Los backups no se borran solos: tú decides cuándo borrarlos.
   `pacman`, hay NimbusShell. El perfil Plasma no usa AUR.
 - **Calamares/ISO:** el instalador del sistema y los binarios GUI viven en la ISO
   de NimbusOS (`iso/`, F12-T03); aquí no se particiona ni se compila la ISO.
+- **Dock Krema:** el perfil plasma deja el preset `kremarc-nimbus` y los
+  launchers, pero Krema se instala desde AUR/ISO; el perfil no usa AUR, así que
+  sin Krema no hay Dock.
+- **Barra superior:** el binario `nimbus-bar` y su unidad systemd se compilan y
+  despliegan desde la ISO/dev; el instalador genérico prepara su configuración
+  y presets, no el binario.
 - **Login intacto:** el instalador no activa ni cambia tu Display Manager. SDDM
   viene como paquete y su tema Nimbus se aplica desde la ISO.
 - **Iconos WhiteSur:** si no están instalados, el tema avisa y usa Breeze como
