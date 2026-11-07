@@ -121,6 +121,9 @@ CHECK ROJO: hay drift (ver [FALTA] arriba).   # exit 1 esperado en host no conve
   skel generado desde NimbusShell y `build-components` para GUI + KCM.
 - `./build_iso.sh --check-only --profile plasma` → `CHECK-ONLY PASS`.
 - `./scripts/verify-plasma.sh` → `VERIFY-PLASMA PASS` (check-only + skel + CI).
+- Rama `plasma-migration` publicada en NimbusOS
+  (`origin/plasma-migration`, commit `38318d7`):
+  <https://github.com/juanpimg/NimbusOS/pull/new/plasma-migration>.
 - El perfil `legacy-hypr` sigue pasando `--check-only` para rollback; `main`
   de NimbusOS no se toca hasta validar la ISO Plasma en VM.
 
