@@ -11,6 +11,8 @@
 #   --build-dir   directorio de build (defecto: out/build/components)
 #   --filter      limita a componentes separados por coma
 #   --no-install  compila pero no instala
+#   --destdir     instala bajo DIR (para ISOs: DESTDIR=/airootfs)
+#   --allow-root  permite root SOLO con --destdir (empaquetado de ISO)
 #   --jobs        paralelismo (defecto: nproc)
 #
 # Los binarios GUI no se instalan desde install.sh porque requieren toolchain
@@ -24,6 +26,8 @@ BUILD_DIR="$REPO_ROOT/out/build/components"
 FILTER=""
 CHECK=0
 DO_INSTALL=1
+DESTDIR=""
+ALLOW_ROOT=0
 JOBS="$(nproc 2>/dev/null || echo 4)"
 
 usage() {
@@ -40,6 +44,9 @@ while [ $# -gt 0 ]; do
         --filter) [ $# -ge 2 ] || { echo "ERROR: --filter necesita nombres" >&2; exit 2; }
                   FILTER="$2"; shift ;;
         --no-install) DO_INSTALL=0 ;;
+        --destdir) [ $# -ge 2 ] || { echo "ERROR: --destdir necesita un directorio" >&2; exit 2; }
+                   DESTDIR="$2"; shift ;;
+        --allow-root) ALLOW_ROOT=1 ;;
         --jobs) [ $# -ge 2 ] || { echo "ERROR: --jobs necesita un número" >&2; exit 2; }
                 JOBS="$2"; shift ;;
         -h|--help) usage; exit 0 ;;
@@ -48,8 +55,12 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ "$(id -u)" = "0" ]; then
+if [ "$(id -u)" = "0" ] && [ "$ALLOW_ROOT" != "1" ]; then
     echo "ERROR: no ejecutar como root; usa tu usuario (prefijo $PREFIX)." >&2
+    exit 2
+fi
+if [ "$(id -u)" = "0" ] && [ -z "$DESTDIR" ]; then
+    echo "ERROR: --allow-root solo es válido con --destdir (empaquetado de ISO)." >&2
     exit 2
 fi
 
@@ -175,7 +186,12 @@ build_one() { # $1=componente
         return 1
     fi
     if [ "$DO_INSTALL" = "1" ]; then
-        if ! cmake --install "$builddir" >>"$log" 2>&1; then
+        if [ -n "$DESTDIR" ]; then
+            if ! DESTDIR="$DESTDIR" cmake --install "$builddir" >>"$log" 2>&1; then
+                echo "ERROR: install de $comp falló (DESTDIR=$DESTDIR). Ver $log" >&2
+                return 1
+            fi
+        elif ! cmake --install "$builddir" >>"$log" 2>&1; then
             echo "ERROR: install de $comp falló. Ver $log" >&2
             return 1
         fi
