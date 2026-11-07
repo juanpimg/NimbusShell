@@ -5,7 +5,18 @@
 > contiene el perfil Hyprland congelado. No se copia a mano: el port se hace en
 > una sola dirección **NimbusShell → NimbusOS**.
 
-## Comprobación
+## Herramienta
+
+```bash
+scripts/nimbus-skel-sync --check   # faltantes/diferencias/extras no permitidos
+scripts/nimbus-skel-sync --apply   # port aditivo; no borra legacy/ISO
+```
+
+El port es **aditivo** porque NimbusOS sigue usando Hyprland/MacShell en su
+ISO actual: añade los dotfiles Plasma/Tahoe sin borrar `hypr/`, `macshell/`,
+`Desktop/`, `.local/bin/`, etc. La allowlist está en el propio script.
+
+## Comprobación manual
 
 ```bash
 diff -rq dotfiles/ ../NimbusOS/nimbus-overlay/etc/skel/
@@ -68,8 +79,15 @@ Distinto:
 - Tras el port, `diff -rq` debe quedar en cero salvo los artefactos de ISO
   declarados en esta página.
 
-## Pendiente
+## Estado del port
 
-El port del skel se hace en el repo NimbusOS (F12-T03, ISO Full). Hasta
-entonces, este repo documenta la divergencia aquí y `AGENTS.md` apunta a este
-documento en vez de a las Rulings R1–R5 del README antiguo.
+- `scripts/nimbus-skel-sync --check` y `--apply` están cubiertos por
+  `tests/install/test_skel_sync.sh` (13/13): copia, actualiza y preserva
+  legacy/ISO, y falla ante extras no permitidos.
+- El `--apply` real se ejecuta sobre una rama de NimbusOS
+  (`plasma-skel-sync`) y se valida con `--check` antes de commitear; no se
+  empuja sin revisión.
+- Los extras legacy/ISO que quedan tras el port son los de la allowlist
+  (Hyprland/MacShell, `Desktop/`, `.local/bin/` y unidades de barra). No son
+  divergencia de Plasma: son la parte que NimbusOS aún necesita para su ISO
+  Hyprland.

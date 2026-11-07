@@ -49,7 +49,8 @@
 ## Scripts clave
 
 - `scripts/ci.sh` — gate (lint, tests, i18n, packaging).
-- `scripts/build-components` — compila e instala los 9 binarios GUI en `~/.local`.
+- `scripts/build-components` — compila e instala los 9 binarios GUI + KCM en `~/.local`.
+- `scripts/nimbus-skel-sync` — port aditivo de `dotfiles/` al skel de NimbusOS.
 - `scripts/apply-theme` — tema Tahoe (color scheme, Kvantum, Aurorae).
 - `scripts/nimbus-bar-preset` — presets de barra.
 - `scripts/nimbus-dock` — preferencias del Dock Krema.
@@ -68,6 +69,8 @@
 - `tests/theme/test_nimbus_theme.sh` — cambio claro/oscuro con decoración Aurorae.
 - `tests/apps/test_apps_deploy.sh` — apps de script 1:1 en `~/.local/bin`.
 - `tests/install/test_deploy_home.sh` — despliegue completo en HOME aislado.
+- `tests/install/test_build_components.sh` — build real de GUI + KCM en prefijo aislado.
+- `tests/install/test_skel_sync.sh` — port aditivo y allowlist del skel.
 - `tests/docs/test_docs_consistency.sh` — handoff y ledger sin drift.
 - `tests/qml/tst_calendar.qml` — calendario (9/9).
 - `tests/vm/nested-bar.sh` — harness nested (barra/CC/menú/calendario/OSD).

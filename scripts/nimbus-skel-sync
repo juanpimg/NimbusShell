@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# nimbus-skel-sync — porta dotfiles canónicos de NimbusShell al skel de NimbusOS.
+# Dirección única: NimbusShell → NimbusOS. El port es ADITIVO: no borra los
+# artefactos legacy/ISO de NimbusOS (Hyprland/MacShell, Desktop, .local/bin).
+#
+# Uso:
+#   scripts/nimbus-skel-sync --check [--src DIR] [--dest DIR]
+#   scripts/nimbus-skel-sync --apply [--src DIR] [--dest DIR]
+#
+# Sin --src/--dest usa dotfiles/ y ../NimbusOS/nimbus-overlay/etc/skel.
+set -u
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SRC="$REPO_ROOT/dotfiles"
+DEST="$REPO_ROOT/../NimbusOS/nimbus-overlay/etc/skel"
+MODE=""
+
+usage() { sed -n '2,12p' "${BASH_SOURCE[0]}" | cut -c3-; }
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --check) MODE="check" ;;
+        --apply) MODE="apply" ;;
+        --src) [ $# -ge 2 ] || { echo "ERROR: --src necesita directorio" >&2; exit 2; }
+               SRC="$2"; shift ;;
+        --dest) [ $# -ge 2 ] || { echo "ERROR: --dest necesita directorio" >&2; exit 2; }
+                DEST="$2"; shift ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "ERROR: argumento desconocido: $1 (ver --help)" >&2; exit 2 ;;
+    esac
+    shift
+done
+[ -n "$MODE" ] || { usage; exit 2; }
+[ -d "$SRC" ] || { echo "ERROR: falta $SRC" >&2; exit 2; }
+[ -d "$DEST" ] || { echo "ERROR: falta $DEST" >&2; exit 2; }
+
+# Artefactos que viven solo en el skel de NimbusOS y NO se tocan.
+SKEL_ONLY_ALLOW=(
+    ".config/gtk-3.0"
+    ".config/gtk-4.0"
+    ".config/hypr"
+    ".config/macdock"
+    ".config/macshell"
+    ".config/qt6ct"
+    ".config/quickshell"
+    ".config/autostart/krema.desktop"
+    ".config/autostart/nimbus-bar.desktop"
+    ".config/autostart/nimbus-welcome.desktop"
+    ".config/systemd/user/nimbus-bar.service"
+    ".config/systemd/user/ydotoold.service"
+    ".config/plasma-workspace/env/nimbus-bar.sh"
+    "Desktop"
+    ".local/bin"
+)
+
+allowed() { # $1=ruta relativa
+    local rel="$1" p
+    for p in "${SKEL_ONLY_ALLOW[@]}"; do
+        case "$rel" in "$p"|"$p"/*) return 0 ;; esac
+    done
+    return 1
+}
+
+same_file() { # $1=$SRC/.. $2=$DEST/..
+    if [ -L "$1" ] || [ -L "$2" ]; then
+        [ -L "$1" ] && [ -L "$2" ] && [ "$(readlink "$1")" = "$(readlink "$2")" ]
+    else
+        cmp -s "$1" "$2"
+    fi
+}
+
+list_src() { (cd "$SRC" && find . \( -type f -o -type l \) | sed 's|^\./||' | sort); }
+list_dest() { (cd "$DEST" && find . \( -type f -o -type l \) | sed 's|^\./||' | sort); }
+
+if [ "$MODE" = "check" ]; then
+    fail=0; n_ok=0
+    while IFS= read -r rel; do
+        src="$SRC/$rel"; dst="$DEST/$rel"
+        if [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
+            echo "  [FALTA] $rel" >&2; fail=1
+        elif ! same_file "$src" "$dst"; then
+            echo "  [DIFIERE] $rel" >&2; fail=1
+        else
+            n_ok=$((n_ok + 1))
+        fi
+    done < <(list_src)
+
+    unexpected=0; n_allowed=0
+    while IFS= read -r rel; do
+        if [ -e "$SRC/$rel" ] || [ -L "$SRC/$rel" ]; then continue; fi
+        if allowed "$rel"; then n_allowed=$((n_allowed + 1)); continue; fi
+        echo "  [EXTRA no permitido] $rel" >&2; unexpected=$((unexpected + 1)); fail=1
+    done < <(list_dest)
+
+    echo "  $n_ok ficheros 1:1; extras legacy/ISO permitidos: $n_allowed"
+    if [ "$fail" = "0" ]; then echo "SKEL_SYNC_OK"; else echo "SKEL_SYNC_FAIL" >&2; fi
+    exit "$fail"
+fi
+
+echo "== nimbus-skel-sync: $SRC -> $DEST =="
+n=0
+while IFS= read -r rel; do
+    src="$SRC/$rel"; dst="$DEST/$rel"
+    mkdir -p "$(dirname "$dst")" || { echo "ERROR: no se pudo crear $(dirname "$dst")" >&2; exit 1; }
+    if [ -e "$dst" ] || [ -L "$dst" ]; then
+        if same_file "$src" "$dst"; then continue; fi
+    fi
+    rm -f "$dst" 2>/dev/null || true
+    cp -a "$src" "$dst" || { echo "ERROR: no se pudo copiar $rel" >&2; exit 1; }
+    n=$((n + 1))
+done < <(list_src)
+echo "SKEL_SYNC_APPLIED actualizados=$n"

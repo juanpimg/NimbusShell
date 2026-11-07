@@ -44,5 +44,22 @@ else
 fi
 grep -q 'BUILD_COMPONENTS_CHECK_OK' <<<"$out" && ok "marcador OK" || bad "sin marcador OK"
 
+echo "== build-components: KCM en prefijo aislado =="
+if "$REPO_ROOT/scripts/build-components" --prefix "$TMP/prefix" --build-dir "$TMP/build" \
+    --filter kcm_nimbus >"$TMP/build-kcm.log" 2>&1; then
+    ok "build+install kcm_nimbus"
+else
+    bad "build kcm_nimbus"; tail -20 "$TMP/build-kcm.log"
+fi
+KCM_PLUGIN="$TMP/prefix/lib/qt6/plugins/plasma/kcms/systemsettings/kcm_nimbus.so"
+[ -f "$KCM_PLUGIN" ] && ok "plugin KCM instalado" || bad "falta plugin KCM"
+[ -f "$TMP/prefix/share/applications/kcm_nimbus.desktop" ] && ok "desktop KCM" || bad "falta desktop KCM"
+[ -f "$TMP/prefix/share/kpackage/kcms/kcm_nimbus/metadata.json" ] && ok "metadata KCM" || bad "falta metadata KCM"
+if out="$("$REPO_ROOT/scripts/build-components" --check --prefix "$TMP/prefix" --filter kcm_nimbus 2>&1)"; then
+    ok "--check KCM verde"
+else
+    bad "--check KCM falló"; echo "$out"
+fi
+
 echo "Resultado: $PASS ok, $FAIL fallos"
 [ "$FAIL" -eq 0 ]

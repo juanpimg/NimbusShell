@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# build-components — compila e instala los binarios GUI Nimbus en un prefijo
-# de usuario (por defecto ~/.local). Sin root, sin red, idempotente.
+# build-components — compila e instala los binarios GUI y el KCM Nimbus en un
+# prefijo de usuario (por defecto ~/.local). Sin root, sin red, idempotente.
 #
 # Uso:
 #   scripts/build-components [--check] [--prefix DIR] [--build-dir DIR]
@@ -63,7 +63,8 @@ component_list() {
         nimbus-missioncontrol \
         nimbus-spotlight \
         nimbus-welcome \
-        nimbus-wallpaper
+        nimbus-wallpaper \
+        kcm_nimbus
 }
 
 component_src() { # $1=componente -> ruta relativa al repo
@@ -77,6 +78,7 @@ component_src() { # $1=componente -> ruta relativa al repo
         nimbus-spotlight) echo apps/nimbus-spotlight ;;
         nimbus-welcome) echo apps/nimbus-welcome ;;
         nimbus-wallpaper) echo apps/nimbus-wallpaper ;;
+        kcm_nimbus) echo packages/kcm/kcm_nimbus ;;
         *) return 1 ;;
     esac
 }
@@ -102,6 +104,10 @@ component_files() { # $1=componente -> rutas relativas esperadas en el prefijo
         nimbus-welcome) printf '%s\n' bin/nimbus-welcome \
             share/applications/org.nimbus.welcome.desktop ;;
         nimbus-wallpaper) printf '%s\n' bin/nimbus-wallpaper ;;
+        kcm_nimbus) printf '%s\n' \
+            lib/qt6/plugins/plasma/kcms/systemsettings/kcm_nimbus.so \
+            share/applications/kcm_nimbus.desktop \
+            share/kpackage/kcms/kcm_nimbus/metadata.json ;;
         *) return 1 ;;
     esac
 }
@@ -159,7 +165,8 @@ build_one() { # $1=componente
 
     echo "-- $comp: configure/build"
     if ! cmake -S "$REPO_ROOT/$src" -B "$builddir" "${gen[@]}" \
-        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PREFIX" >"$log" 2>&1; then
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DCMAKE_INSTALL_LIBDIR=lib >"$log" 2>&1; then
         echo "ERROR: cmake configure de $comp falló (¿Qt6/KF6/LayerShellQt?). Ver $log" >&2
         return 1
     fi
