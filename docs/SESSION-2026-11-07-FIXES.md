@@ -119,10 +119,10 @@ CHECK ROJO: hay drift (ver [FALTA] arriba).   # exit 1 esperado en host no conve
 - **Binarios GUI + KCM:** ya se compilan/instalan en `~/.local` con
   `scripts/build-components` (9 GUI + KCM verificado); la ISO final sigue
   siendo F12-T03.
-- **Skel de NimbusOS:** port aplicado en la rama `plasma-skel-sync`
-  (commit `917cc0f`, 59 ficheros, `CHECK-ONLY PASS`); pendiente de revisión,
-  merge y push en NimbusOS. `main` de NimbusOS intacto. Ver
-  `docs/SKEL-SYNC.md`.
+- **Skel de NimbusOS:** port aplicado y rama publicada en
+  `origin/plasma-skel-sync` (commit `917cc0f`, 59 ficheros,
+  `CHECK-ONLY PASS`); pendiente de revisión/merge en NimbusOS. `main` de
+  NimbusOS intacto. Ver `docs/SKEL-SYNC.md`.
 - **F13-T01:** contribuciones upstream.
 - **F0-T03/T04:** spikes históricos; sus resultados viven en F5/F7 y no se
   marcan para no inflar el ledger.
