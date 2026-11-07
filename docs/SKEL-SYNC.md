@@ -61,9 +61,9 @@ Ruling R20).
 - **Aplicado** sobre la rama `plasma-skel-sync` de NimbusOS: 59 ficheros
   actualizados, `SKEL_SYNC_OK` y `build_iso.sh --check-only` → `CHECK-ONLY PASS`.
 - La rama está **publicada** en `origin/plasma-skel-sync` (commit `917cc0f`)
-  y es la base de `origin/plasma-migration` (checkpoint `54563c7`):
-  <https://github.com/juanpimg/NimbusOS/pull/new/plasma-migration>. Queda
-  pendiente de revisión/merge; `main` de NimbusOS no se ha tocado.
+  y es la base de `origin/plasma-migration` (checkpoint `54563c7`), publicada
+  en el PR draft <https://github.com/juanpimg/NimbusOS/pull/1>. Queda pendiente
+  de revisión/merge; `main` de NimbusOS no se ha tocado.
 - Los extras legacy/ISO que quedan son los de la allowlist
   (Hyprland/MacShell, `Desktop/`, `.local/bin/` y unidades de barra): son la
   parte que NimbusOS aún necesita para su ISO Hyprland.

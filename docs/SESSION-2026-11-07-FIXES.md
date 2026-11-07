@@ -123,7 +123,7 @@ CHECK ROJO: hay drift (ver [FALTA] arriba).   # exit 1 esperado en host no conve
 - `./scripts/verify-plasma.sh` → `VERIFY-PLASMA PASS` (check-only + skel + CI).
 - Rama `plasma-migration` publicada en NimbusOS
   (`origin/plasma-migration`, checkpoint `54563c7`):
-  <https://github.com/juanpimg/NimbusOS/pull/new/plasma-migration>.
+  <https://github.com/juanpimg/NimbusOS/pull/1> (draft).
 - El perfil `legacy-hypr` sigue pasando `--check-only` para rollback; `main`
   de NimbusOS no se toca hasta validar la ISO Plasma en VM.
 
