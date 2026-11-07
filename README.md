@@ -4,7 +4,8 @@
 > **KDE Plasma 6.8.2 (Wayland)** con estética **macOS Tahoe 1:1**, shaders
 > **Liquid Glass** y ledger de progreso al **93.0%** (103/112). Handoff para
 > sesiones limpias: [`docs/SESSION-2026-11-04-HANDOFF.md`](docs/SESSION-2026-11-04-HANDOFF.md).
-> Demostración en video: [`out/videos/nimbus-tahoe-ui-ux-demo.mp4`](out/videos/nimbus-tahoe-ui-ux-demo.mp4).
+> Demostración reproducible: `python3 scripts/record-nimbus-demo.py` genera
+> `out/videos/` (MP4/GIF; `out/` no se versiona).
 
 **Convierte cualquier Arch Linux instalado en el escritorio NimbusOS: Plasma 6.8.2 Wayland con flujo y estética macOS Tahoe.**
 

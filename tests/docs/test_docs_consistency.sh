@@ -35,6 +35,7 @@ fi
 
 if grep -q '60/112' docs/INDEX.md; then bad "docs/INDEX.md conserva el ledger viejo 60/112"; else ok "docs/INDEX.md sin ledger viejo"; fi
 if grep -q 'Entras a Hyprland' README.md; then bad "README.md sigue describiendo Hyprland como perfil activo"; else ok "README.md sin instrucciones Hyprland activas"; fi
+if grep -q '](out/' README.md; then bad "README.md enlaza a out/ (ignorado en git)"; else ok "README.md sin enlaces a out/"; fi
 if [ -f docs/SKEL-SYNC.md ]; then ok "docs/SKEL-SYNC.md presente"; else bad "falta docs/SKEL-SYNC.md"; fi
 
 echo "Resultado: $PASS ok, $FAIL fallos"

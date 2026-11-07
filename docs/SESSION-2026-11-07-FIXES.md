@@ -22,9 +22,10 @@
 
 ## Qué se hizo
 
-- **4 commits de consolidación** del trabajo del 4-nov:
-  `3ed89aa` (UI/temas/apps), `1bbd1f3` (tests/CI/evidencia), `49d2874`
-  (fixes de scripts) y `6c72354` (docs/handoff/ledger).
+- **4 commits de consolidación** del trabajo del 4-nov (`3ed89aa` UI/temas/apps,
+  `1bbd1f3` tests/CI/evidencia, `49d2874` fixes de scripts, `6c72354`
+  docs/handoff/ledger) y **3 commits de reparación** (`bdac1bc` tema/apps/CI,
+  `0f9f741` docs, `1ab924f` apps de la ISO en `/usr/local/bin`).
 - `scripts/apply-theme` ahora copia y aplica la decoración Aurorae de la
   variante (`Dark`/`Light`), valida `library`/`theme` en `kwinrc` y revierte
   también el tema copiado.
