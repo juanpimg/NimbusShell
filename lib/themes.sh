@@ -62,11 +62,12 @@ themes_deploy() {
     echo "-- tema Tahoe (color scheme, Kvantum, decoración)..."
     if [ ! -x "$THEME_APPLY" ]; then
         echo "    AVISO: falta $THEME_APPLY (repo incompleto; tema no aplicado)." >&2
-    elif [ -f "$THEME_STAMP" ]; then
-        echo "    tema ya aplicado (variante $(theme_variant)); se respeta tu elección"
     else
-        "$THEME_APPLY" --variant dark \
-            || echo "    AVISO: apply-theme falló; revisa $THEME_APPLY --check." >&2
+        "$THEME_APPLY" --resources-only \
+            || echo "    AVISO: no se copiaron los recursos del tema; revisa $THEME_APPLY --check." >&2
+        if [ -f "$THEME_STAMP" ]; then
+            echo "    variante $(theme_variant) aplicada por el usuario; se respeta"
+        fi
     fi
 }
 
@@ -87,8 +88,6 @@ themes_check() {
     fi
     if [ ! -x "$THEME_APPLY" ]; then
         nimbus_fail "falta $THEME_APPLY (repo incompleto)"
-    elif [ ! -f "$THEME_STAMP" ]; then
-        nimbus_fail "tema Tahoe no aplicado (re-ejecuta ./install.sh)"
     else
         local variant out
         variant="$(theme_variant)"

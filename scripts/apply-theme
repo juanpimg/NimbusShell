@@ -8,13 +8,15 @@ set -u
 VARIANT="dark"
 CHECK=""
 REVERT=""
+RESOURCES_ONLY=""
 for arg in "$@"; do
   case "$arg" in
     --variant) shift_next=1; continue ;;
     light|dark) if [ "${shift_next:-0}" = "1" ]; then VARIANT="$arg"; shift_next=0; fi ;;
     --check) CHECK="yes" ;;
     --revert) REVERT="yes" ;;
-    -h|--help) echo "Uso: scripts/apply-theme [--variant light|dark] [--check] [--revert]"; exit 0 ;;
+    --resources-only) RESOURCES_ONLY="yes" ;;
+    -h|--help) echo "Uso: scripts/apply-theme [--variant light|dark] [--check] [--revert] [--resources-only]"; exit 0 ;;
     *) echo "ERROR: flag desconocido: $arg (ver --help)" >&2; exit 1 ;;
   esac
 done
@@ -54,6 +56,28 @@ make_backup() {
 
 scheme_name() { if [ "$VARIANT" = "light" ]; then echo "NimbusTahoeLight"; else echo "NimbusTahoe"; fi; }
 aurorae_name() { if [ "$VARIANT" = "light" ]; then echo "MacTahoeLiquidKde-Light"; else echo "MacTahoeLiquidKde-Dark"; fi; }
+
+install_resources() { # copia recursos sin tocar kdeglobals/kwinrc
+  local a wp
+  mkdir -p "$HOME/.config/Kvantum" "$HOME/.local/share/color-schemes" \
+    "$HOME/.local/share/wallpapers/nimbus/contents/images" || return 1
+  cp -a "$THEME/colorschemes/NimbusTahoe.colors" \
+        "$THEME/colorschemes/NimbusTahoeLight.colors" \
+        "$HOME/.local/share/color-schemes/" || return 1
+  cp -a "$THEME/kvantum/nimbus.kvconfig" "$HOME/.config/Kvantum/nimbus.conf" || return 1
+  for a in MacTahoeLiquidKde-Dark MacTahoeLiquidKde-Light; do
+    if [ -d "$THEME/aurorae/$a" ]; then
+      mkdir -p "$HOME/.local/share/aurorae/themes/$a" || return 1
+      cp -a "$THEME/aurorae/$a/." "$HOME/.local/share/aurorae/themes/$a/" || return 1
+    fi
+  done
+  for wp in sequoia-light.jpg sequoia-dark.jpg; do
+    if [ -f "$THEME/wallpapers/$wp" ]; then
+      cp -aL "$THEME/wallpapers/$wp" \
+        "$HOME/.local/share/wallpapers/nimbus/contents/images/$wp" || return 1
+    fi
+  done
+}
 
 do_check() {
   local fail=0
@@ -100,12 +124,16 @@ if [ -n "$REVERT" ]; then do_revert; exit 0; fi
 if [ -n "$CHECK" ]; then do_check; exit "$?"; fi
 
 [ -d "$THEME" ] || { echo "ERROR: falta $THEME" >&2; exit 1; }
+if [ -n "$RESOURCES_ONLY" ]; then
+  install_resources || { echo "ERROR: no se pudieron copiar los recursos de $THEME" >&2; exit 1; }
+  echo "RESOURCES_OK theme=$THEME"
+  exit 0
+fi
 [ -f "$THEME/kdeglobals" ] || { echo "ERROR: falta $THEME/kdeglobals" >&2; exit 1; }
 
 make_backup
 SCHEME="$(scheme_name)"
-mkdir -p "$HOME/.config/Kvantum" "$HOME/.local/share/color-schemes" \
-  "$HOME/.local/share/wallpapers/nimbus/contents/images"
+install_resources || { echo "ERROR: no se pudieron copiar los recursos de $THEME" >&2; exit 1; }
 
 # 1. kdeglobals (fusión: respeta claves ajenas; solo fija las Nimbus).
 cp -a "$THEME/kdeglobals" "$HOME/.config/kdeglobals.nimbus-src"
@@ -123,24 +151,13 @@ else
   echo "AVISO: kwriteconfig6 ausente; kdeglobals copiado íntegro (puede sobrescribir claves ajenas)." >&2
 fi
 
-# 2. Color schemes (copia idempotente).
-cp -a "$THEME/colorschemes/NimbusTahoe.colors" "$HOME/.local/share/color-schemes/"
-cp -a "$THEME/colorschemes/NimbusTahoeLight.colors" "$HOME/.local/share/color-schemes/"
-
-# 3. Kvantum (copia idempotente + estilo por defecto si es viable).
-cp -a "$THEME/kvantum/nimbus.kvconfig" "$HOME/.config/Kvantum/nimbus.conf"
+# 2. Color schemes y Kvantum ya copiados por install_resources.
 if command -v kwriteconfig6 >/dev/null 2>&1; then
   kwriteconfig6 --file Kvantum/kvantum.kvconfig --group General --key theme nimbus
 fi
 
-# 3b. Decoración Aurorae MacTahoeLiquidKde (variante light/dark)
+# 3. Decoración Aurorae: fija la variante en kwinrc (los ficheros ya están).
 AURORAE="$(aurorae_name)"
-AURORAE_SRC="$THEME/aurorae/$AURORAE"
-AURORAE_DST="$HOME/.local/share/aurorae/themes/$AURORAE"
-if [ -d "$AURORAE_SRC" ]; then
-  mkdir -p "$AURORAE_DST"
-  cp -a "$AURORAE_SRC/." "$AURORAE_DST/"
-fi
 if command -v kwriteconfig6 >/dev/null 2>&1; then
   kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
   kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__$AURORAE"
@@ -153,17 +170,12 @@ if [ ! -d "$HOME/.local/share/icons/WhiteSur" ] && [ ! -d /usr/share/icons/White
   echo "AVISO: iconos WhiteSur no instalados; Plasma usará el fallback (Breeze). Ver README del tema." >&2
 fi
 
-# 5. Wallpaper (fichero + aplicación si hay herramienta).
+# 5. Wallpaper (los ficheros ya están; aplica el de la variante si hay herramienta).
 WP_NAME="sequoia-${VARIANT}.jpg"
 if [ ! -f "$THEME/wallpapers/$WP_NAME" ]; then
   WP_NAME="sequoia-light.jpg"
 fi
-WP_SRC="$(readlink -f "$THEME/wallpapers/$WP_NAME")"
 WP_DST="$HOME/.local/share/wallpapers/nimbus/contents/images/$WP_NAME"
-cp -a "$WP_SRC" "$WP_DST"
-if [ "$WP_NAME" != "sequoia-light.jpg" ] && [ -f "$THEME/wallpapers/sequoia-light.jpg" ]; then
-  cp -a "$(readlink -f "$THEME/wallpapers/sequoia-light.jpg")" "$HOME/.local/share/wallpapers/nimbus/contents/images/sequoia-light.jpg"
-fi
 
 if [ "${NIMBUS_NO_LIVE:-0}" = "1" ]; then
   echo "AVISO: NIMBUS_NO_LIVE=1; wallpaper copiado pero no aplicado en vivo." >&2

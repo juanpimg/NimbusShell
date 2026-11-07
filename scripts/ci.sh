@@ -55,6 +55,7 @@ sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
              "$REPO_ROOT/tests/calamares/test_calamares_config.sh" \
              "$REPO_ROOT/tests/apps/test_apps_deploy.sh" \
              "$REPO_ROOT/tests/docs/test_docs_consistency.sh" \
+             "$REPO_ROOT/tests/install/test_deploy_home.sh" \
              "$REPO_ROOT/tests/welcome/test_welcome.sh" \
              "$REPO_ROOT/tests/support/test_bug_report.sh" \
              "$REPO_ROOT/tests/widgets/test_widgets.sh" \
@@ -253,7 +254,7 @@ else fail "tests/theme/test_apply_theme.sh ausente o sin +x"; fi
 echo "== ci: theme deploy integration (tests/theme/test_themes_deploy.sh) =="
 if [ -x "$REPO_ROOT/tests/theme/test_themes_deploy.sh" ]; then
     if "$REPO_ROOT/tests/theme/test_themes_deploy.sh" >/tmp/opencode/ci-themes-deploy.txt 2>&1; then
-        pass "tests/theme/test_themes_deploy.sh (14/14 ok)"
+        pass "tests/theme/test_themes_deploy.sh (15/15 ok)"
     else fail "tests/theme/test_themes_deploy.sh (ver /tmp/opencode/ci-themes-deploy.txt)"; fi
 else fail "tests/theme/test_themes_deploy.sh ausente o sin +x"; fi
 
@@ -421,6 +422,13 @@ if [ -x "$REPO_ROOT/tests/welcome/test_welcome.sh" ]; then
         pass "tests/welcome/test_welcome.sh"
     else fail "tests/welcome/test_welcome.sh (ver /tmp/opencode/ci-welcome.txt)"; fi
 else fail "tests/welcome/test_welcome.sh ausente o sin +x"; fi
+
+echo "== ci: deploy en HOME aislado (tests/install/test_deploy_home.sh) =="
+if [ -x "$REPO_ROOT/tests/install/test_deploy_home.sh" ]; then
+    if "$REPO_ROOT/tests/install/test_deploy_home.sh" >/tmp/opencode/ci-deploy-home.txt 2>&1; then
+        pass "tests/install/test_deploy_home.sh (10/10 ok)"
+    else fail "tests/install/test_deploy_home.sh (ver /tmp/opencode/ci-deploy-home.txt)"; fi
+else fail "tests/install/test_deploy_home.sh ausente o sin +x"; fi
 
 echo "== ci: install.sh --check (solo lectura) =="
 "$REPO_ROOT/install.sh" --check >/tmp/opencode/ci-check.txt 2>&1

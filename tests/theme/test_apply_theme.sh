@@ -61,4 +61,13 @@ echo "== [6/6] Verificación diff golden vs captura (compare.sh <= 20%) =="
   "$REPO_ROOT/spikes/nested/f2-theme.png" \
   --threshold 20
 
+echo "== [extra] recursos sin tocar kdeglobals/kwinrc =="
+RES_HOME="$(mktemp -d /tmp/opencode/nimbus-theme-res-XXXXXX)"
+trap 'rm -rf "$TMP_HOME" "$RES_HOME"' EXIT INT TERM
+HOME="$RES_HOME" NIMBUS_NO_LIVE=1 "$REPO_ROOT/scripts/apply-theme" --resources-only >/dev/null
+[ -f "$RES_HOME/.local/share/color-schemes/NimbusTahoe.colors" ] || { echo "FAIL: resources-only sin color scheme"; exit 1; }
+[ -d "$RES_HOME/.local/share/aurorae/themes/MacTahoeLiquidKde-Dark" ] || { echo "FAIL: resources-only sin Aurorae"; exit 1; }
+[ ! -e "$RES_HOME/.config/kdeglobals" ] || { echo "FAIL: resources-only tocó kdeglobals"; exit 1; }
+[ ! -e "$RES_HOME/.config/kwinrc" ] || { echo "FAIL: resources-only tocó kwinrc"; exit 1; }
+
 echo "PASS: test_apply_theme.sh completado con éxito."

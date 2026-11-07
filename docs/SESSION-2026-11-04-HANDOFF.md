@@ -14,7 +14,7 @@
   - **Fases pendientes:** F12 (Hardening final y release 1.0), F13 (Upstream) y
     los dos spikes históricos F0-T03/T04 (sus resultados viven en F5/F7; se
     mantienen sin marcar para no inflar el ledger).
-- **Estado de CI:** `./scripts/ci.sh` está **100% VERDE** (41 grupos de checks
+- **Estado de CI:** `./scripts/ci.sh` está **100% VERDE** (42 grupos de checks
   sin warnings ni fallos; las suites internas suman 58+ comprobaciones).
 - **Demostración en Video:**
   - Video MP4: `out/videos/nimbus-tahoe-ui-ux-demo.mp4` (2.74 MB, 1440×900, 25 fps, 59s).
@@ -159,7 +159,9 @@ El desarrollo principal de la UI, la barra, el dock, los shaders y todas las apl
 - Todo el trabajo del 4-nov quedó commiteado (app, temas, tests, evidencias y
   este handoff); `git status` limpio.
 - `scripts/apply-theme` ya aplica la decoración **Aurorae** canónica
-  (`MacTahoeLiquidKde-Dark/Light`), no Klassy, y `install.sh` lo ejecuta.
+  (`MacTahoeLiquidKde-Dark/Light`), no Klassy. `install.sh` instala sus
+  recursos con `--resources-only`; los dotfiles activan el tema y no se
+  reescriben para no generar drift falso.
 - `lib/apps.sh` despliega las apps de script y las herramientas de usuario
   (`nimbus-theme`, `nimbus-dock`, `nimbus-updates`…) en `~/.local/bin`, con sus
   recursos en `~/.local/share/nimbus/`, y verifica que sean 1:1; las apps GUI

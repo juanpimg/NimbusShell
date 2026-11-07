@@ -49,10 +49,12 @@ Para el perfil histórico Hyprland: `./install.sh --profile=legacy-hypr`.
 - **Dotfiles:** `kwinrc`, `kdeglobals`, `kwinrulesrc`, `plasmarc`, `plasma/`,
   `kglobalshortcutsrc`, presets de la barra y tema Aurorae
   `MacTahoeLiquidKde-Dark/Light`.
-- **Tema Tahoe** (`scripts/apply-theme`): color schemes NimbusTahoe y
-  NimbusTahoeLight, Kvantum, decoración Aurorae, fuentes Inter/JetBrains Mono
-  y fondo NPS. Los iconos/cursor WhiteSur se usan si están instalados; si no,
-  Plasma cae a Breeze con aviso.
+- **Tema Tahoe:** el instalador copia color schemes NimbusTahoe/NimbusTahoeLight,
+  Kvantum, decoración Aurorae y fondos NPS (`apply-theme --resources-only`); los
+  dotfiles canónicos ya activan `NimbusTahoe`/Aurorae. `scripts/apply-theme`
+  completo queda para fusionar el tema en un `$HOME` existente. Los
+  iconos/cursor WhiteSur se usan si están instalados; si no, Plasma cae a
+  Breeze con aviso.
 - **KWin:** scripts `nimbus-spotlight`, `nimbus-apps-toggle`, `nimbus-tabs`,
   `nimbus-mc`, `nimbus-zoom` y efecto `nimbus-overview`.
 - **Dock:** preset `kremarc-nimbus` para Krema y launchers propios.

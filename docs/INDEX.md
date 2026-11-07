@@ -66,6 +66,7 @@
 - `tests/theme/test_themes_deploy.sh` — `themes_deploy`/`themes_check` con HOME temporal.
 - `tests/theme/test_nimbus_theme.sh` — cambio claro/oscuro con decoración Aurorae.
 - `tests/apps/test_apps_deploy.sh` — apps de script 1:1 en `~/.local/bin`.
+- `tests/install/test_deploy_home.sh` — despliegue completo en HOME aislado.
 - `tests/docs/test_docs_consistency.sh` — handoff y ledger sin drift.
 - `tests/qml/tst_calendar.qml` — calendario (9/9).
 - `tests/vm/nested-bar.sh` — harness nested (barra/CC/menú/calendario/OSD).

@@ -16,9 +16,10 @@ fuente única R-TAHOE-TOKENS). Default: **dark**. Aplica con
 - `wallpapers/`: `sequoia-light.jpg` → symlink a `assets/sequoia-light.jpg`
   (arte propio NPS, 1920x1080) + `metadata.json`.
 
-`install.sh` ejecuta `scripts/apply-theme --variant dark` en una instalación
-nueva y respeta la variante del usuario si ya existe
-`~/.config/nimbus-theme-applied`.
+`install.sh` instala los recursos con `scripts/apply-theme --resources-only`
+(color schemes, Kvantum, Aurorae y fondos) y los dotfiles canónicos ya activan
+`NimbusTahoe`/Aurorae. `apply-theme` completo queda para reaplicar o fusionar
+el tema en un `$HOME` existente; `nimbus-theme` alterna claro/oscuro.
 
 ## Atribución y licencias (R-APPLE: sin activos Apple)
 

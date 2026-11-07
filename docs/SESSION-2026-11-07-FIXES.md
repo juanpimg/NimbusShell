@@ -30,8 +30,10 @@
   variante (`Dark`/`Light`), valida `library`/`theme` en `kwinrc` y revierte
   también el tema copiado. `NIMBUS_NO_LIVE=1` evita tocar el fondo de la
   sesión real durante los tests.
-- `lib/themes.sh` ejecuta `apply-theme` en instalación nueva y respeta la
-  variante si ya existe `~/.config/nimbus-theme-applied`.
+- `lib/themes.sh` instala los recursos del tema con
+  `apply-theme --resources-only` y respeta la variante si ya existe
+  `~/.config/nimbus-theme-applied`; no reescribe `kdeglobals`/`kwinrc` para no
+  provocar drift en el `--check` 1:1 (los dotfiles ya activan el tema).
 - `scripts/nimbus-theme` también cambia la decoración Aurorae al alternar
   claro/oscuro (antes solo cambiaba color scheme y fondo).
 - El instalador despliega las herramientas de usuario y sus recursos en
@@ -44,7 +46,8 @@
   orden de compilación.
 - `tests/vm/nimbus-hw-check.sh` usa `/tmp/opencode` por defecto; solo escribe
   en `spikes/` con `--out` explícito.
-- Nuevos gates: `tests/apps/test_apps_deploy.sh` y
+- Nuevos gates: `tests/apps/test_apps_deploy.sh`,
+  `tests/install/test_deploy_home.sh` y
   `tests/docs/test_docs_consistency.sh`.
 - Docs corregidos: README Plasma, `docs/INDEX.md`, `ESTADO.md`, handoff,
   `docs/SKEL-SYNC.md` y Rulings Hyprland movidas a `legacy/hyprland/README.md`.
@@ -56,19 +59,22 @@ $ scripts/nimbus-progress
 Total: 103/112 (93.0%)
 
 $ ./scripts/ci.sh
-CI VERDE.   # 41 grupos; incluye tema, apps deploy y docs consistency
+CI VERDE.   # 42 grupos; incluye tema, apps deploy, docs y deploy en HOME aislado
 
 $ bash tests/theme/test_apply_theme.sh
 PASS: test_apply_theme.sh completado con éxito.
 
 $ bash tests/theme/test_themes_deploy.sh
-Resultado: 14 ok, 0 fallos
+Resultado: 15 ok, 0 fallos
 
 $ bash tests/theme/test_nimbus_theme.sh
 Resultado: 14 ok, 0 fallos
 
 $ bash tests/apps/test_apps_deploy.sh
 Resultado: 28 ok, 0 fallos
+
+$ bash tests/install/test_deploy_home.sh
+Resultado: 10 ok, 0 fallos   # dotfiles+tema+KWin+dock+apps 1:1 en HOME temporal
 
 $ bash tests/docs/test_docs_consistency.sh
 Resultado: 14 ok, 0 fallos
