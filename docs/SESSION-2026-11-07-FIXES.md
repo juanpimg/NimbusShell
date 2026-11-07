@@ -32,6 +32,8 @@
   sesión real durante los tests.
 - `lib/themes.sh` ejecuta `apply-theme` en instalación nueva y respeta la
   variante si ya existe `~/.config/nimbus-theme-applied`.
+- `scripts/nimbus-theme` también cambia la decoración Aurorae al alternar
+  claro/oscuro (antes solo cambiaba color scheme y fondo).
 - `lib/apps.sh` despliega las 7 apps de script en `~/.local/bin` (1:1, con
   `cmp`), instala el desktop de bug-report y marca los binarios GUI como
   `[PENDIENTE]` con la orden de compilación.
@@ -49,12 +51,15 @@ $ scripts/nimbus-progress
 Total: 103/112 (93.0%)
 
 $ ./scripts/ci.sh
-CI VERDE.   # 40 grupos; incluye tema, apps deploy y docs consistency
+CI VERDE.   # 41 grupos; incluye tema, apps deploy y docs consistency
 
 $ bash tests/theme/test_apply_theme.sh
 PASS: test_apply_theme.sh completado con éxito.
 
 $ bash tests/theme/test_themes_deploy.sh
+Resultado: 14 ok, 0 fallos
+
+$ bash tests/theme/test_nimbus_theme.sh
 Resultado: 14 ok, 0 fallos
 
 $ bash tests/apps/test_apps_deploy.sh

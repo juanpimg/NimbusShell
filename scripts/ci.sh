@@ -24,8 +24,17 @@ done
 
 sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
     for f in "$REPO_ROOT/install.sh" "$REPO_ROOT"/lib/*.sh "$REPO_ROOT"/scripts/*.sh \
+             "$REPO_ROOT/scripts/apply-theme" \
              "$REPO_ROOT/scripts/install-klassy-nimbus" \
              "$REPO_ROOT/scripts/install-glass-nimbus" \
+             "$REPO_ROOT/scripts/nimbus-theme" \
+             "$REPO_ROOT/scripts/nimbus-i18n" \
+             "$REPO_ROOT/scripts/nimbus-bar-preset" \
+             "$REPO_ROOT/scripts/nimbus-layout" \
+             "$REPO_ROOT/scripts/nimbus-control" \
+             "$REPO_ROOT/scripts/nimbus-pxe" \
+             "$REPO_ROOT/scripts/dev-vm" \
+             "$REPO_ROOT/scripts/dev-remote" \
              "$REPO_ROOT/scripts/nimbus-privacy" \
              "$REPO_ROOT/scripts/nimbus-flatpak-perms" \
              "$REPO_ROOT/scripts/nimbus-trash" \
@@ -64,6 +73,7 @@ sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
              "$REPO_ROOT/tests/qml/test_qml_suite.sh" \
              "$REPO_ROOT/tests/theme/test_apply_theme.sh" \
              "$REPO_ROOT/tests/theme/test_themes_deploy.sh" \
+             "$REPO_ROOT/tests/theme/test_nimbus_theme.sh" \
              "$REPO_ROOT/tests/windows/test_drag_doubleclick.sh" \
              "$REPO_ROOT/tests/vm/windows.sh" \
              "$REPO_ROOT/tests/vm/dock.sh" \
@@ -246,6 +256,13 @@ if [ -x "$REPO_ROOT/tests/theme/test_themes_deploy.sh" ]; then
         pass "tests/theme/test_themes_deploy.sh (14/14 ok)"
     else fail "tests/theme/test_themes_deploy.sh (ver /tmp/opencode/ci-themes-deploy.txt)"; fi
 else fail "tests/theme/test_themes_deploy.sh ausente o sin +x"; fi
+
+echo "== ci: nimbus-theme light/dark (tests/theme/test_nimbus_theme.sh) =="
+if [ -x "$REPO_ROOT/tests/theme/test_nimbus_theme.sh" ]; then
+    if "$REPO_ROOT/tests/theme/test_nimbus_theme.sh" >/tmp/opencode/ci-nimbus-theme.txt 2>&1; then
+        pass "tests/theme/test_nimbus_theme.sh (14/14 ok)"
+    else fail "tests/theme/test_nimbus_theme.sh (ver /tmp/opencode/ci-nimbus-theme.txt)"; fi
+else fail "tests/theme/test_nimbus_theme.sh ausente o sin +x"; fi
 
 echo "== ci: window drag and doubleclick (tests/windows/test_drag_doubleclick.sh) =="
 if [ -x "$REPO_ROOT/tests/windows/test_drag_doubleclick.sh" ]; then

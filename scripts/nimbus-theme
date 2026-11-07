@@ -12,7 +12,8 @@
 # - plasma-apply-wallpaperimage <img>: fondo (requiere plasmashell en vivo;
 #   en nested sin shell falla de forma controlada y deja el fichero copiado).
 # - kwriteconfig6/kreadconfig6: kdeglobals [General]/[KDE] ColorScheme,
-#   [KDE] LookAndFeelPackage; kwinrc/plasmarc intactos salvo backup.
+#   [KDE] LookAndFeelPackage; kwinrc (decoración Aurorae) y plasmarc se
+#   actualizan por variante, con backup previo.
 # - Cambio automático claro/oscuro: Plasma 6.8 NO lo trae (kcm_nighttime es
 #   solo el ciclo día-noche de Night Light, filtro azul, no cambia el tema).
 #   Se usa timer systemd de usuario propio (nimbus-theme-auto.timer).
@@ -172,16 +173,20 @@ do_check() {
       *) mode="$(resolve_auto)" ;;
     esac
   elif [ "$mode" = "auto" ]; then mode="$(resolve_auto)"; fi
-  local scheme wp
+  local scheme wp aurorae
   scheme="$(scheme_for "$mode")"; wp="$(wp_for "$mode")"
+  if [ "$mode" = "light" ]; then aurorae="MacTahoeLiquidKde-Light"; else aurorae="MacTahoeLiquidKde-Dark"; fi
   [ -f "$HOME/.local/share/color-schemes/$scheme.colors" ] || { echo "FAIL: falta color-scheme $scheme"; fail=1; }
   [ -f "$HOME/.local/share/wallpapers/nimbus/contents/images/$wp" ] || { echo "FAIL: falta wallpaper $wp"; fail=1; }
+  [ -d "$HOME/.local/share/aurorae/themes/$aurorae" ] || { echo "FAIL: falta decoración Aurorae $aurorae"; fail=1; }
   if command -v kreadconfig6 >/dev/null 2>&1; then
-    local cur acc
+    local cur acc deco
     cur="$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)"
     [ "$cur" = "$scheme" ] || { echo "FAIL: ColorScheme=$cur (esperado $scheme)"; fail=1; }
     acc="$(kreadconfig6 --file kdeglobals --group "Colors:Window" --key DecorationFocus 2>/dev/null || true)"
     [ -n "$acc" ] || { echo "FAIL: sin acento en Colors:Window"; fail=1; }
+    deco="$(kreadconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme 2>/dev/null || true)"
+    [ "$deco" = "__aurorae__svg__$aurorae" ] || { echo "FAIL: decoración=$deco (esperado __aurorae__svg__$aurorae)"; fail=1; }
   fi
   if [ "$fail" = "0" ]; then echo "CHECK_OK mode=$mode scheme=$scheme"; else echo "CHECK_FAIL"; fi
   return "$fail"
@@ -197,6 +202,8 @@ do_revert() {
   rm -f "$HOME"/.local/share/color-schemes/NimbusTahoe.colors \
     "$HOME"/.local/share/color-schemes/NimbusTahoeLight.colors
   rm -rf "$HOME/.local/share/wallpapers/nimbus"
+  rm -rf "$HOME/.local/share/aurorae/themes/MacTahoeLiquidKde-Dark" \
+    "$HOME/.local/share/aurorae/themes/MacTahoeLiquidKde-Light"
   rm -f "$STAMP_FILE"
   echo "REVERT_OK desde $bkp"
 }
@@ -296,6 +303,19 @@ fi
 if command -v plasma-apply-desktoptheme >/dev/null 2>&1 && [ "$LIVE" = "1" ]; then
   plasma-apply-desktoptheme "$DESK" >/dev/null 2>&1 \
     || echo "AVISO: desktoptheme $DESK no aplicado (sin sesión viva); LookAndFeel queda en fichero." >&2
+fi
+
+# 3b. Decoración Aurorae de la variante (claro/oscuro).
+if [ "$MODE" = "light" ]; then AURORAE="MacTahoeLiquidKde-Light"; else AURORAE="MacTahoeLiquidKde-Dark"; fi
+if [ -d "$THEME_DIR/aurorae/$AURORAE" ]; then
+  mkdir -p "$HOME/.local/share/aurorae/themes/$AURORAE"
+  cp -a "$THEME_DIR/aurorae/$AURORAE/." "$HOME/.local/share/aurorae/themes/$AURORAE/"
+fi
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__$AURORAE"
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft "XIA"
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight ""
 fi
 
 # 4. Wallpaper (fichero + aplicación en vivo si hay plasmashell).
