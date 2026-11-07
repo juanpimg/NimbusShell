@@ -32,7 +32,9 @@ while [ $# -gt 0 ]; do
     --rollback-list) ACTION="rollback-list" ;;
     --rollback)
       ACTION="rollback"; ROLLBACK_N="${2:-}"
-      if [ -z "$ROLLBACK_N" ]; then echo "ERROR: --rollback necesita un numero (ver --rollback-list)." >&2; exit 1; fi
+      if [ -z "$ROLLBACK_N" ] || ! [[ "$ROLLBACK_N" =~ ^[0-9]+$ ]] || [ "$ROLLBACK_N" -le 0 ]; then
+        echo "ERROR: --rollback necesita un numero de snapshot valido (ver --rollback-list)." >&2; exit 1
+      fi
       shift ;;
     -h|--help) sed -n '2,22p' "${BASH_SOURCE[0]}" | cut -c3-; exit 0 ;;
     *) echo "ERROR: flag desconocido '$1' (ver --help)." >&2; exit 1 ;;

@@ -307,5 +307,10 @@ if [ "$LIVE" = "1" ] && command -v plasma-apply-wallpaperimage >/dev/null 2>&1; 
     || echo "AVISO: plasma-apply-wallpaperimage falló; fichero copiado en $WP_DST." >&2
 fi
 
+# 5. KWin reconfigure (en vivo para que la decoración de ventanas siga la variante).
+if [ "$LIVE" = "1" ] && command -v qdbus6 >/dev/null 2>&1; then
+  qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true
+fi
+
 echo "$MODE $ACCENT $(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$STAMP_FILE"
 echo "THEME_OK mode=$MODE scheme=$SCHEME accent=$ACCENT desk=$DESK wallpaper=$(basename "$WP_SRC") backup=$BKP"
