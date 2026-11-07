@@ -13,6 +13,12 @@
 6. `docs/SESSION-2026-11-07-FIXES.md` — reparaciones de coherencia, CI y
    despliegue de esta sesión.
 
+## Arquitectura y producto
+
+- `docs/architecture/PRODUCT-MODEL.md` — NimbusOS vs NimbusShell, fronteras y fuente de verdad.
+- `docs/architecture/REPO-MAP.md` — mapa de carpetas y responsabilidades.
+- `docs/architecture/BRANCHING.md` — ramas, tags y pines entre repos.
+
 ## Diseño y decisiones
 
 - `docs/design/tahoe-design-contract.md` — contrato visual/medidas.

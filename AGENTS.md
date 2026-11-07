@@ -37,6 +37,11 @@ equivalencia con arte propio y libre (Inter, logo N, Sequoia NPS).
 
 ## Fuente de verdad (Ruling, no bifurcar)
 
+0. **Modelo de producto:** NimbusOS es el sistema instalable; NimbusShell es la
+   capa de escritorio. La dirección es NimbusShell → NimbusOS. Lee
+   [`docs/architecture/PRODUCT-MODEL.md`](docs/architecture/PRODUCT-MODEL.md)
+   antes de mover algo entre repos.
+
 1. **Los dotfiles canónicos viven AQUÍ** (`dotfiles/`). `nimbus-overlay/etc/skel`
    de NimbusOS se genera DESDE este repo en el futuro (una sola dirección:
    NimbusShell → NimbusOS), nunca al revés a mano. Si cambias un dotfile aquí,

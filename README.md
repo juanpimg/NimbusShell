@@ -24,6 +24,7 @@ solo como referencia histórica.
 
 NimbusShell es la mitad "escritorio" de [NimbusOS](https://github.com/juanpimg/NimbusOS):
 la ISO instalable vive allí; este repo vive aquí para que **cualquier** Arch lo aproveche.
+La frontera entre ambos está en [`docs/architecture/PRODUCT-MODEL.md`](docs/architecture/PRODUCT-MODEL.md).
 
 ## Instalación en 3 pasos
 

@@ -112,6 +112,18 @@ CHECK ROJO: hay drift (ver [FALTA] arriba).   # exit 1 esperado en host no conve
 # sin "unbound variable", "command not found" ni errores de sintaxis
 ```
 
+## Reestructuración 2026-11-07 (NimbusOS Plasma)
+
+- Nuevo modelo de producto en `docs/architecture/` (NimbusOS = sistema;
+  NimbusShell = escritorio; dirección NimbusShell → NimbusOS).
+- NimbusOS `plasma-migration`: perfil Plasma real con
+  `packages.nimbus-plasma.append` (127 paquetes), overlay SDDM/Calamares/barra,
+  skel generado desde NimbusShell y `build-components` para GUI + KCM.
+- `./build_iso.sh --check-only --profile plasma` → `CHECK-ONLY PASS`.
+- `./scripts/verify-plasma.sh` → `VERIFY-PLASMA PASS` (check-only + skel + CI).
+- El perfil `legacy-hypr` sigue pasando `--check-only` para rollback; `main`
+  de NimbusOS no se toca hasta validar la ISO Plasma en VM.
+
 ## Deuda que sigue abierta (no se finge resuelta)
 
 - **F12-T01…T06:** hardening, multimonitor/HiDPI, rendimiento/batería, ISO

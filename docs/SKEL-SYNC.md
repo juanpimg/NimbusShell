@@ -60,7 +60,8 @@ Ruling R20).
   legacy/ISO, y falla ante extras no permitidos.
 - **Aplicado** sobre la rama `plasma-skel-sync` de NimbusOS: 59 ficheros
   actualizados, `SKEL_SYNC_OK` y `build_iso.sh --check-only` → `CHECK-ONLY PASS`.
-- La rama está **publicada** en `origin/plasma-skel-sync` (commit `917cc0f`):
+- La rama está **publicada** en `origin/plasma-skel-sync` (commit `917cc0f`)
+  y es la base de `plasma-migration`:
   <https://github.com/juanpimg/NimbusOS/pull/new/plasma-skel-sync>. Queda
   pendiente de revisión/merge; `main` de NimbusOS no se ha tocado.
 - Los extras legacy/ISO que quedan son los de la allowlist
