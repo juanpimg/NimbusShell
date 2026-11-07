@@ -6,18 +6,19 @@ PASS: texto llano (wifi/audio/bt/batería)
 PASS: fake wifi
 PASS: fake impresora
 PASS: fake bluetooth
-Guardando en /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz ...
-HECHO: /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz
+PASS: fake virtio GPU
+Guardando en /tmp/opencode/nimbus-home-igyzx2/backups/nimbus-backup-20261107-183357.tar.gz ...
+HECHO: /tmp/opencode/nimbus-home-igyzx2/backups/nimbus-backup-20261107-183357.tar.gz
 PASS: backup save
-PASS: tarball /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz
-Restaurando /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023520.tar.gz (respaldo de lo sobrescrito en /tmp/opencode/nimbus-home-WK0M43/.config/nimbusshell-backup-20261101-023520) ...
+PASS: tarball /tmp/opencode/nimbus-home-igyzx2/backups/nimbus-backup-20261107-183357.tar.gz
+Restaurando /tmp/opencode/nimbus-home-igyzx2/backups/nimbus-backup-20261107-183357.tar.gz (respaldo de lo sobrescrito en /tmp/opencode/nimbus-home-igyzx2/.config/nimbusshell-backup-20261107-183357) ...
 OK: kwinrc
 OK: kdeglobals
-HECHO (restore). Rollback: copia /tmp/opencode/nimbus-home-WK0M43/.config/nimbusshell-backup-20261101-023520/* a ~/.config/.
+HECHO (restore). Rollback: copia /tmp/opencode/nimbus-home-igyzx2/.config/nimbusshell-backup-20261107-183357/* a ~/.config/.
 PASS: backup restore
 PASS: restore recupera valor
 PASS: dry-run sin cambios
-Guardando en /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023521.tar.gz ...
-HECHO: /tmp/opencode/nimbus-home-WK0M43/backups/nimbus-backup-20261101-023521.tar.gz
+Guardando en /tmp/opencode/nimbus-home-igyzx2/backups/nimbus-backup-20261107-183357-2.tar.gz ...
+HECHO: /tmp/opencode/nimbus-home-igyzx2/backups/nimbus-backup-20261107-183357-2.tar.gz
 PASS: idempotente (no borra previas: 2)
-== 13 PASS, 0 FAIL (log /home/jp/Escritorio/Proyectos/NimbusShell-f10hw/spikes/nested/nimbus-hw-check.log) ==
+== 14 PASS, 0 FAIL (log /home/jp/Escritorio/Proyectos/NimbusShell/spikes/nested/nimbus-hw-check.log) ==

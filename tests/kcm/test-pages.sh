@@ -25,6 +25,15 @@ check_eq() { # <desc> <esperado> <obtenido>
 }
 
 if [ ! -x "$PROBE" ]; then
+  if command -v cmake >/dev/null 2>&1; then
+    mkdir -p /tmp/nimbus-probe-build
+    cmake -S "$REPO_ROOT/tests/kcm/probe" -B /tmp/nimbus-probe-build -DCMAKE_BUILD_TYPE=Release >/dev/null 2>&1 && \
+    cmake --build /tmp/nimbus-probe-build --target save_probe -j4 >/dev/null 2>&1
+    PROBE="/tmp/nimbus-probe-build/save_probe"
+  fi
+fi
+
+if [ ! -x "$PROBE" ]; then
   echo "ERROR: falta $PROBE (compila tests/kcm/probe en /tmp primero)" >&2
   exit 1
 fi
@@ -198,8 +207,10 @@ RSCLOSE="$(cfg "$BASE_TMP/home-reset-shortcuts" --file kglobalshortcutsrc --grou
 case "$RSCLOSE" in *Meta*) ok "reset escribe Meta ($RSCLOSE)";; *) bad "reset atajos" "…Meta…" "$RSCLOSE";; esac
 
 echo "== Reset Sistema (energía reversible) =="
+export FAKE_BIN="$REPO_ROOT/tests/kcm/fakes"
 run_scenario reset-system reset-system
 check_eq "reset energía balanced" "balanced" "$(dump_get reset-system energyAfterReset)"
+[ -s "$BASE_TMP/fake-reset-system/timedatectl.log" ] && ok "fake timedatectl invocado en reset" || bad "fake timedatectl" "invocado" "sin log"
 
 echo "== Reset Updates =="
 run_scenario reset-updates reset-updates
@@ -255,6 +266,8 @@ check_eq "hostname inválido rechazado" "false" "$(dump_get hostname-locale setH
 check_eq "locale sin permiso falla" "false" "$(dump_get hostname-locale setLoc)"
 check_eq "hostname intacto" "true" "$(dump_get hostname-locale hostUnchanged)"
 check_eq "locale intacto" "true" "$(dump_get hostname-locale locUnchanged)"
+[ -s "$BASE_TMP/fake-hostname-locale/hostnamectl.log" ] && ok "fake hostnamectl invocado" || bad "fake hostnamectl" "invocado" "sin log"
+[ -s "$BASE_TMP/fake-hostname-locale/localectl.log" ] && ok "fake localectl invocado" || bad "fake localectl" "invocado" "sin log"
 unset FAKE_BIN
 
 echo "== JSON del paquete =="

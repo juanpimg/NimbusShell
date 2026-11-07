@@ -1,0 +1,13 @@
+#!/bin/bash
+# Fake hostnamectl para tests: no toca el host; registra args y sale con $FAKE_HOSTNAMECTL_RC (default 1).
+set -u
+[ -n "${FAKE_LOG:-}" ] && echo "hostnamectl $*" >>"$FAKE_LOG/hostnamectl.log"
+case "${1:-}" in
+    set-hostname)
+        exit "${FAKE_HOSTNAMECTL_RC:-1}"
+        ;;
+    *)
+        echo "fake-host"
+        exit 0
+        ;;
+esac

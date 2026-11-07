@@ -1,0 +1,13 @@
+#!/bin/bash
+# Fake localectl para tests: no toca el host; registra args y sale con $FAKE_LOCALECTL_RC (default 1).
+set -u
+[ -n "${FAKE_LOG:-}" ] && echo "localectl $*" >>"$FAKE_LOG/localectl.log"
+case "${1:-}" in
+    set-locale)
+        exit "${FAKE_LOCALECTL_RC:-1}"
+        ;;
+    *)
+        echo "System Locale: LANG=es_ES.UTF-8"
+        exit 0
+        ;;
+esac

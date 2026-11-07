@@ -1,0 +1,14 @@
+#!/bin/bash
+# Fake timedatectl para tests: no toca el host; registra args y sale con $FAKE_TIMEDATECTL_RC (default 0).
+set -u
+[ -n "${FAKE_LOG:-}" ] && echo "timedatectl $*" >>"$FAKE_LOG/timedatectl.log"
+case "${1:-}" in
+    set-ntp)
+        exit "${FAKE_TIMEDATECTL_RC:-0}"
+        ;;
+    *)
+        echo "Time zone: Europe/Madrid"
+        echo "NTP service: active"
+        exit 0
+        ;;
+esac

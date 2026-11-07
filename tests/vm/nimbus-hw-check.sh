@@ -5,7 +5,7 @@
 # Uso: bash tests/vm/nimbus-hw-check.sh [--check] [--out spikes/nested]
 set -u
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-OUT="spikes/nested"; MODE="vm"
+OUT="$(mktemp -d /tmp/opencode/nimbus-hw-check-XXXXXX)"; MODE="vm"
 while [ $# -gt 0 ]; do
   case "$1" in
     --check) MODE="local-seco"; shift ;;
@@ -51,11 +51,23 @@ cat > "$FAKE/bluetoothctl" <<'EOF'
 #!/usr/bin/env bash
 echo "Controller AA:BB:CC:DD:EE:FF fake [default]"
 EOF
+cat > "$FAKE/lspci" <<'EOF'
+#!/usr/bin/env bash
+if [ "$*" = "-nn" ] || echo "$*" | grep -q -- "-nn"; then
+  echo "00:02.0 VGA compatible controller [0300]: Red Hat, Inc. Virtio GPU [1af4:1050] (rev 01)"
+elif [ "$1" = "-k" ]; then
+  echo "Kernel driver in use: virtio-gpu-pci"
+else
+  echo "00:02.0 VGA compatible controller: Red Hat, Inc. Virtio GPU"
+fi
+EOF
 chmod +x "$FAKE"/*
 FJ="$(PATH="$FAKE:$PATH" "$HW" --json)"
 echo "$FJ" | grep -q '"device":"wlp3s0"' && ok "fake wifi" || no "fake wifi ($FJ)"
 echo "$FJ" | grep -q 'HP_LaserJet' && ok "fake impresora" || no "fake impresora"
 echo "$FJ" | grep -qi 'bluetooth' && ok "fake bluetooth" || no "fake bluetooth"
+VJ="$(PATH="$FAKE:$PATH" "$REPO/apps/nimbus-hw/nimbus-gpu-detect" --json)"
+echo "$VJ" | grep -q '"vendor":"vm"' && ok "fake virtio GPU" || no "fake virtio GPU ($VJ)"
 
 # Backup/restore en HOME temporal (nunca el real).
 TH="$(mktemp -d /tmp/opencode/nimbus-home-XXXXXX)"

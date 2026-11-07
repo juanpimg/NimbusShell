@@ -1,6 +1,4 @@
 # Goldens aportados por el usuario (capturas propias, R-APPLE).
-# No se commitea nada de este directorio: pueden ser fotos de macOS Tahoe
-# del usuario, que no se distribuyen.
-*
-!.gitignore
-!README.md
+# No se commitea nada de local/: pueden ser fotos de macOS Tahoe del usuario.
+local/
+*.tmp

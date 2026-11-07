@@ -3,7 +3,8 @@
 # Cubre: --check dry-run (con y sin pendientes), --apply simulado (snapshot
 # + upgrade via fakes), --rollback-list/--rollback, root-salvo-apply.
 set -u
-UPD="scripts/nimbus-updates"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+UPD="$REPO_ROOT/scripts/nimbus-updates"
 PASS=0; FAIL=0
 ok() { PASS=$((PASS+1)); echo "ok: $1"; }
 bad() { FAIL=$((FAIL+1)); echo "FALLO: $1"; }
@@ -69,12 +70,19 @@ grep -q "APPLY OK" "$FAKE/apply.txt" && ok "apply reporta" || bad "apply no repo
 "$UPD" --rollback-list 2>&1 | grep -q "nimbus-pre-update" && ok "rollback-list" || bad "rollback-list fallo"
 "$UPD" --rollback 5 2>&1 | grep -q "ROLLBACK OK" && ok "rollback ok" || bad "rollback fallo"
 grep -q "undochange" "$FAKE/log/snapper.log" && ok "rollback usa undochange" || bad "rollback sin undochange"
+"$UPD" --rollback >/dev/null 2>&1 && bad "--rollback sin N debio fallar" || ok "--rollback sin N falla accionable"
+"$UPD" --rollback abc >/dev/null 2>&1 && bad "--rollback con letra debio fallar" || ok "--rollback con letra falla"
+"$UPD" --rollback 0 >/dev/null 2>&1 && bad "--rollback cero debio fallar" || ok "--rollback cero falla"
 
 # 6. Sin snapper: degradacion con instrucciones, exit 1
 mkdir -p "$FAKE/empty" && PATH="$FAKE/empty:/usr/bin:/bin" command -v bash >/dev/null
 OPATH="$PATH"; PATH="$FAKE/empty:/usr/bin:/bin"
 "$UPD" --rollback-list >/dev/null 2>&1 && bad "sin-snapper debio fallar" || ok "sin-snapper falla con instrucciones"
 PATH="$OPATH"
+
+# 7. Discover config (F9-T07)
+grep -q "CompactMode=true" "$REPO_ROOT/dotfiles/.config/discoverrc" \
+  && ok "discoverrc CompactMode=true presente" || bad "discoverrc sin CompactMode=true"
 
 # 7. bash -n + shellcheck
 bash -n "$UPD" && ok "bash -n" || bad "bash -n fallo"

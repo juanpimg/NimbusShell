@@ -39,7 +39,8 @@ else
     fail "falta dotfiles/.config/kwinrc o plasma/kwinrc"
 fi
 for key in nimbus-spotlightEnabled nimbus-apps-toggleEnabled \
-           nimbus-tabsEnabled nimbus-mcEnabled nimbus-zoomEnabled; do
+           nimbus-tabsEnabled nimbus-mcEnabled nimbus-zoomEnabled \
+           nimbus-overviewEnabled; do
     if grep -qx "$key=true" "$KWINRC" 2>/dev/null; then
         pass "kwinrc efectivo: $key=true"
     else
