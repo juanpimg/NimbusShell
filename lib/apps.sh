@@ -35,6 +35,22 @@ apps_gui_bin() { # $1=binario -> 0 si existe en PATH o /usr/local/bin
     command -v "$1" >/dev/null 2>&1 || [ -x "/usr/local/bin/$1" ]
 }
 
+apps_script_installed() { # $1=nombre -> stdout: ruta instalada (usuario o sistema)
+    local name="$1" d
+    for d in "$APPS_BIN_DIR" /usr/local/bin /usr/bin; do
+        if [ -x "$d/$name" ]; then printf '%s\n' "$d/$name"; return 0; fi
+    done
+    return 1
+}
+
+apps_desktop_installed() { # $1=nombre.desktop -> stdout: ruta instalada
+    local name="$1" d
+    for d in "$APPS_DESKTOP_DIR" /usr/share/applications; do
+        if [ -f "$d/$name" ]; then printf '%s\n' "$d/$name"; return 0; fi
+    done
+    return 1
+}
+
 apps_deploy() {
     echo "-- apps de sistema -> $APPS_BIN_DIR..."
     mkdir -p "$APPS_BIN_DIR" "$APPS_DESKTOP_DIR" \
@@ -86,20 +102,22 @@ apps_check() {
         else nimbus_fail "apps/$app ausente en el repo (repo incompleto)"; missing=1; fi
     done
 
-    local rel src dst
+    local rel src dst name
     while IFS= read -r rel; do
         src="$REPO_ROOT/$rel"
-        dst="$APPS_BIN_DIR/$(basename "$rel")"
-        if [ ! -x "$dst" ]; then nimbus_fail "falta $dst (paso de apps en la instalación)"; missing=1;
-        elif ! cmp -s "$src" "$dst"; then nimbus_fail "$dst difiere del repo"; missing=1;
+        name="$(basename "$rel")"
+        if ! dst="$(apps_script_installed "$name")"; then
+            nimbus_fail "falta $name en $APPS_BIN_DIR ni /usr/local/bin (paso de apps)"; missing=1
+        elif ! cmp -s "$src" "$dst"; then
+            nimbus_fail "$dst difiere del repo"; missing=1
         fi
     done < <(apps_shell_scripts)
-    if [ "$missing" = "0" ]; then nimbus_ok "scripts de apps 1:1 en $APPS_BIN_DIR"; fi
+    if [ "$missing" = "0" ]; then nimbus_ok "scripts de apps 1:1 en usuario o sistema"; fi
 
-    if [ -f "$APPS_DESKTOP_DIR/org.nimbus.bugreport.desktop" ]; then
-        nimbus_ok "org.nimbus.bugreport.desktop"
+    if dst="$(apps_desktop_installed org.nimbus.bugreport.desktop)"; then
+        nimbus_ok "org.nimbus.bugreport.desktop ($dst)"
     else
-        nimbus_fail "falta $APPS_DESKTOP_DIR/org.nimbus.bugreport.desktop"
+        nimbus_fail "falta org.nimbus.bugreport.desktop en $APPS_DESKTOP_DIR ni /usr/share/applications"
     fi
 
     local bin desktop pend=""
