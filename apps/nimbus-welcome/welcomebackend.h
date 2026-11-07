@@ -3,8 +3,11 @@
 // En test (NIMBUS_WELCOME_SIM=1) todo es simulado: no toca el sistema.
 #pragma once
 #include <QObject>
+#include <QPointer>
 #include <QSettings>
 #include <QStringList>
+
+class QProcess;
 
 class WelcomeBackend : public QObject {
     Q_OBJECT
@@ -19,9 +22,13 @@ class WelcomeBackend : public QObject {
     Q_PROPERTY(QStringList wifiNetworks READ wifiNetworks NOTIFY wifiNetworksChanged)
     Q_PROPERTY(QString wifiStatus READ wifiStatus NOTIFY wifiStatusChanged)
     Q_PROPERTY(QStringList selectedApps READ selectedApps NOTIFY selectedAppsChanged)
+    Q_PROPERTY(bool isInstalling READ isInstalling NOTIFY isInstallingChanged)
+    Q_PROPERTY(int installProgress READ installProgress NOTIFY installProgressChanged)
+    Q_PROPERTY(QString installStatus READ installStatus NOTIFY installStatusChanged)
     Q_PROPERTY(bool simMode READ simMode CONSTANT)
 public:
     explicit WelcomeBackend(QObject *parent = nullptr);
+    ~WelcomeBackend() override;
 
     int step() const { return m_step; }
     bool completed() const { return m_completed; }
@@ -34,6 +41,9 @@ public:
     QStringList wifiNetworks() const { return m_wifi; }
     QString wifiStatus() const { return m_wifiStatus; }
     QStringList selectedApps() const { return m_apps; }
+    bool isInstalling() const { return m_installing; }
+    int installProgress() const { return m_installProgress; }
+    QString installStatus() const { return m_installStatus; }
     bool simMode() const { return m_sim; }
     Q_INVOKABLE int stepCount() const { return 7; }
     Q_INVOKABLE int stepIndexFor(const QString &name) const;
@@ -54,6 +64,8 @@ public Q_SLOTS:
     void scanWifi();                        // nmcli real o simulado
     void connectWifi(const QString &ssid, const QString &password);
     void toggleApp(const QString &id);
+    void installApps();
+    void cancelInstall();
     void applyAppearance(); // scripts/nimbus-theme si existe, si no config; sim en test
     void applyLayout();     // scripts/nimbus-layout <layout> --apply; sim: solo inis
 
@@ -69,6 +81,9 @@ Q_SIGNALS:
     void wifiNetworksChanged();
     void wifiStatusChanged();
     void selectedAppsChanged();
+    void isInstallingChanged();
+    void installProgressChanged();
+    void installStatusChanged();
     void requestQuit();
 
 private:
@@ -88,5 +103,9 @@ private:
     QStringList m_wifi;
     QString m_wifiStatus;
     QStringList m_apps;
+    bool m_installing = false;
+    int m_installProgress = 0;
+    QString m_installStatus;
     bool m_sim = false;
+    QPointer<QProcess> m_installProcess;
 };

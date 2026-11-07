@@ -8,43 +8,52 @@ import org.kde.layershell as LayerShellQt
 
 Item {
     id: root
+
     property int autoOpenRow: -1
     property int menuRow: -1
     property var menuItems: []
     property bool menuOpened: false
     property bool autoOpened: false
-    width: trayRow.width
-    height: 16
 
     function openMenu(row: int) {
         if (row < 0 || row >= trayModel.count)
             return;
+
         menuRow = row;
         menuItems = trayModel.fetchMenu(row);
         menuOpened = menuItems.length > 0;
     }
+
     function closeMenu() {
         menuOpened = false;
         menuRow = -1;
         menuItems = [];
     }
+
     function trigger(id: int) {
         trayModel.triggerMenuAction(menuRow, id);
         closeMenu();
     }
 
+    width: trayRow.width
+    height: 16
+
     Connections {
-        target: trayModel
         function onCountChanged() {
             if (root.autoOpenRow >= 0 && !root.autoOpened && trayModel.count > root.autoOpenRow)
-                root.autoOpened = true; // el Timer hace el open (defer)
+                root.autoOpened = true;
+
+            // el Timer hace el open (defer)
             // F3-T07-fix: si la fila del menú abierto desaparece
             // (unregister), se cierra el popup (evita índice colgado).
             if (root.menuOpened && root.menuRow >= trayModel.count)
                 root.closeMenu();
         }
+
+        target: trayModel
     }
     // Auto-apertura diferida (flag --tray-open-menu, solo captura nested).
+
     Timer {
         interval: 500
         running: root.autoOpenRow >= 0 && !root.autoOpened
@@ -59,19 +68,25 @@ Item {
 
     Row {
         id: trayRow
+
         spacing: 6
+
         Repeater {
             model: trayModel
+
             delegate: Item {
                 id: cell
+
                 required property int index
                 required property string title
                 required property string tooltip
                 required property string iconUid
                 required property bool hasMenu
+
                 width: 16
                 height: 16
                 Accessible.name: title
+
                 Image {
                     anchors.fill: parent
                     // uid cambia al refrescar -> recarga del provider.
@@ -80,8 +95,10 @@ Item {
                     smooth: true
                 }
                 // Tooltip propio (Title — texto).
+
                 Rectangle {
                     id: tip
+
                     visible: tipArea.containsMouse && cell.tooltip !== ""
                     anchors.bottom: cell.top
                     anchors.bottomMargin: 6
@@ -92,8 +109,10 @@ Item {
                     color: NimbusTokens.popupBg(NimbusTokens.dark)
                     border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
                     border.width: 1
+
                     Text {
                         id: tipText
+
                         anchors.centerIn: parent
                         text: cell.tooltip
                         font.family: NimbusTokens.fontFamily
@@ -101,6 +120,7 @@ Item {
                         color: NimbusTokens.colors(NimbusTokens.dark).label
                     }
                 }
+
                 Rectangle {
                     anchors.fill: parent
                     anchors.margins: -2
@@ -109,8 +129,10 @@ Item {
                     border.color: NimbusTokens.accentColor(NimbusTokens.dark)
                     border.width: tipArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
                 }
+
                 MouseArea {
                     id: tipArea
+
                     anchors.fill: parent
                     hoverEnabled: true
                     activeFocusOnTab: true
@@ -134,6 +156,7 @@ Item {
     // Popup dbusmenu (scrim + ventana, mismo patrón que Menu.qml).
     Window {
         id: scrim
+
         visible: root.menuOpened
         width: Screen.width
         height: Screen.height
@@ -147,18 +170,22 @@ Item {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityOnDemand
         LayerShellQt.Window.scope: "nimbus-tray-scrim"
         LayerShellQt.Window.activateOnShow: false
+
         MouseArea {
             anchors.fill: parent
             onClicked: root.closeMenu()
         }
+
         Shortcut {
             sequence: "Escape"
             enabled: root.menuOpened
             onActivated: root.closeMenu()
         }
     }
+
     Window {
         id: popup
+
         visible: root.menuOpened
         width: 200
         height: Math.max(32, root.menuItems.length * 28 + 16)
@@ -174,30 +201,36 @@ Item {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityNone
         LayerShellQt.Window.scope: "nimbus-tray-menu"
         LayerShellQt.Window.activateOnShow: false
+
         Rectangle {
             anchors.fill: parent
             radius: 10
             color: NimbusTokens.popupBg(NimbusTokens.dark)
             border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
+
             Column {
                 anchors.fill: parent
                 anchors.margins: 8
                 spacing: 0
+
                 Repeater {
                     model: root.menuItems
+
                     delegate: Rectangle {
                         required property var modelData
-                        width: parent.width
-                        height: 28
-                        radius: 6
                         // F11-T03: hover accent, pressed interno, foco 2px,
                         // disabled tokenizado [HIG §2.5].
                         property bool sel: hover.containsMouse && modelData.enabled
+
+                        width: parent.width
+                        height: 28
+                        radius: 6
                         color: !modelData.enabled ? "transparent" : hover.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : sel ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
                         border.color: NimbusTokens.accentColor(NimbusTokens.dark)
                         border.width: hover.activeFocus ? NimbusTokens.states.focusRingPx : 0
-                        opacity: modelData.enabled ? 1.0 : NimbusTokens.states.disabledOpacity[0]
+                        opacity: modelData.enabled ? 1 : NimbusTokens.states.disabledOpacity[0]
+
                         Text {
                             anchors.left: parent.left
                             anchors.leftMargin: 8
@@ -207,8 +240,10 @@ Item {
                             font.pixelSize: NimbusTokens.type.t13.size
                             color: parent.sel ? "white" : modelData.enabled ? NimbusTokens.colors(NimbusTokens.dark).label : NimbusTokens.disabledText(NimbusTokens.dark)
                         }
+
                         MouseArea {
                             id: hover
+
                             anchors.fill: parent
                             hoverEnabled: true
                             activeFocusOnTab: true

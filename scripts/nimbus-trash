@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+# nimbus-trash — gestor de papelera para el Dock Nimbus (F5-T09).
+# Inspecciona el estado de la papelera (vacía o llena), actualiza el icono
+# dinámico (user-trash vs user-trash-full), abre la papelera o la vacía.
+# Sin root, seguro e idempotente.
+#
+# Uso:
+#   nimbus-trash --status [--json] [--home DIR]
+#   nimbus-trash --update-icon [--home DIR]
+#   nimbus-trash --empty [--home DIR]
+#   nimbus-trash --open
+#   nimbus-trash --check [--home DIR]
+set -u
+
+ACTION="status"
+JSON=0
+HOME_DIR="${HOME:-}"
+CUSTOM_HOME=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --status) ACTION="status" ;;
+    --json) JSON=1 ;;
+    --update-icon) ACTION="update-icon" ;;
+    --empty) ACTION="empty" ;;
+    --open) ACTION="open" ;;
+    --check) ACTION="check" ;;
+    --home)
+      HOME_DIR="${2:-}"
+      CUSTOM_HOME=1
+      if [ -z "$HOME_DIR" ]; then echo "ERROR: --home requiere un directorio." >&2; exit 1; fi
+      shift ;;
+    -h|--help)
+      echo "Uso: $0 [--status] [--json] [--update-icon] [--empty] [--open] [--check] [--home DIR]"
+      exit 0 ;;
+    *) echo "ERROR: argumento desconocido '$1' (usa --help)" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [ "$(id -u)" = "0" ]; then
+  echo "ERROR: no ejecutar como root (la papelera es por usuario)." >&2
+  exit 1
+fi
+
+if [ "$CUSTOM_HOME" -eq 1 ]; then
+  DATA_HOME="$HOME_DIR/.local/share"
+else
+  DATA_HOME="${XDG_DATA_HOME:-$HOME_DIR/.local/share}"
+fi
+TRASH_DIR="$DATA_HOME/Trash"
+TRASH_FILES="$TRASH_DIR/files"
+TRASH_INFO="$TRASH_DIR/info"
+
+get_count() {
+  if [ -d "$TRASH_FILES" ]; then
+    find "$TRASH_FILES" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l
+  else
+    echo "0"
+  fi
+}
+
+COUNT="$(get_count)"
+STATE="empty"
+ICON="user-trash"
+if [ "$COUNT" -gt 0 ]; then
+  STATE="full"
+  ICON="user-trash-full"
+fi
+
+case "$ACTION" in
+  status)
+    if [ "$JSON" -eq 1 ]; then
+      printf '{"state":"%s","count":%d,"icon":"%s"}\n' "$STATE" "$COUNT" "$ICON"
+    else
+      printf 'papelera: %s (%d elemento(s), icono: %s)\n' "$STATE" "$COUNT" "$ICON"
+    fi
+    exit 0
+    ;;
+
+  check)
+    echo "OK: estado papelera: $STATE ($COUNT elementos)"
+    exit 0
+    ;;
+
+  open)
+    if command -v dolphin >/dev/null 2>&1; then
+      exec dolphin trash:/ >/dev/null 2>&1 &
+    else
+      echo "AVISO: dolphin no encontrado para abrir trash:/" >&2
+      exit 1
+    fi
+    ;;
+
+  empty)
+    if [ -d "$TRASH_FILES" ]; then
+      (shopt -s dotglob nullglob 2>/dev/null || true; rm -rf "${TRASH_FILES:?}"/* 2>/dev/null || true)
+    fi
+    if [ -d "$TRASH_INFO" ]; then
+      (shopt -s dotglob nullglob 2>/dev/null || true; rm -rf "${TRASH_INFO:?}"/* 2>/dev/null || true)
+    fi
+    # Actualizar icono inmediatamente a user-trash
+    USER_DESK="$DATA_HOME/applications/org.nimbus.dock.trash.desktop"
+    if [ -f "$USER_DESK" ]; then
+      sed -i "s|^Icon=.*|Icon=user-trash|" "$USER_DESK"
+    fi
+    # Sonido de vaciado si existe
+    SOUND="/usr/share/sounds/nimbus/stereo/trash-empty.ogg"
+    [ -f "$SOUND" ] || SOUND="$HOME_DIR/.local/share/sounds/nimbus/stereo/trash-empty.ogg"
+    if [ -f "$SOUND" ] && command -v pw-play >/dev/null 2>&1; then
+      pw-play "$SOUND" >/dev/null 2>&1 &
+    fi
+    echo "OK: papelera vaciada"
+    exit 0
+    ;;
+
+  update-icon)
+    USER_DESK="$DATA_HOME/applications/org.nimbus.dock.trash.desktop"
+    if [ -f "$USER_DESK" ]; then
+      sed -i "s|^Icon=.*|Icon=$ICON|" "$USER_DESK"
+      echo "OK: icono de papelera actualizado a $ICON en $USER_DESK"
+    else
+      echo "AVISO: $USER_DESK no existe; nada que actualizar"
+    fi
+    exit 0
+    ;;
+esac

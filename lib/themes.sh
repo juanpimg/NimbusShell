@@ -3,7 +3,7 @@
 # Despliegue real e idempotente (necesita sudo, solo en modo instalación);
 # verificación real por cmp (solo lectura).
 
-REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 THEME_WALLPAPER_SRC="${THEME_WALLPAPER_SRC:-$REPO_ROOT/assets/sequoia-light.jpg}"
 THEME_WALLPAPER_DST="${THEME_WALLPAPER_DST:-/usr/share/backgrounds/nimbus/sequoia-light.jpg}"
 THEME_LOGO_SRC="${THEME_LOGO_SRC:-$REPO_ROOT/assets/nimbus-logo.svg}"

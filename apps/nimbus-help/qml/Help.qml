@@ -8,14 +8,6 @@ import QtQuick.Layouts
 
 ApplicationWindow {
     id: root
-    objectName: "helpWindow"
-    width: 720
-    height: 520
-    minimumWidth: 600
-    minimumHeight: 400
-    visible: true
-    title: "Ayuda de Nimbus"
-    color: "transparent"
 
     property var c: ({
             "label": "#FFFFFF",
@@ -28,13 +20,16 @@ ApplicationWindow {
         })
     property int tab: (typeof initialTab !== "undefined" && initialTab === "shortcuts") ? 1 : 0
     property string query: ""
+
     function fullText() {
         return root.tab === 0 ? backend.guideText : backend.shortcutsText;
     }
+
     function shownText() {
         var t = fullText();
         if (root.query === "")
             return t;
+
         var q = root.query.toLowerCase();
         var lines = t.split("\n");
         var kept = [];
@@ -44,12 +39,23 @@ ApplicationWindow {
         }
         return "Coincidencias de «" + root.query + "»: " + kept.length + "\n\n" + kept.join("\n");
     }
+
     function matchCount() {
         if (root.query === "")
             return 0;
+
         var q = root.query.toLowerCase();
         return fullText().toLowerCase().split(q).length - 1;
     }
+
+    objectName: "helpWindow"
+    width: 720
+    height: 520
+    minimumWidth: 600
+    minimumHeight: 400
+    visible: true
+    title: "Ayuda de Nimbus"
+    color: "transparent"
 
     Rectangle {
         anchors.fill: parent
@@ -57,29 +63,37 @@ ApplicationWindow {
         color: root.c.bgElevated
         border.color: root.c.separator
         border.width: 1
+
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 16
             spacing: 8
+
             RowLayout {
                 Layout.fillWidth: true
+
                 TabBar {
                     id: tabs
+
                     Layout.preferredWidth: 240
                     currentIndex: root.tab
                     onCurrentIndexChanged: root.tab = currentIndex
+
                     TabButton {
                         text: "Guía"
                         width: 120
                     }
+
                     TabButton {
                         text: "Atajos"
                         width: 120
                     }
                 }
+
                 Item {
                     Layout.fillWidth: true
                 }
+
                 ComboBox {
                     objectName: "langCombo"
                     model: ["ES", "EN"]
@@ -87,20 +101,24 @@ ApplicationWindow {
                     onActivated: backend.setLanguage(currentIndex === 1 ? "en" : "es")
                 }
             }
+
             TextField {
                 objectName: "searchField"
                 Layout.fillWidth: true
                 placeholderText: "Buscar…"
                 onTextChanged: root.query = text
             }
+
             Text {
                 text: root.query === "" ? backend.guidePath : (matchCount() + " coincidencias")
                 font.pixelSize: 11
                 color: root.c.label2
             }
+
             ScrollView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+
                 TextArea {
                     objectName: "docText"
                     text: root.shownText()
@@ -109,6 +127,7 @@ ApplicationWindow {
                     textFormat: Text.MarkdownText
                     selectByMouse: true
                     color: root.c.label
+
                     background: Rectangle {
                         color: root.c.bg
                     }

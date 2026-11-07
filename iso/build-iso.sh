@@ -85,6 +85,7 @@ need "$REPO_ROOT/packages/themes/nimbus-tokens/tokens.json" "tokens Nimbus"
 need "$REPO_ROOT/packages/themes/klassy-preset/nimbus-tahoe.klpw" "preset klassy"
 need "$REPO_ROOT/packages/themes/sddm-nimbus/Main.qml" "tema sddm-nimbus"
 need "$REPO_ROOT/packages/kwin/scripts/nimbus-spotlight/metadata.json" "KWin script spotlight"
+need "$REPO_ROOT/packages/kwin/effects/nimbus-overview/metadata.json" "KWin effect nimbus-overview"
 need "$REPO_ROOT/packages/kwin/decoration/nimbus-decoration/klassy-hover-plus.patch" "parche klassy-hover-plus"
 need "$REPO_ROOT/packages/shell/nimbus-bar/CMakeLists.txt" "fuente nimbus-bar"
 need "$REPO_ROOT/apps/nimbus-apps/CMakeLists.txt" "fuente nimbus-apps"
@@ -150,7 +151,8 @@ echo "OK: scripts en /usr/local/bin"
 
 # 4. Temas y KWin scripts.
 mkdir -p "$OUT/airootfs/usr/share/nimbus/themes" "$OUT/airootfs/usr/share/nimbus/klassy" \
-         "$OUT/airootfs/usr/share/sddm/themes" "$OUT/airootfs/usr/share/kwin/scripts"
+         "$OUT/airootfs/usr/share/sddm/themes" "$OUT/airootfs/usr/share/kwin/scripts" \
+         "$OUT/airootfs/usr/share/kwin/effects"
 cp -a "$REPO_ROOT/packages/themes/nimbus-tahoe" "$OUT/airootfs/usr/share/nimbus/themes/" || exit 1
 cp -a "$REPO_ROOT/packages/themes/nimbus-tokens" "$OUT/airootfs/usr/share/nimbus/tokens" || exit 1
 cp -a "$REPO_ROOT/packages/themes/klassy-preset/nimbus-tahoe.klpw" "$OUT/airootfs/usr/share/nimbus/klassy/" || exit 1
@@ -161,6 +163,7 @@ cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-apps-toggle "$OUT/airootfs/usr/s
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-zoom "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-tabs "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
 cp -a "$REPO_ROOT/packages/kwin/scripts"/nimbus-mc "$OUT/airootfs/usr/share/kwin/scripts/" || exit 1
+cp -a "$REPO_ROOT/packages/kwin/effects"/nimbus-overview "$OUT/airootfs/usr/share/kwin/effects/" || exit 1
 # Activación DBus de las apps residentes (F6/F7): el atajo abre el servicio.
 mkdir -p "$OUT/airootfs/usr/share/dbus-1/services"
 cp -a "$REPO_ROOT/packages/dbus/." "$OUT/airootfs/usr/share/dbus-1/services/" || exit 1
@@ -269,6 +272,7 @@ for f in \
   "$OUT/airootfs/usr/share/nimbus/compat/usr/lib/libboost_python314.so.1.91.0" \
   "$OUT/airootfs/usr/share/nimbus/pkgs/klassy-nimbus-6.7.3-1-x86_64.pkg.tar.zst" \
   "$OUT/airootfs/usr/share/kwin/scripts/nimbus-spotlight/metadata.json" \
+  "$OUT/airootfs/usr/share/kwin/effects/nimbus-overview/metadata.json" \
   "$OUT/airootfs/usr/share/color-schemes/NimbusTahoe.colors" \
   "$OUT/airootfs/usr/share/nimbus/bar/pins.txt" \
   "$OUT/airootfs/usr/share/nimbus/dock/kremarc-nimbus" \

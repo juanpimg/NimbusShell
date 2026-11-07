@@ -11,6 +11,7 @@ import org.kde.layershell as LayerShellQt
 
 Item {
     id: root
+
     property int maxVisible: 4
     property int bannerWidth: 360
     property int topOffset: 28 // barra 24 + 4
@@ -25,15 +26,18 @@ Item {
     function defaultKey(b) {
         if (!b || !b.actions)
             return "";
+
         for (var i = 0; i < b.actions.length; ++i) {
             if (b.actions[i].key === "default")
                 return "default";
         }
         return "";
     }
+
     function activate(b) {
         if (!server || !b)
             return;
+
         var k = defaultKey(b);
         if (k !== "")
             server.invokeAction(b.nid, k);
@@ -43,6 +47,7 @@ Item {
 
     Window {
         id: popup
+
         visible: root.shown.length > 0
         width: root.bannerWidth + 8
         height: col.height + 8
@@ -59,17 +64,23 @@ Item {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityOnDemand
         LayerShellQt.Window.scope: "nimbus-notifications"
         LayerShellQt.Window.activateOnShow: false
+
         Column {
             id: col
+
             x: 4
             y: 4
             width: root.bannerWidth
             spacing: 8
+
             Repeater {
                 model: root.shown
+
                 delegate: Rectangle {
                     id: banner
+
                     required property var modelData
+
                     width: root.bannerWidth
                     // Altura implícita por contenido (sin valores mágicos
                     // fuera de tokens/spacing).
@@ -83,6 +94,21 @@ Item {
                     Accessible.role: Accessible.AlertMessage
                     focus: index === 0
                     activeFocusOnTab: true
+                    Keys.onEscapePressed: root.server.dismiss(banner.modelData.nid)
+                    Keys.onReturnPressed: root.activate(banner.modelData)
+                    Keys.onEnterPressed: root.activate(banner.modelData)
+
+                    // Specular top rim highlight (Tahoe Liquid Glass)
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.topMargin: 1
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width - 24
+                        height: 1
+                        radius: 0.5
+                        color: Qt.rgba(1, 1, 1, NimbusTokens.dark ? 0.38 : 0.6)
+                    }
+
                     // Anillo de foco 2px [HIG §2.5].
                     Rectangle {
                         anchors.fill: parent
@@ -92,21 +118,26 @@ Item {
                         border.color: NimbusTokens.accentColor(NimbusTokens.dark)
                         border.width: banner.activeFocus ? NimbusTokens.states.focusRingPx : 0
                     }
+
                     Column {
                         id: inner
+
                         x: 12
                         y: 12
                         width: parent.width - 24
                         spacing: 6
+
                         Row {
                             width: parent.width
                             spacing: 8
+
                             // Icono: imagen si hay file://, si no badge
                             // propio con la inicial de la app.
                             Item {
                                 width: 38
                                 height: 38
                                 anchors.verticalCenter: parent.verticalCenter
+
                                 Image {
                                     anchors.fill: parent
                                     source: modelData.iconSource || ""
@@ -114,11 +145,13 @@ Item {
                                     fillMode: Image.PreserveAspectFit
                                     Accessible.ignored: true
                                 }
+
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: 9
                                     color: NimbusTokens.accentColor(NimbusTokens.dark)
                                     visible: (modelData.iconSource || "") === ""
+
                                     Text {
                                         anchors.centerIn: parent
                                         text: (modelData.app || "?").charAt(0).toUpperCase()
@@ -129,9 +162,11 @@ Item {
                                     }
                                 }
                             }
+
                             Column {
                                 width: parent.width - 38 - 8 - 24
                                 spacing: 1
+
                                 Text {
                                     width: parent.width
                                     text: (modelData.app || "") + " · " + (modelData.timeStr || "")
@@ -140,6 +175,7 @@ Item {
                                     color: NimbusTokens.faintText(NimbusTokens.dark)
                                     elide: Text.ElideRight
                                 }
+
                                 Text {
                                     width: parent.width
                                     text: modelData.summary || ""
@@ -152,6 +188,7 @@ Item {
                                     wrapMode: Text.Wrap
                                 }
                             }
+
                             Text {
                                 width: 24
                                 height: 24
@@ -160,6 +197,7 @@ Item {
                                 color: NimbusTokens.faintText(NimbusTokens.dark)
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
+
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: root.server.dismiss(banner.modelData.nid)
@@ -168,6 +206,7 @@ Item {
                                 }
                             }
                         }
+
                         Text {
                             width: parent.width
                             visible: (modelData.body || "") !== ""
@@ -180,29 +219,37 @@ Item {
                             maximumLineCount: 4
                             elide: Text.ElideRight
                         }
+
                         Row {
                             spacing: 8
                             visible: modelData.actions && modelData.actions.length > 0
+
                             Repeater {
                                 model: banner.modelData.actions || []
+
                                 delegate: Rectangle {
                                     required property var modelData
+
                                     width: actLabel.width + 20
                                     height: 26
                                     radius: 8
                                     color: NimbusTokens.hoverFill(NimbusTokens.dark)
                                     border.color: NimbusTokens.accentColor(NimbusTokens.dark)
                                     border.width: actArea.activeFocus ? NimbusTokens.states.focusRingPx : 1
+
                                     Text {
                                         id: actLabel
+
                                         anchors.centerIn: parent
                                         text: modelData.label
                                         font.family: NimbusTokens.fontFamily
                                         font.pixelSize: NimbusTokens.type.t12.size
                                         color: NimbusTokens.accentColor(NimbusTokens.dark)
                                     }
+
                                     MouseArea {
                                         id: actArea
+
                                         anchors.fill: parent
                                         activeFocusOnTab: true
                                         onClicked: root.server.invokeAction(banner.modelData.nid, modelData.key)
@@ -213,6 +260,7 @@ Item {
                             }
                         }
                     }
+
                     MouseArea {
                         // Clic en el cuerpo: default o descartar. Debajo de
                         // los MouseArea hijos (×, botones) en z.
@@ -220,11 +268,9 @@ Item {
                         z: -1
                         onClicked: root.activate(banner.modelData)
                     }
-                    Keys.onEscapePressed: root.server.dismiss(banner.modelData.nid)
-                    Keys.onReturnPressed: root.activate(banner.modelData)
-                    Keys.onEnterPressed: root.activate(banner.modelData)
                 }
             }
+
             Text {
                 visible: root.extra > 0
                 text: "+" + root.extra + " más"

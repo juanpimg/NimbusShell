@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Diagnóstico y Soporte Nimbus
+Name[en]=Nimbus Diagnostics & Support
+Comment=Generar informe del sistema y diagnóstico de NimbusOS
+Comment[en]=Generate NimbusOS system report and diagnostics
+Exec=nimbus-bug-report
+Icon=help-browser
+Terminal=false
+Categories=System;
+Keywords=support;bug;report;diagnostics;nimbus;

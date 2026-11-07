@@ -27,3 +27,14 @@ install(FILES org.nimbus.clock.desktop DESTINATION share/applications)
 install(FILES ../../assets/nimbus-clock.svg DESTINATION share/icons/hicolor/scalable/apps RENAME nimbus-clock.svg)
 
 enable_testing()
+
+qt_add_executable(tst_clock
+  tests/tst_clock.cpp
+  clockbackend.h
+  clockbackend.cpp
+)
+target_link_libraries(tst_clock PRIVATE
+  Qt6::Gui
+  Qt6::Test
+)
+add_test(NAME tst_clock COMMAND tst_clock)

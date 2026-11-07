@@ -10,6 +10,7 @@ import org.kde.layershell as LayerShellQt
 
 Item {
     id: root
+
     property bool opened: false
     property bool demo: false
     property string wifi: "—"
@@ -23,85 +24,6 @@ Item {
     property string batt: "—"
     property real vol: -1
     property real bri: -1
-    function toggle() {
-        opened ? close() : open();
-    }
-    function open() {
-        opened = true;
-        refresh();
-    }
-    function close() {
-        opened = false;
-    }
-    function refresh() {
-        // F11-T03: el tema (kdeglobals → NimbusTokens.dark) se lee SIEMPRE,
-        // también en demo: es solo lectura y toda la barra reacciona a dark.
-        // El nombre del esquema sí es fiable si se lee del grupo correcto:
-        // NimbusTahoe (oscuro) / NimbusTahoeLight / BreezeDark / BreezeLight.
-        runner.query("kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || echo —", "theme");
-        if (demo)
-            return; // demo: solo UI, sin comandos
-        runner.query("nmcli -t -f active,ssid dev wifi 2>/dev/null | grep -m1 '^yes' | cut -d: -f2 || echo —", "wifi");
-        // F3-T05: el badge de Wi-Fi necesita el estado de la radio, no solo el SSID.
-        runner.query("nmcli radio wifi 2>/dev/null || echo off", "wifiOn");
-        runner.query("bluetoothctl show 2>/dev/null | grep -m1 Powered | grep -q yes && echo on || echo off", "bt");
-        runner.query("cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo —", "batt");
-        runner.query("wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo —", "vol");
-        runner.query("brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d '%'", "bri");
-    }
-    function flip(kind: string) {
-        if (demo) {
-            console.log("cc: toggle " + kind + " (demo, no ejecutado)");
-            return;
-        }
-        if (kind === "wifi")
-            runner.run(wifiOn ? "nmcli radio wifi off" : "nmcli radio wifi on");
-        else if (kind === "bt")
-            runner.run("bluetoothctl power " + (btOn ? "off" : "on"));
-        else if (kind === "theme")
-            runner.run(darkOn ? "plasma-apply-colorscheme NimbusTahoeLight" : "plasma-apply-colorscheme NimbusTahoe");
-        else if (kind === "dnd") {
-            if (typeof notifServer !== "undefined")
-                notifServer.inhibited = !notifServer.inhibited;
-        }
-        refresh();
-    }
-    Connections {
-        target: runner
-        function onOutputReady(tag: string, out: string) {
-            if (tag === "wifiOn")
-                root.wifiOn = out.indexOf("habilit") >= 0 || out.trim() === "enabled";
-            else if (tag === "wifi")
-                root.wifi = out === "" ? "—" : out;
-            else if (tag === "bt") {
-                root.btOn = out.trim() === "on";
-                root.bt = root.btOn ? "on" : "off";
-            } else if (tag === "theme") {
-                if (out !== "" && out !== "—") {
-                    root.theme = out;
-                    // "Light" en el nombre = claro; NimbusTahoe = oscuro.
-                    root.darkOn = out.indexOf("Light") < 0;
-                    // F11-T03: kdeglobals → token dark; toda la barra reacciona.
-                    NimbusTokens.dark = root.darkOn;
-                } else {
-                    root.theme = "—";
-                }
-            } else if (tag === "batt")
-                root.batt = out === "" ? "—" : out + (out === "—" ? "" : "%");
-            else if (tag === "vol") {
-                var m = out.match(/([0-9.]+)/);
-                root.vol = m ? parseFloat(m[1]) : -1;
-            } else if (tag === "bri")
-                root.bri = out === "—" || out === "" ? -1 : parseFloat(out) / 100.0;
-        }
-    }
-    Timer {
-        interval: 5000
-        running: root.opened && !root.demo
-        repeat: true
-        onTriggered: root.refresh()
-    }
-
     // ── Geometría medida (F3-T05) ────────────────────────────────────────
     // Panel ~360 px; rejilla 2×166 con gap 12; sliders 344×64.
     readonly property int panelW: 304
@@ -112,7 +34,7 @@ Item {
     readonly property int capsuleR: 28
     readonly property int sliderR: 22
     // Vidrio neutro (Tahoe CC es oscuro translúcido en ambos temas).
-    readonly property color glassTint: NimbusTokens.dark ? Qt.rgba(0.14, 0.15, 0.18, 0.56) : Qt.rgba(0.10, 0.11, 0.14, 0.46)
+    readonly property color glassTint: NimbusTokens.dark ? Qt.rgba(0.14, 0.15, 0.18, 0.56) : Qt.rgba(0.1, 0.11, 0.14, 0.46)
     readonly property color glassBorder: Qt.rgba(1, 1, 1, NimbusTokens.dark ? 0.16 : 0.22)
     readonly property color textMain: "#FFFFFF"
     readonly property color textSub: Qt.rgba(1, 1, 1, 0.7)
@@ -127,35 +49,933 @@ Item {
         var n = parseInt(root.batt);
         return isNaN(n) ? 0.75 : Math.max(0, Math.min(1, n / 100));
     }
+    readonly property bool hasMpris: typeof mpris !== "undefined"
+
+    signal toggled(string kind, bool state)
+
+    function toggle() {
+        opened ? close() : open();
+    }
+
+    function open() {
+        opened = true;
+        refresh();
+    }
+
+    function close() {
+        opened = false;
+    }
+
+    function refresh() {
+        // F11-T03: el tema (kdeglobals → NimbusTokens.dark) se lee SIEMPRE,
+        // también en demo: es solo lectura y toda la barra reacciona a dark.
+        // El nombre del esquema sí es fiable si se lee del grupo correcto:
+        // NimbusTahoe (oscuro) / NimbusTahoeLight / BreezeDark / BreezeLight.
+        if (typeof runner !== "undefined") {
+            runner.query("kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || echo —", "theme");
+            if (demo)
+                return;
+
+            // demo: solo UI, sin comandos
+            runner.query("LC_ALL=C nmcli -t -f active,ssid dev wifi 2>/dev/null | grep -m1 '^yes' | cut -d: -f2 || echo —", "wifi");
+            // F3-T05: el badge de Wi-Fi necesita el estado de la radio, no solo el SSID.
+            runner.query("LC_ALL=C nmcli radio wifi 2>/dev/null || echo off", "wifiOn");
+            runner.query("LC_ALL=C bluetoothctl show 2>/dev/null | grep -m1 Powered | grep -q yes && echo on || echo off", "bt");
+            runner.query("cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo —", "batt");
+            runner.query("wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo —", "vol");
+            runner.query("b=$(brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d ' %'); if [ -n \"$b\" ]; then echo \"$b\"; else d=$(ls -d /sys/class/backlight/* 2>/dev/null | head -1); if [ -n \"$d\" ]; then echo $(($(cat $d/brightness) * 100 / $(cat $d/max_brightness))); else echo —; fi; fi", "bri");
+        }
+    }
+
+    function flip(kind: string) {
+        if (demo) {
+            console.log("cc: toggle " + kind + " (demo, no ejecutado)");
+            if (kind === "wifi")
+                toggled("wifi", !wifiOn);
+            else if (kind === "bt")
+                toggled("bt", !btOn);
+            else if (kind === "theme")
+                toggled("theme", !darkOn);
+            else if (kind === "dnd")
+                toggled("dnd", !dndOn);
+            return;
+        }
+        if (kind === "wifi") {
+            if (typeof runner !== "undefined")
+                runner.run(wifiOn ? "nmcli radio wifi off" : "nmcli radio wifi on");
+
+            toggled("wifi", !wifiOn);
+        } else if (kind === "bt") {
+            if (typeof runner !== "undefined")
+                runner.run(btOn ? "bluetoothctl power off" : "rfkill unblock bluetooth 2>/dev/null; bluetoothctl power on");
+
+            toggled("bt", !btOn);
+        } else if (kind === "theme") {
+            if (typeof runner !== "undefined")
+                runner.run(darkOn ? "nimbus-theme light 2>/dev/null || plasma-apply-colorscheme NimbusTahoeLight" : "nimbus-theme dark 2>/dev/null || plasma-apply-colorscheme NimbusTahoe");
+
+            toggled("theme", !darkOn);
+        } else if (kind === "dnd") {
+            if (typeof notifServer !== "undefined")
+                notifServer.inhibited = !notifServer.inhibited;
+
+            toggled("dnd", dndOn);
+        }
+        refresh();
+    }
+
+    function handleOutput(tag: string, out: string) {
+        var trimmed = out ? out.trim() : "";
+        if (tag === "wifiOn") {
+            var s = trimmed.toLowerCase();
+            root.wifiOn = s === "enabled" || s === "habilitado" || s === "on" || (s.indexOf("habilit") >= 0 && s.indexOf("deshabilit") < 0);
+        } else if (tag === "wifi") {
+            root.wifi = trimmed === "" ? "—" : trimmed;
+        } else if (tag === "bt") {
+            root.btOn = trimmed === "on";
+            root.bt = root.btOn ? "on" : "off";
+        } else if (tag === "theme") {
+            if (trimmed !== "" && trimmed !== "—") {
+                root.theme = trimmed;
+                // "Light" en el nombre = claro; NimbusTahoe = oscuro.
+                root.darkOn = trimmed.indexOf("Light") < 0;
+                // F11-T03: kdeglobals → token dark; toda la barra reacciona.
+                NimbusTokens.dark = root.darkOn;
+            } else {
+                root.theme = "—";
+            }
+        } else if (tag === "batt") {
+            root.batt = trimmed === "" || trimmed === "—" ? "—" : trimmed + "%";
+        } else if (tag === "vol") {
+            var m = trimmed.match(/([0-9.]+)/);
+            root.vol = m ? parseFloat(m[1]) : -1;
+        } else if (tag === "bri") {
+            root.bri = trimmed === "—" || trimmed === "" ? -1 : parseFloat(trimmed) / 100;
+        }
+    }
+
+    Connections {
+        function onOutputReady(tag: string, out: string) {
+            root.handleOutput(tag, out);
+        }
+
+        target: typeof runner !== "undefined" ? runner : null
+    }
+
+    Timer {
+        interval: 5000
+        running: root.opened && !root.demo
+        repeat: true
+        onTriggered: root.refresh()
+    }
+
+    Window {
+        id: scrim
+
+        visible: root.opened
+        width: Screen.width
+        height: Screen.height
+        x: 0
+        y: 0
+        flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        color: "transparent"
+        title: "nimbus-cc-scrim"
+        LayerShellQt.Window.layer: LayerShellQt.Window.LayerTop
+        LayerShellQt.Window.exclusionZone: 0
+        LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityOnDemand
+        LayerShellQt.Window.scope: "nimbus-cc-scrim"
+        LayerShellQt.Window.activateOnShow: false
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.close()
+        }
+
+        Shortcut {
+            sequence: "Escape"
+            enabled: root.opened
+            onActivated: root.close()
+        }
+    }
+
+    Window {
+        id: popup
+
+        visible: root.opened
+        width: root.panelW
+        height: column.height + 18
+        flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        color: "transparent"
+        title: "nimbus-cc"
+        LayerShellQt.Window.layer: LayerShellQt.Window.LayerTop
+        LayerShellQt.Window.anchors: LayerShellQt.Window.AnchorTop | LayerShellQt.Window.AnchorRight
+        LayerShellQt.Window.exclusionZone: 0
+        LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityNone
+        LayerShellQt.Window.scope: "nimbus-cc"
+        LayerShellQt.Window.activateOnShow: false
+
+        // Sin Rectangle exterior: el panel "es" sus cápsulas.
+        Column {
+            id: column
+
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            width: root.contentW
+            spacing: root.gap
+
+            // ── Fila superior: columna izquierda + módulo grande ────────
+            Row {
+                width: root.contentW
+                height: leftCol.height
+                spacing: root.gap
+
+                Column {
+                    id: leftCol
+
+                    width: root.cellW
+                    spacing: root.gap
+
+                    // Wi-Fi
+                    GlassCapsule {
+                        width: root.cellW
+                        height: root.capsuleH
+                        focusRing: wifiArea.activeFocus
+                        objectName: "ccTile:Wi-Fi"
+
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 10
+                            spacing: 10
+
+                            Rectangle {
+                                width: 34
+                                height: 34
+                                radius: 17
+                                anchors.verticalCenter: parent.verticalCenter
+                                color: root.wifiOn ? root.badgeOn : root.badgeOff
+
+                                Glyph {
+                                    anchors.centerIn: parent
+                                    width: 20
+                                    height: 20
+                                    kind: "wifi"
+                                    stroke: root.wifiOn ? root.accent : root.textMain
+                                }
+                            }
+
+                            Column {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: parent.width - 44
+                                spacing: 1
+
+                                Text {
+                                    text: "Wi-Fi"
+                                    width: parent.width
+                                    elide: Text.ElideRight
+                                    font.family: NimbusTokens.fontFamily
+                                    font.pixelSize: NimbusTokens.type.t13.size
+                                    font.weight: NimbusTokens.type.t13b.weight
+                                    color: root.textMain
+                                }
+
+                                Text {
+                                    text: root.wifiSub
+                                    width: parent.width
+                                    elide: Text.ElideRight
+                                    font.family: NimbusTokens.fontFamily
+                                    font.pixelSize: NimbusTokens.type.t11.size
+                                    color: root.textSub
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: wifiArea
+
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            activeFocusOnTab: true
+                            onClicked: root.flip("wifi")
+                            Keys.onReturnPressed: root.flip("wifi")
+                        }
+                    }
+
+                    // Bluetooth
+                    GlassCapsule {
+                        width: root.cellW
+                        height: root.capsuleH
+                        focusRing: btArea.activeFocus
+                        objectName: "ccTile:Bluetooth"
+
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 10
+                            spacing: 10
+
+                            Rectangle {
+                                width: 34
+                                height: 34
+                                radius: 17
+                                anchors.verticalCenter: parent.verticalCenter
+                                color: root.btOn ? root.badgeOn : root.badgeOff
+
+                                Glyph {
+                                    anchors.centerIn: parent
+                                    width: 20
+                                    height: 20
+                                    kind: "bluetooth"
+                                    stroke: root.btOn ? root.accent : root.textMain
+                                }
+                            }
+
+                            Column {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: parent.width - 44
+                                spacing: 1
+
+                                Text {
+                                    text: "Bluetooth"
+                                    width: parent.width
+                                    elide: Text.ElideRight
+                                    font.family: NimbusTokens.fontFamily
+                                    font.pixelSize: NimbusTokens.type.t13.size
+                                    font.weight: NimbusTokens.type.t13b.weight
+                                    color: root.textMain
+                                }
+
+                                Text {
+                                    text: root.btSub
+                                    width: parent.width
+                                    elide: Text.ElideRight
+                                    font.family: NimbusTokens.fontFamily
+                                    font.pixelSize: NimbusTokens.type.t11.size
+                                    color: root.textSub
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: btArea
+
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            activeFocusOnTab: true
+                            onClicked: root.flip("bt")
+                            Keys.onReturnPressed: root.flip("bt")
+                        }
+                    }
+
+                    // Enfoque (DND); macOS usa "Focus" en el CC.
+                    GlassCapsule {
+                        width: root.cellW
+                        height: root.capsuleH
+                        focusRing: dndArea.activeFocus
+                        objectName: "ccTile:Enfoque"
+
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 10
+                            spacing: 10
+
+                            Rectangle {
+                                width: 34
+                                height: 34
+                                radius: 17
+                                anchors.verticalCenter: parent.verticalCenter
+                                color: root.dndOn ? root.badgeOn : root.badgeOff
+
+                                Glyph {
+                                    anchors.centerIn: parent
+                                    width: 19
+                                    height: 19
+                                    kind: "moon"
+                                    stroke: root.dndOn ? root.accent : root.textMain
+                                }
+                            }
+
+                            Column {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: parent.width - 44
+                                spacing: 1
+
+                                Text {
+                                    text: "Enfoque"
+                                    width: parent.width
+                                    elide: Text.ElideRight
+                                    font.family: NimbusTokens.fontFamily
+                                    font.pixelSize: NimbusTokens.type.t13.size
+                                    font.weight: NimbusTokens.type.t13b.weight
+                                    color: root.textMain
+                                }
+
+                                Text {
+                                    text: root.dndSub
+                                    width: parent.width
+                                    elide: Text.ElideRight
+                                    font.family: NimbusTokens.fontFamily
+                                    font.pixelSize: NimbusTokens.type.t11.size
+                                    color: root.textSub
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: dndArea
+
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            activeFocusOnTab: true
+                            onClicked: root.flip("dnd")
+                            Keys.onReturnPressed: root.flip("dnd")
+                        }
+                    }
+                }
+
+                // Columna derecha: módulo grande (2 filas) + accesos
+                Column {
+                    width: root.cellW
+                    spacing: root.gap
+
+                    GlassCapsule {
+                        width: root.cellW
+                        height: 140
+                        objectName: "ccMedia"
+
+                        Column {
+                            anchors.fill: parent
+                            anchors.margins: 8
+                            spacing: 0
+
+                            Item {
+                                width: parent.width
+                                height: 70
+
+                                Row {
+                                    anchors.fill: parent
+                                    spacing: 6
+
+                                    Rectangle {
+                                        width: 32
+                                        height: 32
+                                        radius: 8
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        color: Qt.rgba(1, 1, 1, 0.12)
+                                        objectName: "ccArt"
+
+                                        Image {
+                                            anchors.fill: parent
+                                            anchors.margins: 2
+                                            visible: root.hasMpris && mpris.artFile !== ""
+                                            fillMode: Image.PreserveAspectCrop
+                                            source: root.hasMpris && mpris.artFile !== "" ? "file://" + mpris.artFile : ""
+                                        }
+
+                                        Glyph {
+                                            anchors.centerIn: parent
+                                            width: 22
+                                            height: 22
+                                            kind: "music"
+                                            visible: !root.hasMpris || mpris.artFile === ""
+                                            stroke: root.textSub
+                                        }
+                                    }
+
+                                    Column {
+                                        width: parent.width - 38
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        spacing: 1
+
+                                        Text {
+                                            text: root.hasMpris && mpris.hasPlayer ? mpris.title : "Ahora suena"
+                                            width: parent.width
+                                            elide: Text.ElideRight
+                                            font.family: NimbusTokens.fontFamily
+                                            font.pixelSize: NimbusTokens.type.t12.size
+                                            font.weight: NimbusTokens.type.t13b.weight
+                                            color: root.textMain
+                                            objectName: "ccMediaTitle"
+                                        }
+
+                                        Text {
+                                            text: root.hasMpris && mpris.hasPlayer ? mpris.artist : "Sin música"
+                                            width: parent.width
+                                            elide: Text.ElideRight
+                                            font.family: NimbusTokens.fontFamily
+                                            font.pixelSize: NimbusTokens.type.t11.size
+                                            color: root.textSub
+                                            objectName: "ccMediaArtist"
+                                        }
+
+                                        Row {
+                                            visible: root.hasMpris && mpris.hasPlayer
+                                            spacing: 2
+
+                                            Repeater {
+                                                model: [
+                                                    {
+                                                        "fn": "prev",
+                                                        "kind": "prev",
+                                                        "name": "ccPrev"
+                                                    },
+                                                    {
+                                                        "fn": "play",
+                                                        "kind": "play",
+                                                        "name": "ccPlay"
+                                                    },
+                                                    {
+                                                        "fn": "next",
+                                                        "kind": "next",
+                                                        "name": "ccNext"
+                                                    }
+                                                ]
+
+                                                delegate: Rectangle {
+                                                    width: 22
+                                                    height: 20
+                                                    radius: 6
+                                                    color: ctrlArea.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : ctrlArea.containsMouse ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
+                                                    objectName: modelData.name
+
+                                                    Glyph {
+                                                        anchors.centerIn: parent
+                                                        width: 14
+                                                        height: 14
+                                                        kind: modelData.kind === "play" ? (root.hasMpris && mpris.playing ? "pause" : "play") : modelData.kind
+                                                        stroke: root.textMain
+                                                    }
+
+                                                    MouseArea {
+                                                        id: ctrlArea
+
+                                                        anchors.fill: parent
+                                                        hoverEnabled: true
+                                                        activeFocusOnTab: true
+                                                        onClicked: {
+                                                            if (!root.hasMpris)
+                                                                return;
+
+                                                            if (modelData.fn === "play")
+                                                                mpris.playPause();
+                                                            else if (modelData.fn === "next")
+                                                                mpris.next();
+                                                            else
+                                                                mpris.previous();
+                                                        }
+                                                        Keys.onReturnPressed: {
+                                                            if (!root.hasMpris)
+                                                                return;
+
+                                                            if (modelData.fn === "play")
+                                                                mpris.playPause();
+                                                            else if (modelData.fn === "next")
+                                                                mpris.next();
+                                                            else
+                                                                mpris.previous();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: root.glassBorder
+                            }
+
+                            Item {
+                                width: parent.width
+                                height: 49
+
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 8
+
+                                    Glyph {
+                                        width: 32
+                                        height: 18
+                                        kind: "battery"
+                                        level: root.battLevel
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Column {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        spacing: 0
+
+                                        Text {
+                                            text: root.batt === "" || root.batt === "—" ? "—" : root.batt
+                                            font.family: NimbusTokens.fontFamily
+                                            font.pixelSize: NimbusTokens.type.t17.size
+                                            font.weight: NimbusTokens.type.t17.weightEmph
+                                            color: root.textMain
+                                            objectName: "ccBatt"
+                                        }
+
+                                        Text {
+                                            text: "Batería"
+                                            font.family: NimbusTokens.fontFamily
+                                            font.pixelSize: NimbusTokens.type.t11.size
+                                            color: root.textSub
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Row {
+                        width: root.cellW
+                        height: 64
+                        spacing: 12
+
+                        // Modo oscuro (botón circular)
+                        GlassCapsule {
+                            width: 64
+                            height: 64
+                            cornerRadius: 32
+                            anchors.verticalCenter: parent.verticalCenter
+                            focusRing: darkArea.activeFocus
+                            objectName: "ccDark"
+
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: 38
+                                height: 38
+                                radius: 19
+                                color: root.darkOn ? root.badgeOn : root.badgeOff
+
+                                Glyph {
+                                    anchors.centerIn: parent
+                                    width: 21
+                                    height: 21
+                                    kind: "moon"
+                                    stroke: root.darkOn ? root.accent : root.textMain
+                                }
+                            }
+
+                            MouseArea {
+                                id: darkArea
+
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                activeFocusOnTab: true
+                                onClicked: root.flip("theme")
+                                Keys.onReturnPressed: root.flip("theme")
+                            }
+                        }
+
+                        // Batería (botón circular; pulsa para refrescar)
+                        GlassCapsule {
+                            width: 64
+                            height: 64
+                            cornerRadius: 32
+                            anchors.verticalCenter: parent.verticalCenter
+                            focusRing: battArea.activeFocus
+                            objectName: "ccBatteryBtn"
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: 1
+
+                                Glyph {
+                                    width: 34
+                                    height: 18
+                                    kind: "battery"
+                                    level: root.battLevel
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Text {
+                                    text: root.batt === "" || root.batt === "—" ? "—" : root.batt
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    font.family: NimbusTokens.fontFamily
+                                    font.pixelSize: 10
+                                    color: root.textSub
+                                }
+                            }
+
+                            MouseArea {
+                                id: battArea
+
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                activeFocusOnTab: true
+                                onClicked: root.refresh()
+                                Keys.onReturnPressed: root.refresh()
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── Display (ancho completo) ────────────────────────────────
+            GlassCapsule {
+                width: root.contentW
+                height: 72
+                cornerRadius: 22
+                focusRing: briSlider.activeFocus
+                objectName: "ccTile:Display"
+
+                Column {
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+                    anchors.topMargin: 10
+                    anchors.bottomMargin: 10
+                    spacing: 6
+
+                    Row {
+                        width: parent.width
+
+                        Text {
+                            text: "Pantalla"
+                            font.family: NimbusTokens.fontFamily
+                            font.pixelSize: NimbusTokens.type.t12.size
+                            font.weight: NimbusTokens.type.t13b.weight
+                            color: root.textMain
+                        }
+
+                        Item {
+                            width: Math.max(0, parent.width - 150)
+                            height: 1
+                        }
+
+                        Text {
+                            text: briSlider.enabled && briSlider.value >= 0 ? Math.round(briSlider.value * 100) + "%" : "—"
+                            font.family: NimbusTokens.fontFamily
+                            font.pixelSize: NimbusTokens.type.t11.size
+                            color: root.textSub
+                            anchors.right: parent.right
+                        }
+                    }
+
+                    Slider {
+                        id: briSlider
+
+                        width: parent.width
+                        height: 28
+                        from: 0
+                        to: 1
+                        value: root.bri < 0 ? 0.5 : root.bri
+                        enabled: !root.demo && root.bri >= 0
+                        opacity: enabled ? 1 : 0.62
+                        objectName: "ccBri"
+                        onMoved: {
+                            if (typeof runner !== "undefined")
+                                runner.run("brightnessctl set " + Math.round(value * 100) + "%");
+                        }
+
+                        background: Rectangle {
+                            anchors.fill: parent
+                            radius: height / 2
+                            color: Qt.rgba(1, 1, 1, 0.16)
+                            border.color: Qt.rgba(1, 1, 1, 0.12)
+                            border.width: 1
+                            clip: true
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+                                width: Math.max(parent.height, parent.width * briSlider.visualPosition)
+                                radius: parent.height / 2
+                                color: root.textMain
+                            }
+
+                            Glyph {
+                                width: 16
+                                height: 16
+                                kind: "sun"
+                                x: 10
+                                anchors.verticalCenter: parent.verticalCenter
+                                stroke: briSlider.visualPosition > 0.18 ? "#1C1C1E" : root.textMain
+                            }
+                        }
+
+                        handle: Item {
+                            width: 0
+                            height: 0
+                        }
+                    }
+                }
+            }
+
+            // ── Sonido (ancho completo) ─────────────────────────────────
+            GlassCapsule {
+                width: root.contentW
+                height: 72
+                cornerRadius: 22
+                focusRing: volSlider.activeFocus
+                objectName: "ccTile:Sonido"
+
+                Column {
+                    anchors.fill: parent
+                    anchors.leftMargin: 16
+                    anchors.rightMargin: 16
+                    anchors.topMargin: 10
+                    anchors.bottomMargin: 10
+                    spacing: 6
+
+                    Row {
+                        width: parent.width
+
+                        Text {
+                            text: "Sonido"
+                            font.family: NimbusTokens.fontFamily
+                            font.pixelSize: NimbusTokens.type.t12.size
+                            font.weight: NimbusTokens.type.t13b.weight
+                            color: root.textMain
+                        }
+
+                        Item {
+                            width: Math.max(0, parent.width - 150)
+                            height: 1
+                        }
+
+                        Text {
+                            text: volSlider.enabled && volSlider.value >= 0 ? Math.round(volSlider.value * 100) + "%" : "—"
+                            font.family: NimbusTokens.fontFamily
+                            font.pixelSize: NimbusTokens.type.t11.size
+                            color: root.textSub
+                            anchors.right: parent.right
+                        }
+                    }
+
+                    Slider {
+                        id: volSlider
+
+                        width: parent.width
+                        height: 28
+                        from: 0
+                        to: 1
+                        value: root.vol < 0 ? 0.5 : root.vol
+                        enabled: !root.demo && root.vol >= 0
+                        opacity: enabled ? 1 : 0.62
+                        objectName: "ccVol"
+                        onMoved: {
+                            if (typeof runner !== "undefined")
+                                runner.run("wpctl set-volume @DEFAULT_AUDIO_SINK@ " + value.toFixed(2));
+                        }
+
+                        background: Rectangle {
+                            anchors.fill: parent
+                            radius: height / 2
+                            color: Qt.rgba(1, 1, 1, 0.16)
+                            border.color: Qt.rgba(1, 1, 1, 0.12)
+                            border.width: 1
+                            clip: true
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+                                width: Math.max(parent.height, parent.width * volSlider.visualPosition)
+                                radius: parent.height / 2
+                                color: root.textMain
+                            }
+
+                            Glyph {
+                                width: 16
+                                height: 16
+                                kind: "speaker"
+                                x: 10
+                                anchors.verticalCenter: parent.verticalCenter
+                                stroke: volSlider.visualPosition > 0.18 ? "#1C1C1E" : root.textMain
+                            }
+                        }
+
+                        handle: Item {
+                            width: 0
+                            height: 0
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // ── Cápsula de vidrio reutilizable ───────────────────────────────────
     // El tinte se queda en alfa 0.46–0.56; nada de relleno opaco. La sombra
     // es una silueta desplazada de baja opacidad (sin blur de fondo).
     component GlassCapsule: Item {
         id: cap
+
         property real cornerRadius: 28
         property bool focusRing: false
+
+        // Sombra exterior difusa suave (profundidad Liquid Glass)
         Rectangle {
             anchors.fill: card
-            anchors.margins: -3
-            anchors.bottomMargin: -5
-            radius: cap.cornerRadius + 3
-            color: Qt.rgba(0, 0, 0, 0.22)
+            anchors.topMargin: 2
+            anchors.bottomMargin: -4
+            anchors.leftMargin: -1
+            anchors.rightMargin: -1
+            radius: cap.cornerRadius + 2
+            color: Qt.rgba(0, 0, 0, 0.28)
         }
+
+        // Superficie de vidrio principal
         Rectangle {
             id: card
+
             anchors.fill: parent
             radius: cap.cornerRadius
             color: root.glassTint
             border.width: cap.focusRing ? NimbusTokens.states.focusRingPx : 1
             border.color: cap.focusRing ? root.accent : root.glassBorder
+
+            // Capa de degradado especular sobre el tinte
+            Rectangle {
+                anchors.fill: parent
+                radius: parent.radius
+
+                gradient: Gradient {
+                    GradientStop {
+                        position: 0
+                        color: Qt.rgba(1, 1, 1, 0.16)
+                    }
+
+                    GradientStop {
+                        position: 0.5
+                        color: Qt.rgba(1, 1, 1, 0.04)
+                    }
+
+                    GradientStop {
+                        position: 1
+                        color: Qt.rgba(0, 0, 0, 0.12)
+                    }
+                }
+            }
+
+            // Rim especular superior de 1px (refracción de luz física en el bisel)
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: cap.cornerRadius * 0.45
+                anchors.rightMargin: cap.cornerRadius * 0.45
+                height: 1
+                color: Qt.rgba(1, 1, 1, 0.45)
+            }
         }
+
+        // Iluminación interna en hover
         Rectangle {
             anchors.fill: card
             radius: card.radius
-            color: Qt.rgba(1, 1, 1, 0.06)
+            color: Qt.rgba(1, 1, 1, 0.07)
             visible: hover.hovered
         }
+
         HoverHandler {
             id: hover
         }
@@ -164,9 +984,11 @@ Item {
     // ── Iconos dibujados (Canvas; sin glifos de texto) ───────────────────
     component Glyph: Canvas {
         id: glyph
+
         property string kind: "wifi"
         property color stroke: "#FFFFFF"
         property real level: 0.75
+
         width: 24
         height: 24
         onKindChanged: requestPaint()
@@ -287,649 +1109,6 @@ Item {
                 ctx.closePath();
                 ctx.fill();
                 ctx.fillRect(flip ? w * 0.66 : w * 0.28, h * 0.28, w * 0.07, h * 0.44);
-            }
-        }
-    }
-
-    Window {
-        id: scrim
-        visible: root.opened
-        width: Screen.width
-        height: Screen.height
-        x: 0
-        y: 0
-        flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
-        color: "transparent"
-        title: "nimbus-cc-scrim"
-        LayerShellQt.Window.layer: LayerShellQt.Window.LayerTop
-        LayerShellQt.Window.exclusionZone: 0
-        LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityOnDemand
-        LayerShellQt.Window.scope: "nimbus-cc-scrim"
-        LayerShellQt.Window.activateOnShow: false
-        MouseArea {
-            anchors.fill: parent
-            onClicked: root.close()
-        }
-        Shortcut {
-            sequence: "Escape"
-            enabled: root.opened
-            onActivated: root.close()
-        }
-    }
-
-    Window {
-        id: popup
-        visible: root.opened
-        width: root.panelW
-        height: column.height + 18
-        flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
-        color: "transparent"
-        title: "nimbus-cc"
-        LayerShellQt.Window.layer: LayerShellQt.Window.LayerTop
-        LayerShellQt.Window.anchors: LayerShellQt.Window.AnchorTop | LayerShellQt.Window.AnchorRight
-        LayerShellQt.Window.exclusionZone: 0
-        LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityNone
-        LayerShellQt.Window.scope: "nimbus-cc"
-        LayerShellQt.Window.activateOnShow: false
-
-        // Sin Rectangle exterior: el panel "es" sus cápsulas.
-        Column {
-            id: column
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.right: parent.right
-            anchors.rightMargin: 12
-            width: root.contentW
-            spacing: root.gap
-
-            // ── Fila superior: columna izquierda + módulo grande ────────
-            Row {
-                width: root.contentW
-                height: leftCol.height
-                spacing: root.gap
-
-                Column {
-                    id: leftCol
-                    width: root.cellW
-                    spacing: root.gap
-
-                    // Wi-Fi
-                    GlassCapsule {
-                        width: root.cellW
-                        height: root.capsuleH
-                        focusRing: wifiArea.activeFocus
-                        objectName: "ccTile:Wi-Fi"
-                        Row {
-                            anchors.fill: parent
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 10
-                            spacing: 10
-                            Rectangle {
-                                width: 34
-                                height: 34
-                                radius: 17
-                                anchors.verticalCenter: parent.verticalCenter
-                                color: root.wifiOn ? root.badgeOn : root.badgeOff
-                                Glyph {
-                                    anchors.centerIn: parent
-                                    width: 20
-                                    height: 20
-                                    kind: "wifi"
-                                    stroke: root.wifiOn ? root.accent : root.textMain
-                                }
-                            }
-                            Column {
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: parent.width - 44
-                                spacing: 1
-                                Text {
-                                    text: "Wi-Fi"
-                                    width: parent.width
-                                    elide: Text.ElideRight
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: NimbusTokens.type.t13.size
-                                    font.weight: NimbusTokens.type.t13b.weight
-                                    color: root.textMain
-                                }
-                                Text {
-                                    text: root.wifiSub
-                                    width: parent.width
-                                    elide: Text.ElideRight
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: NimbusTokens.type.t11.size
-                                    color: root.textSub
-                                }
-                            }
-                        }
-                        MouseArea {
-                            id: wifiArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            activeFocusOnTab: true
-                            onClicked: root.flip("wifi")
-                            Keys.onReturnPressed: root.flip("wifi")
-                        }
-                    }
-
-                    // Bluetooth
-                    GlassCapsule {
-                        width: root.cellW
-                        height: root.capsuleH
-                        focusRing: btArea.activeFocus
-                        objectName: "ccTile:Bluetooth"
-                        Row {
-                            anchors.fill: parent
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 10
-                            spacing: 10
-                            Rectangle {
-                                width: 34
-                                height: 34
-                                radius: 17
-                                anchors.verticalCenter: parent.verticalCenter
-                                color: root.btOn ? root.badgeOn : root.badgeOff
-                                Glyph {
-                                    anchors.centerIn: parent
-                                    width: 20
-                                    height: 20
-                                    kind: "bluetooth"
-                                    stroke: root.btOn ? root.accent : root.textMain
-                                }
-                            }
-                            Column {
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: parent.width - 44
-                                spacing: 1
-                                Text {
-                                    text: "Bluetooth"
-                                    width: parent.width
-                                    elide: Text.ElideRight
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: NimbusTokens.type.t13.size
-                                    font.weight: NimbusTokens.type.t13b.weight
-                                    color: root.textMain
-                                }
-                                Text {
-                                    text: root.btSub
-                                    width: parent.width
-                                    elide: Text.ElideRight
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: NimbusTokens.type.t11.size
-                                    color: root.textSub
-                                }
-                            }
-                        }
-                        MouseArea {
-                            id: btArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            activeFocusOnTab: true
-                            onClicked: root.flip("bt")
-                            Keys.onReturnPressed: root.flip("bt")
-                        }
-                    }
-
-                    // Enfoque (DND); macOS usa "Focus" en el CC.
-                    GlassCapsule {
-                        width: root.cellW
-                        height: root.capsuleH
-                        focusRing: dndArea.activeFocus
-                        objectName: "ccTile:Enfoque"
-                        Row {
-                            anchors.fill: parent
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 10
-                            spacing: 10
-                            Rectangle {
-                                width: 34
-                                height: 34
-                                radius: 17
-                                anchors.verticalCenter: parent.verticalCenter
-                                color: root.dndOn ? root.badgeOn : root.badgeOff
-                                Glyph {
-                                    anchors.centerIn: parent
-                                    width: 19
-                                    height: 19
-                                    kind: "moon"
-                                    stroke: root.dndOn ? root.accent : root.textMain
-                                }
-                            }
-                            Column {
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: parent.width - 44
-                                spacing: 1
-                                Text {
-                                    text: "Enfoque"
-                                    width: parent.width
-                                    elide: Text.ElideRight
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: NimbusTokens.type.t13.size
-                                    font.weight: NimbusTokens.type.t13b.weight
-                                    color: root.textMain
-                                }
-                                Text {
-                                    text: root.dndSub
-                                    width: parent.width
-                                    elide: Text.ElideRight
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: NimbusTokens.type.t11.size
-                                    color: root.textSub
-                                }
-                            }
-                        }
-                        MouseArea {
-                            id: dndArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            activeFocusOnTab: true
-                            onClicked: root.flip("dnd")
-                            Keys.onReturnPressed: root.flip("dnd")
-                        }
-                    }
-                }
-
-                // Columna derecha: módulo grande (2 filas) + accesos
-                Column {
-                    width: root.cellW
-                    spacing: root.gap
-
-                    GlassCapsule {
-                        width: root.cellW
-                        height: 140
-                        objectName: "ccMedia"
-                        Column {
-                            anchors.fill: parent
-                            anchors.margins: 8
-                            spacing: 0
-                            Item {
-                                width: parent.width
-                                height: 70
-                                Row {
-                                    anchors.fill: parent
-                                    spacing: 6
-                                    Rectangle {
-                                        width: 32
-                                        height: 32
-                                        radius: 8
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        color: Qt.rgba(1, 1, 1, 0.12)
-                                        objectName: "ccArt"
-                                        Image {
-                                            anchors.fill: parent
-                                            anchors.margins: 2
-                                            visible: mpris.artFile !== ""
-                                            fillMode: Image.PreserveAspectCrop
-                                            source: mpris.artFile !== "" ? "file://" + mpris.artFile : ""
-                                        }
-                                        Glyph {
-                                            anchors.centerIn: parent
-                                            width: 22
-                                            height: 22
-                                            kind: "music"
-                                            visible: mpris.artFile === ""
-                                            stroke: root.textSub
-                                        }
-                                    }
-                                    Column {
-                                        width: parent.width - 38
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        spacing: 1
-                                        Text {
-                                            text: mpris.hasPlayer ? mpris.title : "Ahora suena"
-                                            width: parent.width
-                                            elide: Text.ElideRight
-                                            font.family: NimbusTokens.fontFamily
-                                            font.pixelSize: NimbusTokens.type.t12.size
-                                            font.weight: NimbusTokens.type.t13b.weight
-                                            color: root.textMain
-                                            objectName: "ccMediaTitle"
-                                        }
-                                        Text {
-                                            text: mpris.hasPlayer ? mpris.artist : "Sin música"
-                                            width: parent.width
-                                            elide: Text.ElideRight
-                                            font.family: NimbusTokens.fontFamily
-                                            font.pixelSize: NimbusTokens.type.t11.size
-                                            color: root.textSub
-                                            objectName: "ccMediaArtist"
-                                        }
-                                        Row {
-                                            visible: mpris.hasPlayer
-                                            spacing: 2
-                                            Repeater {
-                                                model: [
-                                                    {
-                                                        fn: "prev",
-                                                        kind: "prev",
-                                                        name: "ccPrev"
-                                                    },
-                                                    {
-                                                        fn: "play",
-                                                        kind: "play",
-                                                        name: "ccPlay"
-                                                    },
-                                                    {
-                                                        fn: "next",
-                                                        kind: "next",
-                                                        name: "ccNext"
-                                                    }
-                                                ]
-                                                delegate: Rectangle {
-                                                    width: 22
-                                                    height: 20
-                                                    radius: 6
-                                                    color: ctrlArea.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : ctrlArea.containsMouse ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
-                                                    objectName: modelData.name
-                                                    Glyph {
-                                                        anchors.centerIn: parent
-                                                        width: 14
-                                                        height: 14
-                                                        kind: modelData.kind === "play" ? (mpris.playing ? "pause" : "play") : modelData.kind
-                                                        stroke: root.textMain
-                                                    }
-                                                    MouseArea {
-                                                        id: ctrlArea
-                                                        anchors.fill: parent
-                                                        hoverEnabled: true
-                                                        activeFocusOnTab: true
-                                                        onClicked: {
-                                                            if (modelData.fn === "play")
-                                                                mpris.playPause();
-                                                            else if (modelData.fn === "next")
-                                                                mpris.next();
-                                                            else
-                                                                mpris.previous();
-                                                        }
-                                                        Keys.onReturnPressed: {
-                                                            if (modelData.fn === "play")
-                                                                mpris.playPause();
-                                                            else if (modelData.fn === "next")
-                                                                mpris.next();
-                                                            else
-                                                                mpris.previous();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            Rectangle {
-                                width: parent.width
-                                height: 1
-                                color: root.glassBorder
-                            }
-                            Item {
-                                width: parent.width
-                                height: 49
-                                Row {
-                                    anchors.centerIn: parent
-                                    spacing: 8
-                                    Glyph {
-                                        width: 32
-                                        height: 18
-                                        kind: "battery"
-                                        level: root.battLevel
-                                        anchors.verticalCenter: parent.verticalCenter
-                                    }
-                                    Column {
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        spacing: 0
-                                        Text {
-                                            text: root.batt === "" || root.batt === "—" ? "—" : root.batt
-                                            font.family: NimbusTokens.fontFamily
-                                            font.pixelSize: NimbusTokens.type.t17.size
-                                            font.weight: NimbusTokens.type.t17.weightEmph
-                                            color: root.textMain
-                                            objectName: "ccBatt"
-                                        }
-                                        Text {
-                                            text: "Batería"
-                                            font.family: NimbusTokens.fontFamily
-                                            font.pixelSize: NimbusTokens.type.t11.size
-                                            color: root.textSub
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Row {
-                        width: root.cellW
-                        height: 64
-                        spacing: 12
-
-                        // Modo oscuro (botón circular)
-                        GlassCapsule {
-                            width: 64
-                            height: 64
-                            cornerRadius: 32
-                            anchors.verticalCenter: parent.verticalCenter
-                            focusRing: darkArea.activeFocus
-                            objectName: "ccDark"
-                            Rectangle {
-                                anchors.centerIn: parent
-                                width: 38
-                                height: 38
-                                radius: 19
-                                color: root.darkOn ? root.badgeOn : root.badgeOff
-                                Glyph {
-                                    anchors.centerIn: parent
-                                    width: 21
-                                    height: 21
-                                    kind: "moon"
-                                    stroke: root.darkOn ? root.accent : root.textMain
-                                }
-                            }
-                            MouseArea {
-                                id: darkArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                activeFocusOnTab: true
-                                onClicked: root.flip("theme")
-                                Keys.onReturnPressed: root.flip("theme")
-                            }
-                        }
-
-                        // Batería (botón circular; pulsa para refrescar)
-                        GlassCapsule {
-                            width: 64
-                            height: 64
-                            cornerRadius: 32
-                            anchors.verticalCenter: parent.verticalCenter
-                            focusRing: battArea.activeFocus
-                            objectName: "ccBatteryBtn"
-                            Column {
-                                anchors.centerIn: parent
-                                spacing: 1
-                                Glyph {
-                                    width: 34
-                                    height: 18
-                                    kind: "battery"
-                                    level: root.battLevel
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                }
-                                Text {
-                                    text: root.batt === "" || root.batt === "—" ? "—" : root.batt
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    font.family: NimbusTokens.fontFamily
-                                    font.pixelSize: 10
-                                    color: root.textSub
-                                }
-                            }
-                            MouseArea {
-                                id: battArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                activeFocusOnTab: true
-                                onClicked: root.refresh()
-                                Keys.onReturnPressed: root.refresh()
-                            }
-                        }
-                    }
-                }
-            }
-
-            // ── Display (ancho completo) ────────────────────────────────
-            GlassCapsule {
-                width: root.contentW
-                height: 96
-                cornerRadius: 26
-                focusRing: briSlider.activeFocus
-                objectName: "ccTile:Display"
-                Column {
-                    anchors.fill: parent
-                    anchors.leftMargin: 16
-                    anchors.rightMargin: 16
-                    anchors.topMargin: 9
-                    anchors.bottomMargin: 8
-                    spacing: 2
-                    Text {
-                        text: "Pantalla"
-                        font.family: NimbusTokens.fontFamily
-                        font.pixelSize: NimbusTokens.type.t12.size
-                        font.weight: NimbusTokens.type.t13b.weight
-                        color: root.textMain
-                    }
-                    Row {
-                        id: briRow
-                        anchors.fill: parent
-                        anchors.leftMargin: 14
-                        anchors.rightMargin: 14
-                        spacing: 10
-                        Glyph {
-                            width: 18
-                            height: 18
-                            kind: "sun"
-                            anchors.verticalCenter: parent.verticalCenter
-                            stroke: root.textSub
-                        }
-                        Slider {
-                            id: briSlider
-                            width: Math.max(0, briRow.width - 36 - 28 - 20)
-                            height: 28
-                            anchors.verticalCenter: parent.verticalCenter
-                            from: 0
-                            to: 1
-                            value: root.bri < 0 ? 0.5 : root.bri
-                            enabled: !root.demo && root.bri >= 0
-                            opacity: enabled ? 1 : 0.62
-                            objectName: "ccBri"
-                            onMoved: runner.run("brightnessctl set " + Math.round(value * 100) + "%")
-                            background: Rectangle {
-                                x: 0
-                                y: (parent.height - height) / 2
-                                width: parent.width
-                                height: 6
-                                radius: 3
-                                color: Qt.rgba(1, 1, 1, 0.2)
-                                Rectangle {
-                                    width: parent.width * briSlider.visualPosition
-                                    height: parent.height
-                                    radius: 3
-                                    color: root.textMain
-                                }
-                            }
-                            handle: Rectangle {
-                                x: briSlider.visualPosition * (briSlider.width - width)
-                                y: (briSlider.height - height) / 2
-                                width: 20
-                                height: 20
-                                radius: 10
-                                color: root.textMain
-                            }
-                        }
-                        Glyph {
-                            width: 26
-                            height: 26
-                            kind: "sun"
-                            anchors.verticalCenter: parent.verticalCenter
-                            stroke: root.textMain
-                        }
-                    }
-                }
-            }
-
-            // ── Sonido (ancho completo) ─────────────────────────────────
-            GlassCapsule {
-                width: root.contentW
-                height: 96
-                cornerRadius: 26
-                focusRing: volSlider.activeFocus
-                objectName: "ccTile:Sonido"
-                Column {
-                    anchors.fill: parent
-                    anchors.leftMargin: 16
-                    anchors.rightMargin: 16
-                    anchors.topMargin: 9
-                    anchors.bottomMargin: 8
-                    spacing: 2
-                    Text {
-                        text: "Sonido"
-                        font.family: NimbusTokens.fontFamily
-                        font.pixelSize: NimbusTokens.type.t12.size
-                        font.weight: NimbusTokens.type.t13b.weight
-                        color: root.textMain
-                    }
-                    Row {
-                        id: volRow
-                        anchors.fill: parent
-                        anchors.leftMargin: 14
-                        anchors.rightMargin: 14
-                        spacing: 10
-                        Glyph {
-                            width: 18
-                            height: 18
-                            kind: "speaker"
-                            anchors.verticalCenter: parent.verticalCenter
-                            stroke: root.textSub
-                        }
-                        Slider {
-                            id: volSlider
-                            width: Math.max(0, volRow.width - 36 - 28 - 20)
-                            height: 28
-                            anchors.verticalCenter: parent.verticalCenter
-                            from: 0
-                            to: 1
-                            value: root.vol < 0 ? 0.5 : root.vol
-                            enabled: !root.demo && root.vol >= 0
-                            opacity: enabled ? 1 : 0.62
-                            objectName: "ccVol"
-                            onMoved: runner.run("wpctl set-volume @DEFAULT_AUDIO_SINK@ " + value.toFixed(2))
-                            background: Rectangle {
-                                x: 0
-                                y: (parent.height - height) / 2
-                                width: parent.width
-                                height: 6
-                                radius: 3
-                                color: Qt.rgba(1, 1, 1, 0.2)
-                                Rectangle {
-                                    width: parent.width * volSlider.visualPosition
-                                    height: parent.height
-                                    radius: 3
-                                    color: root.textMain
-                                }
-                            }
-                            handle: Rectangle {
-                                x: volSlider.visualPosition * (volSlider.width - width)
-                                y: (volSlider.height - height) / 2
-                                width: 20
-                                height: 20
-                                radius: 10
-                                color: root.textMain
-                            }
-                        }
-                        Glyph {
-                            width: 26
-                            height: 26
-                            kind: "speaker"
-                            anchors.verticalCenter: parent.verticalCenter
-                            stroke: root.textMain
-                        }
-                    }
-                }
             }
         }
     }

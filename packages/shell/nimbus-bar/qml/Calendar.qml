@@ -24,41 +24,52 @@ Item {
     function toggle() {
         opened ? close() : open();
     }
+
     function open() {
         today();
         opened = true;
     }
+
     function close() {
         opened = false;
     }
+
     function today() {
         var d = new Date();
         shownYear = d.getFullYear();
         shownMonth = d.getMonth();
     }
+
     function prev() {
         if (shownMonth === 0) {
             shownMonth = 11;
             shownYear--;
-        } else
+        } else {
             shownMonth--;
+        }
     }
+
     function next() {
         if (shownMonth === 11) {
             shownMonth = 0;
             shownYear++;
-        } else
+        } else {
             shownMonth++;
+        }
     }
+
     function monthName(m) {
         return ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"][m];
     }
+
     function daysIn(m, y) {
         return new Date(y, m + 1, 0).getDate();
     }
+
     function leadBlanks(m, y) {
         return (new Date(y, m, 1).getDay() + 6) % 7;
     }
+
     function isToday(d) {
         var t = new Date();
         return d === t.getDate() && shownMonth === t.getMonth() && shownYear === t.getFullYear();
@@ -85,6 +96,7 @@ Item {
             anchors.fill: parent
             onClicked: root.close()
         }
+
         Shortcut {
             sequence: "Escape"
             enabled: root.opened
@@ -112,10 +124,21 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            radius: 14
+            radius: 20
             color: NimbusTokens.popupBg(NimbusTokens.dark)
             border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
+
+            // Specular top rim highlight (Tahoe Liquid Glass)
+            Rectangle {
+                anchors.top: parent.top
+                anchors.topMargin: 1
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - 24
+                height: 1
+                radius: 0.5
+                color: Qt.rgba(1, 1, 1, NimbusTokens.dark ? 0.38 : 0.6)
+            }
 
             Column {
                 anchors.fill: parent
@@ -144,6 +167,7 @@ Item {
                             font.pixelSize: 15
                             color: NimbusTokens.colors(NimbusTokens.dark).label
                         }
+
                         MouseArea {
                             id: prevArea
 
@@ -154,6 +178,7 @@ Item {
                             Keys.onReturnPressed: root.prev()
                         }
                     }
+
                     Rectangle {
                         id: headerHover
 
@@ -164,6 +189,7 @@ Item {
                         color: headerArea.containsMouse ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
                         visible: headerArea.containsMouse || headerArea.activeFocus
                     }
+
                     Text {
                         id: headerText
 
@@ -179,6 +205,7 @@ Item {
                         color: NimbusTokens.colors(NimbusTokens.dark).label
                         objectName: "calHeader"
                     }
+
                     MouseArea {
                         id: headerArea
 
@@ -188,6 +215,7 @@ Item {
                         onClicked: root.today()
                         Keys.onReturnPressed: root.today()
                     }
+
                     Rectangle {
                         width: 24
                         height: 24
@@ -205,6 +233,7 @@ Item {
                             font.pixelSize: 15
                             color: NimbusTokens.colors(NimbusTokens.dark).label
                         }
+
                         MouseArea {
                             id: nextArea
 
@@ -249,18 +278,19 @@ Item {
                         model: 42
 
                         delegate: Item {
-                            width: root.cellWidth
-                            height: root.cellSize
-
                             property int dayNumber: index - root.leadBlanks(root.shownMonth, root.shownYear) + 1
                             property bool validDay: dayNumber >= 1 && dayNumber <= root.daysIn(root.shownMonth, root.shownYear)
                             property bool today: validDay && root.isToday(dayNumber)
                             property bool weekend: index % 7 >= 5
+
+                            width: root.cellWidth
+                            height: root.cellSize
                             objectName: validDay ? "calDay:" + dayNumber : ""
 
                             HoverHandler {
                                 id: dayHover
                             }
+
                             Rectangle {
                                 anchors.centerIn: parent
                                 width: root.cellSize - 2
@@ -269,6 +299,7 @@ Item {
                                 // Hoy = círculo de acento; resto, hover sutil.
                                 color: parent.today ? NimbusTokens.selectedFill(NimbusTokens.dark) : (parent.validDay && dayHover.hovered) ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
                             }
+
                             Text {
                                 anchors.centerIn: parent
                                 text: parent.validDay ? parent.dayNumber : ""
@@ -304,6 +335,7 @@ Item {
                             font.weight: NimbusTokens.type.t15.weightEmph
                             color: NimbusTokens.accentColor(NimbusTokens.dark)
                         }
+
                         MouseArea {
                             id: todayArea
 

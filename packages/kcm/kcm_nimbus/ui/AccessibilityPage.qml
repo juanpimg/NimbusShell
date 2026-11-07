@@ -2,10 +2,10 @@
 // transparencia reducidos, repetición de teclado y lector Orca. Todo sale
 // por kcm (C++) y se aplica con «Aplicar». i18n() extraíble (F11-T05).
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls as QQC2
-import org.kde.kirigami as Kirigami
+import QtQuick.Layouts
 import org.kde.kcmutils as KCMUtils
+import org.kde.kirigami as Kirigami
 
 KCMUtils.SimpleKCM {
     id: page
@@ -19,23 +19,23 @@ KCMUtils.SimpleKCM {
                 text: i18n("Restablecer esta sección")
                 Accessible.name: i18n("Restablecer esta sección a valores Nimbus")
                 onClicked: {
-                    if (page.kcmRef) {
+                    if (page.kcmRef)
                         page.kcmRef.resetSection("accessibility");
-                    }
                 }
             }
         }
+
         QQC2.Switch {
             Kirigami.FormData.label: i18n("Ver:")
             text: i18n("Ampliar la pantalla con el teclado")
             Accessible.name: i18n("Ampliar la pantalla con la lupa de KWin")
             checked: page.kcmRef ? page.kcmRef.zoomEnabled : false
             onToggled: {
-                if (page.kcmRef) {
+                if (page.kcmRef)
                     page.kcmRef.zoomEnabled = checked;
-                }
             }
         }
+
         QQC2.Label {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
@@ -49,9 +49,8 @@ KCMUtils.SimpleKCM {
             Accessible.name: i18n("Invertir los colores de la pantalla")
             checked: page.kcmRef ? page.kcmRef.invertColors : false
             onToggled: {
-                if (page.kcmRef) {
+                if (page.kcmRef)
                     page.kcmRef.invertColors = checked;
-                }
             }
         }
 
@@ -61,9 +60,8 @@ KCMUtils.SimpleKCM {
             Accessible.name: i18n("Reducir las animaciones")
             checked: page.kcmRef ? page.kcmRef.reduceMotion : false
             onToggled: {
-                if (page.kcmRef) {
+                if (page.kcmRef)
                     page.kcmRef.reduceMotion = checked;
-                }
             }
         }
 
@@ -73,9 +71,8 @@ KCMUtils.SimpleKCM {
             Accessible.name: i18n("Quitar transparencias y desenfoques")
             checked: page.kcmRef ? page.kcmRef.reduceTransparency : false
             onToggled: {
-                if (page.kcmRef) {
+                if (page.kcmRef)
                     page.kcmRef.reduceTransparency = checked;
-                }
             }
         }
 
@@ -90,14 +87,14 @@ KCMUtils.SimpleKCM {
             Accessible.name: i18n("Repetir la tecla al mantenerla pulsada")
             checked: page.kcmRef ? page.kcmRef.keyboardRepeat : true
             onToggled: {
-                if (page.kcmRef) {
+                if (page.kcmRef)
                     page.kcmRef.keyboardRepeat = checked;
-                }
             }
         }
 
         RowLayout {
             Kirigami.FormData.label: i18n("Retardo:")
+
             QQC2.Slider {
                 Layout.fillWidth: true
                 from: 100
@@ -107,11 +104,11 @@ KCMUtils.SimpleKCM {
                 value: page.kcmRef ? page.kcmRef.repeatDelay : 500
                 Accessible.name: i18n("Milisegundos antes de repetir")
                 onMoved: {
-                    if (page.kcmRef) {
+                    if (page.kcmRef)
                         page.kcmRef.repeatDelay = Math.round(value);
-                    }
                 }
             }
+
             QQC2.Label {
                 text: page.kcmRef ? i18n("%1 ms", page.kcmRef.repeatDelay) : ""
                 Layout.minimumWidth: Kirigami.Units.gridUnit * 4
@@ -120,6 +117,7 @@ KCMUtils.SimpleKCM {
 
         RowLayout {
             Kirigami.FormData.label: i18n("Velocidad:")
+
             QQC2.Slider {
                 Layout.fillWidth: true
                 from: 5
@@ -129,11 +127,11 @@ KCMUtils.SimpleKCM {
                 value: page.kcmRef ? page.kcmRef.repeatRate : 25
                 Accessible.name: i18n("Repeticiones por segundo")
                 onMoved: {
-                    if (page.kcmRef) {
+                    if (page.kcmRef)
                         page.kcmRef.repeatRate = Math.round(value);
-                    }
                 }
             }
+
             QQC2.Label {
                 text: page.kcmRef ? i18n("%1/s", page.kcmRef.repeatRate) : ""
                 Layout.minimumWidth: Kirigami.Units.gridUnit * 4
@@ -151,11 +149,11 @@ KCMUtils.SimpleKCM {
             Accessible.name: i18n("Activar el lector de pantalla Orca")
             checked: page.kcmRef ? page.kcmRef.screenReader : false
             onToggled: {
-                if (page.kcmRef) {
+                if (page.kcmRef)
                     page.kcmRef.screenReader = checked;
-                }
             }
         }
+
         QQC2.Label {
             Layout.fillWidth: true
             visible: page.kcmRef ? !page.kcmRef.orcaInstalled : false
@@ -170,6 +168,7 @@ KCMUtils.SimpleKCM {
             color: Kirigami.Theme.disabledTextColor
             text: i18n("Todo se aplica al pulsar «Aplicar». KWin relee su configuración solo; el resto aplica al reiniciar la sesión.")
         }
+
         QQC2.Label {
             Layout.fillWidth: true
             visible: page.kcmRef && page.kcmRef.helperStatus.length > 0

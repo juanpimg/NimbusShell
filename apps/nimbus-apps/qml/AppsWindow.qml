@@ -1,12 +1,12 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
-
 // Ventana Apps estilo Tahoe (R-APPSVIEW): centrada 1000x700, categorías
 // fijas + Suggestions, vistas Icons/List, buscador, teclado completo.
 // Tokens del contrato §2: bg #FFFFFF/#2C2C2E, label, accent #007AFF/#0A84FF,
 // radio ventana 16, radios md 10-12, t12/t13, spacing 4/8/12/16/20.
-//
+
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
 // F6-T07 — TECLADO Y ACCESIBILIDAD (todos sin ratón, documentados aquí):
 //   Tab / Shift+Tab .... Buscador → Vista → Categorías → Rejilla/Lista →
 //                        Buscador (sin trampas; KeyNavigation)
@@ -22,22 +22,14 @@ import QtQuick.Layouts
 // buscador 32px. Announce de vista/categoría/selección a lectores.
 ApplicationWindow {
     id: root
-    width: 1000
-    height: 700
-    minimumWidth: 800
-    minimumHeight: 560
-    visible: true
-    title: "Apps"
-    color: "transparent"
-    property bool dark: false
 
+    property bool dark: true
     property color bgCol: dark ? "#1C1C1E" : "#F2F2F7"
     property color cardCol: dark ? "#2C2C2E" : "#FFFFFF"
     property color labelCol: dark ? "#FFFFFF" : "#000000"
     property color label2Col: dark ? "#98989D" : "#8E8E93"
     property color accentCol: dark ? "#0A84FF" : "#007AFF"
     property color searchCol: dark ? "#38383A" : "#E3E3E8"
-
     property int selIndex: 0
     property var cats: ["Todas", "Suggestions", "Productividad", "Desarrollo", "Gráficos", "Juegos", "Multimedia", "Utilidades", "Internet", "Ajustes"]
     // F6-T07: token de foco visible (anillo accent 2px).
@@ -47,16 +39,64 @@ ApplicationWindow {
     function announce(msg) {
         Accessible.announce(root, msg);
     }
+
     function announceSel() {
         root.announce("App " + (root.selIndex + 1) + " de " + appModel.count);
     }
 
+    width: 1000
+    height: 700
+    minimumWidth: 800
+    minimumHeight: 560
+    visible: true
+    title: "Apps"
+    color: "transparent"
+    Keys.onPressed: event => {
+        var cols = Math.max(1, Math.floor(grid.width / grid.cellWidth));
+        if (event.key === Qt.Key_Right) {
+            root.selIndex = Math.min(appModel.count - 1, root.selIndex + 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Left) {
+            root.selIndex = Math.max(0, root.selIndex - 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Down) {
+            root.selIndex = Math.min(appModel.count - 1, root.selIndex + (appModel.listMode ? 1 : cols));
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Up) {
+            root.selIndex = Math.max(0, root.selIndex - (appModel.listMode ? 1 : cols));
+            event.accepted = true;
+        } else if (event.key === Qt.Key_Home) {
+            root.selIndex = 0;
+            event.accepted = true;
+        } else if (event.key === Qt.Key_End) {
+            root.selIndex = Math.max(0, appModel.count - 1);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_PageDown) {
+            root.selIndex = Math.min(appModel.count - 1, root.selIndex + 10);
+            event.accepted = true;
+        } else if (event.key === Qt.Key_PageUp) {
+            root.selIndex = Math.max(0, root.selIndex - 10);
+            event.accepted = true;
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
-        radius: 16
-        color: root.bgCol
-        border.color: root.dark ? "#38383A" : "#C6C6C8"
+        radius: 20
+        color: root.dark ? Qt.rgba(0.12, 0.14, 0.18, 0.82) : Qt.rgba(0.96, 0.97, 0.99, 0.85)
+        border.color: Qt.rgba(1, 1, 1, root.dark ? 0.2 : 0.25)
         border.width: 1
+
+        // Top specular rim highlight
+        Rectangle {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 1
+            height: 1
+            radius: 20
+            color: Qt.rgba(1, 1, 1, root.dark ? 0.4 : 0.65)
+        }
 
         ColumnLayout {
             anchors.fill: parent
@@ -67,8 +107,10 @@ ApplicationWindow {
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 12
+
                 TextField {
                     id: search
+
                     Layout.fillWidth: true
                     placeholderText: "Buscar apps"
                     font.pixelSize: 13
@@ -80,13 +122,6 @@ ApplicationWindow {
                     // F6-T07: Tab/Shift+Tab navegan (sin trampas).
                     KeyNavigation.tab: viewBtn
                     KeyNavigation.backtab: appModel.listMode ? list : grid
-                    background: Rectangle {
-                        radius: 10
-                        color: root.searchCol
-                        implicitHeight: 32
-                        border.color: search.activeFocus ? root.accentCol : "transparent"
-                        border.width: root.focusW
-                    }
                     onTextChanged: {
                         appModel.filter = text;
                         root.selIndex = 0;
@@ -95,9 +130,19 @@ ApplicationWindow {
                     // inconsistente con Shortcut Escape→hide de abajo).
                     Keys.onEscapePressed: root.hide()
                     Component.onCompleted: forceActiveFocus()
+
+                    background: Rectangle {
+                        radius: 10
+                        color: root.searchCol
+                        implicitHeight: 32
+                        border.color: search.activeFocus ? root.accentCol : "transparent"
+                        border.width: root.focusW
+                    }
                 }
+
                 Button {
                     id: viewBtn
+
                     text: appModel.listMode ? "☰ Lista" : "▦ Iconos"
                     font.pixelSize: 12
                     onClicked: {
@@ -119,7 +164,10 @@ ApplicationWindow {
 
                 // Categorías fijas
                 ListView {
+                    // Tab/Shift+Tab: los mueve KeyNavigation.
+
                     id: catList
+
                     Layout.preferredWidth: 180
                     Layout.fillHeight: true
                     model: root.cats
@@ -154,8 +202,14 @@ ApplicationWindow {
                             root.hide();
                             event.accepted = true;
                         }
-                    // Tab/Shift+Tab: los mueve KeyNavigation.
                     }
+                    onCurrentIndexChanged: {
+                        appModel.category = root.cats[currentIndex];
+                        root.selIndex = 0;
+                        if (catList.activeFocus)
+                            root.announce(root.cats[currentIndex]);
+                    }
+
                     delegate: Rectangle {
                         width: catList.width
                         height: 36 // F6-T07: hit target 36px (antes 28)
@@ -166,6 +220,7 @@ ApplicationWindow {
                         border.width: (catList.activeFocus && ListView.isCurrentItem) ? root.focusW : 0
                         Accessible.role: Accessible.ListItem
                         Accessible.name: modelData
+
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
@@ -174,6 +229,7 @@ ApplicationWindow {
                             font.pixelSize: 13
                             color: ListView.isCurrentItem ? "white" : root.labelCol
                         }
+
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
@@ -182,12 +238,6 @@ ApplicationWindow {
                                 root.selIndex = 0;
                             }
                         }
-                    }
-                    onCurrentIndexChanged: {
-                        appModel.category = root.cats[currentIndex];
-                        root.selIndex = 0;
-                        if (catList.activeFocus)
-                            root.announce(root.cats[currentIndex]);
                     }
                 }
 
@@ -199,6 +249,7 @@ ApplicationWindow {
 
                     GridView {
                         id: grid
+
                         model: appModel
                         cellWidth: 110
                         cellHeight: 104
@@ -255,14 +306,17 @@ ApplicationWindow {
                                 event.accepted = true;
                             }
                         }
+
                         delegate: Item {
                             width: 110
                             height: 104
                             Accessible.role: Accessible.ListItem
                             Accessible.name: appName
+
                             Column {
                                 anchors.centerIn: parent
                                 spacing: 4
+
                                 Rectangle {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     width: 64
@@ -274,6 +328,7 @@ ApplicationWindow {
                                     // en ambos temas, ≥3:1 non-text).
                                     border.color: GridView.isCurrentItem ? (grid.activeFocus ? root.labelCol : root.accentCol) : "transparent"
                                     border.width: GridView.isCurrentItem ? root.focusW : 0
+
                                     Image {
                                         anchors.fill: parent
                                         anchors.margins: 6
@@ -282,6 +337,7 @@ ApplicationWindow {
                                         asynchronous: true
                                     }
                                 }
+
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     width: 100
@@ -294,6 +350,7 @@ ApplicationWindow {
                                     color: root.labelCol
                                 }
                             }
+
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
@@ -307,6 +364,7 @@ ApplicationWindow {
 
                     ListView {
                         id: list
+
                         model: appModel
                         clip: true
                         spacing: 2
@@ -352,6 +410,7 @@ ApplicationWindow {
                                 event.accepted = true;
                             }
                         }
+
                         delegate: Rectangle {
                             width: list.width
                             height: 40 // F6-T07: hit target 40px (antes 36)
@@ -363,16 +422,19 @@ ApplicationWindow {
                             border.width: ListView.isCurrentItem ? root.focusW : 0
                             Accessible.role: Accessible.ListItem
                             Accessible.name: appName + ", " + appCategory
+
                             RowLayout {
                                 anchors.fill: parent
                                 anchors.leftMargin: 12
                                 anchors.rightMargin: 12
                                 spacing: 12
+
                                 Rectangle {
                                     width: 24
                                     height: 24
                                     radius: 6
                                     color: root.cardCol
+
                                     Image {
                                         anchors.fill: parent
                                         anchors.margins: 2
@@ -381,6 +443,7 @@ ApplicationWindow {
                                         asynchronous: true
                                     }
                                 }
+
                                 Text {
                                     Layout.fillWidth: true
                                     text: appName
@@ -388,12 +451,14 @@ ApplicationWindow {
                                     color: root.labelCol
                                     elide: Text.ElideRight
                                 }
+
                                 Text {
                                     text: appCategory
                                     font.pixelSize: 12
                                     color: root.label2Col
                                 }
                             }
+
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
@@ -425,36 +490,9 @@ ApplicationWindow {
         sequence: "Escape"
         onActivated: root.hide()
     }
+
     Shortcut {
         sequence: "Return"
         onActivated: appModel.launch(root.selIndex)
-    }
-    Keys.onPressed: event => {
-        var cols = Math.max(1, Math.floor(grid.width / grid.cellWidth));
-        if (event.key === Qt.Key_Right) {
-            root.selIndex = Math.min(appModel.count - 1, root.selIndex + 1);
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Left) {
-            root.selIndex = Math.max(0, root.selIndex - 1);
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Down) {
-            root.selIndex = Math.min(appModel.count - 1, root.selIndex + (appModel.listMode ? 1 : cols));
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Up) {
-            root.selIndex = Math.max(0, root.selIndex - (appModel.listMode ? 1 : cols));
-            event.accepted = true;
-        } else if (event.key === Qt.Key_Home) {
-            root.selIndex = 0;
-            event.accepted = true;
-        } else if (event.key === Qt.Key_End) {
-            root.selIndex = Math.max(0, appModel.count - 1);
-            event.accepted = true;
-        } else if (event.key === Qt.Key_PageDown) {
-            root.selIndex = Math.min(appModel.count - 1, root.selIndex + 10);
-            event.accepted = true;
-        } else if (event.key === Qt.Key_PageUp) {
-            root.selIndex = Math.max(0, root.selIndex - 10);
-            event.accepted = true;
-        }
     }
 }

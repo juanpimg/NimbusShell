@@ -6,14 +6,6 @@ import QtQuick.Layouts
 
 ApplicationWindow {
     id: root
-    objectName: "aboutWindow"
-    width: 520
-    height: 420
-    minimumWidth: 480
-    minimumHeight: 380
-    visible: true
-    title: "Acerca de Nimbus"
-    color: "transparent"
 
     property bool isDark: true
     property var c: ({
@@ -26,23 +18,47 @@ ApplicationWindow {
             "separator": "#38383A"
         })
 
+    objectName: "aboutWindow"
+    width: 520
+    height: 420
+    minimumWidth: 480
+    minimumHeight: 380
+    visible: true
+    title: "Acerca de Nimbus"
+    color: "transparent"
+
     Rectangle {
         anchors.fill: parent
-        radius: 16
-        color: root.c.bgElevated
-        border.color: root.c.separator
+        radius: 20
+        color: root.isDark ? Qt.rgba(0.14, 0.16, 0.2, 0.78) : Qt.rgba(0.96, 0.97, 0.99, 0.85)
+        border.color: Qt.rgba(1, 1, 1, root.isDark ? 0.2 : 0.25)
         border.width: 1
+
+        // Top specular rim highlight
+        Rectangle {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 1
+            height: 1
+            radius: 20
+            color: Qt.rgba(1, 1, 1, root.isDark ? 0.4 : 0.65)
+        }
+
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 20
+            anchors.margins: 22
             spacing: 8
+
             RowLayout {
                 spacing: 16
+
                 Rectangle {
                     width: 64
                     height: 64
                     radius: 14
                     color: root.c.accent
+
                     Text {
                         anchors.centerIn: parent
                         text: "N"
@@ -51,14 +67,17 @@ ApplicationWindow {
                         color: "white"
                     }
                 }
+
                 ColumnLayout {
                     spacing: 2
+
                     Text {
                         text: "NimbusShell"
                         font.pixelSize: 28
                         font.weight: 600
                         color: root.c.label
                     }
+
                     Text {
                         text: "Versión " + backend.version + " · " + backend.osName
                         font.pixelSize: 13
@@ -66,21 +85,25 @@ ApplicationWindow {
                     }
                 }
             }
+
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
                 color: root.c.separator
             }
+
             GridLayout {
                 columns: 2
                 columnSpacing: 12
                 rowSpacing: 4
                 Layout.fillWidth: true
+
                 Text {
                     text: "Núcleo:"
                     font.pixelSize: 13
                     color: root.c.label2
                 }
+
                 Text {
                     text: backend.kernel
                     font.pixelSize: 13
@@ -88,11 +111,13 @@ ApplicationWindow {
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
+
                 Text {
                     text: "Plasma:"
                     font.pixelSize: 13
                     color: root.c.label2
                 }
+
                 Text {
                     text: backend.plasmaVersion
                     font.pixelSize: 13
@@ -100,21 +125,25 @@ ApplicationWindow {
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
+
                 Text {
                     text: "Qt:"
                     font.pixelSize: 13
                     color: root.c.label2
                 }
+
                 Text {
                     text: backend.qtVersion
                     font.pixelSize: 13
                     color: root.c.label
                 }
+
                 Text {
                     text: "KWin:"
                     font.pixelSize: 13
                     color: root.c.label2
                 }
+
                 Text {
                     text: backend.kwinVersion
                     font.pixelSize: 13
@@ -122,11 +151,13 @@ ApplicationWindow {
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
+
                 Text {
                     text: "CPU:"
                     font.pixelSize: 13
                     color: root.c.label2
                 }
+
                 Text {
                     text: backend.cpu
                     font.pixelSize: 13
@@ -134,21 +165,25 @@ ApplicationWindow {
                     elide: Text.ElideRight
                     Layout.fillWidth: true
                 }
+
                 Text {
                     text: "RAM:"
                     font.pixelSize: 13
                     color: root.c.label2
                 }
+
                 Text {
                     text: backend.ram
                     font.pixelSize: 13
                     color: root.c.label
                 }
+
                 Text {
                     text: "GPU:"
                     font.pixelSize: 13
                     color: root.c.label2
                 }
+
                 Text {
                     text: backend.gpu
                     font.pixelSize: 13
@@ -157,6 +192,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                 }
             }
+
             Text {
                 text: backend.credits
                 font.pixelSize: 11
@@ -164,16 +200,20 @@ ApplicationWindow {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
+
             RowLayout {
                 spacing: 8
+
                 Button {
                     text: "Guía de usuario"
                     onClicked: backend.openHelp("guide")
                 }
+
                 Button {
                     text: "Atajos"
                     onClicked: backend.openHelp("shortcuts")
                 }
+
                 Button {
                     text: "Copiar información"
                     highlighted: true

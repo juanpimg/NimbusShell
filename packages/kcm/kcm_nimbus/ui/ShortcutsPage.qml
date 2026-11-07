@@ -2,10 +2,10 @@
 // u opt-in Ctrl vía scripts/nimbus-keys, chuleta y salto al editor avanzado.
 // Sin atajos CTRL-* nuevos por defecto (R-CTRL). i18n() extraíble (F11-T05).
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Controls as QQC2
-import org.kde.kirigami as Kirigami
+import QtQuick.Layouts
 import org.kde.kcmutils as KCMUtils
+import org.kde.kirigami as Kirigami
 
 KCMUtils.SimpleKCM {
     id: page
@@ -14,36 +14,36 @@ KCMUtils.SimpleKCM {
     // Chuleta central (de scripts/nimbus-keys TABLE): modificador + acción.
     property var cheatsheet: [
         {
-            keys: "⌘Q",
-            what: i18n("Cerrar ventana")
+            "keys": "⌘Q",
+            "what": i18n("Cerrar ventana")
         },
         {
-            keys: "⌘M",
-            what: i18n("Minimizar ventana")
+            "keys": "⌘M",
+            "what": i18n("Minimizar ventana")
         },
         {
-            keys: "⌘W",
-            what: i18n("Mission Control (Overview)")
+            "keys": "⌘W",
+            "what": i18n("Mission Control (Overview)")
         },
         {
-            keys: "⌘E",
-            what: i18n("Exposé del escritorio")
+            "keys": "⌘E",
+            "what": i18n("Exposé del escritorio")
         },
         {
-            keys: "⌘D",
-            what: i18n("Mostrar escritorio")
+            "keys": "⌘D",
+            "what": i18n("Mostrar escritorio")
         },
         {
-            keys: "⌘Espacio",
-            what: i18n("Spotlight (KRunner)")
+            "keys": "⌘Espacio",
+            "what": i18n("Spotlight (KRunner)")
         },
         {
-            keys: "⌘Tab",
-            what: i18n("Cambiar de aplicación")
+            "keys": "⌘Tab",
+            "what": i18n("Cambiar de aplicación")
         },
         {
-            keys: "⌘Mayús+3",
-            what: i18n("Captura de pantalla")
+            "keys": "⌘Mayús+3",
+            "what": i18n("Captura de pantalla")
         }
     ]
 
@@ -54,35 +54,36 @@ KCMUtils.SimpleKCM {
                 text: i18n("Restablecer esta sección")
                 Accessible.name: i18n("Restablecer esta sección a valores Nimbus")
                 onClicked: {
-                    if (page.kcmRef) {
+                    if (page.kcmRef)
                         page.kcmRef.resetSection("shortcuts");
-                    }
                 }
             }
         }
+
         RowLayout {
             Kirigami.FormData.label: i18n("Tecla de comando:")
+
             QQC2.RadioButton {
                 text: i18n("⌘ Cmd (Meta)")
                 Accessible.name: i18n("Usar Meta como tecla de comando")
                 checked: page.kcmRef ? page.kcmRef.cmdMode : true
                 onToggled: {
-                    if (page.kcmRef) {
+                    if (page.kcmRef)
                         page.kcmRef.cmdMode = checked;
-                    }
                 }
             }
+
             QQC2.RadioButton {
                 text: i18n("Ctrl")
                 Accessible.name: i18n("Usar Control como tecla de comando")
                 checked: page.kcmRef ? !page.kcmRef.cmdMode : false
                 onToggled: {
-                    if (page.kcmRef) {
+                    if (page.kcmRef)
                         page.kcmRef.cmdMode = !checked;
-                    }
                 }
             }
         }
+
         QQC2.Label {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
@@ -100,16 +101,21 @@ KCMUtils.SimpleKCM {
             columns: 2
             columnSpacing: Kirigami.Units.largeSpacing
             rowSpacing: Kirigami.Units.smallSpacing
+
             Repeater {
                 model: page.cheatsheet
+
                 delegate: RowLayout {
                     required property var modelData
+
                     Layout.fillWidth: true
+
                     QQC2.Label {
                         text: modelData.keys
                         font.bold: true
                         Layout.minimumWidth: Kirigami.Units.gridUnit * 6
                     }
+
                     QQC2.Label {
                         Layout.fillWidth: true
                         text: modelData.what
@@ -124,12 +130,12 @@ KCMUtils.SimpleKCM {
                 text: i18n("Editor avanzado")
                 Accessible.name: i18n("Abrir el editor avanzado de atajos")
                 onClicked: {
-                    if (page.kcmRef && !page.kcmRef.openKcm("kcm_keys")) {
+                    if (page.kcmRef && !page.kcmRef.openKcm("kcm_keys"))
                         page.kcmRef.helperStatus = i18n("No disponible en este sistema.");
-                    }
                 }
             }
         }
+
         QQC2.Label {
             Layout.fillWidth: true
             visible: page.kcmRef && page.kcmRef.helperStatus.length > 0

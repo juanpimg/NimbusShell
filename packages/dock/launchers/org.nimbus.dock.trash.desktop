@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Papelera
+Name[en]=Trash
+Comment=Papelera del sistema
+Comment[en]=System Trash
+Exec=dolphin trash:/
+Icon=user-trash
+Terminal=false
+Categories=System;
+StartupNotify=false

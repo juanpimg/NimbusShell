@@ -12,6 +12,11 @@
 class TstWelcome : public QObject {
     Q_OBJECT
 private Q_SLOTS:
+    void initTestCase()
+    {
+        qputenv("NIMBUS_WELCOME_SIM", "1");
+    }
+
     void stepBounds()
     {
         WelcomeBackend b;
@@ -97,6 +102,47 @@ private Q_SLOTS:
         QCOMPARE(w.value(QStringLiteral("layout/name")).toString(), QStringLiteral("windows"));
         QSettings li(cfg + QStringLiteral("/nimbus-layout.ini"), QSettings::IniFormat);
         QCOMPARE(li.value(QStringLiteral("Layout/name")).toString(), QStringLiteral("windows"));
+    }
+
+    void appSelectionAndInstall()
+    {
+        WelcomeBackend b;
+        b.reset();
+        QCOMPARE(b.selectedApps().size(), 0);
+        b.installApps(); // Sin apps seleccionadas
+        QVERIFY(b.installStatus().contains(QStringLiteral("Elige al menos una")));
+        QVERIFY(!b.isInstalling());
+
+        // Seleccionar 3 apps (requisito de aceptación F9-T04: instala 3 apps)
+        b.toggleApp(QStringLiteral("firefox"));
+        b.toggleApp(QStringLiteral("vlc"));
+        b.toggleApp(QStringLiteral("gimp"));
+        QCOMPARE(b.selectedApps().size(), 3);
+        QVERIFY(b.selectedApps().contains(QStringLiteral("firefox")));
+        QVERIFY(b.selectedApps().contains(QStringLiteral("vlc")));
+        QVERIFY(b.selectedApps().contains(QStringLiteral("gimp")));
+
+        // Probar cancelación activa en segundo plano (F9-T04)
+        qputenv("NIMBUS_WELCOME_SIM_PAUSE", "1");
+        b.installApps();
+        QVERIFY(b.isInstalling());
+        QCOMPARE(b.installProgress(), 10);
+        QVERIFY(b.installStatus().contains(QStringLiteral("Preparando")));
+
+        b.cancelInstall();
+        QVERIFY(!b.isInstalling());
+        QCOMPARE(b.installStatus(), QStringLiteral("Instalación cancelada."));
+        qunsetenv("NIMBUS_WELCOME_SIM_PAUSE");
+
+        // Ejecutar instalación completa
+        b.installApps();
+        QCOMPARE(b.installProgress(), 100);
+        QVERIFY(!b.isInstalling());
+        QVERIFY(b.installStatus().contains(QStringLiteral("completada")));
+
+        // Cancelación cuando ya está inactivo no corrompe el estado
+        b.cancelInstall();
+        QVERIFY(!b.isInstalling());
     }
 };
 

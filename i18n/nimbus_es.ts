@@ -293,42 +293,42 @@
     <context>
         <name>BarControlCenter</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="688" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="624" />
             <source>Batería</source>
             <translation>Batería</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="444" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="341" />
             <source>Bluetooth</source>
             <translation>Bluetooth</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="502" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="407" />
             <source>Enfoque</source>
             <translation>Enfoque</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="790" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="737" />
             <source>Pantalla</source>
             <translation>Pantalla</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="870" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="830" />
             <source>Sonido</source>
             <translation>Sonido</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="386" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="275" />
             <source>Wi-Fi</source>
             <translation>Wi-Fi</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="327" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="209" />
             <source>nimbus-cc</source>
             <translation>nimbus-cc</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="303" />
+            <location filename="packages/shell/nimbus-bar/qml/ControlCenter.qml" line="182" />
             <source>nimbus-cc-scrim</source>
             <translation>nimbus-cc-scrim</translation>
         </message>
@@ -354,72 +354,72 @@
     <context>
         <name>BarMenu</name>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="232" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="135" />
             <source>Acerca de Nimbus</source>
             <translation>Acerca de Nimbus</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="250" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="156" />
             <source>Ajustes del sistema…</source>
             <translation>Ajustes del sistema…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="280" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="193" />
             <source>Apagar…</source>
             <translation>Apagar…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="238" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="142" />
             <source>Ayuda de Nimbus</source>
             <translation>Ayuda de Nimbus</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="262" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="170" />
             <source>Bloquear</source>
             <translation>Bloquear</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="268" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="177" />
             <source>Cerrar sesión</source>
             <translation>Cerrar sesión</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="256" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="163" />
             <source>Dormir</source>
             <translation>Dormir</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="388" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="321" />
             <source>No</source>
             <translation>No</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="274" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="185" />
             <source>Reiniciar…</source>
             <translation>Reiniciar…</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="244" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="149" />
             <source>Reloj</source>
             <translation>Reloj</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="409" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="346" />
             <source>Sí</source>
             <translation>Sí</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="204" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="101" />
             <source>nimbus-menu</source>
             <translation>nimbus-menu</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="178" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="72" />
             <source>nimbus-menu-scrim</source>
             <translation>nimbus-menu-scrim</translation>
         </message>
         <message>
-            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="371" />
+            <location filename="packages/shell/nimbus-bar/qml/Menu.qml" line="301" />
             <source>¿</source>
             <translation>¿</translation>
         </message>
@@ -1777,27 +1777,27 @@
     <context>
         <name>Welcome</name>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="355" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="414" />
             <source>Apariencia</source>
             <translation>Apariencia</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="429" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="505" />
             <source>Aplicar</source>
             <translation>Aplicar</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="569" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="668" />
             <source>Aplicar diseño</source>
             <translation>Aplicar diseño</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="593" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="697" />
             <source>Apps recomendadas</source>
             <translation>Apps recomendadas</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="662" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="836" />
             <source>Atrás</source>
             <translation>Atrás</translation>
         </message>
@@ -1807,17 +1807,27 @@
             <translation>Bienvenida</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="257" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="295" />
             <source>Buscar redes</source>
             <translation>Buscar redes</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="372" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="764" />
+            <source>Cancelar</source>
+            <translation>Cancelar</translation>
+        </message>
+        <message>
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="766" />
+            <source>Cancelar instalación</source>
+            <translation>Cancelar instalación</translation>
+        </message>
+        <message>
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="434" />
             <source>Claro</source>
             <translation>Claro</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="362" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="422" />
             <source>Claro u oscuro y tu color de acento. Se aplica con nimbus-theme.</source>
             <translation>Claro u oscuro y tu color de acento. Se aplica con nimbus-theme.</translation>
         </message>
@@ -1827,22 +1837,22 @@
             <translation>Cmd con Meta, semáforos a la izquierda, Dock abajo.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="403" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="472" />
             <source>Color de acento</source>
             <translation>Color de acento</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="263" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="302" />
             <source>Conectar</source>
             <translation>Conectar</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="253" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="290" />
             <source>Contraseña</source>
             <translation>Contraseña</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="212" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="240" />
             <source>Conéctate para terminar de configurar el sistema. Puedes omitir este paso.</source>
             <translation>Conéctate para terminar de configurar el sistema. Puedes omitir este paso.</translation>
         </message>
@@ -1852,62 +1862,67 @@
             <translation>Ctrl y Alt clásicos, botones a la derecha.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="445" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="525" />
             <source>Diseño</source>
             <translation>Diseño</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="577" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="677" />
             <source>Elegido:</source>
             <translation>Elegido:</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="338" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="392" />
             <source>Elegir foto…</source>
             <translation>Elegir foto…</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="452" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="533" />
             <source>Elige cómo se comporta tu escritorio. Mac es el predeterminado.</source>
             <translation>Elige cómo se comporta tu escritorio. Mac es el predeterminado.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="179" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="202" />
             <source>Elige tu idioma. Se aplicará a todo el sistema.</source>
             <translation>Elige tu idioma. Se aplicará a todo el sistema.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="188" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="212" />
             <source>Español</source>
             <translation>Español</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="610" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="717" />
             <source>Firefox — navegador</source>
             <translation>Firefox — navegador</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="624" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="733" />
             <source>GIMP — imagen</source>
             <translation>GIMP — imagen</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="172" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="194" />
             <source>Idioma</source>
             <translation>Idioma</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="188" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="212" />
             <source>Inglés</source>
             <translation>Inglés</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="631" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="755" />
+            <source>Instalar apps seleccionadas</source>
+            <translation>Instalar apps seleccionadas</translation>
+        </message>
+        <message>
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="741" />
             <source>LibreOffice — oficina</source>
             <translation>LibreOffice — oficina</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="639" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="808" />
             <source>Listo para despegar</source>
             <translation>Listo para despegar</translation>
         </message>
@@ -1917,9 +1932,9 @@
             <translation>Mac</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="600" />
-            <source>Marca las que quieras descubrir. No se instala nada ahora: las verás en Descubrir.</source>
-            <translation>Marca las que quieras descubrir. No se instala nada ahora: las verás en Descubrir.</translation>
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="705" />
+            <source>Marca las aplicaciones que deseas tener listas. Puedes instalarlas ahora mismo o encontrarlas más tarde en Descubrir.</source>
+            <translation>Marca las aplicaciones que deseas tener listas. Puedes instalarlas ahora mismo o encontrarlas más tarde en Descubrir.</translation>
         </message>
         <message>
             <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="0" />
@@ -1927,62 +1942,62 @@
             <translation>Mezcla: Meta para apps, Ctrl para Spaces.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="136" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="152" />
             <source>N</source>
             <translation>N</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="20" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="57" />
             <source>Nimbus</source>
             <translation>Nimbus</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="673" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="849" />
             <source>Omitir</source>
             <translation>Omitir</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="387" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="452" />
             <source>Oscuro</source>
             <translation>Oscuro</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="680" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="857" />
             <source>Siguiente</source>
             <translation>Siguiente</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="146" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="164" />
             <source>Te damos la bienvenida a Nimbus</source>
             <translation>Te damos la bienvenida a Nimbus</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="680" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="857" />
             <source>Terminar</source>
             <translation>Terminar</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="286" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="330" />
             <source>Tu cuenta</source>
             <translation>Tu cuenta</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="331" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="384" />
             <source>Tu nombre</source>
             <translation>Tu nombre</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="156" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="175" />
             <source>Un escritorio familiar, rápido y tuyo. Este asistente te deja todo listo en menos de 5 minutos.</source>
             <translation>Un escritorio familiar, rápido y tuyo. Este asistente te deja todo listo en menos de 5 minutos.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="617" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="725" />
             <source>VLC — vídeo</source>
             <translation>VLC — vídeo</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="205" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="232" />
             <source>Wi-Fi</source>
             <translation>Wi-Fi</translation>
         </message>
@@ -1992,17 +2007,17 @@
             <translation>Windows</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="646" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="816" />
             <source>Ya está todo. Este es tu escritorio Nimbus: menú arriba, Dock abajo, Spotlight con Cmd+Espacio.</source>
             <translation>Ya está todo. Este es tu escritorio Nimbus: menú arriba, Dock abajo, Spotlight con Cmd+Espacio.</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="92" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="99" />
             <source>de</source>
             <translation>de</translation>
         </message>
         <message>
-            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="293" />
+            <location filename="apps/nimbus-welcome/qml/Welcome.qml" line="338" />
             <source>¿Cómo te llamas? Tu nombre aparece en el menú y la pantalla de bloqueo.</source>
             <translation>¿Cómo te llamas? Tu nombre aparece en el menú y la pantalla de bloqueo.</translation>
         </message>

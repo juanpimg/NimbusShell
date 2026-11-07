@@ -4,5 +4,5 @@ Name=Reloj
 Comment=Reloj mundial, alarmas, cronómetro y temporizador
 Exec=nimbus-clock
 Icon=nimbus-clock
-Categories=System;Utility;
+Categories=Utility;Clock;
 X-Nimbus-AppId=org.nimbus.clock

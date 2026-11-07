@@ -1,0 +1,19 @@
+{
+    "KPackageStructure": "KWin/Effect",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "nimbus@nimbus.local",
+                "Name": "NimbusShell"
+            }
+        ],
+        "Category": "Window Management",
+        "Description": "Efecto KWin Nimbus Overview (macOS Mission Control layout y toggle)",
+        "Icon": "preferences-system-windows",
+        "Id": "nimbus-overview",
+        "License": "GPL-3.0-or-later",
+        "Name": "Nimbus Overview"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}

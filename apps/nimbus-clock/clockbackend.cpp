@@ -4,6 +4,15 @@
 #include <QFile>
 #include <QDir>
 #include <QRandomGenerator>
+#include <QStandardPaths>
+
+namespace {
+QString iniPath()
+{
+    const QString cfg = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+    return cfg + QStringLiteral("/nimbus-clock.ini");
+}
+}
 
 ClockBackend::ClockBackend(QObject *parent)
     : QObject(parent)
@@ -80,8 +89,7 @@ void ClockBackend::setAlarmOn(const QString &id, bool on)
 
 void ClockBackend::load()
 {
-    QSettings s(QDir::homePath() + QStringLiteral("/.config/nimbus-clock.ini"),
-                QSettings::IniFormat);
+    QSettings s(iniPath(), QSettings::IniFormat);
     const QStringList ids = s.childGroups();
     for (const QString &id : ids) {
         s.beginGroup(id);
@@ -98,8 +106,7 @@ void ClockBackend::load()
 
 void ClockBackend::save()
 {
-    QSettings s(QDir::homePath() + QStringLiteral("/.config/nimbus-clock.ini"),
-                QSettings::IniFormat);
+    QSettings s(iniPath(), QSettings::IniFormat);
     s.clear();
     for (const QVariant &v : m_alarms) {
         const QVariantMap a = v.toMap();

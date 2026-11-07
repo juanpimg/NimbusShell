@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# nimbus-bug-report — Diagnóstico, soporte y reporte de incidencias (F9-T10).
+# Recopila información del sistema, Plasma/KWin, logs y estado de Nimbus en un
+# tarball comprimido anonimizado. Sin root, modo --check de solo lectura.
+#
+# Uso:
+#   nimbus-bug-report [--check|--dry-run] [--dest DIR] [--out FILE] [--help]
+set -u
+
+DRY=0
+DEST="${NIMBUS_REPORT_DIR:-$HOME}"
+OUT_FILE=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --check|--dry-run) DRY=1 ;;
+    --dest)
+      DEST="${2:-}"
+      if [ -z "$DEST" ]; then echo "ERROR: --dest requiere un directorio" >&2; exit 1; fi
+      shift ;;
+    --out)
+      OUT_FILE="${2:-}"
+      if [ -z "$OUT_FILE" ]; then echo "ERROR: --out requiere una ruta de archivo" >&2; exit 1; fi
+      shift ;;
+    -h|--help)
+      sed -n '2,8p' "${BASH_SOURCE[0]}" | cut -c3-; exit 0 ;;
+    *)
+      echo "ERROR: opción desconocida '$1' (ver --help)" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [ "$(id -u)" -eq 0 ]; then
+  echo "ERROR: no ejecutar nimbus-bug-report como root" >&2
+  exit 1
+fi
+
+say() { printf '%s\n' "$*"; }
+
+if [ "$DRY" -eq 1 ]; then
+  say "DRY-RUN (solo lectura):"
+  say "  - Recopilaría: sistema (/etc/os-release, uname, uptime)"
+  say "  - Recopilaría: hardware (CPU, memoria, GPU/lspci)"
+  say "  - Recopilaría: sesión Wayland y versiones Plasma 6 / KWin"
+  say "  - Recopilaría: servicios DBus activos (qdbus6)"
+  say "  - Recopilaría: logs recientes de usuario y sistema (journalctl)"
+  say "  - Recopilaría: configuraciones Nimbus anonimizadas"
+  say "  - Destino estimado: ${OUT_FILE:-$DEST/nimbus-support-YYYYMMDD-HHMMSS.tar.gz}"
+  exit 0
+fi
+
+mkdir -p "$DEST"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+OUT="${OUT_FILE:-$DEST/nimbus-support-$STAMP.tar.gz}"
+
+TMP="$(mktemp -d /tmp/opencode/nimbus-bug-XXXXXX)"
+# shellcheck disable=SC2064
+trap "rm -rf '$TMP'" EXIT INT TERM
+
+say "Generando informe de diagnóstico NimbusOS..."
+
+# 1. Sistema base
+{
+  echo "=== NimbusOS System Info ==="
+  echo "Fecha: $(date -u)"
+  echo "Kernel: $(uname -a)"
+  echo "Uptime: $(uptime 2>/dev/null || true)"
+  if [ -f /etc/os-release ]; then
+    echo "--- /etc/os-release ---"
+    cat /etc/os-release
+  fi
+} > "$TMP/system-info.txt"
+
+# 2. Hardware y gráficos
+{
+  echo "=== Hardware & Graphics ==="
+  echo "--- CPU ---"
+  grep "model name" /proc/cpuinfo 2>/dev/null | head -4 || echo "N/A"
+  echo "--- Memoria ---"
+  grep -E "MemTotal|MemFree|MemAvailable" /proc/meminfo 2>/dev/null || echo "N/A"
+  echo "--- PCI Display/VGA ---"
+  lspci -nn 2>/dev/null | grep -iE 'vga|3d|display' || echo "Sin lspci o sin GPU PCI"
+} > "$TMP/hardware-info.txt"
+
+# 3. Sesión Plasma y Wayland
+{
+  echo "=== Plasma & Session ==="
+  echo "XDG_CURRENT_DESKTOP: ${XDG_CURRENT_DESKTOP:-N/A}"
+  echo "XDG_SESSION_TYPE: ${XDG_SESSION_TYPE:-N/A}"
+  echo "WAYLAND_DISPLAY: ${WAYLAND_DISPLAY:-N/A}"
+  echo "DISPLAY: ${DISPLAY:-N/A}"
+  echo "plasmashell: $(plasmashell --version 2>/dev/null || echo 'N/A')"
+  echo "kwin: $(kwin_wayland --version 2>/dev/null || echo 'N/A')"
+} > "$TMP/session-info.txt"
+
+# 4. Servicios DBus activos
+{
+  echo "=== Registered DBus Services ==="
+  if command -v qdbus6 >/dev/null 2>&1; then
+    qdbus6 2>/dev/null | grep -E 'org\.(nimbus|kde)' || echo "(sin servicios nimbus/kde)"
+  elif command -v qdbus >/dev/null 2>&1; then
+    qdbus 2>/dev/null | grep -E 'org\.(nimbus|kde)' || echo "(sin servicios nimbus/kde)"
+  else
+    echo "(sin qdbus)"
+  fi
+} > "$TMP/dbus-services.txt"
+
+# 5. Registro de incidencias (journalctl filtrado)
+{
+  echo "=== Journalctl User Warnings/Errors ==="
+  if command -v journalctl >/dev/null 2>&1; then
+    journalctl --user -p 4 -n 80 --no-pager 2>/dev/null || echo "(sin acceso al journal de usuario)"
+  else
+    echo "(sin journalctl)"
+  fi
+} > "$TMP/journal-errors.txt"
+
+# 6. Configuraciones de Nimbus (anonimizando secretos)
+mkdir -p "$TMP/configs"
+CFG_DIR="${XDG_CONFIG_HOME:-${NIMBUS_TEST_HOME:-$HOME}/.config}"
+for c in kwinrc kdeglobals nimbus-welcome.ini nimbus-layout.ini discoverrc kscreenlockerrc; do
+  if [ -f "$CFG_DIR/$c" ]; then
+    # Anonimizar contraseñas o tokens si existieran
+    sed -E 's/(password|psk|secret|token|key)\s*=\s*.+/\1=**********/Ig' "$CFG_DIR/$c" > "$TMP/configs/$c"
+  fi
+done
+
+# 7. Empaquetar tarball
+(
+  cd "$TMP" || exit 1
+  tar -czf "$OUT" ./*
+)
+
+say "Informe de soporte generado con éxito en: $OUT"
+if command -v notify-send >/dev/null 2>&1; then
+  notify-send "NimbusOS" "Informe de soporte generado en: $OUT" --icon=help-browser 2>/dev/null || true
+fi
+exit 0

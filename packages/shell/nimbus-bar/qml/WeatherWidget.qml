@@ -7,9 +7,6 @@ import QtQuick
 Column {
     id: root
 
-    width: parent ? parent.width : 260
-    spacing: 3
-    objectName: "calWeather"
     property var model: (typeof weather !== "undefined") ? weather : null
     // El Canvas dibuja en un lienzo lógico de 36 px y se escala al tamaño
     // compacto del pie (28 px) sin duplicar coordenadas.
@@ -18,24 +15,35 @@ Column {
     function glyphFor(code) {
         if (code < 0)
             return "—";
+
         if (code === 0)
             return "sol";
+
         if (code <= 3)
             return "nube";
+
         if (code <= 48)
             return "niebla";
+
         if (code <= 67 || (code >= 80 && code <= 82))
             return "lluvia";
+
         if (code <= 77)
             return "nieve";
+
         return "tormenta";
     }
+
+    width: parent ? parent.width : 260
+    spacing: 3
+    objectName: "calWeather"
 
     Rectangle {
         width: parent.width
         height: 1
         color: NimbusTokens.popupBorder(NimbusTokens.dark)
     }
+
     Row {
         width: parent.width
         height: 28
@@ -44,9 +52,10 @@ Column {
         Canvas {
             id: glyph
 
+            property string kind: root.glyphFor(root.model ? root.model.condCode : -1)
+
             width: 28
             height: 28
-            property string kind: root.glyphFor(root.model ? root.model.condCode : -1)
             onKindChanged: requestPaint()
             onPaint: {
                 var ctx = getContext("2d");
@@ -117,6 +126,7 @@ Column {
                 ctx.restore();
             }
         }
+
         Column {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 0
@@ -129,6 +139,7 @@ Column {
                 color: NimbusTokens.colors(NimbusTokens.dark).label
                 objectName: "wxHead"
             }
+
             Text {
                 text: (root.model ? root.model.cond : "—") + " · " + (root.model ? root.model.minMax : "—") + ((root.model && root.model.stale) ? qsTr(" (caché)") : "")
                 font.family: NimbusTokens.fontFamily
@@ -138,6 +149,7 @@ Column {
             }
         }
     }
+
     Row {
         width: parent.width
         spacing: 8
@@ -155,6 +167,7 @@ Column {
                     font.pixelSize: NimbusTokens.type.t11.size
                     color: NimbusTokens.faintText(NimbusTokens.dark)
                 }
+
                 Text {
                     text: modelData.mx + " " + modelData.mn
                     font.family: NimbusTokens.fontFamily

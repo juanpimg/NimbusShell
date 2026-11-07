@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QObject>
 #include <QProcess>
-#include <QDebug>
 #include <QString>
 
 class CommandRunner : public QObject {
@@ -12,11 +11,20 @@ public:
     explicit CommandRunner(QObject *parent = nullptr) : QObject(parent) {}
     void setLogQuery(bool v) { m_logQuery = v; }
     Q_INVOKABLE void run(const QString &cmd) {
-        QStringList parts = QProcess::splitCommand(cmd);
-        if (parts.isEmpty())
-            return;
-        QString prog = parts.takeFirst();
-        QProcess::startDetached(prog, parts);
+        if (m_logQuery)
+            qDebug().noquote() << "runner-run:" << cmd;
+        if (cmd.contains(QLatin1Char('|')) || cmd.contains(QLatin1Char(';'))
+            || cmd.contains(QLatin1Char('&')) || cmd.contains(QLatin1Char('$'))
+            || cmd.contains(QLatin1Char('"')) || cmd.contains(QLatin1Char('\''))) {
+            QProcess::startDetached(QStringLiteral("/bin/sh"),
+                                    {QStringLiteral("-c"), cmd});
+        } else {
+            QStringList parts = QProcess::splitCommand(cmd);
+            if (parts.isEmpty())
+                return;
+            QString prog = parts.takeFirst();
+            QProcess::startDetached(prog, parts);
+        }
         emit finished(cmd, 0);
     }
     // F3-T05-fix: traza tag + 1ª línea solo con --log-query/demo.

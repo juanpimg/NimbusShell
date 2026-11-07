@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# install-glass-nimbus (F11-T02): construye e instala kwin-effects-glass
+# pinneado desde packaging/glass con makepkg en /tmp. Idempotente, sin root
+# salvo el `pacman -U` final explícito. NO ejecutar contra el host salvo
+# orden explícita (la instalación real va en la VM, F2-T08).
+#
+# Uso: scripts/install-glass-nimbus [--check] [--no-install] [--help]
+#   --check:      solo verifica (PKGBUILD presente, makepkg disponible).
+#   --no-install: construye el paquete pero no lo instala (no pide sudo).
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PKG_DIR="$REPO_ROOT/packaging/glass"
+BUILD_DIR="/tmp/glass-nimbus-pkg"
+CHECK=""
+NO_INSTALL=""
+
+for arg in "$@"; do
+    case "$arg" in
+        --check) CHECK=1 ;;
+        --no-install) NO_INSTALL=1 ;;
+        -h|--help)
+            echo "Uso: scripts/install-glass-nimbus [--check] [--no-install]"
+            echo "Construye packaging/glass (kwin-effects-glass pin) con makepkg en /tmp."
+            exit 0 ;;
+        *) echo "ERROR: argumento desconocido: $arg (ver --help)" >&2; exit 2 ;;
+    esac
+done
+
+[ -f "$PKG_DIR/PKGBUILD" ] || { echo "ERROR: falta $PKG_DIR/PKGBUILD" >&2; exit 1; }
+command -v makepkg >/dev/null 2>&1 || { echo "ERROR: falta makepkg (base-devel). Sin él no se puede construir." >&2; exit 1; }
+if [ "$(id -u)" = "0" ]; then
+    echo "ERROR: no ejecutar como root (makepkg lo prohíbe). Corre como usuario." >&2
+    exit 1
+fi
+bash -n "$PKG_DIR/PKGBUILD" || { echo "ERROR: $PKG_DIR/PKGBUILD con error de sintaxis" >&2; exit 1; }
+
+if [ -n "$CHECK" ]; then
+    echo "[OK] check: PKGBUILD presente, makepkg disponible."
+    exit 0
+fi
+
+mkdir -p "$BUILD_DIR"
+cp -a "$PKG_DIR/PKGBUILD" "$BUILD_DIR/"
+echo "Construyendo kwin-effects-glass en $BUILD_DIR (re-ejecutable: makepkg -f)..."
+(cd "$BUILD_DIR" && PKGDEST="$BUILD_DIR" makepkg -f --noconfirm) || {
+    echo "ERROR: falló makepkg en $BUILD_DIR. Revisa dependencias (ver packaging/glass/README.md)." >&2
+    exit 1
+}
+pkgfile="$(ls -t "$BUILD_DIR"/kwin-effects-glass-*.pkg.tar.zst 2>/dev/null | head -1 || true)"
+[ -n "$pkgfile" ] || { echo "ERROR: makepkg terminó sin generar .pkg.tar.zst en $BUILD_DIR" >&2; exit 1; }
+echo "[OK] paquete: $pkgfile"
+
+if [ -n "$NO_INSTALL" ]; then
+    echo "[OK] --no-install: paquete listo, no instalado."
+    exit 0
+fi
+
+echo "Instalando $pkgfile (requiere sudo)..."
+sudo pacman -U --noconfirm --needed "$pkgfile"
+echo "[OK] kwin-effects-glass instalado."

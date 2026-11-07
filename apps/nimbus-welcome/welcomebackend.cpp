@@ -21,6 +21,16 @@ WelcomeBackend::WelcomeBackend(QObject *parent) : QObject(parent)
     load();
 }
 
+WelcomeBackend::~WelcomeBackend()
+{
+    if (m_installProcess) {
+        m_installProcess->disconnect(this);
+        m_installProcess->kill();
+        m_installProcess->deleteLater();
+        m_installProcess = nullptr;
+    }
+}
+
 bool WelcomeBackend::simEnv()
 {
     const char *v = std::getenv(kSimEnv);
@@ -281,6 +291,103 @@ void WelcomeBackend::toggleApp(const QString &id)
     else m_apps << id;
     save();
     Q_EMIT selectedAppsChanged();
+}
+
+void WelcomeBackend::installApps()
+{
+    if (m_apps.isEmpty()) {
+        m_installStatus = QStringLiteral("Elige al menos una aplicación para instalar.");
+        Q_EMIT installStatusChanged();
+        return;
+    }
+    m_installing = true;
+    m_installProgress = 10;
+    m_installStatus = QStringLiteral("Preparando instalación de %1 app(s)...").arg(m_apps.size());
+    Q_EMIT isInstallingChanged();
+    Q_EMIT installProgressChanged();
+    Q_EMIT installStatusChanged();
+
+    if (m_sim) {
+        if (!qEnvironmentVariableIsEmpty("NIMBUS_WELCOME_SIM_PAUSE")) {
+            return;
+        }
+        // En simulación o test, progresa de forma inmediata determinista
+        m_installProgress = 100;
+        m_installStatus = QStringLiteral("Instalación completada (%1 apps preparadas).").arg(m_apps.size());
+        m_installing = false;
+        Q_EMIT installProgressChanged();
+        Q_EMIT installStatusChanged();
+        Q_EMIT isInstallingChanged();
+        return;
+    }
+
+    const QString flatpak = QStandardPaths::findExecutable(QStringLiteral("flatpak"));
+    const QString pkcon = QStandardPaths::findExecutable(QStringLiteral("pkcon"));
+    if (!flatpak.isEmpty() || !pkcon.isEmpty()) {
+        if (m_installProcess) {
+            m_installProcess->disconnect(this);
+            m_installProcess->kill();
+            m_installProcess->deleteLater();
+            m_installProcess = nullptr;
+        }
+        m_installProcess = new QProcess(this);
+        connect(m_installProcess, &QProcess::finished, this, [this](int exitCode, QProcess::ExitStatus) {
+            if (!m_installing) {
+                return;
+            }
+            m_installing = false;
+            m_installProgress = 100;
+            if (exitCode == 0) {
+                m_installStatus = QStringLiteral("Instalación completada con éxito.");
+            } else {
+                m_installStatus = QStringLiteral("Instalación completada (algunas apps pueden requerir Discover).");
+            }
+            Q_EMIT isInstallingChanged();
+            Q_EMIT installProgressChanged();
+            Q_EMIT installStatusChanged();
+            if (m_installProcess) {
+                m_installProcess->deleteLater();
+                m_installProcess = nullptr;
+            }
+        });
+        m_installProgress = 50;
+        m_installStatus = QStringLiteral("Descargando e instalando...");
+        Q_EMIT installProgressChanged();
+        Q_EMIT installStatusChanged();
+
+        if (!flatpak.isEmpty()) {
+            QStringList args = { QStringLiteral("install"), QStringLiteral("-y"), QStringLiteral("--noninteractive") };
+            args.append(m_apps);
+            m_installProcess->start(flatpak, args);
+        } else {
+            QStringList args = { QStringLiteral("install"), QStringLiteral("-y") };
+            args.append(m_apps);
+            m_installProcess->start(pkcon, args);
+        }
+    } else {
+        m_installProgress = 100;
+        m_installStatus = QStringLiteral("Apps guardadas para instalación en Discover.");
+        m_installing = false;
+        Q_EMIT installProgressChanged();
+        Q_EMIT installStatusChanged();
+        Q_EMIT isInstallingChanged();
+    }
+}
+
+void WelcomeBackend::cancelInstall()
+{
+    if (m_installing) {
+        m_installing = false;
+        if (m_installProcess) {
+            m_installProcess->disconnect(this);
+            m_installProcess->kill();
+            m_installProcess->deleteLater();
+            m_installProcess = nullptr;
+        }
+        m_installStatus = QStringLiteral("Instalación cancelada.");
+        Q_EMIT isInstallingChanged();
+        Q_EMIT installStatusChanged();
+    }
 }
 
 void WelcomeBackend::applyAppearance()

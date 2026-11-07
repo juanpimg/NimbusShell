@@ -29,11 +29,11 @@ makedepends=(
     'qt6-tools'
     'vulkan-headers'
 )
-source=("$pkgname-$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::$url/archive/1edd1cdb382dacf0c8b9cb4bd28011c8de95eb58.tar.gz")
 sha256sums=('SKIP')
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build \
+    cmake -S "$srcdir"/kwin-effects-glass-* -B build \
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr \
@@ -43,6 +43,6 @@ build() {
 
 package() {
     DESTDIR="$pkgdir" cmake --install build
-    install -Dm644 "$pkgname-$pkgver/LICENSE" \
+    install -Dm644 "$srcdir"/kwin-effects-glass-*/LICENSE \
         "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

@@ -1418,14 +1418,20 @@ void NimbusModule::refreshUpdates()
                 QStringList lines;
                 if (m_updatesProc != nullptr) {
                     // checkupdates rc=2 == sin actualizaciones; pacman -Qu rc=0.
-                    lines = QString::fromUtf8(m_updatesProc->readAllStandardOutput())
-                                .split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+                    // rc=1 == error de red o base de datos de pacman bloqueada.
+                    if (exitCode == 1) {
+                        setHelperStatus(QStringLiteral("No se pudo comprobar: comprueba tu conexión o el estado de pacman."));
+                        m_updatesCount = -1;
+                        m_updatesList.clear();
+                    } else {
+                        lines = QString::fromUtf8(m_updatesProc->readAllStandardOutput())
+                                    .split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+                        m_updatesCount = lines.size();
+                        m_updatesList = lines.mid(0, 15);
+                    }
                     m_updatesProc->deleteLater();
                     m_updatesProc = nullptr;
                 }
-                Q_UNUSED(exitCode);
-                m_updatesCount = lines.size();
-                m_updatesList = lines.mid(0, 15);
                 Q_EMIT updatesCountChanged();
                 Q_EMIT updatesListChanged();
                 Q_EMIT updatesCheckingChanged();

@@ -158,6 +158,15 @@ Window {
         }
     }
 
+    // Hairline superior especular 1px
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        height: 1
+        color: Qt.rgba(1, 1, 1, NimbusTokens.dark ? 0.16 : 0.35)
+    }
+
     // Hairline inferior 1px (contrato §2.1 separator dark) [HIG].
     Rectangle {
         anchors.left: parent.left

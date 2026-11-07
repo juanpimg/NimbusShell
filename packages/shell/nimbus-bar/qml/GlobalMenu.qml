@@ -9,10 +9,10 @@ import org.kde.layershell as LayerShellQt
 
 Row {
     id: root
-    objectName: "globalMenuObj"
-    spacing: 12
+
     property bool demo: false
     property bool opened: false
+
     function toggleTop(id: int, label: string) {
         if (opened && appMenu.submenuTitle === label) {
             close();
@@ -21,10 +21,12 @@ Row {
         appMenu.openSubmenu(id);
         opened = true;
     }
+
     function close() {
         opened = false;
         appMenu.closeMenu();
     }
+
     function activate(itemId: int, hasKids: bool, kidsCount: int, label: string) {
         if (hasKids || kidsCount > 0) {
             appMenu.openSubmenu(itemId);
@@ -33,9 +35,13 @@ Row {
             close();
         }
     }
+
+    objectName: "globalMenuObj"
+    spacing: 12
     onOpenedChanged: {
         if (opened && demo)
             console.log("globalmenu: popup " + popup.width + "x" + popup.height + " at " + popup.x + "," + popup.y);
+
         if (!opened)
             appMenu.closeMenu();
     }
@@ -51,8 +57,10 @@ Row {
         color: NimbusTokens.colors(NimbusTokens.dark).label
         objectName: "globalAppName"
     }
+
     Repeater {
         model: appMenu.topLevel
+
         // F11-T03: pill hover/pressed + anillo foco; disabled tokenizado.
         delegate: Rectangle {
             anchors.verticalCenter: parent.verticalCenter
@@ -62,18 +70,22 @@ Row {
             color: topArea.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : topArea.containsMouse ? NimbusTokens.hoverFill(NimbusTokens.dark) : "transparent"
             border.color: NimbusTokens.accentColor(NimbusTokens.dark)
             border.width: topArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
-            opacity: modelData.enabled ? 1.0 : NimbusTokens.states.disabledOpacity[0]
+            opacity: modelData.enabled ? 1 : NimbusTokens.states.disabledOpacity[0]
             objectName: "globalTop:" + modelData.label
+
             Text {
                 id: topLbl
+
                 anchors.centerIn: parent
                 text: modelData.label
                 font.family: NimbusTokens.fontFamily
                 font.pixelSize: NimbusTokens.type.t13.size
                 color: modelData.enabled ? NimbusTokens.colors(NimbusTokens.dark).label : NimbusTokens.disabledText(NimbusTokens.dark)
             }
+
             MouseArea {
                 id: topArea
+
                 anchors.fill: parent
                 hoverEnabled: true
                 activeFocusOnTab: true
@@ -88,19 +100,22 @@ Row {
     // cierra el popup: la app activa cambió). Sin demo, un cambio de app
     // también cierra el popup abierto (comportamiento macOS).
     Connections {
-        target: appMenu
         function onMenusChanged() {
             if (root.opened)
                 root.close();
+
             if (root.demo && appMenu.hasMenu && appMenu.topLevel.length > 0) {
                 var first = appMenu.topLevel[0];
                 root.toggleTop(first.id, first.label);
             }
         }
+
+        target: appMenu
     }
 
     Window {
         id: scrim
+
         visible: root.opened
         width: Screen.width
         height: Screen.height
@@ -114,10 +129,12 @@ Row {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityOnDemand
         LayerShellQt.Window.scope: "nimbus-globalmenu-scrim"
         LayerShellQt.Window.activateOnShow: false
+
         MouseArea {
             anchors.fill: parent
             onClicked: root.close()
         }
+
         Shortcut {
             sequence: "Escape"
             enabled: root.opened
@@ -130,6 +147,7 @@ Row {
     // Top|Left se respeta el tamaño 280 (patrón de F3-T05).
     Window {
         id: popup
+
         visible: root.opened
         width: 280
         height: Math.min(24 + subCol.children.length * 30, 560)
@@ -144,6 +162,7 @@ Row {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityNone
         LayerShellQt.Window.scope: "nimbus-globalmenu"
         LayerShellQt.Window.activateOnShow: false
+
         Rectangle {
             anchors.fill: parent
             radius: 10
@@ -151,10 +170,13 @@ Row {
             border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             objectName: "globalPopup"
+
             Column {
                 id: subCol
+
                 anchors.fill: parent
                 anchors.margins: 6
+
                 Text {
                     visible: appMenu.submenuTitle !== ""
                     text: appMenu.submenuTitle
@@ -164,12 +186,15 @@ Row {
                     leftPadding: 8
                     bottomPadding: 2
                 }
+
                 Repeater {
                     model: appMenu.submenu
+
                     delegate: Loader {
+                        property var item: modelData
+
                         width: subCol.width
                         sourceComponent: modelData.separator ? sepComp : rowComp
-                        property var item: modelData
                     }
                 }
             }
@@ -178,10 +203,12 @@ Row {
 
     Component {
         id: sepComp
+
         Rectangle {
             width: subCol.width
             height: 9
             color: "transparent"
+
             Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -193,29 +220,35 @@ Row {
             }
         }
     }
+
     Component {
         id: rowComp
+
         Rectangle {
-            width: subCol.width
-            height: 28
-            radius: 6
             // F11-T03: hover = accent (macOS), pressed interno, foco 2px,
             // disabled tokenizado sin hover [HIG §2.5].
             property bool sel: rowHover.containsMouse && item.enabled
-            color: !item.enabled ? "transparent" : rowHover.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : sel ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
-            border.color: NimbusTokens.accentColor(NimbusTokens.dark)
-            border.width: rowHover.activeFocus ? NimbusTokens.states.focusRingPx : 0
-            opacity: item.enabled ? 1.0 : NimbusTokens.states.disabledOpacity[0]
-            objectName: "globalItem:" + item.label
+
             function activateRow() {
                 var kc = (item.kids !== undefined) ? item.kids.length : 0;
                 root.activate(item.id, item.hasKids === true, kc, item.label);
             }
+
+            width: subCol.width
+            height: 28
+            radius: 6
+            color: !item.enabled ? "transparent" : rowHover.pressed ? NimbusTokens.pressedFill(NimbusTokens.dark) : sel ? NimbusTokens.selectedFill(NimbusTokens.dark) : "transparent"
+            border.color: NimbusTokens.accentColor(NimbusTokens.dark)
+            border.width: rowHover.activeFocus ? NimbusTokens.states.focusRingPx : 0
+            opacity: item.enabled ? 1 : NimbusTokens.states.disabledOpacity[0]
+            objectName: "globalItem:" + item.label
+
             Row {
                 anchors.fill: parent
                 anchors.leftMargin: 8
                 anchors.rightMargin: 8
                 spacing: 6
+
                 Text {
                     visible: item.checked === true
                     anchors.verticalCenter: parent.verticalCenter
@@ -224,6 +257,7 @@ Row {
                     color: parent.parent.sel ? "white" : NimbusTokens.colors(NimbusTokens.dark).label
                     width: 14
                 }
+
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: item.label
@@ -232,16 +266,20 @@ Row {
                     elide: Text.ElideRight
                     width: parent.width - shortcutText.width - 30
                 }
+
                 Text {
                     id: shortcutText
+
                     anchors.verticalCenter: parent.verticalCenter
                     text: item.shortcut + (item.hasKids || (item.kids !== undefined && item.kids.length > 0) ? " ▶" : "")
                     font.pixelSize: 12
                     color: parent.parent.sel ? Qt.rgba(1, 1, 1, 0.75) : NimbusTokens.subText(NimbusTokens.dark)
                 }
             }
+
             MouseArea {
                 id: rowHover
+
                 anchors.fill: parent
                 hoverEnabled: true
                 activeFocusOnTab: true

@@ -1,0 +1,282 @@
+#!/usr/bin/env bash
+# nimbus-dock — gestor de preferencias y persistencia del Dock Nimbus (F5-T10).
+# Controla tamaño (IconSize), magnificación (MaxZoomFactor), posición (Edge: bottom/left/right),
+# autohide (VisibilityMode: 0/1) y estilo visual (BackgroundStyle/Opacity).
+# Aplica cambios en vivo (recarga Krema si está en ejecución) y persiste en ~/.config/kremarc.
+# Seguro, idempotente, sin root, con copias de seguridad en ~/.config/nimbusshell-backup-*.
+#
+# Uso:
+#   nimbus-dock --get [CLAVE] [--json] [--home DIR]
+#   nimbus-dock --set CLAVE=VALOR [--home DIR]
+#   nimbus-dock --size PX [--home DIR]
+#   nimbus-dock --zoom FACTOR [--home DIR]
+#   nimbus-dock --position bottom|left|right [--home DIR]
+#   nimbus-dock --autohide on|off [--home DIR]
+#   nimbus-dock --theme acrylic|translucent|solid|none [--home DIR]
+#   nimbus-dock --apply [--home DIR]
+#   nimbus-dock --reset [--home DIR]
+#   nimbus-dock --check [--home DIR]
+set -u
+
+HOME_DIR="${HOME:-}"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CANONICAL_PRESET="$REPO_ROOT/packages/dock/kremarc-nimbus"
+[ -f "$CANONICAL_PRESET" ] || CANONICAL_PRESET="/usr/share/nimbus/dock/kremarc-nimbus"
+
+ACTION="dump"
+TARGET_KEY=""
+SET_EXPR=""
+JSON=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --get)
+      ACTION="get"
+      if [ $# -ge 2 ] && [[ "$2" != --* ]]; then
+        TARGET_KEY="$2"; shift
+      fi ;;
+    --set)
+      ACTION="set"
+      if [ $# -lt 2 ] || [[ "$2" != *=* ]]; then
+        echo "ERROR: --set requiere CLAVE=VALOR." >&2; exit 1
+      fi
+      SET_EXPR="$2"; shift ;;
+    --size)
+      ACTION="size"
+      if [ $# -lt 2 ]; then echo "ERROR: --size requiere un valor en píxeles (24..96)." >&2; exit 1; fi
+      SET_EXPR="$2"; shift ;;
+    --zoom)
+      ACTION="zoom"
+      if [ $# -lt 2 ]; then echo "ERROR: --zoom requiere un factor (1.0..2.0)." >&2; exit 1; fi
+      SET_EXPR="$2"; shift ;;
+    --position)
+      ACTION="position"
+      if [ $# -lt 2 ]; then echo "ERROR: --position requiere bottom|left|right." >&2; exit 1; fi
+      SET_EXPR="$2"; shift ;;
+    --autohide)
+      ACTION="autohide"
+      if [ $# -lt 2 ]; then echo "ERROR: --autohide requiere on|off." >&2; exit 1; fi
+      SET_EXPR="$2"; shift ;;
+    --theme)
+      ACTION="theme"
+      if [ $# -lt 2 ]; then echo "ERROR: --theme requiere acrylic|translucent|solid|none." >&2; exit 1; fi
+      SET_EXPR="$2"; shift ;;
+    --apply) ACTION="apply" ;;
+    --reset) ACTION="reset" ;;
+    --check) ACTION="check" ;;
+    --json) JSON=1 ;;
+    --home)
+      if [ $# -lt 2 ]; then echo "ERROR: --home requiere un directorio." >&2; exit 1; fi
+      HOME_DIR="$2"; shift ;;
+    -h|--help)
+      sed -n '2,17p' "${BASH_SOURCE[0]}" | cut -c3-; exit 0 ;;
+    *) echo "ERROR: argumento desconocido '$1' (usa --help)" >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [ "$(id -u)" = "0" ]; then
+  echo "ERROR: no ejecutar como root (las preferencias son por usuario)." >&2; exit 1
+fi
+
+CFG_DIR="$HOME_DIR/.config"
+KREMARC="$CFG_DIR/kremarc"
+
+# Asegurar que kremarc existe
+if [ ! -f "$KREMARC" ]; then
+  mkdir -p "$CFG_DIR"
+  if [ -f "$CANONICAL_PRESET" ]; then
+    cp "$CANONICAL_PRESET" "$KREMARC"
+  else
+    printf '[General]\nIconSize=48\nMaxZoomFactor=1.6\nEdge=1\nVisibilityMode=0\nBackgroundStyle=3\n' > "$KREMARC"
+  fi
+fi
+
+make_backup() {
+  local bkp
+  bkp="$CFG_DIR/nimbusshell-backup-dock-$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$bkp"
+  cp -a "$KREMARC" "$bkp/kremarc" 2>/dev/null || true
+}
+
+get_val() {
+  local key="$1"
+  grep "^${key}=" "$KREMARC" 2>/dev/null | cut -d= -f2- | tr -d '\r'
+}
+
+set_val() {
+  local key="$1" val="$2"
+  if grep -q "^${key}=" "$KREMARC" 2>/dev/null; then
+    sed -i "s|^${key}=.*|${key}=${val}|" "$KREMARC"
+  else
+    printf '%s=%s\n' "$key" "$val" >> "$KREMARC"
+  fi
+}
+
+reload_krema() {
+  if pgrep -x krema >/dev/null 2>&1; then
+    pkill -x krema 2>/dev/null || true
+    sleep 0.2
+    if command -v krema >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+      nohup krema >/dev/null 2>&1 &
+    fi
+    echo "OK: Krema recargado en vivo"
+  fi
+}
+
+case "$ACTION" in
+  dump)
+    if [ "$JSON" -eq 1 ]; then
+      python3 -c "
+import sys, json
+cfg = {}
+with open('$KREMARC', 'r') as f:
+    for line in f:
+        line = line.strip()
+        if '=' in line and not line.startswith('#') and not line.startswith('['):
+            k, v = line.split('=', 1)
+            cfg[k] = v
+print(json.dumps(cfg))
+"
+    else
+      cat "$KREMARC"
+    fi
+    exit 0
+    ;;
+
+  get)
+    if [ -z "$TARGET_KEY" ]; then
+      cat "$KREMARC"
+    else
+      val="$(get_val "$TARGET_KEY")"
+      if [ "$JSON" -eq 1 ]; then
+        printf '{"%s":"%s"}\n' "$TARGET_KEY" "$val"
+      else
+        printf '%s\n' "$val"
+      fi
+    fi
+    exit 0
+    ;;
+
+  set)
+    make_backup
+    key="${SET_EXPR%%=*}"
+    val="${SET_EXPR#*=}"
+    set_val "$key" "$val"
+    reload_krema
+    echo "OK: $key=$val guardado en $KREMARC"
+    exit 0
+    ;;
+
+  size)
+    make_backup
+    px="$SET_EXPR"
+    if ! [[ "$px" =~ ^[0-9]+$ ]] || [ "$px" -lt 24 ] || [ "$px" -gt 96 ]; then
+      echo "ERROR: tamaño debe estar entre 24 y 96 px." >&2; exit 1
+    fi
+    set_val "IconSize" "$px"
+    reload_krema
+    echo "OK: IconSize=$px guardado"
+    exit 0
+    ;;
+
+  zoom)
+    make_backup
+    zf="$SET_EXPR"
+    if ! python3 -c "import sys; v=float(sys.argv[1]); sys.exit(0 if 1.0 <= v <= 2.0 else 1)" "$zf" 2>/dev/null; then
+      echo "ERROR: el factor de zoom debe ser un número entre 1.0 y 2.0." >&2
+      exit 1
+    fi
+    set_val "MaxZoomFactor" "$zf"
+    reload_krema
+    echo "OK: MaxZoomFactor=$zf guardado"
+    exit 0
+    ;;
+
+  position)
+    make_backup
+    edge="1"
+    case "$SET_EXPR" in
+      bottom) edge="1" ;;
+      left) edge="2" ;;
+      right) edge="3" ;;
+      top) edge="0" ;;
+      *) echo "ERROR: posición no válida: $SET_EXPR (esperado: bottom, left, right)" >&2; exit 1 ;;
+    esac
+    set_val "Edge" "$edge"
+    reload_krema
+    echo "OK: Edge=$edge ($SET_EXPR) guardado"
+    exit 0
+    ;;
+
+  autohide)
+    make_backup
+    vis="0"
+    case "$SET_EXPR" in
+      on|1|true) vis="1" ;;
+      off|0|false) vis="0" ;;
+      *) echo "ERROR: valor de autohide debe ser on|off" >&2; exit 1 ;;
+    esac
+    set_val "VisibilityMode" "$vis"
+    reload_krema
+    echo "OK: VisibilityMode=$vis ($SET_EXPR) guardado"
+    exit 0
+    ;;
+
+  theme)
+    make_backup
+    style="3"
+    case "$SET_EXPR" in
+      acrylic) style="3" ;;
+      translucent) style="2" ;;
+      solid) style="1" ;;
+      none) style="0" ;;
+      *) echo "ERROR: tema debe ser acrylic|translucent|solid|none" >&2; exit 1 ;;
+    esac
+    set_val "BackgroundStyle" "$style"
+    reload_krema
+    echo "OK: BackgroundStyle=$style ($SET_EXPR) guardado"
+    exit 0
+    ;;
+
+  apply)
+    reload_krema
+    echo "OK: preferencias aplicadas"
+    exit 0
+    ;;
+
+  reset)
+    make_backup
+    if [ -f "$CANONICAL_PRESET" ]; then
+      cp "$CANONICAL_PRESET" "$KREMARC"
+      reload_krema
+      echo "OK: kremarc restaurado al preset canónico"
+    else
+      echo "ERROR: preset canónico no disponible" >&2; exit 1
+    fi
+    exit 0
+    ;;
+
+  check)
+    fails=0
+    val_size="$(get_val "IconSize")"
+    val_zoom="$(get_val "MaxZoomFactor")"
+    val_edge="$(get_val "Edge")"
+    val_vis="$(get_val "VisibilityMode")"
+    val_bg="$(get_val "BackgroundStyle")"
+
+    [ -n "$val_size" ] || { echo "FAIL: falta IconSize" >&2; fails=$((fails+1)); }
+    [ -n "$val_zoom" ] || { echo "FAIL: falta MaxZoomFactor" >&2; fails=$((fails+1)); }
+    [ -n "$val_edge" ] || { echo "FAIL: falta Edge" >&2; fails=$((fails+1)); }
+    [ -n "$val_vis" ] || { echo "FAIL: falta VisibilityMode" >&2; fails=$((fails+1)); }
+    [ -n "$val_bg" ] || { echo "FAIL: falta BackgroundStyle" >&2; fails=$((fails+1)); }
+
+    if [ "$fails" -eq 0 ]; then
+      echo "CHECK_OK: kremarc válido (size=$val_size zoom=$val_zoom edge=$val_edge autohide=$val_vis style=$val_bg)"
+      exit 0
+    else
+      echo "CHECK_FAIL: $fails errores en kremarc" >&2
+      exit 1
+    fi
+    ;;
+esac

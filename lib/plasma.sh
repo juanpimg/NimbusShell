@@ -2,7 +2,7 @@
 # lib/plasma.sh — perfil plasma: paquetes y dotfiles base.
 # Usa REPO_ROOT del instalador (con defecto para uso directo/shellcheck).
 
-REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PLASMA_LIST="${PLASMA_LIST:-$REPO_ROOT/packages/plasma.list}"
 PLASMA_DOTFILES="${PLASMA_DOTFILES:-$REPO_ROOT/dotfiles}"
 

@@ -13,6 +13,7 @@ import org.kde.layershell as LayerShellQt
 
 Item {
     id: root
+
     property bool opened: false
     property bool demo: false
     property string kind: "volume" // "volume" | "brightness"
@@ -21,19 +22,24 @@ Item {
     // F3-T13: del preset (Bar.qml); fallbacks = valores previos del fichero.
     property int popupWidth: 280
     property int popupHeight: 56
-    property int timeoutMs: 1500
+    property int timeoutMs: 3500
+
     function show(k, v) {
         if (k === "volume" || k === "brightness")
             kind = k;
+
         if (v !== undefined && v >= 0)
             value = Math.min(1, Math.max(0, v));
+
         opened = true;
         hideTimer.restart();
         refresh();
     }
+
     function hide() {
         opened = false;
     }
+
     function refresh() {
         // Solo lectura (seguro en demo/nested); el slider sí ejecuta en vivo.
         runner.query("wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | grep -m1 -o '[0-9]*%' || echo —", "osdVol");
@@ -41,6 +47,7 @@ Item {
         // el fallback sysfs va en variable y no en `||`.
         runner.query("b=$(brightnessctl -m 2>/dev/null | cut -d, -f4 | tr -d ' %'); if [ -n \"$b\" ]; then echo \"$b\"; else d=$(ls -d /sys/class/backlight/* 2>/dev/null | head -1); if [ -n \"$d\" ]; then echo $(($(cat $d/brightness) * 100 / $(cat $d/max_brightness))); else echo —; fi; fi", "osdBri");
     }
+
     function setFromSlider(v) {
         value = Math.min(1, Math.max(0, v));
         hideTimer.restart();
@@ -53,22 +60,27 @@ Item {
         else
             runner.run("brightnessctl set " + Math.round(value * 100) + "%");
     }
+
     function glyph() {
         if (kind === "brightness")
             return "B";
+
         return muted ? "X" : "V";
     }
+
     function label() {
         if (value < 0)
             return kind === "volume" ? "Volumen —" : "Brillo —";
+
         return (kind === "volume" ? "Volumen " : "Brillo ") + Math.round(value * 100) + "%";
     }
+
     Connections {
-        target: runner
         function onOutputReady(tag, out) {
             if (tag === "osdVol" && root.kind === "volume") {
                 if (out === "" || out === "—")
                     return;
+
                 root.muted = out.indexOf("MUTED") >= 0;
                 var m = out.match(/([0-9]+(?:\.[0-9]+)?)/);
                 if (m) {
@@ -78,26 +90,35 @@ Item {
             } else if (tag === "osdBri" && root.kind === "brightness") {
                 if (out === "" || out === "—")
                     return;
+
                 var b = parseFloat(out);
                 if (!isNaN(b))
                     root.value = Math.min(1, b / 100);
             }
         }
+
+        target: runner
     }
+
     Connections {
-        target: osdBridge
         function onOsdShow(k, v) {
             root.show(k, v);
         }
+
+        target: osdBridge
     }
+
     Timer {
         id: hideTimer
+
         interval: root.timeoutMs
         repeat: false
         onTriggered: root.hide()
     }
+
     Window {
         id: scrim
+
         visible: root.opened
         width: Screen.width
         height: Screen.height
@@ -111,18 +132,22 @@ Item {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityOnDemand
         LayerShellQt.Window.scope: "nimbus-osd-scrim"
         LayerShellQt.Window.activateOnShow: false
+
         MouseArea {
             anchors.fill: parent
             onClicked: root.hide()
         }
+
         Shortcut {
             sequence: "Escape"
             enabled: root.opened
             onActivated: root.hide()
         }
     }
+
     Window {
         id: popup
+
         visible: root.opened
         width: root.popupWidth
         height: root.popupHeight
@@ -137,17 +162,31 @@ Item {
         LayerShellQt.Window.keyboardInteractivity: LayerShellQt.Window.KeyboardInteractivityNone
         LayerShellQt.Window.scope: "nimbus-osd"
         LayerShellQt.Window.activateOnShow: false
+
         Rectangle {
             anchors.fill: parent
-            radius: 12
+            radius: 18
             color: NimbusTokens.popupBg(NimbusTokens.dark)
             border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
             border.width: 1
             objectName: "osdPopup"
+
+            // Specular top rim highlight (Tahoe Liquid Glass)
+            Rectangle {
+                anchors.top: parent.top
+                anchors.topMargin: 1
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - 20
+                height: 1
+                radius: 0.5
+                color: Qt.rgba(1, 1, 1, NimbusTokens.dark ? 0.38 : 0.6)
+            }
+
             Row {
                 anchors.fill: parent
                 anchors.margins: 10
                 spacing: 10
+
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.glyph()
@@ -157,8 +196,10 @@ Item {
                     color: NimbusTokens.accentColor(NimbusTokens.dark)
                     objectName: "osdIcon"
                 }
+
                 Slider {
                     id: slider
+
                     anchors.verticalCenter: parent.verticalCenter
                     width: 140
                     from: 0
@@ -166,9 +207,10 @@ Item {
                     value: root.value < 0 ? 0 : root.value
                     enabled: root.value >= 0
                     // F11-T03: disabled tokenizado, foco 2px [HIG §2.5].
-                    opacity: enabled ? 1.0 : NimbusTokens.states.disabledOpacity[0]
+                    opacity: enabled ? 1 : NimbusTokens.states.disabledOpacity[0]
                     objectName: "osdSlider"
                     onMoved: root.setFromSlider(value)
+
                     background: Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         width: parent.availableWidth
@@ -179,6 +221,7 @@ Item {
                         border.width: slider.activeFocus ? NimbusTokens.states.focusRingPx : 0
                     }
                 }
+
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.label()

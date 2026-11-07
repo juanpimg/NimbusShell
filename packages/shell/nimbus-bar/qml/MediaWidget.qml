@@ -5,6 +5,7 @@ import QtQuick
 
 Rectangle {
     id: root
+
     visible: mpris.hasPlayer
     width: parent ? parent.width : 284
     height: visible ? 64 : 0
@@ -13,10 +14,12 @@ Rectangle {
     border.color: NimbusTokens.popupBorder(NimbusTokens.dark)
     border.width: 1
     objectName: "ccMedia"
+
     Row {
         anchors.fill: parent
         anchors.margins: 8
         spacing: 8
+
         Rectangle {
             width: 40
             height: 40
@@ -24,12 +27,14 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             color: NimbusTokens.colors(NimbusTokens.dark).bg2
             objectName: "ccArt"
+
             Image {
                 anchors.fill: parent
                 fillMode: Image.PreserveAspectCrop
                 source: mpris.artFile !== "" ? "file://" + mpris.artFile : ""
                 visible: mpris.artFile !== ""
             }
+
             Text {
                 anchors.centerIn: parent
                 text: "♪"
@@ -38,10 +43,12 @@ Rectangle {
                 visible: mpris.artFile === ""
             }
         }
+
         Column {
             width: parent.width - 40 - 3 * 34 - 40
             anchors.verticalCenter: parent.verticalCenter
             spacing: 1
+
             Text {
                 text: mpris.title
                 font.pixelSize: 12
@@ -51,6 +58,7 @@ Rectangle {
                 width: parent.width
                 objectName: "ccMediaTitle"
             }
+
             Text {
                 text: mpris.artist
                 font.pixelSize: 11
@@ -60,27 +68,30 @@ Rectangle {
                 objectName: "ccMediaArtist"
             }
         }
+
         Row {
             spacing: 4
             anchors.verticalCenter: parent.verticalCenter
+
             Repeater {
                 model: [
                     {
-                        label: "⏮",
-                        fn: "prev",
-                        name: "ccPrev"
+                        "label": "⏮",
+                        "fn": "prev",
+                        "name": "ccPrev"
                     },
                     {
-                        label: "⏯",
-                        fn: "play",
-                        name: "ccPlay"
+                        "label": "⏯",
+                        "fn": "play",
+                        "name": "ccPlay"
                     },
                     {
-                        label: "⏭",
-                        fn: "next",
-                        name: "ccNext"
+                        "label": "⏭",
+                        "fn": "next",
+                        "name": "ccNext"
                     }
                 ]
+
                 delegate: Rectangle {
                     width: 30
                     height: 30
@@ -89,14 +100,17 @@ Rectangle {
                     border.color: NimbusTokens.accentColor(NimbusTokens.dark)
                     border.width: btnArea.activeFocus ? NimbusTokens.states.focusRingPx : 0
                     objectName: modelData.name
+
                     Text {
                         anchors.centerIn: parent
                         text: modelData.label
                         font.pixelSize: 13
                         color: NimbusTokens.colors(NimbusTokens.dark).label
                     }
+
                     MouseArea {
                         id: btnArea
+
                         anchors.fill: parent
                         hoverEnabled: true
                         activeFocusOnTab: true

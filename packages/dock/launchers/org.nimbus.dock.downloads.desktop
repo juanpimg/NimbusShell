@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Descargas
+Name[en]=Downloads
+Comment=Carpeta de Descargas
+Comment[en]=Downloads Folder
+Exec=dolphin %U
+Icon=folder-download
+Terminal=false
+Categories=System;
+StartupNotify=false

@@ -43,6 +43,10 @@ for d in /usr/share/kwin/scripts/nimbus-*; do
     [ -d "$d" ] || continue
     copy_dir "$d" "$ROOT/usr/share/kwin/scripts/$(basename "$d")"
 done
+for d in /usr/share/kwin/effects/nimbus-*; do
+    [ -d "$d" ] || continue
+    copy_dir "$d" "$ROOT/usr/share/kwin/effects/$(basename "$d")"
+done
 for b in /usr/local/bin/nimbus-* /usr/local/bin/apply-theme; do
     [ -f "$b" ] || continue
     install -Dm755 "$b" "$ROOT/usr/local/bin/$(basename "$b")"

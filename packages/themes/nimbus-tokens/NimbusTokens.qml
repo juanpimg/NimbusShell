@@ -37,9 +37,6 @@ QtObject {
     // F11-T03: acento configurable. Vacío = tabla §2.1 [HIG]; con hex lo
     // sustituye en ambos modos. Todos los controles vía accentColor().
     property string accentCustom: ""
-    function accentColor(isDark) {
-        return accentCustom !== "" ? accentCustom : colors(isDark).accent;
-    }
     readonly property string inactive: "#DDDDDD" // [HIG] §2.5 inactivo/semáforos gris
     readonly property var _light: ({
             "label": "#000000",
@@ -229,43 +226,57 @@ QtObject {
             "reflowPct": 135
         })
 
+    function accentColor(isDark) {
+        return accentCustom !== "" ? accentCustom : colors(isDark).accent;
+    }
+
     // §2.1 color semántico [HIG]. label2/3/4/separator: base opaca + alfa (QML los compone).
     // (firma sin tipos: compatible con qmllint era-Qt5 y Qt6)
     function colors(isDark) {
         return isDark ? _dark : _light;
     }
+
     // F11-T03: superficies derivadas light/dark [HIG §2.1+§2.4]. Centralizan
     // los rgba que antes iban cableados en cada popup (sin valores mágicos
     // fuera del singleton). Fondo popover: elevated + alfa denso [MEDIDO].
     function barBg(isDark) {
-        return isDark ? Qt.rgba(0, 0, 0, 0.18) : Qt.rgba(1, 1, 1, 0.55);
+        return isDark ? Qt.rgba(0.12, 0.14, 0.18, 0.45) : Qt.rgba(0.96, 0.97, 0.99, 0.6);
     }
+
     function popupBg(isDark) {
         // F11-T02: superficie de vidrio; el alfa denso 0.94 tapaba el
         // blur/refracción de Glass. 0.66 mantiene contraste sobre fondo rico.
         return isDark ? Qt.rgba(0.13, 0.13, 0.15, 0.66) : Qt.rgba(0.97, 0.97, 0.98, 0.72);
     }
+
     function popupBorder(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(0, 0, 0, 0.1);
     }
+
     function hairline(isDark) {
         return isDark ? Qt.rgba(0.22, 0.22, 0.23, 0.25) : Qt.rgba(0.78, 0.78, 0.78, 0.2);
     }
+
     function hoverFill(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, states.hoverAlpha) : Qt.rgba(0, 0, 0, 0.06);
     }
+
     function pressedFill(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, states.pressedAlpha) : Qt.rgba(0, 0, 0, 0.12);
     }
+
     function selectedFill(isDark) {
         return accentColor(isDark);
     }
+
     function subText(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, 0.7) : Qt.rgba(0.235, 0.235, 0.263, colors(isDark).label2Alpha);
     }
+
     function faintText(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, 0.55) : Qt.rgba(0.235, 0.235, 0.263, colors(isDark).label3Alpha);
     }
+
     function disabledText(isDark) {
         return isDark ? Qt.rgba(1, 1, 1, states.disabledOpacity[1]) : Qt.rgba(0, 0, 0, states.disabledOpacity[1]);
     }
