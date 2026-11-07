@@ -11,6 +11,16 @@ THEME_LOGO_DST="${THEME_LOGO_DST:-/usr/share/nimbus/branding/nimbus-logo.svg}"
 # F10-T05 — tema de sonido propio (solo .oga; los .wav son masters en repo).
 SOUNDS_SRC="${SOUNDS_SRC:-$REPO_ROOT/packages/themes/sounds-nimbus}"
 SOUNDS_DST="${SOUNDS_DST:-${XDG_DATA_HOME:-$HOME/.local/share}/sounds/Nimbus}"
+THEME_APPLY="${THEME_APPLY:-$REPO_ROOT/scripts/apply-theme}"
+THEME_STAMP="${THEME_STAMP:-$HOME/.config/nimbus-theme-applied}"
+
+theme_variant() { # stdout: variante aplicada por el usuario (dark por defecto)
+    if [ -f "$THEME_STAMP" ]; then
+        awk 'NR==1 {print $1}' "$THEME_STAMP"
+    else
+        echo dark
+    fi
+}
 
 themes_deploy() {
     echo "-- fondo de pantalla y marca Nimbus..."
@@ -40,6 +50,17 @@ themes_deploy() {
             echo "    sonidos instalados ($(ls "$SOUNDS_DST/stereo"/*.oga | wc -l) .oga)"
         fi
     fi
+    # F2-T04 — tema Tahoe: color scheme, Kvantum y decoración Aurorae.
+    # Respeta la variante si el usuario ya lo aplicó (stamp presente).
+    echo "-- tema Tahoe (color scheme, Kvantum, decoración)..."
+    if [ ! -x "$THEME_APPLY" ]; then
+        echo "    AVISO: falta $THEME_APPLY (repo incompleto; tema no aplicado)." >&2
+    elif [ -f "$THEME_STAMP" ]; then
+        echo "    tema ya aplicado (variante $(theme_variant)); se respeta tu elección"
+    else
+        "$THEME_APPLY" --variant dark \
+            || echo "    AVISO: apply-theme falló; revisa $THEME_APPLY --check." >&2
+    fi
 }
 
 themes_check() {
@@ -53,4 +74,18 @@ themes_check() {
     if [ -f "$SOUNDS_DST/index.theme" ] && cmp -s "$SOUNDS_SRC/index.theme" "$SOUNDS_DST/index.theme"; then
         nimbus_ok "$SOUNDS_DST (tema de sonido Nimbus)"
     else nimbus_fail "$SOUNDS_DST ausente o distinto (paso de sonidos en la instalación)"; fi
+    echo "-- tema Tahoe:"
+    if [ ! -x "$THEME_APPLY" ]; then
+        nimbus_fail "falta $THEME_APPLY (repo incompleto)"
+    elif [ ! -f "$THEME_STAMP" ]; then
+        nimbus_fail "tema Tahoe no aplicado (re-ejecuta ./install.sh)"
+    else
+        local variant out
+        variant="$(theme_variant)"
+        if out="$("$THEME_APPLY" --check --variant "$variant" 2>&1)"; then
+            nimbus_ok "tema Tahoe aplicado (variante $variant)"
+        else
+            nimbus_fail "tema Tahoe con drift (variante $variant): $(printf '%s\n' "$out" | tr '\n' ' ')"
+        fi
+    fi
 }

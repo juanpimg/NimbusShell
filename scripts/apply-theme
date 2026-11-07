@@ -52,21 +52,26 @@ make_backup() {
 }
 
 scheme_name() { if [ "$VARIANT" = "light" ]; then echo "NimbusTahoeLight"; else echo "NimbusTahoe"; fi; }
+aurorae_name() { if [ "$VARIANT" = "light" ]; then echo "MacTahoeLiquidKde-Light"; else echo "MacTahoeLiquidKde-Dark"; fi; }
 
 do_check() {
   local fail=0
-  local scheme
+  local scheme aurorae
   scheme="$(scheme_name)"
+  aurorae="$(aurorae_name)"
   [ -f "$HOME/.config/kdeglobals" ] || { echo "FAIL: falta ~/.config/kdeglobals"; fail=1; }
   [ -f "$HOME/.local/share/color-schemes/$scheme.colors" ] || { echo "FAIL: falta color-scheme $scheme"; fail=1; }
   [ -f "$HOME/.config/Kvantum/nimbus.conf" ] || { echo "FAIL: falta Kvantum/nimbus.conf"; fail=1; }
+  [ -d "$HOME/.local/share/aurorae/themes/$aurorae" ] || { echo "FAIL: falta decoración Aurorae $aurorae"; fail=1; }
   local wp_file="sequoia-${VARIANT}.jpg"
   [ -f "$HOME/.local/share/wallpapers/nimbus/contents/images/$wp_file" ] || \
     [ -f "$HOME/.local/share/wallpapers/nimbus/contents/images/sequoia-light.jpg" ] || { echo "FAIL: falta wallpaper"; fail=1; }
   if command -v kreadconfig6 >/dev/null 2>&1; then
-    local cur
+    local cur deco
     cur="$(kreadconfig6 --file kdeglobals --group General --key ColorScheme 2>/dev/null || true)"
     [ "$cur" = "$scheme" ] || { echo "FAIL: ColorScheme=$cur (esperado $scheme)"; fail=1; }
+    deco="$(kreadconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme 2>/dev/null || true)"
+    [ "$deco" = "__aurorae__svg__$aurorae" ] || { echo "FAIL: decoración=$deco (esperado __aurorae__svg__$aurorae)"; fail=1; }
   fi
   if [ "$fail" = "0" ]; then echo "CHECK_OK variant=$VARIANT"; else echo "CHECK_FAIL"; fi
   return "$fail"
@@ -84,6 +89,8 @@ do_revert() {
   rm -f "$HOME"/.local/share/color-schemes/NimbusTahoe.colors \
     "$HOME"/.local/share/color-schemes/NimbusTahoeLight.colors
   rm -rf "$HOME/.local/share/wallpapers/nimbus"
+  rm -rf "$HOME/.local/share/aurorae/themes/MacTahoeLiquidKde-Dark" \
+    "$HOME/.local/share/aurorae/themes/MacTahoeLiquidKde-Light"
   rm -f "$STAMP_FILE" "$HOME/.config/kdeglobals.nimbus-src"
   echo "REVERT_OK desde $bkp"
 }
@@ -125,23 +132,20 @@ if command -v kwriteconfig6 >/dev/null 2>&1; then
   kwriteconfig6 --file Kvantum/kvantum.kvconfig --group General --key theme nimbus
 fi
 
-# 3b. Klassy window decoration (kwinrc)
-if command -v kwriteconfig6 >/dev/null 2>&1; then
-  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.klassy
-  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme NimbusTahoe
-  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft "XIA"
-  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight "F"
+# 3b. Decoración Aurorae MacTahoeLiquidKde (variante light/dark)
+AURORAE="$(aurorae_name)"
+AURORAE_SRC="$THEME/aurorae/$AURORAE"
+AURORAE_DST="$HOME/.local/share/aurorae/themes/$AURORAE"
+if [ -d "$AURORAE_SRC" ]; then
+  mkdir -p "$AURORAE_DST"
+  cp -a "$AURORAE_SRC/." "$AURORAE_DST/"
 fi
-
-# Importar preset Klassy si klassy-settings está disponible
-for klpw in "$REPO_ROOT/packages/themes/klassy-preset/nimbus-tahoe.klpw" \
-            /usr/share/klassy-nimbus/nimbus-tahoe.klpw \
-            /usr/share/nimbus/klassy/nimbus-tahoe.klpw; do
-  if [ -f "$klpw" ] && command -v klassy-settings >/dev/null 2>&1; then
-    klassy-settings -i "$klpw" >/dev/null 2>&1 && klassy-settings -w NimbusTahoe >/dev/null 2>&1 || true
-    break
-  fi
-done
+if command -v kwriteconfig6 >/dev/null 2>&1; then
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__$AURORAE"
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft "XIA"
+  kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight ""
+fi
 
 # 4. Iconos/cursor: aviso si WhiteSur no está instalado (fallback Breeze).
 if [ ! -d "$HOME/.local/share/icons/WhiteSur" ] && [ ! -d /usr/share/icons/WhiteSur ]; then

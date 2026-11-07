@@ -44,6 +44,8 @@ sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
              "$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-installed-setup" \
              "$REPO_ROOT/iso/profile/airootfs/usr/local/bin/nimbus-hide-panel" \
              "$REPO_ROOT/tests/calamares/test_calamares_config.sh" \
+             "$REPO_ROOT/tests/apps/test_apps_deploy.sh" \
+             "$REPO_ROOT/tests/docs/test_docs_consistency.sh" \
              "$REPO_ROOT/tests/welcome/test_welcome.sh" \
              "$REPO_ROOT/tests/support/test_bug_report.sh" \
              "$REPO_ROOT/tests/widgets/test_widgets.sh" \
@@ -330,6 +332,20 @@ if python3 "$REPO_ROOT/tests/apps/test_categories.py" >/tmp/opencode/ci-apps-cat
    python3 "$REPO_ROOT/tests/apps/test_desktop_parse.py" >/tmp/opencode/ci-apps-parse.txt 2>&1; then
     pass "tests/apps/{test_categories,test_desktop_parse}.py (32 checks ok)"
 else fail "apps categories/parse (ver /tmp/opencode/ci-apps-*.txt)"; fi
+
+echo "== ci: apps deploy (tests/apps/test_apps_deploy.sh) =="
+if [ -x "$REPO_ROOT/tests/apps/test_apps_deploy.sh" ]; then
+    if "$REPO_ROOT/tests/apps/test_apps_deploy.sh" >/tmp/opencode/ci-apps-deploy.txt 2>&1; then
+        pass "tests/apps/test_apps_deploy.sh (12/12 ok)"
+    else fail "tests/apps/test_apps_deploy.sh (ver /tmp/opencode/ci-apps-deploy.txt)"; fi
+else fail "tests/apps/test_apps_deploy.sh ausente o sin +x"; fi
+
+echo "== ci: docs consistency (tests/docs/test_docs_consistency.sh) =="
+if [ -x "$REPO_ROOT/tests/docs/test_docs_consistency.sh" ]; then
+    if "$REPO_ROOT/tests/docs/test_docs_consistency.sh" >/tmp/opencode/ci-docs.txt 2>&1; then
+        pass "tests/docs/test_docs_consistency.sh"
+    else fail "tests/docs/test_docs_consistency.sh (ver /tmp/opencode/ci-docs.txt)"; fi
+else fail "tests/docs/test_docs_consistency.sh ausente o sin +x"; fi
 
 echo "== ci: system updates and rollback (tests/updates/test_updates.sh) =="
 if [ -x "$REPO_ROOT/tests/updates/test_updates.sh" ]; then
