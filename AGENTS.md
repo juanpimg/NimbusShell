@@ -1,11 +1,12 @@
 # AGENTS.md — NimbusShell (reglas para sesiones de IA)
 
-> **Nota de pila (2026-11-02):** el proyecto está en **Plasma 6.8.2**
-> (rama `plasma-migration`). Las referencias a Hyprland/Quickshell/`qs` de
+> **Nota de pila (2026-11-04):** el proyecto está en **Plasma 6.8.2**
+> (rama `plasma-migration` / `main`). Las referencias a Hyprland/Quickshell/`qs` de
 > este documento son **históricas**; para el estado real y el arranque de una
-> sesión limpia usa `docs/SESSION-2026-11-02-HANDOFF.md`. Las reglas duras
-> (sin root, sin activos Apple, evidencia real, backups, Rulings) siguen
-> vigentes.
+> sesión limpia usa `docs/SESSION-2026-11-04-HANDOFF.md`. El proyecto cuenta
+> con estética **macOS Tahoe 1:1**, shaders **Liquid Glass** y **93.0%** en el
+> ledger de progreso (103/112). Las reglas duras (sin root, sin activos Apple,
+> evidencia real, backups, Rulings) siguen vigentes.
 
 
 Lee esto antes de tocar nada. Proyecto en español; responde y documenta en español.

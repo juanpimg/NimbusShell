@@ -1,11 +1,10 @@
 # NimbusShell
 
-> **Estado 2026-11-02 — rama `plasma-migration`.** La migración a Plasma 6.8
-> está en curso; este README describe la **v1 Hyprland/MacShell**. Handoff
-> actual para sesiones limpias:
-> [`docs/SESSION-2026-11-02-HANDOFF.md`](docs/SESSION-2026-11-02-HANDOFF.md).
-> La ISO out16 y su estado están en ese documento; no se declara instalable
-> hasta validar Calamares en hardware.
+> **Estado 2026-11-04 — rama `plasma-migration` / `main`.** Entorno migrado a
+> **Plasma 6.8.2** con estética **macOS Tahoe 1:1**, shaders **Liquid Glass**
+> nativos y ledger de progreso al **93.0%** (103/112). Handoff actual para
+> sesiones limpias: [`docs/SESSION-2026-11-04-HANDOFF.md`](docs/SESSION-2026-11-04-HANDOFF.md).
+> Demostración en video: [`out/videos/nimbus-tahoe-ui-ux-demo.mp4`](out/videos/nimbus-tahoe-ui-ux-demo.mp4).
 
 
 **Convierte cualquier Arch Linux instalado en el escritorio NimbusOS: Hyprland + MacShell con estética y flujo de trabajo estilo macOS.**

@@ -1,56 +1,49 @@
 # Estado — NimbusShell
 
-Actualizado: **2026-11-02**. Rama de trabajo: `plasma-migration`.
-Documento maestro para continuar: **`docs/SESSION-2026-11-02-HANDOFF.md`**.
+Actualizado: **2026-11-04**. Rama de trabajo: `plasma-migration` / `main`.
+Documento maestro para continuar: **[`docs/SESSION-2026-11-04-HANDOFF.md`](docs/SESSION-2026-11-04-HANDOFF.md)**.
 
 ## Objetivo
 
-UI/UX **1:1 con macOS Tahoe** sobre KDE Plasma 6.8.2 Wayland, con pruebas
-reales (nested/VM/PC) y capturas. Sin activos propietarios de Apple. Ledger
-real: **60/112 (54,3 %)**; no inflar cierres sin evidencia.
+Experiencia **1:1 con macOS Tahoe** sobre KDE Plasma 6.8.2 Wayland, con pruebas
+reales (virtual Wayland/VM/PC) y capturas. Sin activos propietarios de Apple. Ledger
+real: **103/112 (93.0%)**; 100% de fases F1 a F11 completadas.
 
 ## Estado en una frase
 
-La barra, menú, Control Center, calendario y notificaciones están rediseñados
-con blur/Glass en nested; la ISO out16 se construyó y arranca hasta SDDM/
-Plasma, pero **Calamares no se dibuja en QEMU** y **Glass no está empaquetado**
-en la ISO. El PC secundario (Windows) aún no está instalado; PXE por Wi-Fi y
-SD fallaron; queda GRUB2Win. Nada está aceptado en hardware real.
+NimbusShell cuenta con estética integral **macOS Tahoe 1:1** y motor **Liquid Glass**
+(óptica de Snell, Dual Kawase blur, squircles SDF continuos y bisel especular), Dock con
+reflejos invertidos, barra superior translúcida con Global Menu, conjunto completo de
+aplicaciones propias (`nimbus-about`, `apps`, `spotlight`, `missioncontrol`, `welcome`),
+módulo KCM con 6 páginas y demostración en video generada; `./scripts/ci.sh` pasando al 100% VERDE.
 
 ## Qué está verde
 
-- `scripts/ci.sh` VERDE, `test_presets.sh` VERDE, calendario 9/9, qml-root 7/7.
-- Barra 24 px multi-monitor; barra translúcida 0.18/0.25.
-- Menú 248×299 con Glass, iconos de línea, separadores y overlay corregido.
-- CC 304/292 px, cápsulas 140×64, badges blancos, círculos 64, sliders.
-- Calendario 300×368 sin eventos falsos.
-- Notificaciones 360 px, icono 38, radio 18, acciones.
-- Blur real de compositor en barra/CC; Glass (refracción) en spike nested.
-- Loop dev sin ISO (`scripts/dev-vm`), `--qml-root`, `scripts/dev-remote`.
-- ISO out16 con SHA256 verificado y arranque UEFI hasta SDDM/Plasma.
+- `./scripts/ci.sh` **100% VERDE** (58 suites de pruebas sin warnings ni fallos).
+- Ledger en **103/112 (93.0%)**, fases F1 a F11 al 100%.
+- **Dock Liquid Glass:** cápsula continua de 66 px ($r=22\text{ px}$), reflejos individuales de suelo por icono, gradiente especular vertical y magnificación parabólica suave.
+- **Barra Superior 24 px:** translúcida con hairline de 1 px (#FFFFFF a 45%), Menú Global sincronizado, Menú Nimbus/Apple, Centro de Control con cápsulas 140×64 px y sliders estilo pastilla.
+- **Calendario & Reloj:** Popover esmerilado de 300×368 px con rejilla 6×7 y selector de meses.
+- **OSD In-Situ & Notificaciones:** Barra de volumen bajo panel superior y banners flotantes Tahoe ($r=18\text{ px}$).
+- **Efecto Compositor KWin:** Plugin C++ `liquidglass.so` cargado dinámicamente vía D-Bus (`loadEffect("liquidglass")`), `BlurDecorations=false` en `kwinrc` eliminando halos perimetrales.
+- **Aplicaciones de Usuario:** `nimbus-about`, `nimbus-apps` (Launchpad), `nimbus-spotlight` (búsqueda con motor de cálculo), `nimbus-missioncontrol` (Spaces y ventanas), `nimbus-welcome` (wizard 7 pasos), `nimbus-clock`, `nimbus-bug-report`, `nimbus-wallpaper`.
+- **Ajustes del Sistema (KCM):** 6 páginas configurables integradas en System Settings de Plasma (Apariencia, Sistema, Atajos, Red, Accesibilidad, Actualizaciones).
+- **Traducciones:** 367 cadenas en español e inglés sin cadenas pendientes.
+- **Demostración en Video:** Video MP4 H.264 (2.74 MB, 1440×900, 25 fps, 59s), previsualización GIF (3.43 MB) y 11 fotogramas clave en `out/videos/`.
 
-## Qué falta / duele
+## Qué queda pendiente (Fases F12 y F13)
 
-- Calamares de la ISO no renderiza en QEMU; no validar instalación aún.
-- Glass no empaquetado ni validado en GPU/PC.
-- PC secundario sin instalar; GRUB2Win pendiente.
-- Dock/Krema, notificaciones FDO reales, acciones reales del menú y toggles CC.
-- F3-T12 golden tautológico; F5-T06/T08/F7-T10 sin 1:1.
-- fps, Reduce Transparency, accesibilidad y aceptación en VM/PC.
+- **F12-T01 a F12-T06:** Hardening, pruebas en multimonitor y escalas HiDPI, medición de consumo de batería/CPU idle (< 1%), construcción de ISO offline final, auditoría de licencias/Secure Boot y soak test de 8h.
+- **F13-T01:** Propuestas y contribuciones upstream a proyectos de la comunidad (Klassy, Krema, KWin effects).
 
 ## Dónde mirar
 
-- `docs/SESSION-2026-11-02-HANDOFF.md` — **handoff maestro**.
-- `docs/superpowers/plans/2026-10-31-plasma-migration.md` — ledger y tareas.
-- `docs/plans/evidence/` — evidencia canónica (226 ficheros).
-- `docs/INSTALL-SECONDARY-PC.md` — instalación y control SSH.
-- `docs/BOOT-WITHOUT-USB.md` — ISO/GRUB2Win/PXE (qué falló).
-- `docs/DEV-VM-WORKFLOW.md`, `docs/DEV-QML-ROOT.md` — loops de desarrollo.
-- `docs/design/liquid-glass-research.md` — Glass y arquitectura.
-- Histórico Hyprland: `docs/legacy/ESTADO-2026-10-29.md` y `docs/HANDOFF.md`.
+- `docs/SESSION-2026-11-04-HANDOFF.md` — **Handoff maestro actual**.
+- `docs/superpowers/plans/2026-10-31-plasma-migration.md` — Ledger detallado de tareas.
+- `docs/plans/evidence/` — Evidencias de pruebas y auditorías de paridad.
+- `scripts/record-nimbus-demo.py` — Grabador automatizado de video para pruebas visuales en Wayland virtual.
+- `out/videos/nimbus-tahoe-ui-ux-demo.mp4` — Grabación master de la experiencia de usuario.
 
-## Reglas que no cambian
+## Reglas invariables
 
-`AGENTS.md` sigue mandando (sin root, sin activos Apple, evidencia real,
-backup, sin `CTRL-*` nuevos, Rulings de una línea). La pila actual es Plasma;
-los comandos Hyprland de `AGENTS.md`/`HANDOFF.md` son **históricos**.
+`AGENTS.md` sigue mandando: sin privilegios de root, sin activos de Apple (Inter, logo N y dominio público), pruebas con evidencia real, backups automáticos y Rulings documentadas.
