@@ -1,38 +1,84 @@
 # NimbusShell
 
-> **Estado 2026-11-04 — rama `plasma-migration` / `main`.** Entorno migrado a
-> **Plasma 6.8.2** con estética **macOS Tahoe 1:1**, shaders **Liquid Glass**
-> nativos y ledger de progreso al **93.0%** (103/112). Handoff actual para
+> **Estado 2026-11-07 — rama `plasma-migration` / `main`.** Perfil activo:
+> **KDE Plasma 6.8.2 (Wayland)** con estética **macOS Tahoe 1:1**, shaders
+> **Liquid Glass** y ledger de progreso al **93.0%** (103/112). Handoff para
 > sesiones limpias: [`docs/SESSION-2026-11-04-HANDOFF.md`](docs/SESSION-2026-11-04-HANDOFF.md).
 > Demostración en video: [`out/videos/nimbus-tahoe-ui-ux-demo.mp4`](out/videos/nimbus-tahoe-ui-ux-demo.mp4).
 
+**Convierte cualquier Arch Linux instalado en el escritorio NimbusOS: Plasma 6.8.2 Wayland con flujo y estética macOS Tahoe.**
 
-**Convierte cualquier Arch Linux instalado en el escritorio NimbusOS: Hyprland + MacShell con estética y flujo de trabajo estilo macOS.**
+> **English:** NimbusShell turns any installed Arch system (vanilla or derivative) into the NimbusOS desktop. Documentation is primarily in Spanish.
 
-> **English:** NimbusShell turns any installed Arch system (vanilla or derivative) into the NimbusOS desktop. Documented primarily in Spanish.
-
-> **Aviso importante — sin afiliación.** NimbusShell es un proyecto independiente y **no está afiliado, respaldado ni patrocinado** por CachyOS, Apple Inc. (macOS/Mac) ni por el proyecto MacShell. macOS y Mac son marcas de Apple Inc. Reutilizamos el trabajo de otros y los citamos: [CachyOS](https://cachyos.org) (base original del sistema), [MacShell](https://github.com/0-ss/MacShell) (capa visual, MIT), [Hyprland](https://hyprland.org) (compositor), [WhiteSur](https://github.com/vinceliuice/WhiteSur-gtk-theme) (temas GTK) y la tienda [pamac](https://github.com/manjaro/pamac) (instalador gráfico, GPL).
+> **Aviso importante — sin afiliación.** NimbusShell es un proyecto independiente y **no está afiliado, respaldado ni patrocinado** por CachyOS, Apple Inc. (macOS/Mac) ni por el proyecto MacShell. macOS y Mac son marcas de Apple Inc. Reutilizamos el trabajo de otros y lo citamos: [KDE Plasma](https://kde.org/plasma-desktop/) (GPL), [KWin effects Glass](https://github.com/taj-ny/kwin-effects-glass) (GPL-3.0), [Krema](https://github.com/iruzard/krema) (GPL), [MacShell](https://github.com/0-ss/MacShell) (MIT, perfil legacy), [WhiteSur](https://github.com/vinceliuice/WhiteSur-kde) (GPL-3.0) y el fondo Sequoia del US National Park Service (dominio público).
 
 ## Qué es
 
-Un instalador (`install.sh`, idempotente y re-ejecutable) más los dotfiles canónicos del escritorio NimbusOS. Lo corres en tu Arch ya instalado y obtienes: sesión Hyprland flotante con semáforos nativos, barra y Dock MacShell, Spotlight, Mission Control, Nautilus estilo Finder, tienda pamac + Flathub y power-management de laptop — sin reinstalar nada.
+Un instalador (`install.sh`, idempotente y re-ejecutable) más los dotfiles
+canónicos del escritorio NimbusOS. El perfil por defecto es **`plasma`**:
+sesión Plasma 6.8 Wayland con barra superior propia, semáforos estilo macOS,
+Dock Krema, Spotlight, Mission Control, ajustes Nimbus y tema Tahoe. El perfil
+**`legacy-hypr`** queda congelado en [`legacy/hyprland/`](legacy/hyprland/)
+solo como referencia histórica.
 
-NimbusShell es la mitad "escritorio" de [NimbusOS](https://github.com/juanpimg/NimbusOS): la ISO instalable vive allí; este repo vive aquí para que **cualquier** Arch lo aproveche.
+NimbusShell es la mitad "escritorio" de [NimbusOS](https://github.com/juanpimg/NimbusOS):
+la ISO instalable vive allí; este repo vive aquí para que **cualquier** Arch lo aproveche.
 
 ## Instalación en 3 pasos
 
 ```bash
 git clone https://github.com/juanpimg/NimbusShell.git && cd NimbusShell
 ./install.sh --check    # paso 1 (opcional): qué falta o cambiaría, sin tocar nada
-./install.sh            # paso 2: instala (pide sudo una vez al inicio)
-# paso 3: cierra sesión y entra en Hyprland (tu DM o start-hyprland desde TTY)
+./install.sh            # paso 2: instala (pide sudo una vez para pacman)
+# paso 3: cierra sesión y entra en Plasma (Wayland)
 ```
 
-Detalles: instala 106 paquetes oficiales vía pacman, 6 AUR vía paru (lo instala o compila si falta, **nunca como root**), despliega `dotfiles/` a `$HOME` con backup previo (`~/.config/nimbusshell-backup-*`), aplica fondo, fuentes, Nautilus estilo Finder, habilita `auto-cpufreq`/`thermald`/`bluetooth`, añade Flathub y verifica (`hyprland --verify-config` con HOME temporal).
+El perfil `plasma` instala **28 paquetes oficiales** de `packages/plasma.list`
+(sin AUR), despliega `dotfiles/` a `$HOME` con backup previo en
+`~/.config/nimbusshell-backup-*`, aplica el tema Tahoe, los scripts/efectos de
+KWin, el preset del Dock y las apps de script. Nunca se ejecuta como root.
+
+Para el perfil histórico Hyprland: `./install.sh --profile=legacy-hypr`.
+
+## Qué despliega el perfil Plasma
+
+- **Paquetes:** Plasma 6.8, KWin, KRunner, SDDM, Kvantum, LayerShellQt,
+  power-profiles-daemon y apps base (Konsole, Dolphin, Spectacle, NetworkManager,
+  firewalld). Lista fija en `packages/plasma.list`.
+- **Dotfiles:** `kwinrc`, `kdeglobals`, `kwinrulesrc`, `plasmarc`, `plasma/`,
+  `kglobalshortcutsrc`, presets de la barra y tema Aurorae
+  `MacTahoeLiquidKde-Dark/Light`.
+- **Tema Tahoe** (`scripts/apply-theme`): color schemes NimbusTahoe y
+  NimbusTahoeLight, Kvantum, decoración Aurorae, fuentes Inter/JetBrains Mono
+  y fondo NPS. Los iconos/cursor WhiteSur se usan si están instalados; si no,
+  Plasma cae a Breeze con aviso.
+- **KWin:** scripts `nimbus-spotlight`, `nimbus-apps-toggle`, `nimbus-tabs`,
+  `nimbus-mc`, `nimbus-zoom` y efecto `nimbus-overview`.
+- **Dock:** preset `kremarc-nimbus` para Krema y launchers propios.
+- **Apps de script** en `~/.local/bin`: `nimbus-hw`, `nimbus-gpu-detect`,
+  `nimbus-gpu-setup`, `nimbus-migrate-desktop`, `nimbus-migrate-hyprland`,
+  `nimbus-backup` y `nimbus-bug-report`.
+- **Sonidos y marca:** tema de sonido Nimbus y logo propio N.
+
+Los **binarios GUI** (`nimbus-bar`, `nimbus-about`, `nimbus-apps`, `nimbus-clock`,
+`nimbus-help`, `nimbus-missioncontrol`, `nimbus-spotlight`, `nimbus-welcome`,
+`nimbus-wallpaper`) y el módulo KCM se compilan con `iso/build-iso.sh`
+(DESTDIR a `/usr/local`) o `scripts/dev-remote`. `install.sh` no instala el
+toolchain de compilación: `--check` los marca `[PENDIENTE]` con la orden exacta,
+no como fallo. La ISO final con esos binarios es F12-T03.
 
 ## `--check`
 
-Solo lectura: no instala, no escribe, no pide sudo. Informa qué paquetes faltan, qué dotfiles cambiarían, si los binarios/scripts/sonidos/fondo/logo están en su sitio, si el tema de iconos coincide en las 3 configs y si los servicios están habilitados. También comprueba `paru`, `hyprland --verify-config` con HOME temporal, Flathub y el conflicto `power-profiles-daemon`/`auto-cpufreq`. Exit `0` = sistema convergido, exit `1` = hay drift. Exit `2` = precondición (root, sin `pacman`, repo incompleto, argumento desconocido). Úsalo antes de instalar y para auditar después.
+Solo lectura: no instala, no escribe, no pide sudo, no usa red. Informa qué
+paquetes faltan, qué dotfiles cambiarían, si los comandos de sesión existen, si
+el tema Tahoe está aplicado sin drift, si los scripts/efectos KWin y el preset
+del Dock están en su sitio, y si las apps de script están desplegadas 1:1.
+
+- Exit `0` = sistema convergido.
+- Exit `1` = hay drift (con detalle `[FALTA]`).
+- Exit `2` = precondición (root, sin `pacman`, repo incompleto o argumento desconocido).
+
+Úsalo antes de instalar y para auditar después.
 
 ## Desinstalación / restaurar backup
 
@@ -41,36 +87,38 @@ No hay "desinstalador" con borrado a ciegas por diseño:
 ```bash
 ls ~/.config/nimbusshell-backup-*   # cada run guarda aquí lo que sobrescribió
 # restaura a mano lo que quieras: cp -a ~/.config/nimbusshell-backup-<fecha>/... $HOME/
-sudo pacman -Rns $(grep -vE '^\s*(#|$)' packages.nimbus.conf) $(grep -vE '^\s*(#|$)' packages.nimbus-aur.txt)  # solo si quieres quitar los paquetes
+sudo pacman -Rns $(sed 's/#.*//' packages/plasma.list | grep -v '^[[:space:]]*$')  # solo si quieres quitar los paquetes
+scripts/apply-theme --revert        # revierte color scheme, Kvantum y decoración
 ```
 
 Los backups no se borran solos: tú decides cuándo borrarlos.
 
 ## Alcance y límites honestos
 
-- **Alcance:** cualquier Arch instalado (vanilla, CachyOS, EndeavourOS…): si hay `pacman`, hay NimbusShell. En Arch vanilla `paru` se compila desde el AUR automáticamente y los 2 paquetes `lib32-*` se omiten con AVISO (necesitan `[multilib]` en `/etc/pacman.conf`; actívalo y re-ejecuta para soporte 32-bit).
-- **Calamares (instalador del sistema) NO incluido:** vive en la ISO de NimbusOS, aquí no pinta nada — ya tienes tu sistema instalado.
-- **Login intacto:** no tocamos tu Display Manager ni tu greeter (`greetd` es ISO, R1). Entras a Hyprland desde lo que ya uses.
-- **Tuning de sistema ISO no incluido:** `etc/` de NimbusOS (greetd, modprobe, udev, sysctl, dconf db del sistema, auto-cpufreq.conf…) no se despliega; los ajustes con efecto equivalente a nivel usuario (Nautilus Finder, fuentes) sí se aplican.
-- **Plugin hyprbars:** `hyprland --verify-config` no carga plugins `.so` sin una sesión Hyprland activa; tanto `--check` como `[8/8]` inspeccionan el log del validador y distinguen este SKIP conocido de errores de sintaxis reales (permitiendo `CHECK VERDE` tras la instalación si no hay otro drift). Errores reales de configuración o sintaxis fallan de inmediato.
-- **Wayland/Hyprland 0.56:** la sesión canónica es Lua; el `.conf` queda como fallback, igual que en NimbusOS.
-
-## Exclusiones respecto a NimbusOS (Rulings)
-
-Derivado de `packages.nimbus.x86_64.append` de NimbusOS. R1: `greetd` fuera (tu login no se toca). R2: `whitesur-gtk-theme whitesur-icon-theme pamac-aur hyprshell hyprland-plugin-hyprbars` fuera de la lista oficial porque son AUR (viven en `packages.nimbus-aur.txt`). R3: `plymouth`/Calamares ni siquiera están en el append aguas arriba (Ruling documentado allí); nada que excluir. Se **mantienen** a conciencia: power laptop + GPU híbrida (también sirven en escritorio instalado), `iptables qt6-multimedia-ffmpeg tesseract-data-eng` (fijan prompts interactivos) y las toolchains AUR (paru las pediría igual). Divergencia en dotfiles, documentada: se excluye `Desktop/Instalar NimbusOS.desktop` (lanza Calamares, ISO) y se añaden `~/.local/bin/macshell` + `~/.local/bin/macshell-start` + `~/.local/bin/nimbus-minimize-toggle` (equivalentes a nivel usuario de `/usr/bin` de la ISO) y `assets/sequoia-light.jpg` (fondo canónico, dominio público US NPS, idéntico al de la ISO). R4: `~/.local/bin/nimbus-screenshot` (script propio grim+slurp para SUPER+SHIFT+3/4/5; los binds lo exigían y no existía). R5: `assets/nimbus-logo.svg` → `/usr/share/nimbus/branding/` (marca N propia para barCustomLogoPath; sin ella la barra queda sin logo en modo custom). R6: `MacShell/WindowBar.qml` (glifos de semáforos solo al hover, como macOS; el ajuste `tlAlwaysSymbols` existía pero sin cablear; propuesta aguas arriba: cablearlo al `visible` del glifo). R7: overlay WindowBar ENCENDIDO (`MacBar windowBar:true` + instanciado en `shell.qml`; era código huérfano que nadie cargaba) con hyprbars como tira sin botones ni título (sin doble juego; arrastre y doble-click siguen nativos). R8: `MacShell/WindowBar.qml`, `MacWidgets.qml`, `WeatherWidget.qml`, `CalendarWidget.qml`, `ClockWidget.qml` y `PlayerWidget.qml` (placa detrás de semáforos en píldora con radius: 15px = height 30px / 2, eliminando el tramo plano de 8px de upstream radius 11px; y unificación integral del sistema de radios M2 con widgets de escritorio a 24px eliminando la dispersión de 28px; paridad macOS Tahoe 1:1). R9: `MacShell/AboutApp.qml`, `ClockApp.qml`, `MacDock.qml` y `WindowBar.qml` (diálogos con radio 12px paridad Tahoe M2; semáforos estandarizados a 12px Ø sin escalado ficticio 0.93, glifos centrados en radio 6, gris inactivo unificado #598E8E93 Apple SystemGray al 35% alpha y umbrales mouse.x < 16 / < 36; paridad comunitaria M5 total). R10: `MacShell/MacBar.qml` (filtrado explícito -c backlight en brightnessctl y silenciado osdQuiet en sondeo pasivo para evitar OSD de brillo colgado en VM/escritorios con LEDs; install.sh sincroniza reloj por NTP con timedatectl set-ntp true; paridad M6). R11: `MacShell/MacBar.qml` (restaurada transparencia canónica de la barra de menús barBgOpacity: 0.10 en paridad macOS Tahoe 1:1 y upstream; unificados los radios de paneles grandes swPanel, wpPanel, resPanel, clipPanel, emojiPanel y appsPanel a 24px eliminando la dispersión 26-32px; paridad M4 y M2.4). R12: `hypr/hyprland.lua` y `hyprland.conf` (animación vertical specialWorkspace con estilo slidevert y curva nimbus a speed 4, junto con windowsMove slide, permitiendo transición fluida estilo macOS hacia y desde el shelf de minimizados en special:minimized a 60fps; paridad M3) y activación de `MinimizeFx.qml` (shader genie.vert.qsb GridMesh 6x64 + screencopy en `shell.qml` / `sharedHub.minimizeFx`; `WindowBar.minimize()` traslada la ventana a special:minimized con `no_anim: 1` durante el vuelo del shader y `MacDock.activate()` calcula `targetRectForToplevel()` restaurando analíticamente con animación inversa desde el shelf del dock; paridad macOS Tahoe 1:1). R13 — MacDock.qml cornerRadius 18→24 (default + reset): paridad radio Tahoe con paneles/widgets M2; converge vía root.cornerRadius; proponer aguas arriba.
-R14 — hypr/hyprland.lua y hyprland.conf bar_precedence_over_border false→true y rounding 10→12: borde+curvatura envuelven hyprbars, paridad Tahoe 1:1; proponer aguas arriba.
-R15 — MacShell/shell.qml winBarWantsGeo:true + timers geo/ipc incluyen WindowBar: overlay de semáforos con geometría viva sin romper idle-CPU; proponer aguas arriba.
-R16 — MacShell/WindowBar.qml embedding en barra hyprbars 28px (x+13, y wy-28, h28, placa visible:false, mask:lights, filtros Nautilus/firefox/pamac): sin doble semáforo ni tramo plano; proponer aguas arriba.
-R17 — MacDock.qml reduceTransparency:false (dueño único, 4 listas) + MacBar.qml herencia readonly: modo opaco accesibilidad macOS (tint→1, live:false→Rectangle, blur alpha→1); proponer aguas arriba.
-R18 — (SUPERSEDED por R19) overlay multi-ventana descartado: sangrado z-order (los dots de ventanas tapadas se pintan sobre la de delante); se conserva WindowBar.qml vendoreado sin instanciar.
-R19 — hyprbars nativo: 3 botones solo-Lua (rojo killactive, amarillo minimize IPC genie, verde fullscreen 1; el fallback `.conf` no tiene semáforos) + título nativo Inter 12 centrado + inactive_button_color 0x598E8E93 + icon_on_hover; WindowBar se conserva instanciado con `overlayHidden:true` (sin pintar) solo para la ruta genie del IPC; oclusión/clics/arrastre correctos sin overlay; proponer aguas arriba.
+- **Alcance:** cualquier Arch instalado (vanilla, CachyOS, EndeavourOS…): si hay
+  `pacman`, hay NimbusShell. El perfil Plasma no usa AUR.
+- **Calamares/ISO:** el instalador del sistema y los binarios GUI viven en la ISO
+  de NimbusOS (`iso/`, F12-T03); aquí no se particiona ni se compila la ISO.
+- **Login intacto:** el instalador no activa ni cambia tu Display Manager. SDDM
+  viene como paquete y su tema Nimbus se aplica desde la ISO.
+- **Iconos WhiteSur:** si no están instalados, el tema avisa y usa Breeze como
+  fallback; no se descargan activos de Apple.
+- **Perfil legacy:** `legacy/hyprland/` está congelado; sus Rulings R1–R21 y
+  detalles de Hyprland/Quickshell viven en
+  [`legacy/hyprland/README.md`](legacy/hyprland/README.md).
 
 ## Filosofía
 
-Respeto y colaboración con los proyectos que nos sostienen: **no reinventamos** lo que ya existe (cero desarrollo desde cero pudiendo reutilizar) y **no opacamos** a nadie — citamos cada fuente con repo y licencia. Las mejoras reutilizables se proponen aguas arriba. Nuestro aporte: llevar esa experiencia a **tu Arch ya instalado** con un instalador honesto (informa antes de tocar, backup antes de sobrescribir, límites declarados).
+Respeto y colaboración con los proyectos que nos sostienen: **no reinventamos**
+lo que ya existe (cero desarrollo desde cero pudiendo reutilizar) y **no
+opacamos** a nadie — citamos cada fuente con repo y licencia. Las mejoras
+reutilizables se proponen aguas arriba. Nuestro aporte: llevar esa experiencia a
+**tu Arch ya instalado** con un instalador honesto (informa antes de tocar,
+backup antes de sobrescribir, límites declarados).
 
 ## Licencia
 
-Código propio (install.sh, listas, docs) bajo **GPL-3.0-or-later** (ver `LICENSE`). Dotfiles vendorean [MacShell](https://github.com/0-ss/MacShell) (MIT) con los parches NimbusOS; fondo Sequoia: dominio público (foto US National Park Service vía Wikimedia Commons). Componentes instalados conservan sus licencias.
-R20 — kitty.conf `remember_window_size no` + SUPER+T `--start-as=normal`: las ventanas nuevas nacen fs=0 (sin heredar el maximizado recordado); con fs=0 Hyprland conserva el punto de agarre al arrastrar la barra. Hyprland 0.56.2 hardcodea el centrado al salir de fs=1 y `binds:drag_center_window` solo existe en 0.57+ (key inválida abortaba los binds posteriores); documentado y propuesto aguas arriba.
-R21 — `nimbus-zoom` + `hl.env(PATH, ~/.local/bin)` + verde hyprbars/on_double_click: zoom macOS flotante (llena el área de trabajo bajo el MacBar, fs=0; segundo clic restaura) en vez de fullscreen maximizado; conserva el punto de agarre al arrastrar y el título visible; PATH del compositor prefijado (también repara nimbus-minimize-toggle); proponer aguas arriba.
+Código propio (install.sh, lib/, scripts, apps y docs) bajo
+**GPL-3.0-or-later** (ver `LICENSE`). El perfil legacy vendorea MacShell (MIT)
+con los parches NimbusOS; el fondo Sequoia es dominio público (US National Park
+Service vía Wikimedia Commons). Los componentes instalados conservan sus licencias.

@@ -27,9 +27,10 @@ equivalencia con arte propio y libre (Inter, logo N, Sequoia NPS).
 1. **Audita** contra macOS real (cita fuente: Apple Support/HIG o captura).
 2. **Implementa** lo mínimo que cierre el gap (preferencia: config > script >
    parche QML documentado; nunca reescribir upstream).
-3. **Verifica con evidencia**: `--check` en seco + `hyprland --verify-config`
-   con HOME temporal + **captura de pantalla** del antes/después (VM o
-   sesión anidada). Sin captura no hay "listo".
+3. **Verifica con evidencia**: `./scripts/ci.sh` verde + `./install.sh --check`
+   en seco (HOME temporal si aplica) + **captura de pantalla** del antes/después
+   (VM o sesión anidada). Sin captura no hay "listo". Para el perfil legacy,
+   `hyprland --verify-config` sigue siendo válido.
 4. **Commitea** (`feat|fix|docs(scope): ...`) y documenta la Ruling si diverge.
 5. Si algo exige ISO (Calamares, greetd, drivers), NO lo hagas aquí: abre el
    port en NimbusOS y documenta la dependencia.
@@ -42,13 +43,14 @@ equivalencia con arte propio y libre (Inter, logo N, Sequoia NPS).
    abre el port correspondiente en NimbusOS; si viene de NimbusOS, porta aquí
    primero y genera hacia allí.
 2. **Excepciones documentadas, no silenciosas:** `diff -rq` entre `dotfiles/` y
-   el skel de NimbusOS debe dar cero salvo la lista del README (launcher ISO,
-   wrappers `macshell*`/`nimbus-*` en `.local/bin`, fondo y logo en `assets/`
-   — R1-R5 del README). Toda divergencia nueva exige
-   Ruling de 1 línea en el README.
-3. **QML MacShell vendoreado intacto** (filosofía anti-fork): no reescribir
-   upstream; parches mínimos documentados como `NimbusOS Ruling` con propuesta
-   aguas arriba.
+   el skel de NimbusOS debe dar cero salvo los artefactos de ISO declarados en
+   [`docs/SKEL-SYNC.md`](docs/SKEL-SYNC.md). La divergencia actual (skel aún
+   Hyprland) está listada allí; toda divergencia nueva exige Ruling de 1 línea
+   en ese documento.
+3. **Componentes upstream intactos** (filosofía anti-fork): no reescribir KWin
+   effects Glass, Krema, Klassy ni upstream de Plasma; parches mínimos
+   documentados como `NimbusOS Ruling` con propuesta aguas arriba. El QML
+   MacShell vendoreado vive en `legacy/hyprland/` y no se toca.
 
 ## Comandos (memorízalos)
 
@@ -67,10 +69,10 @@ equivalencia con arte propio y libre (Inter, logo N, Sequoia NPS).
 8. **Nunca root, nunca borrar a ciegas:** el instalador aborta como root (el
    AUR no compila como root); todo lo sobrescrito va a
    `~/.config/nimbusshell-backup-*` y nada borra backups ajenos. Sin binds
-   `CTRL-*` nuevos en configs Hyprland (Ctrl intacto para el usuario) y sintaxis
-   Hyprland 0.56 vigente (`--verify-config`, sesión Lua canónica).
+   `CTRL-*` nuevos en configs Plasma/KWin (Ctrl intacto para el usuario) y
+   sintaxis KWin 6.8 vigente (`kwriteconfig6`/`qdbus6`, perfil `plasma`).
 
-## Lecciones operativas M1 (2026-10-28, vinculantes)
+## Lecciones operativas históricas Hyprland/M1 (2026-10-28; el perfil activo es Plasma)
 
 9. **Verificar la CARGA, no los bytes:** tras desplegar QML al guest,
    `pkill -9 -f 'qs -c MacShell'` (lo relanza `macshell-start`) y confirmar

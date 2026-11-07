@@ -11,8 +11,14 @@ fuente única R-TAHOE-TOKENS). Default: **dark**. Aplica con
 - `colorschemes/NimbusTahoe.colors` (dark) + `NimbusTahoeLight.colors`
   (light): valores del contrato §2.1 (label/accent/bg/success/destructive…).
 - `kvantum/nimbus.kvconfig`: basado en WhiteSur/Kvantum, translucidez Qt on.
+- `aurorae/MacTahoeLiquidKde-Dark` y `-Light`: decoración de ventana con
+  semáforos 12 px, radios Tahoe y variantes claro/oscuro.
 - `wallpapers/`: `sequoia-light.jpg` → symlink a `assets/sequoia-light.jpg`
   (arte propio NPS, 1920x1080) + `metadata.json`.
+
+`install.sh` ejecuta `scripts/apply-theme --variant dark` en una instalación
+nueva y respeta la variante del usuario si ya existe
+`~/.config/nimbus-theme-applied`.
 
 ## Atribución y licencias (R-APPLE: sin activos Apple)
 
@@ -26,8 +32,9 @@ fuente única R-TAHOE-TOKENS). Default: **dark**. Aplica con
 
 ## Limitaciones conocidas
 
-- Klassy/decoración de ventanas = F3 (R-DECO: decoración propia).
-- Panel 24pt exactos = F3-T03 panel custom (el panel stock Plasma fija ~38px;
+- Decoración de ventana = Aurorae `MacTahoeLiquidKde-*` (la aplica
+  `scripts/apply-theme`); el preset Klassy queda como fallback histórico.
+- Panel 24pt exactos = F3-T03 barra custom (el panel stock Plasma fija ~38px;
   ver evidencia F2-T05). El tema no cambia la altura del panel.
 - Iconos/cursor WhiteSur deben estar instalados; si faltan, el script avisa
   y Plasma usa el fallback Breeze (no falla).

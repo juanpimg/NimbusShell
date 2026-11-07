@@ -9,10 +9,13 @@
 - **Fecha:** 4 de noviembre de 2026.
 - **Entorno del Host:** Arch Linux, KDE Plasma 6.8.2 (Wayland nativo), KWin 6.8.2, Qt 6.12, GCC 15, Python 3.14.
 - **Rama de Trabajo:** `plasma-migration` (y `main`, ambas sincronizadas con `origin`).
-- **Ledger de Progreso:** **103 de 112 tareas completadas (93.0%)**.
+- **Ledger de Progreso:** **103/112 tareas completadas (93.0%)**.
   - **Fases F1 a F11 completadas al 100%:** Base Plasma, barra NimbusBar, semáforos y decoraciones Aurorae, Dock Liquid Glass, Spotlight, Apps Launchpad, Mission Control, KCM Settings, Asistente Welcome, widgets/sistema y pulido visual/a11y.
-  - **Fases pendientes:** F12 (Hardening final y release 1.0) y F13 (Upstream).
-- **Estado de CI:** `./scripts/ci.sh` está **100% VERDE** (58 suites de pruebas sin warnings ni fallos).
+  - **Fases pendientes:** F12 (Hardening final y release 1.0), F13 (Upstream) y
+    los dos spikes históricos F0-T03/T04 (sus resultados viven en F5/F7; se
+    mantienen sin marcar para no inflar el ledger).
+- **Estado de CI:** `./scripts/ci.sh` está **100% VERDE** (39 grupos de checks
+  sin warnings ni fallos; las suites internas suman 58+ comprobaciones).
 - **Demostración en Video:**
   - Video MP4: `out/videos/nimbus-tahoe-ui-ux-demo.mp4` (2.74 MB, 1440×900, 25 fps, 59s).
   - Previsualización GIF: `out/videos/nimbus-tahoe-ui-ux-demo.gif` (3.43 MB).
@@ -122,6 +125,12 @@ python3 scripts/record-nimbus-demo.py
 
 El desarrollo principal de la UI, la barra, el dock, los shaders y todas las aplicaciones de usuario (Fases F1 a F11) está terminado y verificado. Para llevar el proyecto a la versión 1.0 definitiva, las tareas pendientes del ledger son:
 
+### Fase 0 — Spikes históricos (2 tareas sin marcar)
+1. **F0-T03 — Spike Dock layer-shell (Krema).** Superado por F5: el Dock real
+   está implementado y verificado. Se deja sin marcar para no inflar el ledger.
+2. **F0-T04 — Spike KRunner fullscreen + KWin Overview.** Superado por F6/F7:
+   Spotlight y Mission Control están implementados. Se deja sin marcar.
+
 ### Fase 12 — Hardening y Release 1.0 (6 tareas restantes)
 1. **F12-T01 — Suite de pruebas completa:** Pruebas combinadas en hardware/VM multimonitor, diferentes escalas HiDPI (1x, 1.25x, 2x) y matrices completas de accesibilidad.
 2. **F12-T02 — Rendimiento y batería:** Medición de uso de memoria RAM en reposo, CPU idle (< 1%), tasa de refresco a 60/120 fps y comportamiento en suspensión (`systemd-suspend`).
@@ -142,3 +151,19 @@ El desarrollo principal de la UI, la barra, el dock, los shaders y todas las apl
 - **Sin privilegios de root:** Todo el desarrollo, compilación y pruebas debe ejecutarse en espacio de usuario.
 - **Entorno de pruebas:** Preferir sesiones Wayland virtuales (`kwin_wayland --virtual`) antes que construir imágenes ISO repetitivamente.
 - **Trazabilidad y evidencia:** Todo cambio debe acompañarse de su prueba correspondiente en `scripts/ci.sh` o evidencias en `docs/plans/evidence/`.
+
+---
+
+## 6. Actualización 2026-11-07 — reparaciones y deuda conocida
+
+- Todo el trabajo del 4-nov quedó commiteado (app, temas, tests, evidencias y
+  este handoff); `git status` limpio.
+- `scripts/apply-theme` ya aplica la decoración **Aurorae** canónica
+  (`MacTahoeLiquidKde-Dark/Light`), no Klassy, y `install.sh` lo ejecuta.
+- `lib/apps.sh` despliega las apps de script en `~/.local/bin` y verifica que
+  sean 1:1; las apps GUI quedan como `[PENDIENTE]` hasta que la ISO las compile.
+- CI incorpora `tests/apps/test_apps_deploy.sh` y
+  `tests/docs/test_docs_consistency.sh`.
+- **Deuda conocida:** binarios GUI (ISO/dev, F12-T03), skel de NimbusOS
+  (`docs/SKEL-SYNC.md`), F12 completo y F13.
+- Detalle de la sesión: [`docs/SESSION-2026-11-07-FIXES.md`](SESSION-2026-11-07-FIXES.md).
