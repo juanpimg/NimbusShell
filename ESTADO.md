@@ -20,7 +20,7 @@ completo de aplicaciones propias, módulo KCM con 6 páginas y demostración en 
 
 ## Qué está verde
 
-- `./scripts/ci.sh` **100% VERDE**: 42 grupos de checks (lint, QML, i18n,
+- `./scripts/ci.sh` **100% VERDE**: 43 grupos de checks (lint, QML, i18n,
   ledger, tema, apps, docs, KWin, seguridad, HW, aceptación VM y packaging).
 - Ledger en **103/112 (93.0%)**, fases F1 a F11 al 100%.
 - **Dock Liquid Glass:** cápsula continua de 66 px, reflejos individuales de

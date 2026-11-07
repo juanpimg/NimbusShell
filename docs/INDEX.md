@@ -49,6 +49,7 @@
 ## Scripts clave
 
 - `scripts/ci.sh` — gate (lint, tests, i18n, packaging).
+- `scripts/build-components` — compila e instala los 9 binarios GUI en `~/.local`.
 - `scripts/apply-theme` — tema Tahoe (color scheme, Kvantum, Aurorae).
 - `scripts/nimbus-bar-preset` — presets de barra.
 - `scripts/nimbus-dock` — preferencias del Dock Krema.

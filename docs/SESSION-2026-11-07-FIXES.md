@@ -39,6 +39,10 @@
 - El instalador despliega las herramientas de usuario y sus recursos en
   `~/.local/share/nimbus/`; `nimbus-theme` ya encuentra el tema, y el autostart
   `nimbus-theme-init.desktop` aplica la variante al entrar.
+- Nuevo `scripts/build-components`: compila e instala los 9 binarios GUI
+  (`nimbus-bar`, apps y `nimbus-wallpaper`) en un prefijo de usuario, con
+  `--check`, `--filter` y logs por componente. La ISO también compila
+  `nimbus-wallpaper` desde ahora.
 - `lib/apps.sh` despliega las 7 apps de script y 12 herramientas de usuario
   (`nimbus-theme`, `nimbus-dock`, `nimbus-updates`, `nimbus-layout`…) en
   `~/.local/bin` (1:1, con `cmp`), instala sus recursos de barra/dock y el
@@ -59,7 +63,7 @@ $ scripts/nimbus-progress
 Total: 103/112 (93.0%)
 
 $ ./scripts/ci.sh
-CI VERDE.   # 42 grupos; incluye tema, apps deploy, docs y deploy en HOME aislado
+CI VERDE.   # 43 grupos; incluye tema, apps, docs, deploy y build en HOME aislado
 
 $ bash tests/theme/test_apply_theme.sh
 PASS: test_apply_theme.sh completado con éxito.
@@ -76,6 +80,15 @@ Resultado: 28 ok, 0 fallos
 $ bash tests/install/test_deploy_home.sh
 Resultado: 10 ok, 0 fallos   # dotfiles+tema+KWin+dock+apps 1:1 en HOME temporal
 
+$ scripts/build-components --prefix /tmp/opencode/nimbus-prefix-all
+BUILD_OK components=9 prefix=/tmp/opencode/nimbus-prefix-all
+
+$ scripts/build-components --check --prefix /tmp/opencode/nimbus-prefix-all
+BUILD_COMPONENTS_CHECK_OK
+
+$ bash tests/install/test_build_components.sh
+Resultado: 8 ok, 0 fallos   # build real de nimbus-about en prefijo aislado
+
 $ bash tests/docs/test_docs_consistency.sh
 Resultado: 14 ok, 0 fallos
 
@@ -88,9 +101,9 @@ CHECK ROJO: hay drift (ver [FALTA] arriba).   # exit 1 esperado en host no conve
 
 - **F12-T01…T06:** hardening, multimonitor/HiDPI, rendimiento/batería, ISO
   final, Secure Boot/licencias y soak de 8 h. Requieren VM/hardware real.
-- **Binarios GUI:** `nimbus-bar` y apps C++/QML se compilan en la ISO
-  (`iso/build-iso.sh`) o con `scripts/dev-remote`; `install.sh` no instala el
-  toolchain (F12-T03).
+- **Binarios GUI:** ya se compilan en `~/.local` con `scripts/build-components`
+  (9/9 verificado); la ISO final con esos binarios y el KCM empaquetado sigue
+  siendo F12-T03.
 - **Skel de NimbusOS:** el port desde `dotfiles/` sigue pendiente; listado
   exacto en `docs/SKEL-SYNC.md`.
 - **F13-T01:** contribuciones upstream.

@@ -93,6 +93,7 @@ need "$REPO_ROOT/apps/nimbus-about/CMakeLists.txt" "fuente nimbus-about"
 need "$REPO_ROOT/apps/nimbus-clock/CMakeLists.txt" "fuente nimbus-clock"
 need "$REPO_ROOT/apps/nimbus-help/CMakeLists.txt" "fuente nimbus-help"
 need "$REPO_ROOT/apps/nimbus-spotlight/CMakeLists.txt" "fuente nimbus-spotlight"
+need "$REPO_ROOT/apps/nimbus-wallpaper/CMakeLists.txt" "fuente nimbus-wallpaper"
 need "$REPO_ROOT/packages/kcm/kcm_nimbus/CMakeLists.txt" "fuente KCM Nimbus (F8)"
 # Coherencia: shellprocess debe invocar lo estagiado.
 if grep -q '/usr/local/bin/nimbus-installed-setup' "$CALAMARES/modules/shellprocess-nimbus.conf" 2>/dev/null; then
@@ -210,7 +211,7 @@ fi
 if [ "$SKIP_APPS" -eq 1 ]; then
   echo "SKIP: compilación de apps omitida (--skip-apps); el live no traerá nimbus-bar/apps/spotlight"
 else
-    for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight" "apps/nimbus-about" "apps/nimbus-clock" "apps/nimbus-help" "apps/nimbus-missioncontrol" "apps/nimbus-welcome"; do
+    for app in "packages/shell/nimbus-bar" "apps/nimbus-apps" "apps/nimbus-spotlight" "apps/nimbus-about" "apps/nimbus-clock" "apps/nimbus-help" "apps/nimbus-missioncontrol" "apps/nimbus-welcome" "apps/nimbus-wallpaper"; do
     name="$(basename "$app")"
     builddir="/tmp/nimbus-build-$name"
     rm -rf "$builddir"; mkdir -p "$builddir" || exit 1

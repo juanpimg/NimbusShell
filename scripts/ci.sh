@@ -25,6 +25,7 @@ done
 sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
     for f in "$REPO_ROOT/install.sh" "$REPO_ROOT"/lib/*.sh "$REPO_ROOT"/scripts/*.sh \
              "$REPO_ROOT/scripts/apply-theme" \
+             "$REPO_ROOT/scripts/build-components" \
              "$REPO_ROOT/scripts/install-klassy-nimbus" \
              "$REPO_ROOT/scripts/install-glass-nimbus" \
              "$REPO_ROOT/scripts/nimbus-theme" \
@@ -56,6 +57,7 @@ sh_files() { # stdout: scripts bash del perfil activo (nunca legacy/)
              "$REPO_ROOT/tests/apps/test_apps_deploy.sh" \
              "$REPO_ROOT/tests/docs/test_docs_consistency.sh" \
              "$REPO_ROOT/tests/install/test_deploy_home.sh" \
+             "$REPO_ROOT/tests/install/test_build_components.sh" \
              "$REPO_ROOT/tests/welcome/test_welcome.sh" \
              "$REPO_ROOT/tests/support/test_bug_report.sh" \
              "$REPO_ROOT/tests/widgets/test_widgets.sh" \
@@ -429,6 +431,13 @@ if [ -x "$REPO_ROOT/tests/install/test_deploy_home.sh" ]; then
         pass "tests/install/test_deploy_home.sh (10/10 ok)"
     else fail "tests/install/test_deploy_home.sh (ver /tmp/opencode/ci-deploy-home.txt)"; fi
 else fail "tests/install/test_deploy_home.sh ausente o sin +x"; fi
+
+echo "== ci: build de componentes GUI (tests/install/test_build_components.sh) =="
+if [ -x "$REPO_ROOT/tests/install/test_build_components.sh" ]; then
+    if "$REPO_ROOT/tests/install/test_build_components.sh" >/tmp/opencode/ci-build-components.txt 2>&1; then
+        pass "tests/install/test_build_components.sh (8/8 ok)"
+    else fail "tests/install/test_build_components.sh (ver /tmp/opencode/ci-build-components.txt)"; fi
+else fail "tests/install/test_build_components.sh ausente o sin +x"; fi
 
 echo "== ci: install.sh --check (solo lectura) =="
 "$REPO_ROOT/install.sh" --check >/tmp/opencode/ci-check.txt 2>&1

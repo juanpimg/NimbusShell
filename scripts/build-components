@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+# build-components — compila e instala los binarios GUI Nimbus en un prefijo
+# de usuario (por defecto ~/.local). Sin root, sin red, idempotente.
+#
+# Uso:
+#   scripts/build-components [--check] [--prefix DIR] [--build-dir DIR]
+#                            [--filter a,b] [--no-install] [--jobs N]
+#
+#   --check       solo verifica herramientas y binarios ya instalados
+#   --prefix      prefijo de instalación (defecto: $HOME/.local)
+#   --build-dir   directorio de build (defecto: out/build/components)
+#   --filter      limita a componentes separados por coma
+#   --no-install  compila pero no instala
+#   --jobs        paralelismo (defecto: nproc)
+#
+# Los binarios GUI no se instalan desde install.sh porque requieren toolchain
+# Qt6/KF6. La ISO los compila con iso/build-iso.sh; este script es la vía para
+# un Arch ya instalado.
+set -u
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PREFIX="${HOME:-/tmp}/.local"
+BUILD_DIR="$REPO_ROOT/out/build/components"
+FILTER=""
+CHECK=0
+DO_INSTALL=1
+JOBS="$(nproc 2>/dev/null || echo 4)"
+
+usage() {
+    sed -n '2,18p' "${BASH_SOURCE[0]}" | cut -c3-
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --check) CHECK=1 ;;
+        --prefix) [ $# -ge 2 ] || { echo "ERROR: --prefix necesita un directorio" >&2; exit 2; }
+                  PREFIX="$2"; shift ;;
+        --build-dir) [ $# -ge 2 ] || { echo "ERROR: --build-dir necesita un directorio" >&2; exit 2; }
+                     BUILD_DIR="$2"; shift ;;
+        --filter) [ $# -ge 2 ] || { echo "ERROR: --filter necesita nombres" >&2; exit 2; }
+                  FILTER="$2"; shift ;;
+        --no-install) DO_INSTALL=0 ;;
+        --jobs) [ $# -ge 2 ] || { echo "ERROR: --jobs necesita un número" >&2; exit 2; }
+                JOBS="$2"; shift ;;
+        -h|--help) usage; exit 0 ;;
+        *) echo "ERROR: argumento desconocido: $1 (ver --help)" >&2; exit 2 ;;
+    esac
+    shift
+done
+
+if [ "$(id -u)" = "0" ]; then
+    echo "ERROR: no ejecutar como root; usa tu usuario (prefijo $PREFIX)." >&2
+    exit 2
+fi
+
+component_list() {
+    printf '%s\n' \
+        nimbus-bar \
+        nimbus-about \
+        nimbus-apps \
+        nimbus-clock \
+        nimbus-help \
+        nimbus-missioncontrol \
+        nimbus-spotlight \
+        nimbus-welcome \
+        nimbus-wallpaper
+}
+
+component_src() { # $1=componente -> ruta relativa al repo
+    case "$1" in
+        nimbus-bar) echo packages/shell/nimbus-bar ;;
+        nimbus-about) echo apps/nimbus-about ;;
+        nimbus-apps) echo apps/nimbus-apps ;;
+        nimbus-clock) echo apps/nimbus-clock ;;
+        nimbus-help) echo apps/nimbus-help ;;
+        nimbus-missioncontrol) echo apps/nimbus-missioncontrol ;;
+        nimbus-spotlight) echo apps/nimbus-spotlight ;;
+        nimbus-welcome) echo apps/nimbus-welcome ;;
+        nimbus-wallpaper) echo apps/nimbus-wallpaper ;;
+        *) return 1 ;;
+    esac
+}
+
+component_files() { # $1=componente -> rutas relativas esperadas en el prefijo
+    case "$1" in
+        nimbus-bar) printf '%s\n' bin/nimbus-bar ;;
+        nimbus-about) printf '%s\n' bin/nimbus-about \
+            share/applications/org.nimbus.about.desktop \
+            share/icons/hicolor/scalable/apps/nimbus-about.svg ;;
+        nimbus-apps) printf '%s\n' bin/nimbus-apps share/applications/org.nimbus.Apps.desktop ;;
+        nimbus-clock) printf '%s\n' bin/nimbus-clock \
+            share/applications/org.nimbus.clock.desktop \
+            share/icons/hicolor/scalable/apps/nimbus-clock.svg ;;
+        nimbus-help) printf '%s\n' bin/nimbus-help \
+            share/applications/org.nimbus.help.desktop \
+            share/icons/hicolor/scalable/apps/nimbus-help.svg ;;
+        nimbus-missioncontrol) printf '%s\n' bin/nimbus-missioncontrol \
+            share/applications/org.nimbus.missioncontrol.desktop \
+            share/kwin/scripts/nimbus-mc/contents/code/main.js ;;
+        nimbus-spotlight) printf '%s\n' bin/nimbus-spotlight \
+            share/applications/org.nimbus.spotlight.desktop ;;
+        nimbus-welcome) printf '%s\n' bin/nimbus-welcome \
+            share/applications/org.nimbus.welcome.desktop ;;
+        nimbus-wallpaper) printf '%s\n' bin/nimbus-wallpaper ;;
+        *) return 1 ;;
+    esac
+}
+
+selected() { # $1=componente -> 0 si pasa el filtro
+    [ -z "$FILTER" ] && return 0
+    case ",$FILTER," in *",$1,"*) return 0 ;; *) return 1 ;; esac
+}
+
+check_tools() {
+    local fail=0
+    for c in cmake pkg-config; do
+        if command -v "$c" >/dev/null 2>&1; then
+            echo "  [OK] $c"
+        else
+            echo "  [FALTA] $c (instala cmake/pkgconf)" >&2; fail=1
+        fi
+    done
+    if command -v ninja >/dev/null 2>&1; then echo "  [OK] ninja"; else
+        echo "  [INFO] ninja ausente; se usará el generador por defecto (make)" >&2
+    fi
+    return "$fail"
+}
+
+do_check() {
+    local fail=0 comp rel
+    echo "== build-components --check (prefijo $PREFIX) =="
+    check_tools || fail=1
+    while IFS= read -r comp; do
+        selected "$comp" || continue
+        if [ ! -d "$REPO_ROOT/$(component_src "$comp")" ]; then
+            echo "  [FALTA] fuente $(component_src "$comp")" >&2; fail=1; continue
+        fi
+        while IFS= read -r rel; do
+            if [ -x "$PREFIX/$rel" ] || { [ "${rel%%/*}" = "share" ] && [ -f "$PREFIX/$rel" ]; }; then
+                echo "  [OK] $comp: $rel"
+            else
+                echo "  [FALTA] $comp: $PREFIX/$rel (ejecuta scripts/build-components)" >&2
+                fail=1
+            fi
+        done < <(component_files "$comp")
+    done < <(component_list)
+    if [ "$fail" = "0" ]; then echo "BUILD_COMPONENTS_CHECK_OK"; else echo "BUILD_COMPONENTS_CHECK_FAIL" >&2; fi
+    return "$fail"
+}
+
+build_one() { # $1=componente
+    local comp="$1" src builddir log gen=()
+    src="$(component_src "$comp")" || { echo "ERROR: componente desconocido: $comp" >&2; return 1; }
+    [ -d "$REPO_ROOT/$src" ] || { echo "ERROR: falta $REPO_ROOT/$src" >&2; return 1; }
+    builddir="$BUILD_DIR/$comp"
+    log="$BUILD_DIR/logs/$comp.log"
+    mkdir -p "$builddir" "$BUILD_DIR/logs" || return 1
+    command -v ninja >/dev/null 2>&1 && gen=(-G Ninja)
+
+    echo "-- $comp: configure/build"
+    if ! cmake -S "$REPO_ROOT/$src" -B "$builddir" "${gen[@]}" \
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PREFIX" >"$log" 2>&1; then
+        echo "ERROR: cmake configure de $comp falló (¿Qt6/KF6/LayerShellQt?). Ver $log" >&2
+        return 1
+    fi
+    if ! cmake --build "$builddir" -j "$JOBS" >>"$log" 2>&1; then
+        echo "ERROR: build de $comp falló. Ver $log" >&2
+        return 1
+    fi
+    if [ "$DO_INSTALL" = "1" ]; then
+        if ! cmake --install "$builddir" >>"$log" 2>&1; then
+            echo "ERROR: install de $comp falló. Ver $log" >&2
+            return 1
+        fi
+    fi
+    return 0
+}
+
+if [ "$CHECK" = "1" ]; then
+    do_check
+    exit "$?"
+fi
+
+echo "== build-components (prefijo $PREFIX, build $BUILD_DIR) =="
+check_tools || { echo "ERROR: faltan herramientas de compilación" >&2; exit 2; }
+[ -d "$PREFIX" ] || mkdir -p "$PREFIX" || { echo "ERROR: no se pudo crear $PREFIX" >&2; exit 1; }
+
+built=0
+while IFS= read -r comp; do
+    selected "$comp" || continue
+    build_one "$comp" || exit 1
+    built=$((built + 1))
+done < <(component_list)
+[ "$built" -gt 0 ] || { echo "ERROR: el filtro no seleccionó componentes" >&2; exit 2; }
+
+if [ "$DO_INSTALL" = "1" ] && command -v kbuildsycoca6 >/dev/null 2>&1; then
+    kbuildsycoca6 >/dev/null 2>&1 || true
+fi
+echo "BUILD_OK components=$built prefix=$PREFIX"

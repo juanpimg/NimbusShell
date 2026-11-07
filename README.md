@@ -70,10 +70,24 @@ Para el perfil histórico Hyprland: `./install.sh --profile=legacy-hypr`.
 
 Los **binarios GUI** (`nimbus-bar`, `nimbus-about`, `nimbus-apps`, `nimbus-clock`,
 `nimbus-help`, `nimbus-missioncontrol`, `nimbus-spotlight`, `nimbus-welcome`,
-`nimbus-wallpaper`) y el módulo KCM se compilan con `iso/build-iso.sh`
-(DESTDIR a `/usr/local`) o `scripts/dev-remote`. `install.sh` no instala el
-toolchain de compilación: `--check` los marca `[PENDIENTE]` con la orden exacta,
-no como fallo. La ISO final con esos binarios es F12-T03.
+`nimbus-wallpaper`) se compilan con `scripts/build-components` en `~/.local`
+(sin root), con `iso/build-iso.sh` (DESTDIR a `/usr/local`) o con
+`scripts/dev-remote`. `install.sh` no instala el toolchain de compilación:
+`--check` los marca `[PENDIENTE]` con la orden exacta, no como fallo. El módulo
+KCM sigue la ruta de sistema de la ISO.
+
+### Binarios GUI en un Arch ya instalado
+
+```bash
+./scripts/build-components --check    # qué falta y en qué prefijo
+./scripts/build-components            # compila e instala los 9 en ~/.local
+./scripts/build-components --filter nimbus-bar,nimbus-about
+./scripts/build-components --check    # debe dar BUILD_COMPONENTS_CHECK_OK
+```
+
+Requiere `cmake`, un compilador, Qt6 y los Frameworks KF6/LayerShellQt que ya
+trae el perfil Plasma. Si falta alguno, el script falla con el log en
+`out/build/components/logs/`.
 
 ## `--check`
 
@@ -114,9 +128,9 @@ Los backups no se borran solos: tú decides cuándo borrarlos.
 - **Dock Krema:** el perfil plasma deja el preset `kremarc-nimbus` y los
   launchers, pero Krema se instala desde AUR/ISO; el perfil no usa AUR, así que
   sin Krema no hay Dock.
-- **Barra superior:** el binario `nimbus-bar` y su unidad systemd se compilan y
-  despliegan desde la ISO/dev; el instalador genérico prepara su configuración
-  y presets, no el binario.
+- **Barra superior:** `scripts/build-components` compila `nimbus-bar` en
+  `~/.local/bin`; su unidad systemd/autostart se despliega desde la ISO. El
+  instalador genérico prepara configuración y presets, no el binario.
 - **Login intacto:** el instalador no activa ni cambia tu Display Manager. SDDM
   viene como paquete y su tema Nimbus se aplica desde la ISO.
 - **Iconos WhiteSur:** si no están instalados, el tema avisa y usa Breeze como
