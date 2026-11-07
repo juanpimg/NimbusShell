@@ -95,6 +95,15 @@ Resultado: 13 ok, 0 fallos   # nimbus-about + KCM en prefijo aislado
 $ bash tests/install/test_skel_sync.sh
 Resultado: 13 ok, 0 fallos   # port aditivo, legacy/ISO intactos
 
+$ scripts/nimbus-skel-sync --apply
+SKEL_SYNC_APPLIED actualizados=59
+$ scripts/nimbus-skel-sync --check
+SKEL_SYNC_OK   # 62 ficheros 1:1; 9 extras legacy/ISO permitidos
+$ diff -rq dotfiles/ ../NimbusOS/nimbus-overlay/etc/skel/ | wc -l
+9
+$ (cd ../NimbusOS && ./build_iso.sh --check-only)
+CHECK-ONLY PASS
+
 $ bash tests/docs/test_docs_consistency.sh
 Resultado: 14 ok, 0 fallos
 
@@ -110,8 +119,9 @@ CHECK ROJO: hay drift (ver [FALTA] arriba).   # exit 1 esperado en host no conve
 - **Binarios GUI + KCM:** ya se compilan/instalan en `~/.local` con
   `scripts/build-components` (9 GUI + KCM verificado); la ISO final sigue
   siendo F12-T03.
-- **Skel de NimbusOS:** el sincronizador está listo y probado; el port real se
-  aplica en una rama de NimbusOS (aditivo, sin borrar su Hyprland/ISO). Ver
+- **Skel de NimbusOS:** port aplicado en la rama `plasma-skel-sync`
+  (commit `917cc0f`, 59 ficheros, `CHECK-ONLY PASS`); pendiente de revisión,
+  merge y push en NimbusOS. `main` de NimbusOS intacto. Ver
   `docs/SKEL-SYNC.md`.
 - **F13-T01:** contribuciones upstream.
 - **F0-T03/T04:** spikes históricos; sus resultados viven en F5/F7 y no se

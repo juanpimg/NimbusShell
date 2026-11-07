@@ -170,6 +170,6 @@ El desarrollo principal de la UI, la barra, el dock, los shaders y todas las apl
   `tests/install/test_deploy_home.sh`, `tests/install/test_build_components.sh`
   y `tests/docs/test_docs_consistency.sh`.
 - **Deuda conocida:** ISO final con los binarios/KCM ya compilables con
-  `scripts/build-components` (F12-T03), skel de NimbusOS
-  (`docs/SKEL-SYNC.md`), F12 completo y F13.
+  `scripts/build-components` (F12-T03), merge/push de la rama
+  `plasma-skel-sync` en NimbusOS (`docs/SKEL-SYNC.md`), F12 completo y F13.
 - Detalle de la sesión: [`docs/SESSION-2026-11-07-FIXES.md`](SESSION-2026-11-07-FIXES.md).

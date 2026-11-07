@@ -53,11 +53,12 @@ completo de aplicaciones propias, módulo KCM con 6 páginas y demostración en 
 - **F12-T01 a F12-T06:** hardening, multimonitor/HiDPI, rendimiento y batería,
   ISO offline final, auditoría de licencias/Secure Boot y soak test de 8 h.
 - **F13-T01:** contribuciones upstream (Klassy, Krema, KWin effects).
-- **Skel de NimbusOS:** el port desde `dotfiles/` sigue pendiente y está
-  documentado en [`docs/SKEL-SYNC.md`](docs/SKEL-SYNC.md).
-- **Binarios GUI:** `nimbus-bar` y las apps C++/QML se compilan en la ISO
-  (`iso/build-iso.sh`) o con `scripts/dev-remote`; `install.sh` no instala el
-  toolchain y `--check` los marca `[PENDIENTE]` (F12-T03).
+- **Skel de NimbusOS:** port aplicado en la rama `plasma-skel-sync`
+  (`917cc0f`, 59 ficheros) con 9 extras legacy/ISO; pendiente de revisión,
+  merge y push en NimbusOS. Ver [`docs/SKEL-SYNC.md`](docs/SKEL-SYNC.md).
+- **Binarios GUI + KCM:** `scripts/build-components` los compila e instala en
+  `~/.local` (9 GUI + KCM verificado); `install.sh` no instala el toolchain y
+  `--check` los marca `[PENDIENTE]` hasta que se compilen (F12-T03).
 
 ## Dónde mirar
 
