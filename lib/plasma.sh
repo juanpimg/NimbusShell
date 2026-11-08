@@ -14,11 +14,32 @@ report_commented() { # líneas comentadas de la lista: informan, no exigen
     done < <(grep -E '^#[A-Za-z0-9]' "$PLASMA_LIST" || true)
 }
 
+plasma_remove_legacy_blockers() {
+    # Un sistema que viene del perfil Hyprland puede tener hyprbars/hyprshell:
+    # hyprbars fija hyprland<0.57 y bloquea pacman -Syu. Se retiran SOLO los
+    # bloqueadores AUR; Hyprland se conserva para no romper el login legacy.
+    [ "${NIMBUS_KEEP_LEGACY:-0}" = "1" ] && {
+        nimbus_info "  [SKIP] bloqueadores legacy conservados (NIMBUS_KEEP_LEGACY=1)"
+        return 0
+    }
+    local p found=()
+    for p in hyprland-plugin-hyprbars hyprshell; do
+        pacman -Qq "$p" >/dev/null 2>&1 && found+=("$p")
+    done
+    [ "${#found[@]}" -eq 0 ] && return 0
+    nimbus_info "  retirando bloqueadores legacy: ${found[*]}"
+    sudo pacman -Rns --noconfirm "${found[@]}" \
+        || { echo "ERROR: no se pudieron retirar ${found[*]}; retíralos a mano o usa NIMBUS_KEEP_LEGACY=1" >&2; return 1; }
+}
+
 plasma_install_packages() {
-    echo "-- paquetes plasma (pacman)..."
+    echo "-- actualizando sistema + paquetes plasma (pacman -Syu)..."
+    # -Syu (no solo -S): Plasma/KF6 deben quedar alineados. Un live o un Arch
+    # atrasado puede tener KF6 6.28 mientras el KCM exige >=6.31; con
+    # --needed y sin upgrade el binario no compila.
     # shellcheck disable=SC2046
-    sudo pacman -S --needed --noconfirm $(read_list "$PLASMA_LIST") \
-        || { echo "ERROR: fallo pacman plasma. Revisa tu conexión (o ejecuta sudo pacman -Sy) o estos paquetes:" >&2;
+    sudo pacman -Syu --needed --noconfirm $(read_list "$PLASMA_LIST") \
+        || { echo "ERROR: fallo pacman plasma. Revisa tu conexión (o ejecuta sudo pacman -Syu) o estos paquetes:" >&2;
              local p
              while IFS= read -r p; do
                  pacman -Si "$p" >/dev/null 2>&1 || echo "  - $p (no resoluble: typo, repo ausente o DB sin sincronizar)" >&2;

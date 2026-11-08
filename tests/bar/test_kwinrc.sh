@@ -88,7 +88,8 @@ if grep -q 'cmp -s "$OUT/airootfs/etc/skel/.config/kwinrc"' "$BUILD_ISO"; then
 else
     fail "build-iso no verifica el kwinrc efectivo del staging"
 fi
-if [ -f "$AUTOSTART" ] && grep -qx 'Exec=/usr/local/bin/nimbus-hide-panel' "$AUTOSTART"; then
+if [ -f "$AUTOSTART" ] && \
+   grep -qE '^Exec=(/usr/local/bin/nimbus-hide-panel|/usr/bin/env nimbus-hide-panel)$' "$AUTOSTART"; then
     pass "autostart nimbus-hide-panel con Exec canónico"
 else
     fail "falta autostart nimbus-hide-panel o su Exec"

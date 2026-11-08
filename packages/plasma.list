@@ -32,6 +32,22 @@ layer-shell-qt  # 6.8.2, requerido por el Dock (F5)
 power-profiles-daemon  # 0.30, fijar uno solo (no tuned-cachy-ppd a la vez)
 powerdevil  # 6.8.2, gestión de energía Plasma
 
+# --- toolchain y dev deps para compilar la capa (F12) ------------------------
+# Necesarios para construir nimbus-bar, apps y KCM desde el repo en un Arch
+# ya instalado. Sin estos paquetes install.sh deja los GUI en [PENDIENTE].
+cmake
+ninja
+pkgconf
+kwindowsystem
+kcmutils
+kconfig
+kcoreaddons
+ki18n
+kpackage
+ksvg
+qt6-wayland
+qt6-svg
+
 # --- apps base (repo extra) ---
 konsole
 dolphin

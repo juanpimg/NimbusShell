@@ -311,7 +311,7 @@ grep -q '^Exec=/usr/local/bin/nimbus-live-installer' \
 bash -n "$OUT/airootfs/usr/local/bin/nimbus-live-user" \
   "$OUT/airootfs/usr/local/bin/nimbus-live-installer" \
   || { echo "ERROR: scripts live no pasan bash -n" >&2; exit 1; }
-grep -q '^Exec=/usr/local/bin/nimbus-hide-panel' \
+grep -qE '^Exec=(/usr/local/bin/nimbus-hide-panel|/usr/bin/env nimbus-hide-panel)$' \
   "$OUT/airootfs/etc/skel/.config/autostart/nimbus-hide-panel.desktop" \
   || { echo "ERROR: autostart nimbus-hide-panel sin Exec correcto" >&2; exit 1; }
 if [ "$SKIP_APPS" -eq 0 ]; then

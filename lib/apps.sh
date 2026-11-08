@@ -1,13 +1,15 @@
 #!/bin/bash
 # lib/apps.sh — apps Nimbus (F9): scripts de sistema y binarios GUI.
-# Los scripts sin compilación (hw, migración, backup, bug-report) se despliegan
-# a ~/.local/bin. Los binarios GUI (nimbus-bar, about, apps, clock, help,
-# missioncontrol, spotlight, welcome, wallpaper) los compila la ISO con
-# iso/build-iso.sh o scripts/dev-remote; aquí solo se verifican.
+# Los scripts sin compilación (hw, migración, backup, bug-report) y las
+# herramientas de usuario se despliegan a ~/.local/bin. Los binarios GUI
+# (nimbus-bar, about, apps, clock, help, missioncontrol, spotlight, welcome,
+# wallpaper) y el KCM se compilan con scripts/build-components en ~/.local.
 
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 APPS_BIN_DIR="${APPS_BIN_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}"
+APPS_PREFIX="${APPS_PREFIX:-$(dirname "$APPS_BIN_DIR")}"
 APPS_DESKTOP_DIR="${APPS_DESKTOP_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/applications}"
+APPS_BUILD_DIR="${APPS_BUILD_DIR:-$REPO_ROOT/out/build/install}"
 
 apps_shell_scripts() { # stdout: rutas relativas al repo
     printf '%s\n' \
@@ -47,8 +49,10 @@ apps_gui_map() { # stdout: "binario|desktop relativo"
         "nimbus-welcome|apps/nimbus-welcome/org.nimbus.welcome.desktop"
 }
 
-apps_gui_bin() { # $1=binario -> 0 si existe en PATH o /usr/local/bin
-    command -v "$1" >/dev/null 2>&1 || [ -x "/usr/local/bin/$1" ]
+apps_gui_bin() { # $1=binario -> 0 si existe en ~/.local/bin, PATH o /usr/local/bin
+    [ -x "$APPS_BIN_DIR/$1" ] \
+        || command -v "$1" >/dev/null 2>&1 \
+        || [ -x "/usr/local/bin/$1" ]
 }
 
 apps_script_installed() { # $1=nombre -> stdout: ruta instalada (usuario o sistema)
@@ -142,6 +146,27 @@ apps_deploy() {
     command -v kbuildsycoca6 >/dev/null 2>&1 && kbuildsycoca6 >/dev/null 2>&1 || true
 }
 
+components_deploy() {
+    echo "-- componentes GUI + KCM (barra, apps, ajustes)..."
+    if [ "${NIMBUS_SKIP_BUILD:-0}" = "1" ]; then
+        nimbus_info "  [PENDIENTE] build omitido (--no-build); ejecuta scripts/build-components"
+        return 0
+    fi
+    local missing=""
+    command -v cmake >/dev/null 2>&1 || missing="$missing cmake"
+    command -v pkg-config >/dev/null 2>&1 || missing="$missing pkg-config"
+    if [ -n "$missing" ]; then
+        nimbus_info "  [PENDIENTE] faltan herramientas:$missing (instala cmake/pkgconf)"
+        nimbus_info "    después: scripts/build-components --prefix $APPS_PREFIX"
+        return 0
+    fi
+    local args=(--prefix "$APPS_PREFIX" --build-dir "$APPS_BUILD_DIR")
+    [ -n "${APPS_BUILD_FILTER:-}" ] && args+=(--filter "$APPS_BUILD_FILTER")
+    "$REPO_ROOT/scripts/build-components" "${args[@]}" \
+        || { echo "ERROR: build-components falló; revisa out/build/install/logs/" >&2; return 1; }
+    nimbus_ok "componentes GUI + KCM instalados en $APPS_PREFIX"
+}
+
 apps_check() {
     echo "-- apps:"
     local missing=0 app
@@ -196,6 +221,6 @@ apps_check() {
         else pend="$pend $bin"; fi
     done < <(apps_gui_map)
     if [ -n "$pend" ]; then
-        nimbus_info "  [PENDIENTE] binarios GUI (los compila la ISO/dev):$pend"
+        nimbus_info "  [PENDIENTE] binarios GUI (los compila ./install.sh o scripts/build-components):$pend"
     fi
 }

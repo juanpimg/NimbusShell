@@ -24,6 +24,9 @@ export THEME_WALLPAPER_DST="$TMP/system-sequoia.jpg"
 export THEME_LOGO_DST="$TMP/system-logo.svg"
 export SOUNDS_DST="$XDG_DATA_HOME/sounds/Nimbus"
 export THEME_RES_DST="$XDG_DATA_HOME/nimbus/themes/nimbus-tahoe"
+export APPS_BUILD_DIR="$TMP/build"
+export APPS_BUILD_FILTER="nimbus-about"
+export NIMBUS_SKIP_KDE_CACHE=1
 mkdir -p "$HOME" "$XDG_CONFIG_HOME"
 cp "$REPO_ROOT/assets/sequoia-light.jpg" "$THEME_WALLPAPER_DST"
 cp "$REPO_ROOT/assets/nimbus-logo.svg" "$THEME_LOGO_DST"
@@ -49,11 +52,12 @@ else
 fi
 
 echo "== despliegue: tema, KWin, dock y apps =="
-for fn in themes_deploy kwin_deploy dock_deploy apps_deploy; do
+for fn in themes_deploy kwin_deploy dock_deploy apps_deploy components_deploy; do
     if "$fn" >"/tmp/opencode/test-deploy-$fn.log" 2>&1; then ok "$fn"; else
         bad "$fn"; cat "/tmp/opencode/test-deploy-$fn.log"
     fi
 done
+[ -x "$APPS_BIN_DIR/nimbus-about" ] && ok "GUI compilada (nimbus-about)" || bad "GUI no compilada"
 
 echo "== verificación: dotfiles 1:1 tras aplicar tema =="
 CHECK_FAIL=0

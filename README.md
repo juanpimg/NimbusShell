@@ -31,14 +31,19 @@ La frontera entre ambos está en [`docs/architecture/PRODUCT-MODEL.md`](docs/arc
 ```bash
 git clone https://github.com/juanpimg/NimbusShell.git && cd NimbusShell
 ./install.sh --check    # paso 1 (opcional): qué falta o cambiaría, sin tocar nada
-./install.sh            # paso 2: instala (pide sudo una vez para pacman)
+./install.sh            # paso 2: instala + compila GUI/KCM (pide sudo para pacman)
 # paso 3: cierra sesión y entra en Plasma (Wayland)
 ```
 
-El perfil `plasma` instala **28 paquetes oficiales** de `packages/plasma.list`
-(sin AUR), despliega `dotfiles/` a `$HOME` con backup previo en
+El perfil `plasma` instala **40 paquetes oficiales** de `packages/plasma.list`
+(sin AUR) y ejecuta `pacman -Syu` para alinear Plasma/KF6 (un Arch atrasado con
+KF6 6.28 no compila el KCM que pide >=6.31). Después despliega `dotfiles/` a
+`$HOME` con backup previo en
 `~/.config/nimbusshell-backup-*`, aplica el tema Tahoe, los scripts/efectos de
-KWin, el preset del Dock y las apps de script. Nunca se ejecuta como root.
+KWin, el preset del Dock, las apps de script y **compila la barra, las apps y el
+KCM** en `~/.local` con `scripts/build-components`. Nunca se ejecuta como root.
+
+Si no quieres compilar (máquina justa o solo configs): `./install.sh --no-build`.
 
 Para el perfil histórico Hyprland: `./install.sh --profile=legacy-hypr`.
 
@@ -72,10 +77,9 @@ Para el perfil histórico Hyprland: `./install.sh --profile=legacy-hypr`.
 Los **binarios GUI** (`nimbus-bar`, `nimbus-about`, `nimbus-apps`, `nimbus-clock`,
 `nimbus-help`, `nimbus-missioncontrol`, `nimbus-spotlight`, `nimbus-welcome`,
 `nimbus-wallpaper`) y el módulo **KCM** se compilan con
-`scripts/build-components` en `~/.local` (sin root), con `iso/build-iso.sh`
-(DESTDIR a `/usr/local`) o con `scripts/dev-remote`. `install.sh` no instala el
-toolchain de compilación: `--check` los marca `[PENDIENTE]` con la orden exacta,
-no como fallo.
+`scripts/build-components` en `~/.local` (sin root). `install.sh` ya los compila
+automáticamente; `--no-build` lo omite y `--check` los marca `[PENDIENTE]` con
+la orden exacta, no como fallo.
 
 ### Binarios GUI en un Arch ya instalado
 

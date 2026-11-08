@@ -60,9 +60,10 @@ completo de aplicaciones propias, módulo KCM con 6 páginas y demostración en 
   `main` sigue Hyprland estable.
   Ver [`docs/architecture/PRODUCT-MODEL.md`](docs/architecture/PRODUCT-MODEL.md)
   y [`docs/SKEL-SYNC.md`](docs/SKEL-SYNC.md).
-- **Binarios GUI + KCM:** `scripts/build-components` los compila e instala en
-  `~/.local` (9 GUI + KCM verificado); `install.sh` no instala el toolchain y
-  `--check` los marca `[PENDIENTE]` hasta que se compilen (F12-T03).
+- **Binarios GUI + KCM:** `install.sh` los compila e instala en `~/.local`
+  (9 GUI + KCM, verificado en un Arch instalado), con `pacman -Syu` y retirada
+  de bloqueadores Hyprland; `--no-build` sigue disponible. La ISO final es
+  F12-T03.
 
 ## Dónde mirar
 

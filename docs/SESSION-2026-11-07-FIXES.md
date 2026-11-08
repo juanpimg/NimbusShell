@@ -81,7 +81,7 @@ $ bash tests/apps/test_apps_deploy.sh
 Resultado: 28 ok, 0 fallos
 
 $ bash tests/install/test_deploy_home.sh
-Resultado: 10 ok, 0 fallos   # dotfiles+tema+KWin+dock+apps 1:1 en HOME temporal
+Resultado: 12 ok, 0 fallos   # dotfiles+tema+KWin+dock+apps+GUI en HOME temporal
 
 $ scripts/build-components --prefix /tmp/opencode/nimbus-prefix-all
 BUILD_OK components=10 prefix=/tmp/opencode/nimbus-prefix-all
@@ -126,6 +126,20 @@ CHECK ROJO: hay drift (ver [FALTA] arriba).   # exit 1 esperado en host no conve
   <https://github.com/juanpimg/NimbusOS/pull/1> (draft).
 - El perfil `legacy-hypr` sigue pasando `--check-only` para rollback; `main`
   de NimbusOS no se toca hasta validar la ISO Plasma en VM.
+
+## Instalador completo (2026-11-08)
+
+- `install.sh` ahora compila **barra + apps + KCM** (`components_deploy`) y
+  despliega la unidad/autostart de la barra; ya no deja el escritorio sin barra.
+- Paquetes: `plasma.list` incluye toolchain y dev deps (40 paquetes).
+- `pacman -Syu` (no solo `-S`) para alinear Plasma/KF6 antes de compilar; un
+  KF6 6.28 con KCM que exige >=6.31 era el fallo real.
+- Se retiran bloqueadores legacy `hyprland-plugin-hyprbars`/`hyprshell` antes
+  del upgrade; Hyprland se conserva para no romper el login antiguo.
+- Verificado en un Arch instalado: `NIMBUSSHELL OK (plasma)`, `CHECK VERDE`,
+  barra Nimbus arrancada y panel stock oculto.
+- El live CachyOS no aguanta bien un `-Syu` en caliente (Plasma se cae); para
+  pruebas reales usar un sistema instalado o una ISO nueva.
 
 ## Deuda que sigue abierta (no se finge resuelta)
 

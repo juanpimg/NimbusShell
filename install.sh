@@ -1,10 +1,11 @@
 #!/bin/bash
 # NimbusShell — dispatcher de perfiles (Plasma + legacy Hyprland).
-# Uso: ./install.sh [--profile=plasma|legacy-hypr] [--check] [--help]
-#   sin args                    : instala el perfil plasma.
+# Uso: ./install.sh [--profile=plasma|legacy-hypr] [--check] [--no-build] [--help]
+#   sin args                    : instala el perfil plasma (incluye GUI + KCM).
 #   --profile=legacy-hypr       : delega en legacy/hyprland/install.sh (mismos args).
 #   --check                     : solo informa (no instala, no escribe, no pide
 #                                 sudo, no usa red); exit 1 si falta algo o hay drift.
+#   --no-build                  : no compila barra/apps/KCM; deja [PENDIENTE].
 # Idempotente y re-ejecutable. NUNCA ejecutar como root.
 set -u
 
@@ -16,14 +17,16 @@ PLASMA_LIST="$REPO_ROOT/packages/plasma.list"
 PLASMA_DOTFILES="$REPO_ROOT/dotfiles"
 
 usage() {
-    echo "Uso: ./install.sh [--profile=plasma|legacy-hypr] [--check]"
-    echo "  Sin args instala el perfil plasma."
+    echo "Uso: ./install.sh [--profile=plasma|legacy-hypr] [--check] [--no-build]"
+    echo "  Sin args instala el perfil plasma (incluye GUI + KCM)."
     echo "  --profile=legacy-hypr delega en el instalador legacy congelado."
     echo "  --check solo informa (exit 1 si hay drift); sin sudo, sin red, sin escritura."
+    echo "  --no-build omite compilar barra/apps/KCM."
 }
 
 PROFILE="plasma"
 CHECK=0
+NO_BUILD=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --profile=*) PROFILE="${1#--profile=}"; shift ;;
@@ -31,6 +34,7 @@ while [ $# -gt 0 ]; do
             [ $# -ge 2 ] || { echo "ERROR: --profile necesita un valor (plasma|legacy-hypr)" >&2; exit 2; }
             PROFILE="$2"; shift 2 ;;
         --check) CHECK=1; shift ;;
+        --no-build) NO_BUILD=1; shift ;;
         -h|--help) usage; exit 0 ;;
         *) echo "ERROR: argumento desconocido: $1 (ver --help)" >&2; exit 2 ;;
     esac
@@ -93,12 +97,15 @@ KA=$!
 trap 'kill $KA 2>/dev/null || true' EXIT
 
 BACKUP_DIR="$(make_backup_dir)"
+plasma_remove_legacy_blockers || exit 1
 plasma_install_packages || exit 1
 plasma_deploy_dotfiles "$BACKUP_DIR" || exit 1
 themes_deploy || exit 1
 kwin_deploy
 dock_deploy
 apps_deploy
+[ "$NO_BUILD" = "1" ] && export NIMBUS_SKIP_BUILD=1
+components_deploy || exit 1
 
 echo "-- verificación..."
 verify_profile plasma

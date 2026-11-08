@@ -430,7 +430,7 @@ else fail "tests/welcome/test_welcome.sh ausente o sin +x"; fi
 echo "== ci: deploy en HOME aislado (tests/install/test_deploy_home.sh) =="
 if [ -x "$REPO_ROOT/tests/install/test_deploy_home.sh" ]; then
     if "$REPO_ROOT/tests/install/test_deploy_home.sh" >/tmp/opencode/ci-deploy-home.txt 2>&1; then
-        pass "tests/install/test_deploy_home.sh (10/10 ok)"
+        pass "tests/install/test_deploy_home.sh (12/12 ok)"
     else fail "tests/install/test_deploy_home.sh (ver /tmp/opencode/ci-deploy-home.txt)"; fi
 else fail "tests/install/test_deploy_home.sh ausente o sin +x"; fi
 
